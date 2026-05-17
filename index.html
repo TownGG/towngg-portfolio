@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TownGG MOD Portfolio</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+:root{
+  --bg:#070b12;
+  --card:#101722;
+  --text:#dfe7f2;
+  --muted:#8fa1b5;
+  --blue:#7dd8ff;
+  --line:rgba(255,255,255,.08);
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  background:
+  radial-gradient(circle at top right,
+  rgba(61,174,255,.12),
+  transparent 35%),
+  var(--bg);
+
+  color:var(--text);
+
+  font-family:"Inter",sans-serif;
+
+  overflow-x:hidden;
+}
+
+body::before{
+  content:"";
+
+  position:fixed;
+  inset:0;
+
+  background-image:
+  linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+
+  background-size:40px 40px;
+
+  z-index:-2;
+
+  pointer-events:none;
+}
+
+.container{
+  width:min(1500px,92%);
+  margin:auto;
+}
+
+/* HERO */
+
+.hero{
+  position:relative;
+
+  min-height:100vh;
+
+  display:flex;
+  align-items:center;
+
+  overflow:hidden;
+}
+
+.hero-bg{
+  position:absolute;
+  inset:0;
+
+  z-index:-2;
+}
+
+.hero-bg img{
+  width:100%;
+  height:100%;
+
+  object-fit:cover;
+
+  filter:
+  brightness(.38)
+  saturate(.95);
+}
+
+.hero-overlay{
+  position:absolute;
+  inset:0;
+
+  background:
+  linear-gradient(
+  to bottom,
+  rgba(7,11,18,.25),
+  rgba(7,11,18,.92)
+  );
+
+  z-index:-1;
+}
+
+.hero-content{
+  max-width:900px;
+
+  padding-top:120px;
+  padding-bottom:120px;
+}
+
+.hero-tag{
+  display:inline-flex;
+
+  padding:10px 18px;
+
+  border-radius:999px;
+
+  border:1px solid rgba(125,216,255,.3);
+
+  background:rgba(255,255,255,.03);
+
+  color:var(--blue);
+
+  font-size:12px;
+
+  letter-spacing:2px;
+
+  margin-bottom:28px;
+
+  backdrop-filter:blur(10px);
+}
+
+.hero h1{
+  font-family:"Rajdhani",sans-serif;
+
+  font-size:clamp(72px,10vw,140px);
+
+  line-height:.9;
+
+  letter-spacing:-4px;
+
+  margin-bottom:28px;
+}
+
+.hero h1 span{
+  color:var(--blue);
+}
+
+.hero-sub{
+  font-size:22px;
+
+  line-height:1.9;
+
+  color:#b3c0cf;
+
+  max-width:780px;
+
+  margin-bottom:60px;
+}
+
+/* METRICS */
+
+.metrics{
+  display:grid;
+
+  grid-template-columns:repeat(4,1fr);
+
+  gap:24px;
+}
+
+.metric{
+  padding:40px;
+
+  background:rgba(255,255,255,.035);
+
+  border:1px solid rgba(255,255,255,.08);
+
+  border-radius:28px;
+
+  backdrop-filter:blur(12px);
+}
+
+.metric-number{
+  font-size:48px;
+
+  font-weight:800;
+
+  margin-bottom:12px;
+}
+
+.metric-label{
+  color:var(--muted);
+
+  font-size:14px;
+
+  text-transform:uppercase;
+
+  letter-spacing:1px;
+}
+
+/* SECTION */
+
+.section{
+  padding:140px 0;
+}
+
+.section-header{
+  margin-bottom:70px;
+}
+
+.section-title{
+  font-family:"Rajdhani",sans-serif;
+
+  font-size:58px;
+
+  line-height:1;
+
+  margin-bottom:18px;
+}
+
+.section-desc{
+  max-width:860px;
+
+  color:var(--muted);
+
+  line-height:1.9;
+
+  font-size:18px;
+}
+
+/* PROJECTS */
+
+.projects{
+  display:grid;
+
+  grid-template-columns:repeat(auto-fit,minmax(420px,1fr));
+
+  gap:32px;
+}
+
+.project-card{
+  position:relative;
+
+  background:rgba(255,255,255,.035);
+
+  border:1px solid rgba(255,255,255,.08);
+
+  border-radius:30px;
+
+  overflow:hidden;
+
+  backdrop-filter:blur(12px);
+
+  transition:.35s ease;
+}
+
+.project-card:hover{
+  transform:translateY(-8px);
+
+  border-color:rgba(125,216,255,.3);
+
+  box-shadow:0 24px 60px rgba(0,0,0,.35);
+}
+
+.project-image{
+  width:100%;
+
+  aspect-ratio:16/9;
+
+  overflow:hidden;
+}
+
+.project-image img{
+  width:100%;
+  height:100%;
+
+  object-fit:cover;
+
+  transition:1s;
+}
+
+.project-card:hover .project-image img{
+  transform:scale(1.05);
+}
+
+.project-content{
+  padding:34px;
+
+  display:flex;
+  flex-direction:column;
+
+  gap:18px;
+}
+
+.project-category{
+  width:fit-content;
+
+  padding:8px 14px;
+
+  border-radius:999px;
+
+  background:rgba(61,174,255,.12);
+
+  border:1px solid rgba(61,174,255,.18);
+
+  color:var(--blue);
+
+  font-size:12px;
+
+  letter-spacing:1px;
+}
+
+.project-title{
+  font-family:"Rajdhani",sans-serif;
+
+  font-size:42px;
+
+  line-height:1;
+}
+
+.project-desc{
+  color:#b2bfce;
+
+  line-height:1.9;
+
+  flex:1;
+}
+
+.project-stats{
+  display:flex;
+
+  justify-content:space-between;
+
+  padding-top:22px;
+
+  border-top:1px solid rgba(255,255,255,.06);
+
+  color:#c6d1dc;
+}
+
+.tech-list{
+  display:flex;
+  flex-wrap:wrap;
+
+  gap:10px;
+}
+
+.tech{
+  padding:8px 12px;
+
+  border-radius:999px;
+
+  border:1px solid rgba(255,255,255,.08);
+
+  background:rgba(255,255,255,.04);
+
+  font-size:12px;
+
+  color:#adc0d1;
+}
+
+/* ABOUT */
+
+.about-box{
+  padding:70px;
+
+  border-radius:36px;
+
+  background:
+  linear-gradient(
+  180deg,
+  rgba(255,255,255,.03),
+  rgba(255,255,255,.015)
+  );
+
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.about-title{
+  font-family:"Rajdhani",sans-serif;
+
+  font-size:54px;
+
+  margin-bottom:28px;
+}
+
+.about-text{
+  max-width:950px;
+
+  color:#b6c3d1;
+
+  line-height:2;
+
+  font-size:19px;
+}
+
+/* WORKFLOW */
+
+.workflow{
+  display:grid;
+
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+  gap:24px;
+
+  margin-top:60px;
+}
+
+.workflow-card{
+  padding:34px;
+
+  border-radius:24px;
+
+  background:rgba(255,255,255,.03);
+
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.workflow-number{
+  font-size:52px;
+
+  font-weight:800;
+
+  color:var(--blue);
+
+  margin-bottom:18px;
+}
+
+.workflow-title{
+  font-family:"Rajdhani",sans-serif;
+
+  font-size:28px;
+
+  margin-bottom:14px;
+}
+
+.workflow-desc{
+  color:#b1c0ce;
+
+  line-height:1.8;
+}
+
+/* TOOLS */
+
+.tools{
+  display:flex;
+  flex-wrap:wrap;
+
+  gap:16px;
+
+  margin-top:50px;
+}
+
+.tool{
+  padding:14px 22px;
+
+  border-radius:999px;
+
+  background:rgba(255,255,255,.04);
+
+  border:1px solid rgba(255,255,255,.08);
+
+  color:#c6d1dc;
+}
+
+/* SOCIAL */
+
+.socials{
+  display:flex;
+  flex-wrap:wrap;
+
+  gap:18px;
+
+  margin-top:50px;
+}
+
+.social-links{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:18px;
+
+    margin-top:50px;
+}
+
+.social-btn{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:18px 30px;
+
+    border-radius:18px;
+
+    background:rgba(255,255,255,.04);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    color:#dfe7f2;
+
+    text-decoration:none;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    backdrop-filter:blur(10px);
+
+    transition:
+    transform .3s ease,
+    border-color .3s ease,
+    background .3s ease,
+    box-shadow .3s ease;
+}
+
+.social-btn:hover{
+
+    transform:translateY(-4px);
+
+    border-color:rgba(138,191,255,.45);
+
+    background:rgba(255,255,255,.06);
+
+    box-shadow:0 10px 30px rgba(0,0,0,.3);
+}
+
+/* FOOTER */
+
+footer{
+  padding:80px 0;
+
+  border-top:1px solid rgba(255,255,255,.08);
+
+  margin-top:120px;
+
+  color:#7f8d9d;
+
+  text-align:center;
+}
+
+/* MOBILE */
+
+@media(max-width:900px){
+
+  .hero h1{
+    font-size:78px;
+  }
+
+  .metrics{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .section-title{
+    font-size:44px;
+  }
+
+  .project-title{
+    font-size:34px;
+  }
+
+}
+
+@media(max-width:768px){
+
+  .hero{
+    min-height:auto;
+  }
+
+  .hero-content{
+    padding-top:140px;
+    padding-bottom:100px;
+  }
+
+  .hero h1{
+    font-size:64px;
+  }
+
+  .hero-sub{
+    font-size:18px;
+  }
+
+  .metrics{
+    grid-template-columns:1fr;
+  }
+
+  .projects{
+    grid-template-columns:1fr;
+  }
+
+  .section{
+    padding:100px 0;
+  }
+
+  .about-box{
+    padding:40px 30px;
+  }
+
+  .about-title{
+    font-size:42px;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- HERO -->
+
+<section class="hero">
+
+  <div class="hero-bg">
+    <img src="./assets/images/robot-banner.jpg">
+  </div>
+
+  <div class="hero-overlay"></div>
+
+  <div class="container">
+
+    <div class="hero-content">
+
+      <div class="hero-tag">
+        STARFIELD MOD CREATOR PORTFOLIO
+      </div>
+
+      <h1>
+        TownGG<br>
+        <span>MOD Portfolio</span>
+      </h1>
+
+      <p class="hero-sub">
+        Starfield gameplay systems, immersive world interaction,
+        NASA-punk equipment design and Bethesda-style mod development.
+      </p>
+
+      <div class="metrics">
+
+        <div class="metric">
+          <div class="metric-number">10K+</div>
+          <div class="metric-label">
+            Total Downloads
+          </div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-number">100+</div>
+          <div class="metric-label">
+            Community Likes
+          </div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-number">25+</div>
+          <div class="metric-label">
+            Published Mods
+          </div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-number">PC·Xbox·PS5</div>
+          <div class="metric-label">
+            All Platform Support
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- TERMINUS FEATURED -->
+
+<section class="section">
+
+<div class="container">
+
+  <div class="about-box">
+
+    <div class="project-category">
+      FEATURED STARFIELD MOD
+    </div>
+
+    <div style="
+      display:flex;
+      flex-direction:column;
+      gap:40px;
+      margin-top:40px;
+    " class="terminus-grid">
+
+      <!-- IMAGE -->
+
+      <div>
+
+        <img
+        src="./assets/images/terminus.jpg"
+        style="
+        width:100%;
+        max-height:720px;
+        object-fit:cover;
+        border-radius:28px;
+        border:1px solid rgba(255,255,255,.08);
+        box-shadow:0 30px 80px rgba(0,0,0,.35);
+        ">
+
+      </div>
+
+      <!-- CONTENT -->
+
+      <div>
+
+        <div style="
+        font-family:'Rajdhani',sans-serif;
+        font-size:92px;
+        line-height:.9;
+        margin-bottom:24px;
+        ">
+          THE TERMINUS
+        </div>
+
+        <div style="
+        color:#9fdcff;
+        font-size:24px;
+        margin-bottom:24px;
+        ">
+          Starborn Sword · Custom Dungeon · Boss Fight
+        </div>
+
+        <div style="
+        color:#b7c5d4;
+        line-height:2;
+        font-size:18px;
+        max-width:1000px;
+        margin-bottom:30px;
+        ">
+
+          A handcrafted Starfield experience centered around an ancient
+          Starborn relic hidden beneath forgotten ruins.
+
+          <br><br>
+
+          Explore a mysterious underground location, uncover environmental
+          storytelling and face a powerful Starborn boss guarding
+          TERMINUS — a legendary blade tied to the Unity itself.
+
+        </div>
+
+        <div class="tech-list">
+
+          <div class="tech">Quest Experience</div>
+          <div class="tech">Boss Fight</div>
+          <div class="tech">Dungeon</div>
+          <div class="tech">Starborn Lore</div>
+          <div class="tech">Custom Weapon</div>
+
+        </div>
+
+        <div class="project-stats" style="
+        margin-top:40px;
+        width:100%;
+        ">
+
+          <div>4,002 Downloads</div>
+          <div>82 Likes</div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</section>
+
+<!-- GAMEPLAY -->
+
+<section class="section">
+
+<div class="container">
+
+  <div class="section-header">
+
+    <div class="section-title">
+      Gameplay Systems
+    </div>
+
+    <div class="section-desc">
+      Immersive gameplay mechanics, world interaction systems
+      and Bethesda-style environmental simulation.
+    </div>
+
+  </div>
+
+  <div class="projects">
+
+    <!-- CARD -->
+
+    <div class="project-card">
+
+      <div class="project-image">
+        <img src="./assets/images/robot.jpg">
+      </div>
+
+      <div class="project-content">
+
+        <div class="project-category">
+          GAMEPLAY EXPANSION
+        </div>
+
+        <div class="project-title">
+          Crimson Fleet Combat Drone Grenade
+        </div>
+
+        <div class="project-desc">
+          Deploy autonomous Crimson Fleet combat drones through specialized grenades,
+          creating immersive faction-based combat support systems.
+        </div>
+
+        <div class="tech-list">
+          <div class="tech">AI Systems</div>
+          <div class="tech">Combat</div>
+          <div class="tech">Gameplay</div>
+          <div class="tech">Lore Friendly</div>
+        </div>
+
+        <div class="project-stats">
+          <div>3,449 Downloads</div>
+          <div>21 Likes</div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- CARD -->
+
+    <div class="project-card">
+
+      <div class="project-image">
+        <img src="./assets/images/toilet.jpg">
+      </div>
+
+      <div class="project-content">
+
+        <div class="project-category">
+          WORLD IMMERSION
+        </div>
+
+        <div class="project-title">
+          You Can Sit On Toilets
+        </div>
+
+        <div class="project-desc">
+          Adds fully interactive sitting functionality to toilets across the Starfield universe.
+        </div>
+
+        <div class="tech-list">
+          <div class="tech">Immersion</div>
+          <div class="tech">World Interaction</div>
+          <div class="tech">Gameplay</div>
+        </div>
+
+        <div class="project-stats">
+          <div>2,331 Downloads</div>
+          <div>31 Likes</div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- CARD -->
+
+    <div class="project-card">
+
+      <div class="project-image">
+        <img src="./assets/images/poop.jpg">
+      </div>
+
+      <div class="project-content">
+
+        <div class="project-category">
+          IMMERSIVE SYSTEM
+        </div>
+
+        <div class="project-title">
+          YOU NEED POOP
+        </div>
+
+        <div class="project-desc">
+          A complete biological immersion system expanding realism and environmental simulation.
+        </div>
+
+        <div class="tech-list">
+          <div class="tech">Immersion</div>
+          <div class="tech">Simulation</div>
+          <div class="tech">Gameplay</div>
+        </div>
+
+        <div class="project-stats">
+          <div>1,125 Downloads</div>
+          <div>9 Likes</div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</section>
+
+<!-- WEAPONS -->
+
+<section class="section">
+
+<div class="container">
+
+  <div class="section-header">
+
+    <div class="section-title">
+      Weapons & Equipment
+    </div>
+
+    <div class="section-desc">
+      Industrial sci-fi weapons, immersive combat visuals
+      and NASA-punk equipment design.
+    </div>
+
+  </div>
+
+  <div class="projects">
+
+    <!-- CARD -->
+
+    <div class="project-card">
+
+      <div class="project-image">
+        <img src="./assets/images/helmet.jpg">
+      </div>
+
+      <div class="project-content">
+
+        <div class="project-category">
+          IMMERSIVE VISUALS
+        </div>
+
+        <div class="project-title">
+          Realistic Helmet Vision
+        </div>
+
+        <div class="project-desc">
+          Enhanced first-person helmet visuals with realistic reflections and sci-fi overlays.
+        </div>
+
+        <div class="tech-list">
+          <div class="tech">HUD</div>
+          <div class="tech">Visual FX</div>
+          <div class="tech">UI</div>
+        </div>
+
+        <div class="project-stats">
+          <div>74 Downloads</div>
+          <div>2 Likes</div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- CARD -->
+
+    <div class="project-card">
+
+      <div class="project-image">
+        <img src="./assets/images/weapon.jpg">
+      </div>
+
+      <div class="project-content">
+
+        <div class="project-category">
+          WEAPON DESIGN
+        </div>
+
+        <div class="project-title">
+          Nova Cleaver
+        </div>
+
+        <div class="project-desc">
+          Industrial-style melee weapon inspired by Starfield’s NASA-punk visual identity.
+        </div>
+
+        <div class="tech-list">
+          <div class="tech">Weapon</div>
+          <div class="tech">3D Modeling</div>
+          <div class="tech">PBR</div>
+        </div>
+
+        <div class="project-stats">
+          <div>145 Downloads</div>
+          <div>6 Likes</div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</section>
+
+<!-- OUTFITS -->
+
+<section class="section">
+
+<div class="container">
+
+  <div class="section-header">
+
+    <div class="section-title">
+      Characters & Outfits
+    </div>
+
+    <div class="section-desc">
+      Character customization, outfit design
+      and sci-fi material workflows.
+    </div>
+
+  </div>
+
+  <div class="projects">
+
+    <!-- CARD -->
+
+    <div class="project-card">
+
+      <div class="project-image">
+        <img src="./assets/images/pirate.jpg">
+      </div>
+
+      <div class="project-content">
+
+        <div class="project-category">
+          OUTFIT DESIGN
+        </div>
+
+        <div class="project-title">
+          Pirate Outfit
+        </div>
+
+        <div class="project-desc">
+          A lore-friendly pirate outfit designed with industrial sci-fi materials and NASA-punk details.
+        </div>
+
+        <div class="tech-list">
+          <div class="tech">3D Modeling</div>
+          <div class="tech">PBR Materials</div>
+          <div class="tech">Outfits</div>
+        </div>
+
+        <div class="project-stats">
+          <div>1,564 Downloads</div>
+          <div>12 Likes</div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- CARD -->
+
+    <div class="project-card">
+
+      <div class="project-image">
+        <img src="./assets/images/lingerie.jpg">
+      </div>
+
+      <div class="project-content">
+
+        <div class="project-category">
+          CHARACTER CUSTOMIZATION
+        </div>
+
+        <div class="project-title">
+          Black Lingerie
+        </div>
+
+        <div class="project-desc">
+          Stylish sci-fi inspired black outfit focused on realism and character customization.
+        </div>
+
+        <div class="tech-list">
+          <div class="tech">Character</div>
+          <div class="tech">Textures</div>
+          <div class="tech">Customization</div>
+        </div>
+
+        <div class="project-stats">
+          <div>710 Downloads</div>
+          <div>9 Likes</div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</section>
+
+<!-- ABOUT -->
+
+<section class="section">
+
+<div class="container">
+
+  <div class="about-box">
+
+    <div class="about-title">
+      About TownGG
+    </div>
+
+    <div class="about-text">
+      UI designer and Starfield mod creator focused on immersive NASA-punk gameplay systems,
+      industrial sci-fi aesthetics and Bethesda-style world interaction.
+      <br><br>
+      Experienced in gameplay integration, visual design, PBR material workflows,
+      environmental immersion and interactive UI production.
+      <br><br>
+      Passionate about creating believable sci-fi experiences that feel naturally integrated
+      into the Starfield universe.
+    </div>
+
+  </div>
+
+</div>
+
+</section>
+
+<!-- WORKFLOW -->
+
+<section class="section">
+
+<div class="container">
+
+  <div class="section-header">
+
+    <div class="section-title">
+      Production Workflow
+    </div>
+
+    <div class="section-desc">
+      From gameplay concepts to in-game implementation,
+      combining gameplay system design, UI iteration and Bethesda Creation Kit integration.
+    </div>
+
+  </div>
+
+  <div class="workflow">
+
+    <div class="workflow-card">
+
+      <div class="workflow-number">
+        01
+      </div>
+
+      <div class="workflow-title">
+        Concept Design
+      </div>
+
+      <div class="workflow-desc">
+        Gameplay ideas, immersion direction and visual planning.
+      </div>
+
+    </div>
+
+    <div class="workflow-card">
+
+      <div class="workflow-number">
+        02
+      </div>
+
+      <div class="workflow-title">
+        Asset Creation
+      </div>
+
+      <div class="workflow-desc">
+        Modeling, texturing and NASA-punk material development.
+      </div>
+
+    </div>
+
+    <div class="workflow-card">
+
+      <div class="workflow-number">
+        03
+      </div>
+
+      <div class="workflow-title">
+        Integration
+      </div>
+
+      <div class="workflow-desc">
+        Gameplay systems, UI implementation and Creation Kit setup.
+      </div>
+
+    </div>
+
+    <div class="workflow-card">
+
+      <div class="workflow-number">
+        04
+      </div>
+
+      <div class="workflow-title">
+        Testing
+      </div>
+
+      <div class="workflow-desc">
+        Optimization, balancing and Xbox compatibility testing.
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- TOOLS -->
+
+  <div class="tools">
+
+    <div class="tool">Creation Kit</div>
+    <div class="tool">Blender</div>
+    <div class="tool">Photoshop</div>
+    <div class="tool">Substance Painter</div>
+    <div class="tool">xEdit</div>
+    <div class="tool">NifSkope</div>
+    <div class="tool">PBR Workflow</div>
+    <div class="tool">UI/UX Design</div>
+
+  </div>
+
+</div>
+
+</section>
+
+<!-- SOCIAL -->
+
+<section class="section">
+
+<div class="container">
+
+  <div class="section-header">
+
+    <div class="section-title">
+      Contact & Social
+    </div>
+
+    <div class="section-desc">
+      Follow my projects, Starfield creations and future updates.
+    </div>
+
+  </div>
+
+  <div class="social-links">
+
+  <a href="https://www.nexusmods.com/profile/TownGG/mods"
+     target="_blank"
+     class="social-btn">
+     Nexus Mods
+  </a>
+
+  <a href="https://www.reddit.com/user/TownGG_Mod/"
+     target="_blank"
+     class="social-btn">
+     Reddit
+  </a>
+
+  <a href="https://space.bilibili.com/12967314?spm_id_from=333.1007.0.0"
+     target="_blank"
+     class="social-btn">
+     Bilibili
+  </a>
+
+  <a href="https://x.com/TownGG_MOD"
+     target="_blank"
+     class="social-btn">
+     X / Twitter
+  </a>
+
+</div>
+
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+
+  TownGG MOD Portfolio<br><br>
+
+  Bethesda-style immersive systems · NASA-punk industrial design ·
+  Starfield gameplay expansion
+
+</footer>
+
+</body>
+</html>
