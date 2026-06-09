@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse TownGG Starfield mods, gameplay systems, weapons, outfits and featured releases.">
+  <title>Mods | TownGG MOD Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="./index.html">TownGG <span>MOD</span></a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="./index.html">Home</a>
+        <a class="is-active" href="./mods.html">Mods</a>
+        <a href="./gallery.html">Gallery</a>
+        <a href="./message-board.html">Message Board</a>
+        <a href="./about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero compact">
+      <div class="hero-bg">
+        <img src="./assets/images/banners-compressed/mods.png" alt="TownGG mods page banner">
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-tag">MOD Archive</div>
+          <h1>Starfield<br><span>Mods</span></h1>
+          <p class="page-sub">Full catalog of gameplay systems, world interaction mods, weapons, equipment and character customization work.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="filters" data-filter-group="mods" data-filter-target="[data-all-mods]">
+          <button class="button filter is-active" type="button" data-filter="All">All</button>
+          <button class="button filter" type="button" data-filter="Quest">Quest</button>
+          <button class="button filter" type="button" data-filter="Gameplay">Gameplay</button>
+          <button class="button filter" type="button" data-filter="Clothing">Clothing</button>
+        </div>
+        <div class="projects" data-all-mods></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    TownGG MOD Portfolio<br>
+    Find more releases through Nexus Mods and Starfield Creations.
+  </footer>
+
+  <script src="./assets/js/site-data.js"></script>
+  <script src="./assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Original sci-fi concept art, character design, weapon concepts and UI studies by TownGG.">
+  <title>Gallery | TownGG MOD Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="./index.html">TownGG <span>MOD</span></a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="./index.html">Home</a>
+        <a href="./mods.html">Mods</a>
+        <a class="is-active" href="./gallery.html">Gallery</a>
+        <a href="./message-board.html">Message Board</a>
+        <a href="./about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero compact">
+      <div class="hero-bg">
+        <img src="./assets/images/banners-compressed/gallery.jpg" alt="TownGG original concept art gallery banner">
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-tag">Original Art Gallery</div>
+          <h1>Concept<br><span>Design</span></h1>
+          <p class="page-sub">A dedicated place for original paintings, character studies, weapon concepts, UI moods and environment direction.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="gallery-grid" data-all-gallery></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" data-gallery-modal aria-hidden="true">
+    <button class="modal-close" type="button" data-modal-close aria-label="Close gallery preview">x</button>
+    <div class="modal-content">
+      <img data-modal-image src="" alt="">
+    </div>
+  </div>
+
+  <footer>
+    TownGG MOD Portfolio<br>
+    Original sci-fi concepts and production studies.
+  </footer>
+
+  <script src="./assets/js/site-data.js"></script>
+  <script src="./assets/js/main.js"></script>
+</body>
+</html>
