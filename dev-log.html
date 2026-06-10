@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TownGG development logs for Starfield mods, Cassilia Universe progress, release notes and behind-the-scenes updates.">
+  <title>Dev Log | TownGG MOD Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body data-page="dev-log">
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="./index.html">TownGG <span>MOD</span></a>
+      <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="./index.html">Home</a>
+        <a href="./mods.html">Mods</a>
+        <a href="./gallery.html">Gallery</a>
+        <a class="is-active" href="./dev-log.html">Dev Log</a>
+        <a href="./message-board.html">Message Board</a>
+        <a href="./about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero compact dev-hero">
+      <div class="hero-bg"><img src="./assets/images/banners-compressed/home.jpg" alt="TownGG dev log banner"></div>
+      <div class="hero-overlay"></div>
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-tag">Creator Development Console</div>
+          <h1>Dev<br><span>Log</span></h1>
+          <p class="page-sub">Development notes, release progress and behind-the-scenes updates for TownGG Starfield mods, Cassilia Universe projects and portfolio systems.</p>
+          <div class="metrics dev-metrics">
+            <div class="metric"><div class="metric-number" data-dev-metric="active">-</div><div class="metric-label">Active Projects</div></div>
+            <div class="metric"><div class="metric-number" data-dev-metric="entries">-</div><div class="metric-label">Log Entries</div></div>
+            <div class="metric"><div class="metric-number" data-dev-metric="latest">-</div><div class="metric-label">Latest Update</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container dev-layout">
+        <aside class="dev-sidebar panel">
+          <div class="eyebrow">Filters</div>
+          <h2 class="dev-sidebar-title">Project Control</h2>
+          <div class="dev-filter-block">
+            <span>Project</span>
+            <div class="dev-filter-list" data-dev-project-filters></div>
+          </div>
+          <div class="dev-filter-block">
+            <span>Type</span>
+            <div class="dev-filter-list" data-dev-type-filters></div>
+          </div>
+          <div class="dev-filter-block">
+            <span>Status</span>
+            <div class="dev-filter-list" data-dev-status-filters></div>
+          </div>
+        </aside>
+
+        <div class="dev-main">
+          <div class="section-header dev-section-head">
+            <div>
+              <div class="eyebrow">Latest Notes</div>
+              <h2 class="section-title">Development Feed</h2>
+              <p class="section-desc">Click a card to expand goals, changes, current problems and next steps.</p>
+            </div>
+          </div>
+          <div class="dev-log-list" data-dev-log-list></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tight">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">Timeline</div>
+            <h2 class="section-title">Creator Progress</h2>
+            <p class="section-desc">A compact timeline showing how TownGG projects evolve over time.</p>
+          </div>
+        </div>
+        <div class="dev-timeline" data-dev-timeline></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    TownGG MOD Portfolio<br>
+    Development notes / Starfield systems / Cassilia Universe production log
+  </footer>
+
+  <script src="./assets/js/site-data.js"></script>
+  <script src="./assets/js/dev-log-data.js"></script>
+  <script src="./assets/js/main.js"></script>
+</body>
+</html>
