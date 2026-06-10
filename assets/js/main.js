@@ -1,4 +1,6 @@
 ﻿const data = window.siteData || {};
+const creatorNotes = window.creatorNotes || [];
+const creatorNotesMeta = window.creatorNotesMeta || {};
 
 function tagList(tags = []) {
   return tags
@@ -67,6 +69,166 @@ function artworkCard(art, index) {
   `;
 }
 
+function sortedCreatorNotes() {
+  return [...creatorNotes].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+}
+
+function noteCard(note, compact = false) {
+  return `
+    <article class="note-card" data-category="${note.category}">
+      <div class="note-category">${note.category}</div>
+      <h3>${note.title}</h3>
+      <time datetime="${note.date}">${note.date}</time>
+      ${compact ? "" : `<p>${note.excerpt}</p>`}
+      <a class="note-link" href="./note.html?id=${encodeURIComponent(note.id)}">Read More</a>
+    </article>
+  `;
+}
+
+function renderFeaturedVideo() {
+  const video = creatorNotesMeta.featuredVideo;
+  if (!video) return;
+
+  document.querySelectorAll("[data-featured-video]").forEach((target) => {
+    target.innerHTML = `
+      <div class="video-copy">
+        <div class="eyebrow">Featured Video</div>
+        <h2 class="section-title">${video.title}</h2>
+        <p class="video-label">${video.label}</p>
+        <p class="section-desc">${video.description}</p>
+        <div class="section-actions">
+          <a class="button primary" href="${video.url}" target="_blank" rel="noopener">${video.buttonLabel}</a>
+        </div>
+      </div>
+      <div class="video-frame">
+        <iframe src="${video.url}" title="${video.title} ${video.label}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
+    `;
+  });
+}
+
+function renderLatestNotes() {
+  const target = document.querySelector("[data-latest-notes]");
+  if (!target) return;
+  target.innerHTML = sortedCreatorNotes().slice(0, 3).map((note) => noteCard(note, true)).join("");
+}
+
+function renderNotesPage() {
+  const list = document.querySelector("[data-notes-list]");
+  if (!list) return;
+
+  const notes = sortedCreatorNotes();
+  list.innerHTML = notes.map((note) => noteCard(note)).join("");
+
+  const active = document.querySelector("[data-notes-metric='active']");
+  const latest = document.querySelector("[data-notes-metric='latest']");
+  const total = document.querySelector("[data-notes-metric='total']");
+  if (active) active.textContent = creatorNotesMeta.activeProjects || "-";
+  if (latest) latest.textContent = notes[0]?.date?.slice(5) || "-";
+  if (total) total.textContent = String(notes.length);
+}
+
+function renderNotesTimeline() {
+  const target = document.querySelector("[data-notes-timeline]");
+  const timeline = creatorNotesMeta.timeline || [];
+  if (!target) return;
+
+  target.innerHTML = timeline.map((item) => `
+    <article class="timeline-item">
+      <time>${item.date}</time>
+      <div>
+        <h3>${item.title}</h3>
+        <p>${item.text}</p>
+      </div>
+    </article>
+  `).join("");
+}
+
+function renderArticleContent(content = "") {
+  const lines = content.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  const output = [];
+  let list = [];
+
+  function flushList() {
+    if (!list.length) return;
+    output.push(`<ul>${list.map((item) => `<li>${item}</li>`).join("")}</ul>`);
+    list = [];
+  }
+
+  lines.forEach((line) => {
+    if (line.startsWith("* ")) {
+      list.push(line.slice(2));
+      return;
+    }
+    flushList();
+    output.push(`<p>${line}</p>`);
+  });
+  flushList();
+  return output.join("");
+}
+
+function setupNoteComments(note) {
+  const target = document.querySelector("[data-note-comments]");
+  if (!target || !note) return;
+
+  const script = document.createElement("script");
+  script.src = "https://giscus.app/client.js";
+  script.dataset.repo = "TownGG/towngg-portfolio";
+  script.dataset.repoId = "R_kgDOSgBRWw";
+  script.dataset.category = "General";
+  script.dataset.categoryId = "DIC_kwDOSgBRW84C-1ju";
+  script.dataset.mapping = "specific";
+  script.dataset.term = `creator-note-${note.id}`;
+  script.dataset.strict = "0";
+  script.dataset.reactionsEnabled = "1";
+  script.dataset.emitMetadata = "1";
+  script.dataset.inputPosition = "bottom";
+  script.dataset.theme = "dark";
+  script.dataset.lang = "zh-CN";
+  script.dataset.loading = "lazy";
+  script.crossOrigin = "anonymous";
+  script.async = true;
+  target.innerHTML = "";
+  target.appendChild(script);
+}
+
+function renderNoteDetail() {
+  const target = document.querySelector("[data-note-detail]");
+  if (!target) return;
+
+  const notes = sortedCreatorNotes();
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id") || notes[0]?.id;
+  const index = notes.findIndex((note) => note.id === id);
+  const note = notes[index] || notes[0];
+
+  if (!note) {
+    target.innerHTML = "<h1>Note not found</h1><p>This Creator Note does not exist yet.</p>";
+    return;
+  }
+
+  document.title = `${note.title} | TownGG Creator Notes`;
+  target.innerHTML = `
+    <a class="note-back" href="./dev-log.html">Back to Creator Notes</a>
+    <div class="note-category">${note.category}</div>
+    <h1>${note.title}</h1>
+    <time datetime="${note.date}">${note.date}</time>
+    ${note.cover ? `<img class="note-cover" src="${note.cover}" alt="${note.title}" loading="lazy">` : ""}
+    <div class="article-content">${renderArticleContent(note.content)}</div>
+  `;
+
+  const neighbors = document.querySelector("[data-note-neighbors]");
+  if (neighbors) {
+    const previous = notes[index + 1];
+    const next = notes[index - 1];
+    neighbors.innerHTML = `
+      ${previous ? `<a class="neighbor-card" href="./note.html?id=${encodeURIComponent(previous.id)}"><span>Previous Article</span><strong>${previous.title}</strong></a>` : "<span></span>"}
+      ${next ? `<a class="neighbor-card" href="./note.html?id=${encodeURIComponent(next.id)}"><span>Next Article</span><strong>${next.title}</strong></a>` : "<span></span>"}
+    `;
+  }
+
+  setupNoteComments(note);
+}
 function renderMods(selector, options = {}) {
   const target = document.querySelector(selector);
   if (!target) return;
@@ -198,7 +360,7 @@ function setupFilters() {
       button.classList.add("is-active");
 
       const value = button.dataset.filter;
-      const attr = itemType === "gallery" ? "category" : "group";
+      const attr = itemType === "gallery" || itemType === "notes" ? "category" : "group";
       target.querySelectorAll(`[data-${attr}]`).forEach((card) => {
         const isVisible = value === "All" || card.dataset[attr] === value;
         card.style.display = isVisible ? "" : "none";
@@ -736,6 +898,11 @@ function setupCreationsDashboard() {
 }
 
 renderFeaturedMod();
+renderFeaturedVideo();
+renderLatestNotes();
+renderNotesPage();
+renderNotesTimeline();
+renderNoteDetail();
 renderMods("[data-home-mods]", { excludeFeatured: true, limit: 3 });
 renderMods("[data-all-mods]");
 renderCreations();
@@ -757,4 +924,6 @@ setupCreationsDashboard();
 setupHomeMetrics();
 setupAutoScroll("[data-home-gallery]", { axis: "x", step: 1, interval: 18 });
 setupAutoScroll("body[data-page='home'] [data-message-list]", { axis: "y", step: 1, interval: 38 });
+
+
 

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="TownGG development logs for Starfield mods, Cassilia Universe progress, release notes and behind-the-scenes updates.">
-  <title>Dev Log | TownGG MOD Portfolio</title>
+  <meta name="description" content="Creator Notes by TownGG: development stories, release updates, lore ideas and personal Starfield modding moments.">
+  <title>Creator Notes | TownGG MOD Portfolio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
@@ -15,13 +15,15 @@
     <div class="container nav">
       <a class="brand" href="./index.html">TownGG <span>MOD</span></a>
       <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
-        <span></span><span></span><span></span>
+        <span></span>
+        <span></span>
+        <span></span>
       </button>
       <nav class="nav-links" aria-label="Primary navigation">
         <a href="./index.html">Home</a>
         <a href="./mods.html">Mods</a>
         <a href="./gallery.html">Gallery</a>
-        <a class="is-active" href="./dev-log.html">Dev Log</a>
+        <a class="is-active" href="./dev-log.html">Creator Notes</a>
         <a href="./message-board.html">Message Board</a>
         <a href="./about.html">About</a>
       </nav>
@@ -29,52 +31,58 @@
   </header>
 
   <main>
-    <section class="hero compact dev-hero">
-      <div class="hero-bg"><img src="./assets/images/banners-compressed/home.jpg" alt="TownGG dev log banner"></div>
+    <section class="hero compact">
+      <div class="hero-bg">
+        <img src="./assets/images/banners-compressed/home.jpg" alt="Creator Notes banner">
+      </div>
       <div class="hero-overlay"></div>
       <div class="container">
         <div class="hero-content">
-          <div class="hero-tag">Creator Development Console</div>
-          <h1>Dev<br><span>Log</span></h1>
-          <p class="page-sub">Development notes, release progress and behind-the-scenes updates for TownGG Starfield mods, Cassilia Universe projects and portfolio systems.</p>
-          <div class="metrics dev-metrics">
-            <div class="metric"><div class="metric-number" data-dev-metric="active">-</div><div class="metric-label">Active Projects</div></div>
-            <div class="metric"><div class="metric-number" data-dev-metric="entries">-</div><div class="metric-label">Log Entries</div></div>
-            <div class="metric"><div class="metric-number" data-dev-metric="latest">-</div><div class="metric-label">Latest Update</div></div>
+          <div class="hero-tag">Creator Notes</div>
+          <h1>Creator<br><span>Notes</span></h1>
+          <p class="page-sub">Thoughts, development stories and random moments from TownGG.</p>
+          <div class="metrics notes-metrics">
+            <div class="metric">
+              <div class="metric-number" data-notes-metric="active">-</div>
+              <div class="metric-label">Active Projects</div>
+            </div>
+            <div class="metric">
+              <div class="metric-number" data-notes-metric="latest">-</div>
+              <div class="metric-label">Latest Entry</div>
+            </div>
+            <div class="metric">
+              <div class="metric-number" data-notes-metric="total">-</div>
+              <div class="metric-label">Total Notes</div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section">
-      <div class="container dev-layout">
-        <aside class="dev-sidebar panel">
-          <div class="eyebrow">Filters</div>
-          <h2 class="dev-sidebar-title">Project Control</h2>
-          <div class="dev-filter-block">
-            <span>Project</span>
-            <div class="dev-filter-list" data-dev-project-filters></div>
-          </div>
-          <div class="dev-filter-block">
-            <span>Type</span>
-            <div class="dev-filter-list" data-dev-type-filters></div>
-          </div>
-          <div class="dev-filter-block">
-            <span>Status</span>
-            <div class="dev-filter-list" data-dev-status-filters></div>
-          </div>
-        </aside>
+    <section class="section tight">
+      <div class="container">
+        <div class="featured-video panel" data-featured-video></div>
+      </div>
+    </section>
 
-        <div class="dev-main">
-          <div class="section-header dev-section-head">
-            <div>
-              <div class="eyebrow">Latest Notes</div>
-              <h2 class="section-title">Development Feed</h2>
-              <p class="section-desc">Click a card to expand goals, changes, current problems and next steps.</p>
-            </div>
+    <section class="section tight">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">Journal</div>
+            <h2 class="section-title">All Notes</h2>
+            <p class="section-desc">A personal creator journal for development stories, releases, lore and website progress.</p>
           </div>
-          <div class="dev-log-list" data-dev-log-list></div>
         </div>
+        <div class="filters note-filters" data-filter-group="notes" data-filter-target="[data-notes-list]">
+          <button class="button filter is-active" type="button" data-filter="All">All</button>
+          <button class="button filter" type="button" data-filter="Dev">Dev</button>
+          <button class="button filter" type="button" data-filter="Release">Release</button>
+          <button class="button filter" type="button" data-filter="Lore">Lore</button>
+          <button class="button filter" type="button" data-filter="Life">Life</button>
+          <button class="button filter" type="button" data-filter="Website">Website</button>
+        </div>
+        <div class="notes-grid" data-notes-list></div>
       </div>
     </section>
 
@@ -83,22 +91,21 @@
         <div class="section-header">
           <div>
             <div class="eyebrow">Timeline</div>
-            <h2 class="section-title">Creator Progress</h2>
-            <p class="section-desc">A compact timeline showing how TownGG projects evolve over time.</p>
+            <h2 class="section-title">Recent Milestones</h2>
           </div>
         </div>
-        <div class="dev-timeline" data-dev-timeline></div>
+        <div class="timeline" data-notes-timeline></div>
       </div>
     </section>
   </main>
 
   <footer>
     TownGG MOD Portfolio<br>
-    Development notes / Starfield systems / Cassilia Universe production log
+    Creator notes, modding stories and Cassilia Universe fragments
   </footer>
 
   <script src="./assets/js/site-data.js"></script>
-  <script src="./assets/js/dev-log-data.js"></script>
+  <script src="./assets/js/creator-notes-data.js"></script>
   <script src="./assets/js/main.js"></script>
 </body>
 </html>
