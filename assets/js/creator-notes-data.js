@@ -5,7 +5,7 @@ window.creatorNotesMeta = {
     label: "Official Trailer",
     description: "A custom Starfield adventure featuring a legendary sword, a new boss encounter and the story of Cassilia.",
     buttonLabel: "Watch Trailer",
-    url: "https://www.youtube.com/embed?listType=search&list=THE%20TERMINUS%20TownGG%20Starfield"
+    url: "https://www.youtube.com/embed/sTVtvataSkU"
   },
   timeline: [
     {
