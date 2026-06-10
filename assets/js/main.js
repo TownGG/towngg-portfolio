@@ -36,10 +36,13 @@ function modCard(mod) {
 
 function creationCard(mod) {
   const primaryLink = mod.links?.[0]?.url || "#";
+  const image = mod.image
+    ? `<img src="${mod.image}" alt="${mod.alt}" loading="lazy">`
+    : `<div class="project-image-placeholder"><span>Bethesda</span><strong>Creations</strong></div>`;
   return `
     <a class="project-card project-card-link" data-group="${mod.group}" href="${primaryLink}" target="_blank" rel="noopener">
       <div class="project-image">
-        <img src="${mod.image}" alt="${mod.alt}" loading="lazy">
+        ${image}
       </div>
       <div class="project-content">
         <h3 class="card-title">${mod.title}</h3>
@@ -48,7 +51,7 @@ function creationCard(mod) {
       </div>
       <div class="stats">
         <span title="Likes"><span class="stat-icon">&#9733;</span>${mod.likes}</span>
-        <span title="Plays"><span class="stat-icon">&#9658;</span>${mod.plays}</span>
+        <span title="Downloads"><span class="stat-icon">&#8595;</span>${mod.downloads}</span>
       </div>
     </a>
   `;
@@ -81,7 +84,10 @@ function renderCreations() {
   const target = document.querySelector("[data-creations-mods]");
   if (!target) return;
 
-  target.innerHTML = (data.creations || []).map(creationCard).join("");
+  target.innerHTML = (data.creations || [])
+    .filter((item) => item.image && dashboardNumber(item.downloads) > 0)
+    .map(creationCard)
+    .join("");
 }
 function renderFeaturedMod() {
   const target = document.querySelector("[data-featured-mod]");
@@ -424,6 +430,10 @@ function dashboardNumber(value) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function metricDisplay(value) {
+  return value === undefined || value === null || String(value).trim() === "" ? "-" : value;
+}
+
 function latestDashboardRows(rows) {
   const latest = new Map();
   rows.forEach((row) => {
@@ -432,6 +442,76 @@ function latestDashboardRows(rows) {
     if (!current || row.date > current.date) latest.set(key, row);
   });
   return [...latest.values()].sort((a, b) => dashboardNumber(b.total_downloads) - dashboardNumber(a.total_downloads));
+}
+
+function formatCompactNumber(value) {
+  const number = dashboardNumber(value);
+  if (number >= 1000000) {
+    const compact = number >= 10000000 ? Math.floor(number / 1000000) : Math.floor(number / 100000) / 10;
+    return `${compact}M+`;
+  }
+  if (number >= 1000) {
+    const compact = number >= 10000 ? Math.floor(number / 1000) : Math.floor(number / 100) / 10;
+    return `${compact}K+`;
+  }
+  return numberFormatter.format(number);
+}
+
+function setHomeMetric(name, value) {
+  const target = document.querySelector(`[data-home-metric="${name}"]`);
+  if (target) target.textContent = formatCompactNumber(value);
+}
+
+function renderHomeCreationMetric() {
+  const totalPlays = (data.creations || []).reduce((sum, item) => sum + dashboardNumber(item.plays), 0);
+  setHomeMetric("plays", totalPlays);
+}
+
+function renderHomeNexusMetrics(rows) {
+  const latest = latestDashboardRows(rows);
+  const creationTotals = (data.creations || []).reduce(
+    (sum, item) => {
+      if (dashboardNumber(item.downloads) > 0) sum.mods += 1;
+      sum.downloads += dashboardNumber(item.downloads);
+      sum.likes += dashboardNumber(item.likes);
+      return sum;
+    },
+    { mods: 0, downloads: 0, likes: 0 }
+  );
+  const totals = latest.reduce(
+    (sum, row) => {
+      sum.mods += 1;
+      sum.downloads += dashboardNumber(row.total_downloads);
+      sum.likes += dashboardNumber(row.likes);
+      return sum;
+    },
+    { mods: 0, downloads: 0, likes: 0 }
+  );
+
+  setHomeMetric("downloads", totals.downloads + creationTotals.downloads);
+  setHomeMetric("likes", totals.likes + creationTotals.likes);
+  setHomeMetric("mods", totals.mods + creationTotals.mods);
+}
+
+function setupHomeMetrics() {
+  if (!document.querySelector("[data-home-metric]")) return;
+
+  renderHomeCreationMetric();
+  fetch("./assets/data/nexus-history.csv", { cache: "no-store" })
+    .then((response) => response.text())
+    .then((text) => renderHomeNexusMetrics(parseDashboardCSV(text)))
+    .catch(() => {
+      const mods = data.mods || [];
+      const creations = data.creations || [];
+      const downloads = mods.reduce((sum, mod) => sum + dashboardNumber(mod.downloads), 0);
+      const likes = mods.reduce((sum, mod) => sum + dashboardNumber(mod.endorsements), 0);
+      const creationDownloads = creations.reduce((sum, item) => sum + dashboardNumber(item.downloads), 0);
+      const creationLikes = creations.reduce((sum, item) => sum + dashboardNumber(item.likes), 0);
+      const creationCount = creations.filter((item) => dashboardNumber(item.downloads) > 0).length;
+      setHomeMetric("downloads", downloads + creationDownloads);
+      setHomeMetric("likes", likes + creationLikes);
+      setHomeMetric("mods", mods.length + creationCount);
+    });
 }
 
 function dashboardSeries(rows, selectedMod, metric) {
@@ -554,6 +634,7 @@ function setupNexusDashboard() {
       renderDashboardSummary(rows);
       renderDashboardTable(rows);
       renderDashboardChart(rows);
+      renderHomeNexusMetrics(rows);
     })
     .catch(() => {
       dashboard.querySelector("[data-dashboard-chart]").innerHTML = '<p class="section-desc">Nexus dashboard data could not be loaded.</p>';
@@ -565,26 +646,30 @@ function setupCreationsDashboard() {
   if (!dashboard) return;
 
   const creations = data.creations || [];
+  const confirmedCreations = creations.filter((item) =>
+    ["likes", "downloads", "plays", "libraryAdds"].some((key) => dashboardNumber(item[key]) > 0)
+  );
   const summary = document.querySelector("[data-creations-summary]");
   const table = document.querySelector("[data-creations-table]");
+  const ranking = document.querySelector("[data-creations-ranking]");
+  const rankingMetric = document.querySelector("[data-creations-ranking-metric]");
   const totals = creations.reduce(
     (sum, item) => {
-      sum.mods += 1;
-      sum.daily += dashboardNumber(item.views);
-      sum.total += dashboardNumber(item.plays);
       sum.likes += dashboardNumber(item.likes);
-      sum.bookmarks += dashboardNumber(item.bookmarks);
+      sum.downloads += dashboardNumber(item.downloads);
+      sum.plays += dashboardNumber(item.plays);
+      sum.libraryAdds += dashboardNumber(item.libraryAdds);
       return sum;
     },
-    { mods: 0, daily: 0, total: 0, likes: 0, bookmarks: 0 }
+    { likes: 0, downloads: 0, plays: 0, libraryAdds: 0 }
   );
 
   if (summary) {
     summary.innerHTML = [
-      ["Tracked Mods", totals.mods],
-      ["Daily Downloads", totals.daily],
-      ["Total Downloads", totals.total],
-      ["Endorsements", totals.likes]
+      ["Likes", totals.likes],
+      ["Downloads", totals.downloads],
+      ["Plays", totals.plays],
+      ["Library Adds", totals.libraryAdds]
     ].map(([label, value]) => `
       <article class="dashboard-stat">
         <span>${label}</span>
@@ -594,15 +679,59 @@ function setupCreationsDashboard() {
   }
 
   if (table) {
-    table.innerHTML = creations.map((item) => `
+    table.innerHTML = confirmedCreations.map((item) => `
       <tr>
         <td><a href="${item.links?.[0]?.url || "#"}" target="_blank" rel="noopener">${item.title}</a></td>
-        <td>${item.views}</td>
-        <td>${item.plays}</td>
-        <td>${item.likes}</td>
-        <td>${item.bookmarks}</td>
+        <td>${metricDisplay(item.likes)}</td>
+        <td>${metricDisplay(item.downloads)}</td>
+        <td>${metricDisplay(item.plays)}</td>
+        <td>${metricDisplay(item.libraryAdds)}</td>
       </tr>
     `).join("");
+  }
+
+  if (ranking) {
+    const labels = {
+      likes: "Most Liked",
+      downloads: "Most Downloaded",
+      plays: "Most Played",
+      libraryAdds: "Most Added"
+    };
+
+    function renderRanking() {
+      const key = rankingMetric?.value || "likes";
+      const rows = [...confirmedCreations]
+        .filter((item) => dashboardNumber(item[key]) > 0)
+        .sort((a, b) => dashboardNumber(b[key]) - dashboardNumber(a[key]))
+        .slice(0, 10);
+      const max = Math.max(1, ...rows.map((item) => dashboardNumber(item[key])));
+
+      ranking.innerHTML = `
+        <article class="ranking-card">
+          <h4>${labels[key]}</h4>
+          <div class="creation-bars">
+            ${rows.map((item) => {
+              const value = dashboardNumber(item[key]);
+              const width = Math.max(5, (value / max) * 100);
+              return `
+                <div class="creation-bar">
+                  <div class="creation-bar-head">
+                    <span>${item.title}</span>
+                    <strong>${numberFormatter.format(value)}</strong>
+                  </div>
+                  <div class="creation-bar-track">
+                    <span style="width: ${width}%"></span>
+                  </div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </article>
+      `;
+    }
+
+    rankingMetric?.addEventListener("change", renderRanking);
+    renderRanking();
   }
 }
 
@@ -625,6 +754,7 @@ setupGalleryModal();
 setupMessageForm();
 setupNexusDashboard();
 setupCreationsDashboard();
+setupHomeMetrics();
 setupAutoScroll("[data-home-gallery]", { axis: "x", step: 1, interval: 18 });
 setupAutoScroll("body[data-page='home'] [data-message-list]", { axis: "y", step: 1, interval: 38 });
 

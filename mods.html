@@ -51,7 +51,7 @@
           <button class="platform-tab" type="button" role="tab" aria-selected="false" data-platform-tab="creations">Creations</button>
         </div>
 
-        <div class="platform-panel is-active" data-platform-panel="nexus">
+        <div class="platform-panel is-active" data-platform-panel="nexus" data-nexus-dashboard>
           <div class="section-header">
             <div>
               <div class="eyebrow">Nexus Telemetry</div>
@@ -112,28 +112,54 @@
           <div class="section-header">
             <div>
               <div class="eyebrow">Bethesda Creations</div>
-              <h2 class="section-title">Creation Releases</h2>
-              <p class="section-desc">Creations metrics map Views to daily downloads, Plays to total downloads and Likes to endorsements.</p>
+              <h2 class="section-title">Creation Metrics</h2>
+              <p class="section-desc">Only confirmed Creations metrics are shown here until the platform exposes reliable cover data.</p>
             </div>
           </div>
 
           <div class="dashboard-summary" data-creations-summary></div>
 
-          <div class="projects" data-creations-mods></div>
+          <div class="filters" data-filter-group="mods" data-filter-target="[data-creations-mods]">
+            <button class="button filter is-active" type="button" data-filter="All">All</button>
+            <button class="button filter" type="button" data-filter="Quest">Quest</button>
+            <button class="button filter" type="button" data-filter="Gameplay">Gameplay</button>
+            <button class="button filter" type="button" data-filter="Clothing">Clothing</button>
+            <button class="button filter" type="button" data-filter="Translation">Translation</button>
+          </div>
+
+          <div class="projects creations-projects" data-creations-mods></div>
 
           <div class="dashboard-panel">
             <div class="dashboard-toolbar">
-              <h3>Creations Snapshot</h3>
+              <div>
+                <h3>Snapshot Ranking</h3>
+                <p class="dashboard-note">Manual snapshot from Bethesda Creations stats.</p>
+              </div>
+              <div class="dashboard-controls">
+                <select data-creations-ranking-metric aria-label="Choose Creations ranking">
+                  <option value="likes">Likes</option>
+                  <option value="downloads">Downloads</option>
+                  <option value="plays">Plays</option>
+                  <option value="libraryAdds">Library Adds</option>
+                </select>
+              </div>
+            </div>
+            <div data-creations-ranking></div>
+          </div>
+
+          <div class="dashboard-panel">
+            <div class="dashboard-toolbar">
+              <h3>Snapshot Details</h3>
             </div>
             <div class="dashboard-table-wrap">
               <table class="dashboard-table">
                 <thead>
                   <tr>
                     <th>Creation</th>
-                    <th>Views</th>
-                    <th>Plays</th>
                     <th>Likes</th>
-                    <th>Bookmarks</th>
+                    <th>Downloads</th>
+                    <th>Plays</th>
+                    <th>Library Adds</th>
                   </tr>
                 </thead>
                 <tbody data-creations-table></tbody>
