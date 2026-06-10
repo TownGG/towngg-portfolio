@@ -14,6 +14,11 @@
   <header class="site-header">
     <div class="container nav">
       <a class="brand" href="./index.html">TownGG <span>MOD</span></a>
+      <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
       <nav class="nav-links" aria-label="Primary navigation">
         <a href="./index.html">Home</a>
         <a class="is-active" href="./mods.html">Mods</a>
@@ -39,15 +44,103 @@
       </div>
     </section>
 
-    <section class="section">
+    <section class="section mod-platforms">
       <div class="container">
-        <div class="filters" data-filter-group="mods" data-filter-target="[data-all-mods]">
-          <button class="button filter is-active" type="button" data-filter="All">All</button>
-          <button class="button filter" type="button" data-filter="Quest">Quest</button>
-          <button class="button filter" type="button" data-filter="Gameplay">Gameplay</button>
-          <button class="button filter" type="button" data-filter="Clothing">Clothing</button>
+        <div class="platform-tabs" role="tablist" aria-label="Mod platform">
+          <button class="platform-tab is-active" type="button" role="tab" aria-selected="true" data-platform-tab="nexus">Nexus Mods</button>
+          <button class="platform-tab" type="button" role="tab" aria-selected="false" data-platform-tab="creations">Creations</button>
         </div>
-        <div class="projects" data-all-mods></div>
+
+        <div class="platform-panel is-active" data-platform-panel="nexus">
+          <div class="section-header">
+            <div>
+              <div class="eyebrow">Nexus Telemetry</div>
+              <h2 class="section-title">Nexus Releases</h2>
+              <p class="section-desc">Nexus Mods releases with daily downloads, total downloads and endorsements.</p>
+            </div>
+            <span class="dashboard-date" data-dashboard-updated></span>
+          </div>
+
+          <div class="dashboard-summary" data-dashboard-summary></div>
+
+          <div class="filters" data-filter-group="mods" data-filter-target="[data-all-mods]">
+            <button class="button filter is-active" type="button" data-filter="All">All</button>
+            <button class="button filter" type="button" data-filter="Quest">Quest</button>
+            <button class="button filter" type="button" data-filter="Gameplay">Gameplay</button>
+            <button class="button filter" type="button" data-filter="Clothing">Clothing</button>
+          </div>
+          <div class="projects" data-all-mods></div>
+
+          <div class="dashboard-panel">
+            <div class="dashboard-toolbar">
+              <h3>Trend</h3>
+              <div class="dashboard-controls">
+                <select data-dashboard-mod aria-label="Filter by mod"></select>
+                <select data-dashboard-metric aria-label="Choose metric">
+                  <option value="daily_downloads">Daily downloads</option>
+                  <option value="total_downloads">Total downloads</option>
+                  <option value="unique_downloads">Unique downloads</option>
+                  <option value="likes">Endorsements</option>
+                </select>
+              </div>
+            </div>
+            <div class="dashboard-chart" data-dashboard-chart></div>
+          </div>
+
+          <div class="dashboard-panel">
+            <div class="dashboard-toolbar">
+              <h3>Details</h3>
+            </div>
+            <div class="dashboard-table-wrap">
+              <table class="dashboard-table">
+                <thead>
+                  <tr>
+                    <th>Mod</th>
+                    <th>Daily</th>
+                    <th>Total</th>
+                    <th>Unique</th>
+                    <th>Endorse</th>
+                  </tr>
+                </thead>
+                <tbody data-dashboard-table></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="platform-panel" data-platform-panel="creations">
+          <div class="section-header">
+            <div>
+              <div class="eyebrow">Bethesda Creations</div>
+              <h2 class="section-title">Creation Releases</h2>
+              <p class="section-desc">Creations metrics map Views to daily downloads, Plays to total downloads and Likes to endorsements.</p>
+            </div>
+          </div>
+
+          <div class="dashboard-summary" data-creations-summary></div>
+
+          <div class="projects" data-creations-mods></div>
+
+          <div class="dashboard-panel">
+            <div class="dashboard-toolbar">
+              <h3>Creations Snapshot</h3>
+            </div>
+            <div class="dashboard-table-wrap">
+              <table class="dashboard-table">
+                <thead>
+                  <tr>
+                    <th>Creation</th>
+                    <th>Views</th>
+                    <th>Plays</th>
+                    <th>Likes</th>
+                    <th>Bookmarks</th>
+                  </tr>
+                </thead>
+                <tbody data-creations-table></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>

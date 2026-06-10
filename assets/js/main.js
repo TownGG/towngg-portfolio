@@ -1,4 +1,4 @@
-const data = window.siteData || {};
+﻿const data = window.siteData || {};
 
 function tagList(tags = []) {
   return tags
@@ -23,14 +23,32 @@ function modCard(mod) {
       </div>
       <div class="project-content">
         <h3 class="card-title">${mod.title}</h3>
-        <div class="mod-author">TownGG</div>
-        <div class="mod-category-line">${mod.group}</div>
         <p class="card-desc">${mod.description}</p>
         <div class="mod-tags">${tagList(mod.tags)}</div>
       </div>
       <div class="stats">
-        <span title="Endorsements"><span class="stat-icon">★</span>${mod.endorsements}</span>
-        <span title="Downloads"><span class="stat-icon">↓</span>${mod.downloads}</span>
+        <span title="Endorsements"><span class="stat-icon">&#9733;</span>${mod.endorsements}</span>
+        <span title="Downloads"><span class="stat-icon">&#8595;</span>${mod.downloads}</span>
+      </div>
+    </a>
+  `;
+}
+
+function creationCard(mod) {
+  const primaryLink = mod.links?.[0]?.url || "#";
+  return `
+    <a class="project-card project-card-link" data-group="${mod.group}" href="${primaryLink}" target="_blank" rel="noopener">
+      <div class="project-image">
+        <img src="${mod.image}" alt="${mod.alt}" loading="lazy">
+      </div>
+      <div class="project-content">
+        <h3 class="card-title">${mod.title}</h3>
+        <p class="card-desc">${mod.description}</p>
+        <div class="mod-tags">${tagList(mod.tags)}</div>
+      </div>
+      <div class="stats">
+        <span title="Likes"><span class="stat-icon">&#9733;</span>${mod.likes}</span>
+        <span title="Plays"><span class="stat-icon">&#9658;</span>${mod.plays}</span>
       </div>
     </a>
   `;
@@ -58,6 +76,13 @@ function renderMods(selector, options = {}) {
   target.innerHTML = mods.map(modCard).join("");
 }
 
+
+function renderCreations() {
+  const target = document.querySelector("[data-creations-mods]");
+  if (!target) return;
+
+  target.innerHTML = (data.creations || []).map(creationCard).join("");
+}
 function renderFeaturedMod() {
   const target = document.querySelector("[data-featured-mod]");
   if (!target) return;
@@ -74,8 +99,8 @@ function renderFeaturedMod() {
       <p class="lead">${mod.description}</p>
       <div class="mod-tags">${tagList(mod.tags)}</div>
       <div class="stats">
-        <span title="Downloads"><span class="stat-icon">↓</span>${mod.downloads}</span>
-        <span title="Endorsements"><span class="stat-icon">★</span>${mod.endorsements}</span>
+        <span title="Downloads"><span class="stat-icon">&#8595;</span>${mod.downloads}</span>
+        <span title="Endorsements"><span class="stat-icon">&#9733;</span>${mod.endorsements}</span>
       </div>
     </div>
   `;
@@ -99,6 +124,56 @@ function renderSocials() {
     target.innerHTML = (data.socials || [])
       .map((link) => `<a class="social-btn" href="${link.url}" target="_blank" rel="noopener">${link.label}</a>`)
       .join("");
+  });
+}
+
+function setupNav() {
+  const header = document.querySelector(".site-header");
+  const toggle = document.querySelector(".nav-toggle");
+  const links = document.querySelector(".nav-links");
+  if (!header || !toggle || !links) return;
+
+  function setOpen(isOpen) {
+    header.classList.toggle("is-open", isOpen);
+    toggle.setAttribute("aria-expanded", String(isOpen));
+    toggle.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+  }
+
+  toggle.addEventListener("click", () => {
+    setOpen(!header.classList.contains("is-open"));
+  });
+
+  links.addEventListener("click", (event) => {
+    if (event.target.closest("a")) setOpen(false);
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!header.classList.contains("is-open")) return;
+    if (!header.contains(event.target)) setOpen(false);
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 980) setOpen(false);
+  });
+}
+
+function setupPlatformTabs() {
+  const tabs = document.querySelectorAll("[data-platform-tab]");
+  const panels = document.querySelectorAll("[data-platform-panel]");
+  if (!tabs.length || !panels.length) return;
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const platform = tab.dataset.platformTab;
+      tabs.forEach((item) => {
+        const isActive = item === tab;
+        item.classList.toggle("is-active", isActive);
+        item.setAttribute("aria-selected", String(isActive));
+      });
+      panels.forEach((panel) => {
+        panel.classList.toggle("is-active", panel.dataset.platformPanel === platform);
+      });
+    });
   });
 }
 
@@ -303,12 +378,243 @@ function setupAutoScroll(selector, options = {}) {
   }, interval);
 }
 
+const numberFormatter = new Intl.NumberFormat("en-US");
+
+function parseDashboardCSV(text) {
+  const rows = [];
+  let cell = "";
+  let row = [];
+  let quoted = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const next = text[index + 1];
+    if (char === '"' && quoted && next === '"') {
+      cell += '"';
+      index += 1;
+    } else if (char === '"') {
+      quoted = !quoted;
+    } else if (char === "," && !quoted) {
+      row.push(cell);
+      cell = "";
+    } else if ((char === "\n" || char === "\r") && !quoted) {
+      if (char === "\r" && next === "\n") index += 1;
+      row.push(cell);
+      if (row.some((item) => item.trim())) rows.push(row);
+      row = [];
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+
+  if (cell || row.length) {
+    row.push(cell);
+    rows.push(row);
+  }
+
+  const headers = rows.shift() || [];
+  return rows.map((items) =>
+    Object.fromEntries(headers.map((header, index) => [header, items[index] || ""]))
+  );
+}
+
+function dashboardNumber(value) {
+  const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, ""));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function latestDashboardRows(rows) {
+  const latest = new Map();
+  rows.forEach((row) => {
+    const key = row.mod_id;
+    const current = latest.get(key);
+    if (!current || row.date > current.date) latest.set(key, row);
+  });
+  return [...latest.values()].sort((a, b) => dashboardNumber(b.total_downloads) - dashboardNumber(a.total_downloads));
+}
+
+function dashboardSeries(rows, selectedMod, metric) {
+  const values = new Map();
+  rows
+    .filter((row) => selectedMod === "all" || row.mod_id === selectedMod)
+    .forEach((row) => {
+      values.set(row.date, (values.get(row.date) || 0) + dashboardNumber(row[metric]));
+    });
+  return [...values.entries()].sort(([a], [b]) => a.localeCompare(b));
+}
+
+function renderDashboardSummary(rows) {
+  const target = document.querySelector("[data-dashboard-summary]");
+  if (!target) return;
+
+  const latest = latestDashboardRows(rows);
+  const totals = latest.reduce(
+    (sum, row) => {
+      sum.mods += 1;
+      sum.daily += dashboardNumber(row.daily_downloads);
+      sum.total += dashboardNumber(row.total_downloads);
+      sum.unique += dashboardNumber(row.unique_downloads);
+      sum.likes += dashboardNumber(row.likes);
+      return sum;
+    },
+    { mods: 0, daily: 0, total: 0, unique: 0, likes: 0 }
+  );
+
+  target.innerHTML = [
+    ["Tracked Mods", totals.mods],
+    ["Daily Downloads", totals.daily],
+    ["Total Downloads", totals.total],
+    ["Endorsements", totals.likes]
+  ].map(([label, value]) => `
+    <article class="dashboard-stat">
+      <span>${label}</span>
+      <strong>${numberFormatter.format(value)}</strong>
+    </article>
+  `).join("");
+}
+
+function renderDashboardTable(rows) {
+  const target = document.querySelector("[data-dashboard-table]");
+  const updated = document.querySelector("[data-dashboard-updated]");
+  if (!target) return;
+
+  const latest = latestDashboardRows(rows);
+  target.innerHTML = latest.map((row) => `
+    <tr>
+      <td><a href="${row.mod_url}" target="_blank" rel="noopener">${row.mod_name}</a></td>
+      <td>${numberFormatter.format(dashboardNumber(row.daily_downloads))}</td>
+      <td>${numberFormatter.format(dashboardNumber(row.total_downloads))}</td>
+      <td>${numberFormatter.format(dashboardNumber(row.unique_downloads))}</td>
+      <td>${numberFormatter.format(dashboardNumber(row.likes))}</td>
+    </tr>
+  `).join("");
+
+  const dates = rows.map((row) => row.date).sort();
+  if (updated && dates.length) updated.textContent = `Updated ${dates.at(-1)}`;
+}
+
+function renderDashboardChart(rows) {
+  const chart = document.querySelector("[data-dashboard-chart]");
+  const modSelect = document.querySelector("[data-dashboard-mod]");
+  const metricSelect = document.querySelector("[data-dashboard-metric]");
+  if (!chart || !modSelect || !metricSelect) return;
+
+  const series = dashboardSeries(rows, modSelect.value || "all", metricSelect.value || "daily_downloads");
+  if (!series.length) {
+    chart.innerHTML = '<p class="section-desc">No Nexus data available yet.</p>';
+    return;
+  }
+
+  const width = 900;
+  const height = 280;
+  const pad = { top: 18, right: 22, bottom: 38, left: 62 };
+  const max = Math.max(1, ...series.map(([, value]) => value));
+  const x = (index) => pad.left + (index * (width - pad.left - pad.right)) / Math.max(1, series.length - 1);
+  const y = (value) => height - pad.bottom - (value * (height - pad.top - pad.bottom)) / max;
+  const points = series.map(([, value], index) => `${x(index)},${y(value)}`).join(" ");
+  const grid = [0, .25, .5, .75, 1].map((ratio) => {
+    const yy = pad.top + ratio * (height - pad.top - pad.bottom);
+    const label = Math.round(max * (1 - ratio));
+    return `<line class="dash-grid" x1="${pad.left}" y1="${yy}" x2="${width - pad.right}" y2="${yy}"></line>
+      <text x="12" y="${yy + 4}">${numberFormatter.format(label)}</text>`;
+  }).join("");
+  const labels = series.map(([date], index) => {
+    if (index !== 0 && index !== series.length - 1) return "";
+    return `<text class="dash-date" x="${x(index)}" y="${height - 12}" text-anchor="${index === 0 ? "start" : "end"}">${date.slice(5)}</text>`;
+  }).join("");
+
+  chart.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Nexus trend chart">
+      ${grid}
+      <polyline class="dash-line" points="${points}"></polyline>
+      ${series.map(([date, value], index) => `<circle class="dash-dot" cx="${x(index)}" cy="${y(value)}" r="4"><title>${date}: ${numberFormatter.format(value)}</title></circle>`).join("")}
+      ${labels}
+    </svg>
+  `;
+}
+
+function setupNexusDashboard() {
+  const dashboard = document.querySelector("[data-nexus-dashboard]");
+  if (!dashboard) return;
+
+  fetch("./assets/data/nexus-history.csv", { cache: "no-store" })
+    .then((response) => response.text())
+    .then((text) => {
+      const rows = parseDashboardCSV(text);
+      const modSelect = document.querySelector("[data-dashboard-mod]");
+      if (modSelect) {
+        const mods = latestDashboardRows(rows);
+        modSelect.innerHTML = '<option value="all">All releases</option>' + mods
+          .map((row) => `<option value="${row.mod_id}">${row.mod_name}</option>`)
+          .join("");
+        modSelect.addEventListener("change", () => renderDashboardChart(rows));
+      }
+      document.querySelector("[data-dashboard-metric]")?.addEventListener("change", () => renderDashboardChart(rows));
+      renderDashboardSummary(rows);
+      renderDashboardTable(rows);
+      renderDashboardChart(rows);
+    })
+    .catch(() => {
+      dashboard.querySelector("[data-dashboard-chart]").innerHTML = '<p class="section-desc">Nexus dashboard data could not be loaded.</p>';
+    });
+}
+
+function setupCreationsDashboard() {
+  const dashboard = document.querySelector("[data-platform-panel='creations']");
+  if (!dashboard) return;
+
+  const creations = data.creations || [];
+  const summary = document.querySelector("[data-creations-summary]");
+  const table = document.querySelector("[data-creations-table]");
+  const totals = creations.reduce(
+    (sum, item) => {
+      sum.mods += 1;
+      sum.daily += dashboardNumber(item.views);
+      sum.total += dashboardNumber(item.plays);
+      sum.likes += dashboardNumber(item.likes);
+      sum.bookmarks += dashboardNumber(item.bookmarks);
+      return sum;
+    },
+    { mods: 0, daily: 0, total: 0, likes: 0, bookmarks: 0 }
+  );
+
+  if (summary) {
+    summary.innerHTML = [
+      ["Tracked Mods", totals.mods],
+      ["Daily Downloads", totals.daily],
+      ["Total Downloads", totals.total],
+      ["Endorsements", totals.likes]
+    ].map(([label, value]) => `
+      <article class="dashboard-stat">
+        <span>${label}</span>
+        <strong>${numberFormatter.format(value)}</strong>
+      </article>
+    `).join("");
+  }
+
+  if (table) {
+    table.innerHTML = creations.map((item) => `
+      <tr>
+        <td><a href="${item.links?.[0]?.url || "#"}" target="_blank" rel="noopener">${item.title}</a></td>
+        <td>${item.views}</td>
+        <td>${item.plays}</td>
+        <td>${item.likes}</td>
+        <td>${item.bookmarks}</td>
+      </tr>
+    `).join("");
+  }
+}
+
 renderFeaturedMod();
 renderMods("[data-home-mods]", { excludeFeatured: true, limit: 3 });
 renderMods("[data-all-mods]");
+renderCreations();
 renderGallery("[data-home-gallery]", { source: "featured", loop: true });
 renderGallery("[data-all-gallery]");
 renderSocials();
+setupNav();
+setupPlatformTabs();
 if (document.querySelector("[data-message-pagination]")) {
   setupMessagePagination();
 } else {
@@ -317,5 +623,8 @@ if (document.querySelector("[data-message-pagination]")) {
 setupFilters();
 setupGalleryModal();
 setupMessageForm();
+setupNexusDashboard();
+setupCreationsDashboard();
 setupAutoScroll("[data-home-gallery]", { axis: "x", step: 1, interval: 18 });
 setupAutoScroll("body[data-page='home'] [data-message-list]", { axis: "y", step: 1, interval: 38 });
+
