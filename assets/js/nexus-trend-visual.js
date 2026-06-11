@@ -141,7 +141,6 @@
       </g>
     `).join("");
 
-    const total = data.reduce((sum, item) => sum + item.value, 0);
     const note = "Nexus release activity based on tracked mod history. Showing the latest 7 days of daily downloads across all releases.";
 
     chartEl.className = "dashboard-chart nexus-telemetry-chart";
@@ -163,10 +162,9 @@
             ${labels}
           </svg>
           ${points.map(({ x, y, item }) => `
-            <span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%;">${numberFormatter.format(item.value)}</span>
+            <span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${numberFormatter.format(item.value)}</span>
           `).join("")}
         </div>
-        <div class="nexus-trend-footnote">7-day total: ${numberFormatter.format(total)} · Source: Nexus history snapshot.</div>
       </div>
     `;
   }
