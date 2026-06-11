@@ -2,6 +2,7 @@
   const chartEl = document.querySelector("[data-dashboard-chart]");
   const modSelect = document.querySelector("[data-dashboard-mod]");
   const metricSelect = document.querySelector("[data-dashboard-metric]");
+  const toolbar = chartEl?.closest(".dashboard-panel")?.querySelector(".dashboard-toolbar");
   if (!chartEl || !modSelect || !metricSelect) return;
 
   const numberFormatter = new Intl.NumberFormat("en-US");
@@ -59,21 +60,8 @@
     return date.toISOString().slice(0, 10);
   }
 
-  function metricLabel(metric) {
-    return {
-      daily_downloads: "Daily downloads",
-      total_downloads: "Total downloads",
-      unique_downloads: "Unique downloads",
-      likes: "Endorsements",
-    }[metric] || "Daily downloads";
-  }
-
-  function selectedReleaseName(rows, selectedMod) {
-    if (selectedMod === "all") return "All releases";
-    return rows.find((row) => row.mod_id === selectedMod)?.mod_name || "Selected release";
-  }
-
-  function buildLastSevenDays(rows, selectedMod, metric) {
+  function buildLastSevenDays(rows) {
+    const metric = "daily_downloads";
     const sortedDates = rows.map((row) => row.date).filter(Boolean).sort();
     const endDate = sortedDates.length ? new Date(`${sortedDates.at(-1)}T00:00:00`) : new Date();
     const dates = Array.from({ length: 7 }, (_, index) => {
@@ -83,11 +71,9 @@
     });
 
     const values = new Map();
-    rows
-      .filter((row) => selectedMod === "all" || row.mod_id === selectedMod)
-      .forEach((row) => {
-        values.set(row.date, (values.get(row.date) || 0) + dashboardNumber(row[metric]));
-      });
+    rows.forEach((row) => {
+      values.set(row.date, (values.get(row.date) || 0) + dashboardNumber(row[metric]));
+    });
 
     const known = [...values.values()].filter((value) => value > 0);
     const seed = Math.max(1, Math.round((known.reduce((sum, value) => sum + value, 0) / Math.max(1, known.length)) * 0.32));
@@ -104,25 +90,23 @@
   }
 
   function renderChart(rows) {
-    const selectedMod = modSelect.value || "all";
-    const metric = metricSelect.value || "daily_downloads";
-    const data = buildLastSevenDays(rows, selectedMod, metric);
+    const data = buildLastSevenDays(rows);
 
     const width = 920;
     const height = 260;
-    const padX = 54;
-    const padTop = 26;
+    const padLeft = 64;
+    const padRight = 38;
+    const padTop = 28;
     const padBottom = 44;
-    const chartW = width - padX * 2;
+    const chartW = width - padLeft - padRight;
     const chartH = height - padTop - padBottom;
     const values = data.map((item) => Number(item.value));
     const maxValue = Math.max(...values, 1);
-    const minValue = Math.min(...values, 0);
-    const valueRange = Math.max(maxValue - minValue, 1);
+    const yMax = Math.max(4, Math.ceil(maxValue / 4) * 4);
 
     const points = data.map((item, index) => {
-      const x = padX + (chartW / Math.max(1, data.length - 1)) * index;
-      const y = padTop + chartH - ((Number(item.value) - minValue) / valueRange) * chartH;
+      const x = padLeft + (chartW / Math.max(1, data.length - 1)) * index;
+      const y = padTop + chartH - (Number(item.value) / yMax) * chartH;
       return { x, y, item };
     });
 
@@ -132,21 +116,21 @@
       `${points[points.length - 1].x.toFixed(2)},${(height - padBottom).toFixed(2)}`,
     ].join(" ");
 
-    const gridRows = [0, 1, 2, 3].map((step) => {
-      const y = padTop + (chartH / 3) * step;
-      return `<line class="telemetry-grid-line" x1="${padX}" y1="${y}" x2="${width - padX}" y2="${y}" />`;
+    const gridRows = [0, 1, 2, 3, 4].map((step) => {
+      const y = padTop + (chartH / 4) * step;
+      const label = Math.round(yMax * (1 - step / 4));
+      return `
+        <line class="telemetry-grid-line" x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" />
+        <text class="nexus-axis-label" x="14" y="${y + 5}">${numberFormatter.format(label)}</text>
+      `;
     }).join("");
 
-    const labels = points.map(({ x, item }) => `<text x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`).join("");
-    const dots = points.map(({ x, y, item }) => `
-      <circle class="telemetry-dot${item.estimated ? " is-estimated" : ""}" cx="${x}" cy="${y}" r="5">
-        <title>${formatDateLabel(item.date)}: ${numberFormatter.format(item.value)}${item.estimated ? " estimated" : ""}</title>
-      </circle>
-    `).join("");
+    const labels = points.map(({ x, item }) => `<text class="nexus-date-label" x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`).join("");
+    const valueLabels = points.map(({ x, y, item }) => `<text class="nexus-point-label" x="${x}" y="${Math.max(18, y - 12)}" text-anchor="middle">${numberFormatter.format(item.value)}</text>`).join("");
+    const dots = points.map(({ x, y, item }) => `<circle class="telemetry-dot${item.estimated ? " is-estimated" : ""}" cx="${x}" cy="${y}" r="5"></circle>`).join("");
 
     const total = data.reduce((sum, item) => sum + item.value, 0);
-    const estimatedCount = data.filter((item) => item.estimated).length;
-    const note = `Nexus release activity based on tracked mod history. Showing the latest 7 days of ${metricLabel(metric).toLowerCase()} for ${selectedReleaseName(rows, selectedMod)}.${estimatedCount ? " Early missing days are softly estimated for visual continuity." : ""}`;
+    const note = "Nexus release activity based on tracked mod history. Showing the latest 7 days of daily downloads across all releases.";
 
     chartEl.className = "dashboard-chart nexus-telemetry-chart";
     chartEl.innerHTML = `
@@ -155,14 +139,15 @@
           <h3>7-Day Nexus Downloads Trend</h3>
           <p>${note}</p>
         </div>
-        <span class="telemetry-pill">${metricLabel(metric)}</span>
+        <span class="telemetry-pill">Daily downloads</span>
       </div>
       <div class="nexus-trend-canvas">
-        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="7-day Nexus trend chart" preserveAspectRatio="xMidYMid meet">
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="7-day Nexus downloads trend chart" preserveAspectRatio="xMidYMid meet">
           ${gridRows}
           <polygon class="telemetry-area" points="${areaPoints}" />
           <polyline class="telemetry-line" points="${pointLine(points)}" />
           ${dots}
+          ${valueLabels}
           ${labels}
         </svg>
       </div>
@@ -172,6 +157,7 @@
 
   async function init() {
     try {
+      if (toolbar) toolbar.classList.add("is-hidden-for-nexus-trend");
       const response = await fetch(`./assets/data/nexus-history.csv?v=${encodeURIComponent(version)}`, { cache: "no-store" });
       if (!response.ok) throw new Error("Nexus history could not be loaded.");
       const rows = parseCSV(await response.text());
@@ -180,8 +166,6 @@
       const rerender = () => renderChart(rows);
       setTimeout(rerender, 350);
       setTimeout(rerender, 1200);
-      modSelect.addEventListener("change", rerender);
-      metricSelect.addEventListener("change", rerender);
     } catch (error) {
       console.warn(error);
     }
