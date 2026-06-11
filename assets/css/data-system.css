@@ -1,4 +1,4 @@
-/* TownGG Portfolio v2.03.01 / v2.03.06
+/* TownGG Portfolio v2.03.01 / v2.03.07
    Data visual system, dashboard polish and Personal Logs category colors.
    This file intentionally overrides selected v2.02 styles without rewriting styles.css. */
 
@@ -181,15 +181,37 @@
   font-weight: 800;
 }
 
-.nexus-point-label {
+.nexus-hover-label {
+  opacity: 0;
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  transition: opacity .18s ease, transform .18s ease;
+  transform: translateY(5px) scale(.96);
+}
+
+.nexus-hover-label rect {
+  fill: rgba(11, 18, 28, .92);
+  stroke: rgba(125, 216, 255, .56);
+  stroke-width: 1;
+  filter: drop-shadow(0 0 12px rgba(125, 216, 255, .28));
+}
+
+.nexus-hover-label text {
   fill: #e9f8ff;
   font-family: "Rajdhani", sans-serif;
   font-size: 13px;
-  font-weight: 800;
-  paint-order: stroke;
-  stroke: rgba(3, 7, 12, .82);
-  stroke-width: 4px;
-  text-shadow: 0 0 14px rgba(125, 216, 255, .34);
+  font-weight: 900;
+}
+
+.nexus-point:hover .nexus-hover-label,
+.nexus-point:focus .nexus-hover-label {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.nexus-point:focus {
+  outline: none;
 }
 
 .telemetry-grid-line {
@@ -208,10 +230,6 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   filter: drop-shadow(0 0 14px rgba(125, 216, 255, .42));
-}
-
-.telemetry-dot.is-estimated {
-  opacity: .78;
 }
 
 .nexus-trend-footnote {
