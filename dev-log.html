@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Creator Notes by TownGG: development stories, release updates, lore ideas and personal Starfield modding moments.">
+  <title>Creator Notes | TownGG MOD Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body data-page="dev-log">
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="./index.html">TownGG <span>MOD</span></a>
+      <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="./index.html">Home</a>
+        <a href="./mods.html">Mods</a>
+        <a href="./gallery.html">Gallery</a>
+        <a class="is-active" href="./dev-log.html">Creator Notes</a>
+        <a href="./message-board.html">Message Board</a>
+        <a href="./about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero compact">
+      <div class="hero-bg">
+        <img src="./assets/images/banners-compressed/home.jpg" alt="Creator Notes banner">
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-tag">Creator Notes</div>
+          <h1>Creator<br><span>Notes</span></h1>
+          <p class="page-sub">Thoughts, development stories and random moments from TownGG.</p>
+          <div class="metrics notes-metrics">
+            <div class="metric">
+              <div class="metric-number" data-notes-metric="active">-</div>
+              <div class="metric-label">Active Projects</div>
+            </div>
+            <div class="metric">
+              <div class="metric-number" data-notes-metric="latest">-</div>
+              <div class="metric-label">Latest Entry</div>
+            </div>
+            <div class="metric">
+              <div class="metric-number" data-notes-metric="total">-</div>
+              <div class="metric-label">Total Notes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tight">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">Journal</div>
+            <h2 class="section-title">All Notes</h2>
+            <p class="section-desc">A personal creator journal for development stories, releases, lore and website progress.</p>
+          </div>
+        </div>
+        <div class="filters note-filters" data-filter-group="notes" data-filter-target="[data-notes-list]">
+          <button class="button filter is-active" type="button" data-filter="All">All</button>
+          <button class="button filter" type="button" data-filter="Dev">Dev</button>
+          <button class="button filter" type="button" data-filter="Release">Release</button>
+          <button class="button filter" type="button" data-filter="Lore">Lore</button>
+          <button class="button filter" type="button" data-filter="Life">Life</button>
+          <button class="button filter" type="button" data-filter="Website">Website</button>
+        </div>
+        <div class="notes-grid" data-notes-list></div>
+      </div>
+    </section>
+
+    <section class="section tight">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">Timeline</div>
+            <h2 class="section-title">Recent Milestones</h2>
+          </div>
+        </div>
+        <div class="timeline" data-notes-timeline></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    TownGG MOD Portfolio<br>
+    Creator notes, modding stories and Cassilia Universe fragments
+  </footer>
+
+  <script src="./assets/js/site-data.js"></script>
+  <script src="./assets/js/creator-notes-data.js"></script>
+  <script src="./assets/js/main.js"></script>
+</body>
+</html>
