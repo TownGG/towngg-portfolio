@@ -105,7 +105,7 @@
     const height = 260;
     const padLeft = 64;
     const padRight = 38;
-    const padTop = 28;
+    const padTop = 24;
     const padBottom = 44;
     const chartW = width - padLeft - padRight;
     const chartH = height - padTop - padBottom;
@@ -136,12 +136,8 @@
 
     const labels = points.map(({ x, item }) => `<text class="nexus-date-label" x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`).join("");
     const dots = points.map(({ x, y, item }) => `
-      <g class="nexus-point" tabindex="0" aria-label="${numberFormatter.format(item.value)} daily downloads">
+      <g class="nexus-point" tabindex="0" aria-label="${numberFormatter.format(item.value)} daily downloads" style="--dot-x:${x}px;--dot-y:${y}px;">
         <circle class="telemetry-dot" cx="${x}" cy="${y}" r="5"></circle>
-        <g class="nexus-hover-label" transform="translate(${x - 22}, ${Math.max(12, y - 36)})">
-          <rect width="44" height="24" rx="9"></rect>
-          <text x="22" y="16" text-anchor="middle">${numberFormatter.format(item.value)}</text>
-        </g>
       </g>
     `).join("");
 
@@ -150,23 +146,28 @@
 
     chartEl.className = "dashboard-chart nexus-telemetry-chart";
     chartEl.innerHTML = `
-      <div class="nexus-trend-header">
-        <div>
-          <h3>7-Day Nexus Downloads Trend</h3>
-          <p>${note}</p>
+      <div class="nexus-trend-shell">
+        <div class="nexus-trend-header">
+          <div>
+            <h3>7-Day Nexus Downloads Trend</h3>
+            <p>${note}</p>
+          </div>
+          <span class="telemetry-pill">Daily downloads</span>
         </div>
-        <span class="telemetry-pill">Daily downloads</span>
+        <div class="nexus-trend-canvas">
+          <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="7-day Nexus downloads trend chart" preserveAspectRatio="xMidYMid meet">
+            ${gridRows}
+            <polygon class="telemetry-area" points="${areaPoints}" />
+            <polyline class="telemetry-line" points="${pointLine(points)}" />
+            ${dots}
+            ${labels}
+          </svg>
+          ${points.map(({ x, y, item }) => `
+            <span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%;">${numberFormatter.format(item.value)}</span>
+          `).join("")}
+        </div>
+        <div class="nexus-trend-footnote">7-day total: ${numberFormatter.format(total)} · Source: Nexus history snapshot.</div>
       </div>
-      <div class="nexus-trend-canvas">
-        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="7-day Nexus downloads trend chart" preserveAspectRatio="xMidYMid meet">
-          ${gridRows}
-          <polygon class="telemetry-area" points="${areaPoints}" />
-          <polyline class="telemetry-line" points="${pointLine(points)}" />
-          ${dots}
-          ${labels}
-        </svg>
-      </div>
-      <div class="nexus-trend-footnote">7-day total: ${numberFormatter.format(total)} · Source: Nexus history snapshot.</div>
     `;
   }
 
