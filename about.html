@@ -13,7 +13,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./assets/css/styles.css">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=2.02">
+  <link rel="stylesheet" href="./assets/css/site-telemetry.css?v=2.02">
 </head>
 <body data-page="about">
   <header class="site-header">
@@ -110,15 +111,58 @@
         </div>
       </div>
     </section>
+
+    <section class="section tight site-telemetry-section" aria-labelledby="site-telemetry-title">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">Site Telemetry</div>
+            <h2 class="section-title" id="site-telemetry-title">Portfolio Traffic</h2>
+            <p class="section-desc">Privacy-safe public traffic data for the TownGG portfolio.</p>
+          </div>
+        </div>
+
+        <div class="telemetry-grid" data-site-telemetry-summary aria-live="polite">
+          <article class="telemetry-card telemetry-card-loading">
+            <div class="telemetry-value">--</div>
+            <div class="telemetry-label">Visits</div>
+          </article>
+          <article class="telemetry-card telemetry-card-loading">
+            <div class="telemetry-value">--</div>
+            <div class="telemetry-label">Requests</div>
+          </article>
+          <article class="telemetry-card telemetry-card-loading">
+            <div class="telemetry-value">--</div>
+            <div class="telemetry-label">Bandwidth Served</div>
+          </article>
+          <article class="telemetry-card telemetry-card-loading">
+            <div class="telemetry-value">--</div>
+            <div class="telemetry-label">Cache Hit Rate</div>
+          </article>
+        </div>
+
+        <div class="telemetry-chart-panel panel">
+          <div class="telemetry-chart-header">
+            <div>
+              <h3>7-Day Visits Trend</h3>
+              <p class="telemetry-note" data-site-telemetry-note>No individual visitor data, IP addresses, logs or security events are displayed.</p>
+            </div>
+            <span class="telemetry-pill">Loading</span>
+          </div>
+          <div class="telemetry-chart telemetry-chart-loading" data-site-telemetry-chart>Loading telemetry...</div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer>
     TownGG MOD Portfolio<br>
     Cassilia Universe Project / Bethesda-style immersive systems / NASA-punk industrial design / Starfield gameplay expansion
-    <span class="site-version" data-site-version>Version v2.01</span>
+    <span class="site-version" data-site-version>Version v2.02</span>
   </footer>
 
-  <script src="./assets/js/site-data.js"></script>
-  <script src="./assets/js/main.js"></script>
+  <script src="./assets/js/site-data.js?v=2.02"></script>
+  <script src="./assets/js/main.js?v=2.02"></script>
+  <script src="./assets/js/site-telemetry.js?v=2.02"></script>
 </body>
 </html>
