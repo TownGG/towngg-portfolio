@@ -60,6 +60,19 @@
     return date.toISOString().slice(0, 10);
   }
 
+  function latestRows(rows) {
+    const latest = new Map();
+    rows.forEach((row) => {
+      const current = latest.get(row.mod_id);
+      if (!current || row.date > current.date) latest.set(row.mod_id, row);
+    });
+    return [...latest.values()];
+  }
+
+  function latestDailyTotal(rows) {
+    return latestRows(rows).reduce((sum, row) => sum + dashboardNumber(row.daily_downloads), 0);
+  }
+
   function buildLastSevenDays(rows) {
     const metric = "daily_downloads";
     const sortedDates = rows.map((row) => row.date).filter(Boolean).sort();
@@ -75,13 +88,9 @@
       values.set(row.date, (values.get(row.date) || 0) + dashboardNumber(row[metric]));
     });
 
-    const known = [...values.values()].filter((value) => value > 0);
-    const seed = Math.max(1, Math.round((known.reduce((sum, value) => sum + value, 0) / Math.max(1, known.length)) * 0.32));
-
     return dates.map((date, index) => ({
       date,
-      value: values.has(date) ? values.get(date) : Math.max(0, Math.round(seed * (0.72 + index * 0.08))),
-      estimated: !values.has(date),
+      value: index === dates.length - 1 ? latestDailyTotal(rows) : (values.get(date) || 0),
     }));
   }
 
@@ -126,8 +135,15 @@
     }).join("");
 
     const labels = points.map(({ x, item }) => `<text class="nexus-date-label" x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`).join("");
-    const valueLabels = points.map(({ x, y, item }) => `<text class="nexus-point-label" x="${x}" y="${Math.max(18, y - 12)}" text-anchor="middle">${numberFormatter.format(item.value)}</text>`).join("");
-    const dots = points.map(({ x, y, item }) => `<circle class="telemetry-dot${item.estimated ? " is-estimated" : ""}" cx="${x}" cy="${y}" r="5"></circle>`).join("");
+    const dots = points.map(({ x, y, item }) => `
+      <g class="nexus-point" tabindex="0" aria-label="${numberFormatter.format(item.value)} daily downloads">
+        <circle class="telemetry-dot" cx="${x}" cy="${y}" r="5"></circle>
+        <g class="nexus-hover-label" transform="translate(${x - 22}, ${Math.max(12, y - 36)})">
+          <rect width="44" height="24" rx="9"></rect>
+          <text x="22" y="16" text-anchor="middle">${numberFormatter.format(item.value)}</text>
+        </g>
+      </g>
+    `).join("");
 
     const total = data.reduce((sum, item) => sum + item.value, 0);
     const note = "Nexus release activity based on tracked mod history. Showing the latest 7 days of daily downloads across all releases.";
@@ -147,7 +163,6 @@
           <polygon class="telemetry-area" points="${areaPoints}" />
           <polyline class="telemetry-line" points="${pointLine(points)}" />
           ${dots}
-          ${valueLabels}
           ${labels}
         </svg>
       </div>
