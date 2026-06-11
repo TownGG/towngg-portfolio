@@ -1113,6 +1113,18 @@ h1 span,
   color: var(--text);
 }
 
+.home-social-panel {
+  padding: 32px;
+}
+
+.home-social-panel .section-title {
+  margin-bottom: 10px;
+}
+
+.home-social-panel .social-links {
+  margin-top: 22px;
+}
+
 .split {
   display: grid;
   grid-template-columns: minmax(0, .9fr) minmax(360px, 1.1fr);
