@@ -1,4 +1,4 @@
-/* TownGG Portfolio v2.03.01 / v2.03.07
+/* TownGG Portfolio v2.03.01 / v2.03.08
    Data visual system, dashboard polish and Personal Logs category colors.
    This file intentionally overrides selected v2.02 styles without rewriting styles.css. */
 
@@ -72,6 +72,13 @@
     linear-gradient(135deg, rgba(255, 255, 255, .052), rgba(255, 255, 255, .016)),
     rgba(8, 12, 18, .56);
   box-shadow: 0 22px 60px rgba(0, 0, 0, .28), inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+
+.dashboard-panel.is-nexus-trend-panel {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .dashboard-chart,
