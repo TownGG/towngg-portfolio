@@ -1,0 +1,32 @@
+{
+  "activeProjects": "4",
+  "featuredVideo": {
+    "title": "THE TERMINUS",
+    "label": "Official Trailer",
+    "description": "A custom Starfield adventure featuring a legendary sword, a new boss encounter and the story of Cassilia.",
+    "buttonLabel": "Watch Trailer",
+    "url": "https://www.youtube.com/embed/sTVtvataSkU"
+  },
+  "timeline": [
+    {
+      "date": "2026.06",
+      "title": "Personal Logs started on a preview branch",
+      "text": "A new place for development notes, Cassilia Universe fragments and small creator moments began taking shape."
+    },
+    {
+      "date": "2026.06",
+      "title": "Cassilia Uniform reached 3700 downloads",
+      "text": "A small milestone for the Cassilia Universe and a useful reminder that the quiet work adds up."
+    },
+    {
+      "date": "2026.06",
+      "title": "Connected Codex to GitHub",
+      "text": "The website workflow moved into preview branches, making future updates easier to shape and review."
+    },
+    {
+      "date": "2026.05",
+      "title": "Released THE TERMINUS",
+      "text": "A weapon idea became a full Starfield adventure with a location, boss encounter and Cassilia story thread."
+    }
+  ]
+}
