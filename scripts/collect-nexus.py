@@ -12,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "assets" / "data" / "nexus-mods.json"
 HISTORY_PATH = ROOT / "assets" / "data" / "nexus-history.csv"
+LATEST_PATH = ROOT / "assets" / "data" / "nexus-latest.json"
 
 FIELDS = [
     "date",
@@ -29,8 +30,16 @@ FIELDS = [
 ]
 
 
+def now_utc():
+    return dt.datetime.now(dt.timezone.utc)
+
+
 def today():
-    return dt.datetime.now(dt.timezone.utc).astimezone().date().isoformat()
+    return now_utc().astimezone().date().isoformat()
+
+
+def iso_now():
+    return now_utc().replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def number(value, default=0):
@@ -75,6 +84,29 @@ def write_history(rows):
         writer.writerows(rows)
 
 
+def write_latest(rows, updated_at):
+    latest = {
+        "updatedAt": updated_at,
+        "mods": [
+            {
+                "platform": row.get("platform", "nexus"),
+                "mod_id": str(row.get("mod_id", "")),
+                "mod_name": row.get("mod_name", ""),
+                "mod_url": row.get("mod_url", ""),
+                "image_url": row.get("image_url", ""),
+                "total_downloads": number(row.get("total_downloads")),
+                "unique_downloads": number(row.get("unique_downloads")),
+                "daily_downloads": number(row.get("daily_downloads")),
+                "likes": number(row.get("likes")),
+                "views": number(row.get("views")),
+            }
+            for row in rows
+        ],
+    }
+    LATEST_PATH.parent.mkdir(parents=True, exist_ok=True)
+    LATEST_PATH.write_text(json.dumps(latest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def latest_previous(rows, platform, mod_id, date):
     candidates = [
         row for row in rows
@@ -105,6 +137,7 @@ def main():
         sys.exit(2)
 
     date = sys.argv[1] if len(sys.argv) > 1 else today()
+    updated_at = iso_now()
     config = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
     previous_rows = read_history()
     fresh_rows = []
@@ -139,7 +172,9 @@ def main():
         if not any(row.get("date") == date and row.get("platform") == new["platform"] and row.get("mod_id") == new["mod_id"] for new in normalized)
     ]
     write_history(kept + normalized)
+    write_latest(normalized, updated_at)
     print(f"Saved {len(normalized)} rows to {HISTORY_PATH}")
+    print(f"Saved latest snapshot to {LATEST_PATH}")
 
 
 if __name__ == "__main__":
