@@ -356,30 +356,63 @@ function setupPlatformTabs() {
       panels.forEach((panel) => {
         panel.classList.toggle("is-active", panel.dataset.platformPanel === platform);
       });
+      const modsFilter = document.querySelector("[data-filter-target-current]");
+      if (modsFilter) applyFilter(modsFilter, "All");
     });
+  });
+}
+
+function currentModsFilterTarget() {
+  const activePanel = document.querySelector("[data-platform-panel].is-active");
+  return activePanel?.dataset.platformPanel === "creations" ? "[data-creations-mods]" : "[data-all-mods]";
+}
+
+function applyFilter(group, value) {
+  const targetSelector = group.hasAttribute("data-filter-target-current")
+    ? currentModsFilterTarget()
+    : group.dataset.filterTarget;
+  const itemType = group.dataset.filterGroup;
+  const target = document.querySelector(targetSelector);
+  if (!target) return;
+
+  group.querySelectorAll("[data-filter]").forEach((item) => {
+    item.classList.toggle("is-active", item.dataset.filter === value);
+  });
+
+  const attr = itemType === "gallery" || itemType === "notes" ? "category" : "group";
+  target.querySelectorAll(`[data-${attr}]`).forEach((card) => {
+    const isVisible = value === "All" || card.dataset[attr] === value;
+    card.style.display = isVisible ? "" : "none";
   });
 }
 
 function setupFilters() {
   document.querySelectorAll("[data-filter-group]").forEach((group) => {
-    const targetSelector = group.dataset.filterTarget;
-    const itemType = group.dataset.filterGroup;
-    const target = document.querySelector(targetSelector);
-    if (!target) return;
+    const menuToggle = group.querySelector("[data-mobile-filter-toggle]");
+    const menu = group.querySelector(".mobile-filter-menu");
+
+    if (menuToggle && menu) {
+      menuToggle.addEventListener("click", () => {
+        const isOpen = group.classList.toggle("is-open");
+        menuToggle.setAttribute("aria-expanded", String(isOpen));
+      });
+    }
 
     group.addEventListener("click", (event) => {
       const button = event.target.closest("[data-filter]");
       if (!button) return;
 
-      group.querySelectorAll("[data-filter]").forEach((item) => item.classList.remove("is-active"));
-      button.classList.add("is-active");
+      applyFilter(group, button.dataset.filter);
+      group.classList.remove("is-open");
+      menuToggle?.setAttribute("aria-expanded", "false");
+    });
+  });
 
-      const value = button.dataset.filter;
-      const attr = itemType === "gallery" || itemType === "notes" ? "category" : "group";
-      target.querySelectorAll(`[data-${attr}]`).forEach((card) => {
-        const isVisible = value === "All" || card.dataset[attr] === value;
-        card.style.display = isVisible ? "" : "none";
-      });
+  document.addEventListener("click", (event) => {
+    document.querySelectorAll(".mods-filter-control.is-open").forEach((group) => {
+      if (group.contains(event.target)) return;
+      group.classList.remove("is-open");
+      group.querySelector("[data-mobile-filter-toggle]")?.setAttribute("aria-expanded", "false");
     });
   });
 }
@@ -638,6 +671,11 @@ function syncNexusModsFromRows(rows) {
   renderFeaturedMod();
   renderMods("[data-home-mods]", { excludeFeatured: true, limit: 3 });
   renderMods("[data-all-mods]");
+  const modsFilter = document.querySelector("[data-filter-target-current]");
+  if (modsFilter) {
+    const activeFilter = modsFilter.querySelector("[data-filter].is-active")?.dataset.filter || "All";
+    applyFilter(modsFilter, activeFilter);
+  }
 }
 
 function formatCompactNumber(value) {
