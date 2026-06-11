@@ -1,6 +1,63 @@
 ﻿const data = window.siteData || {};
-const creatorNotes = window.creatorNotes || [];
-const creatorNotesMeta = window.creatorNotesMeta || {};
+let creatorNotes = [];
+let creatorNotesMeta = {};
+let siteVersion = "";
+const gallerySources = {
+  featured: data.featuredArtworks || [],
+  concept: data.artworks || [],
+  screenshots: []
+};
+
+function dataUrl(path) {
+  const version = siteVersion || Date.now();
+  return `${path}?v=${encodeURIComponent(version)}`;
+}
+
+async function fetchJsonData(path, fallback) {
+  try {
+    const response = await fetch(dataUrl(path), { cache: "no-store" });
+    if (!response.ok) throw new Error(`Failed to load ${path}`);
+    return await response.json();
+  } catch (error) {
+    console.warn(error);
+    return fallback;
+  }
+}
+
+async function checkSiteVersion() {
+  try {
+    const response = await fetch(`./assets/data/site-version.json?v=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) throw new Error("Failed to load site version");
+    const versionData = await response.json();
+    siteVersion = versionData.version || "";
+
+    const stored = localStorage.getItem("townggSiteVersion");
+    const reloadKey = `townggVersionReloaded:${siteVersion}`;
+    if (stored && siteVersion && stored !== siteVersion && !sessionStorage.getItem(reloadKey)) {
+      localStorage.setItem("townggSiteVersion", siteVersion);
+      sessionStorage.setItem(reloadKey, "true");
+      const url = new URL(window.location.href);
+      url.searchParams.set("v", siteVersion);
+      window.location.replace(url.toString());
+      return false;
+    }
+
+    if (siteVersion) localStorage.setItem("townggSiteVersion", siteVersion);
+  } catch (error) {
+    console.warn(error);
+  }
+
+  return true;
+}
+
+async function loadDynamicData() {
+  [creatorNotes, creatorNotesMeta, gallerySources.concept, gallerySources.screenshots] = await Promise.all([
+    fetchJsonData("./assets/data/personal-logs.json", []),
+    fetchJsonData("./assets/data/personal-logs-meta.json", {}),
+    fetchJsonData("./assets/data/gallery-concept-art.json", gallerySources.concept),
+    fetchJsonData("./assets/data/gallery-screenshots.json", [])
+  ]);
+}
 
 function tagList(tags = []) {
   return tags
@@ -203,13 +260,13 @@ function renderNoteDetail() {
   const note = notes[index] || notes[0];
 
   if (!note) {
-    target.innerHTML = "<h1>Note not found</h1><p>This Creator Note does not exist yet.</p>";
+    target.innerHTML = "<h1>Log not found</h1><p>This Personal Log does not exist yet.</p>";
     return;
   }
 
-  document.title = `${note.title} | TownGG Creator Notes`;
+  document.title = `${note.title} | TownGG Personal Logs`;
   target.innerHTML = `
-    <a class="note-back" href="./dev-log.html">Back to Creator Notes</a>
+    <a class="note-back" href="./dev-log.html">Back to Personal Logs</a>
     <div class="note-category">${note.category}</div>
     <h1>${note.title}</h1>
     <time datetime="${note.date}">${note.date}</time>
@@ -275,8 +332,28 @@ function renderGallery(selector, options = {}) {
   const target = document.querySelector(selector);
   if (!target) return;
 
-  let artworks = options.source === "featured" ? data.featuredArtworks || [] : data.artworks || [];
+  const source = options.source === "featured" ? "featured" : options.source || "concept";
+  let artworks = gallerySources[source] || [];
   if (options.limit) artworks = artworks.slice(0, options.limit);
+
+  target.dataset.gallerySource = source;
+
+  if (!artworks.length && options.emptyState) {
+    target.innerHTML = `
+      <div class="gallery-empty">
+        <div class="gallery-empty-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" role="img">
+            <rect x="9" y="12" width="30" height="24" rx="4"></rect>
+            <circle cx="24" cy="24" r="5"></circle>
+            <path d="M16 12l3-5h10l3 5"></path>
+          </svg>
+        </div>
+        <h3>No images yet</h3>
+        <p>In-game screenshots will be added here soon.</p>
+      </div>
+    `;
+    return;
+  }
 
   if (options.twoRows) {
     const rows = [[], []];
@@ -298,7 +375,25 @@ function renderGallery(selector, options = {}) {
   }
 
   target.querySelectorAll("[data-art-index]").forEach((button) => {
-    button.dataset.artSource = options.source === "featured" ? "featured" : "all";
+    button.dataset.artSource = source;
+  });
+}
+
+function setupGalleryTabs() {
+  const tabs = document.querySelectorAll("[data-gallery-tab]");
+  const target = document.querySelector("[data-all-gallery]");
+  if (!tabs.length || !target) return;
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const source = tab.dataset.galleryTab;
+      tabs.forEach((item) => {
+        const isActive = item === tab;
+        item.classList.toggle("is-active", isActive);
+        item.setAttribute("aria-selected", String(isActive));
+      });
+      renderGallery("[data-all-gallery]", { source, emptyState: source === "screenshots" });
+    });
   });
 }
 
@@ -356,8 +451,7 @@ function setupPlatformTabs() {
       panels.forEach((panel) => {
         panel.classList.toggle("is-active", panel.dataset.platformPanel === platform);
       });
-      const modsFilter = document.querySelector("[data-filter-target-current]");
-      if (modsFilter) applyFilter(modsFilter, "All");
+      document.querySelectorAll("[data-filter-target-current]").forEach((modsFilter) => applyFilter(modsFilter, "All"));
     });
   });
 }
@@ -403,6 +497,9 @@ function setupFilters() {
       if (!button) return;
 
       applyFilter(group, button.dataset.filter);
+      document.querySelectorAll("[data-filter-target-current]").forEach((modsFilter) => {
+        if (modsFilter !== group) applyFilter(modsFilter, button.dataset.filter);
+      });
       group.classList.remove("is-open");
       menuToggle?.setAttribute("aria-expanded", "false");
     });
@@ -417,6 +514,22 @@ function setupFilters() {
   });
 }
 
+function setupStickyToolbars() {
+  const bars = document.querySelectorAll(".mods-control-bar");
+  if (!bars.length) return;
+
+  function update() {
+    bars.forEach((bar) => {
+      const top = parseFloat(getComputedStyle(bar).top) || 0;
+      bar.classList.toggle("is-stuck", bar.getBoundingClientRect().top <= top + 1);
+    });
+  }
+
+  update();
+  window.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update);
+}
+
 function setupGalleryModal() {
   const modal = document.querySelector("[data-gallery-modal]");
   if (!modal) return;
@@ -428,7 +541,7 @@ function setupGalleryModal() {
     const trigger = event.target.closest("[data-art-index]");
     if (!trigger) return;
 
-    const list = trigger.dataset.artSource === "featured" ? data.featuredArtworks : data.artworks;
+    const list = gallerySources[trigger.dataset.artSource] || [];
     const art = list[Number(trigger.dataset.artIndex)];
     if (!art) return;
 
@@ -654,10 +767,6 @@ function latestDashboardRows(rows) {
   return [...latest.values()].sort((a, b) => dashboardNumber(b.total_downloads) - dashboardNumber(a.total_downloads));
 }
 
-function dataUrl(path) {
-  return `${path}?v=${Date.now()}`;
-}
-
 function syncNexusModsFromRows(rows) {
   latestDashboardRows(rows).forEach((row) => {
     const mod = (data.mods || []).find((item) =>
@@ -671,11 +780,10 @@ function syncNexusModsFromRows(rows) {
   renderFeaturedMod();
   renderMods("[data-home-mods]", { excludeFeatured: true, limit: 3 });
   renderMods("[data-all-mods]");
-  const modsFilter = document.querySelector("[data-filter-target-current]");
-  if (modsFilter) {
+  document.querySelectorAll("[data-filter-target-current]").forEach((modsFilter) => {
     const activeFilter = modsFilter.querySelector("[data-filter].is-active")?.dataset.filter || "All";
     applyFilter(modsFilter, activeFilter);
-  }
+  });
 }
 
 function formatCompactNumber(value) {
@@ -971,33 +1079,50 @@ function setupCreationsDashboard() {
   }
 }
 
-renderFeaturedMod();
-renderFeaturedVideo();
-renderLatestNotes();
-renderNotesPage();
-renderNotesTimeline();
-renderNoteDetail();
-renderMods("[data-home-mods]", { excludeFeatured: true, limit: 3 });
-renderMods("[data-all-mods]");
-renderCreations();
-renderGallery("[data-home-gallery]", { source: "featured", loop: true, twoRows: true });
-renderGallery("[data-all-gallery]");
-renderSocials();
-setupNav();
-setupPlatformTabs();
-if (document.querySelector("[data-message-pagination]")) {
-  setupMessagePagination();
-} else {
-  renderMessages(document.body.dataset.page === "home" ? 8 : undefined);
+function renderSiteVersion() {
+  document.querySelectorAll("[data-site-version]").forEach((target) => {
+    target.textContent = siteVersion ? `Version ${siteVersion}` : "Version v2.01";
+  });
 }
-setupFilters();
-setupGalleryModal();
-setupMessageForm();
-setupNexusDashboard();
-setupCreationsDashboard();
-setupHomeMetrics();
-setupAutoScroll("[data-home-gallery]", { axis: "x", step: 1, interval: 18 });
-setupAutoScroll("body[data-page='home'] [data-message-list]", { axis: "y", step: 1, interval: 38 });
+
+async function init() {
+  const shouldContinue = await checkSiteVersion();
+  if (!shouldContinue) return;
+  await loadDynamicData();
+
+  renderSiteVersion();
+  renderFeaturedMod();
+  renderFeaturedVideo();
+  renderLatestNotes();
+  renderNotesPage();
+  renderNotesTimeline();
+  renderNoteDetail();
+  renderMods("[data-home-mods]", { excludeFeatured: true, limit: 3 });
+  renderMods("[data-all-mods]");
+  renderCreations();
+  renderGallery("[data-home-gallery]", { source: "featured", loop: true, twoRows: true });
+  renderGallery("[data-all-gallery]", { source: "concept" });
+  renderSocials();
+  setupNav();
+  setupPlatformTabs();
+  if (document.querySelector("[data-message-pagination]")) {
+    setupMessagePagination();
+  } else {
+    renderMessages(document.body.dataset.page === "home" ? 8 : undefined);
+  }
+  setupFilters();
+  setupStickyToolbars();
+  setupGalleryTabs();
+  setupGalleryModal();
+  setupMessageForm();
+  setupNexusDashboard();
+  setupCreationsDashboard();
+  setupHomeMetrics();
+  setupAutoScroll("[data-home-gallery]", { axis: "x", step: 1, interval: 18 });
+  setupAutoScroll("body[data-page='home'] [data-message-list]", { axis: "y", step: 1, interval: 38 });
+}
+
+init();
 
 
 

@@ -650,11 +650,27 @@ h1 span,
   gap: 18px;
   margin-bottom: 34px;
   padding: 10px;
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  background: rgba(8, 12, 18, .76);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, .22);
+  border: 0;
+  background: transparent;
+}
+
+.mods-control-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0 50%;
+  z-index: -1;
+  width: 100vw;
+  margin-left: -50vw;
+  border-block: 1px solid rgba(255, 255, 255, .06);
+  background: rgba(7, 11, 18, .74);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, .2);
+  opacity: 0;
   backdrop-filter: blur(18px);
+  transition: opacity .18s ease;
+}
+
+.mods-control-bar.is-stuck::before {
+  opacity: 1;
 }
 
 .mods-platform-control,
@@ -987,6 +1003,19 @@ h1 span,
   column-gap: 22px;
 }
 
+.gallery-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 34px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.gallery-tabs::-webkit-scrollbar {
+  display: none;
+}
+
 .gallery-strip {
   display: grid;
   gap: 14px;
@@ -1047,6 +1076,49 @@ h1 span,
   width: auto;
   max-width: none;
   height: 100%;
+}
+
+.gallery-empty {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 64px 24px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .035);
+  color: var(--muted);
+  text-align: center;
+  break-inside: avoid;
+  backdrop-filter: blur(12px);
+}
+
+.gallery-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border: 1px solid var(--line-blue);
+  border-radius: 18px;
+  background: rgba(125, 216, 255, .08);
+  color: var(--blue);
+}
+
+.gallery-empty-icon svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.gallery-empty h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 26px;
+}
+
+.gallery-empty p {
+  margin: 0;
 }
 
 .workflow {
@@ -1384,6 +1456,14 @@ footer {
   color: #7f8d9d;
   text-align: center;
   line-height: 1.8;
+}
+
+.site-version {
+  display: block;
+  margin-top: 8px;
+  color: #607082;
+  font-size: 12px;
+  letter-spacing: .04em;
 }
 
 .featured-video {
