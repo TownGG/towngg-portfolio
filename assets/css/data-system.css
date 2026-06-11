@@ -1,4 +1,4 @@
-/* TownGG Portfolio v2.03.01 / v2.03.08
+/* TownGG Portfolio v2.03.01 / v2.03.09
    Data visual system, dashboard polish and Personal Logs category colors.
    This file intentionally overrides selected v2.02 styles without rewriting styles.css. */
 
@@ -12,6 +12,11 @@
     rgba(8, 12, 18, .54);
   box-shadow: 0 20px 55px rgba(0, 0, 0, .25), inset 0 1px 0 rgba(255, 255, 255, .045);
   backdrop-filter: blur(14px);
+}
+
+footer .site-version {
+  color: #7dd8ff;
+  text-shadow: 0 0 14px rgba(125, 216, 255, .38);
 }
 
 .metric-number,
