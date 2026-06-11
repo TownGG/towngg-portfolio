@@ -393,7 +393,7 @@ h1 span,
 .featured-copy {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 .featured-copy .category {
@@ -410,6 +410,13 @@ h1 span,
   color: #b7c5d4;
   font-size: var(--text-body);
   line-height: 1.8;
+}
+
+.featured-lore {
+  max-width: 760px;
+  color: #d6e0ec;
+  font-size: var(--text-body);
+  line-height: 1.85;
 }
 
 .projects {

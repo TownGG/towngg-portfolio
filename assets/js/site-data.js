@@ -7,6 +7,7 @@
       image: "./assets/images/mods/terminus-nexus-cover.png",
       alt: "THE TERMINUS Nexus Mods cover image",
       description: "New weapon starborn sword: TERMINUS / New location to explore / Extremely challenging boss",
+      featureDescription: "A mysterious dateslate placed in The Lodge points toward an unknown Starborn. Its trail leads to a forgotten place. There rests 'TERMINUS,' a relic blade once responsible for conflict among the Starborn. THE END IS MERELY THE BEGINNING...",
       tags: ["Version 1.63", "Quest", "Weapon", "Boss Fight"],
       downloads: "1,184",
       endorsements: "24",

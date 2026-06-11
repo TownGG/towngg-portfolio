@@ -265,11 +265,8 @@ function renderFeaturedMod() {
     <div class="featured-copy">
       <h2 class="featured-title">${mod.title}</h2>
       <p class="lead">${mod.description}</p>
+      <p class="featured-lore">${mod.featureDescription || ""}</p>
       <div class="mod-tags">${tagList(mod.tags)}</div>
-      <div class="stats">
-        <span title="Downloads"><span class="stat-icon">&#8595;</span>${mod.downloads}</span>
-        <span title="Endorsements"><span class="stat-icon">&#9733;</span>${mod.endorsements}</span>
-      </div>
     </div>
   `;
 }
