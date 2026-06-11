@@ -950,15 +950,21 @@ h1 span,
 
 .gallery-strip {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: max-content;
-  grid-template-rows: repeat(2, 210px);
-  grid-auto-rows: 210px;
-  gap: 18px;
-  min-height: 438px;
+  gap: 14px;
+  min-height: 454px;
   overflow: hidden;
   overscroll-behavior-x: contain;
   padding: 4px 0;
+}
+
+.gallery-track {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+}
+
+.gallery-track-offset {
+  transform: translateX(80px);
 }
 
 .gallery-card {
@@ -971,13 +977,11 @@ h1 span,
 }
 
 .gallery-strip .gallery-card {
+  flex: 0 0 auto;
   width: auto;
+  height: 220px;
   margin: 0;
   scroll-snap-align: start;
-}
-
-.gallery-strip .gallery-card:nth-child(5n + 1) {
-  grid-row: span 2;
 }
 
 .gallery-strip .gallery-card button {
@@ -1981,10 +1985,20 @@ footer {
   }
 
   .gallery-strip {
-    grid-template-rows: repeat(2, 150px);
-    grid-auto-rows: 150px;
     gap: 12px;
-    min-height: 312px;
+    min-height: 332px;
+  }
+
+  .gallery-track {
+    gap: 10px;
+  }
+
+  .gallery-track-offset {
+    transform: translateX(40px);
+  }
+
+  .gallery-strip .gallery-card {
+    height: 160px;
   }
 
   .message-head {

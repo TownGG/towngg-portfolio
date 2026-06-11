@@ -277,8 +277,26 @@ function renderGallery(selector, options = {}) {
 
   let artworks = options.source === "featured" ? data.featuredArtworks || [] : data.artworks || [];
   if (options.limit) artworks = artworks.slice(0, options.limit);
-  const cards = artworks.map(artworkCard).join("");
-  target.innerHTML = options.loop ? cards + cards : cards;
+
+  if (options.twoRows) {
+    const rows = [[], []];
+    artworks.forEach((art, index) => {
+      rows[index % 2].push({ art, index });
+    });
+
+    target.innerHTML = rows.map((row, rowIndex) => {
+      const cards = row.map((item) => artworkCard(item.art, item.index)).join("");
+      return `
+        <div class="gallery-track${rowIndex === 1 ? " gallery-track-offset" : ""}">
+          ${options.loop ? cards + cards : cards}
+        </div>
+      `;
+    }).join("");
+  } else {
+    const cards = artworks.map(artworkCard).join("");
+    target.innerHTML = options.loop ? cards + cards : cards;
+  }
+
   target.querySelectorAll("[data-art-index]").forEach((button) => {
     button.dataset.artSource = options.source === "featured" ? "featured" : "all";
   });
@@ -903,7 +921,7 @@ renderNoteDetail();
 renderMods("[data-home-mods]", { excludeFeatured: true, limit: 3 });
 renderMods("[data-all-mods]");
 renderCreations();
-renderGallery("[data-home-gallery]", { source: "featured", loop: true });
+renderGallery("[data-home-gallery]", { source: "featured", loop: true, twoRows: true });
 renderGallery("[data-all-gallery]");
 renderSocials();
 setupNav();
