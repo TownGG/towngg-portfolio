@@ -1,4 +1,4 @@
-/* TownGG Portfolio v2.03.01 / v2.03.04
+/* TownGG Portfolio v2.03.01 / v2.03.05
    Data visual system, dashboard polish and Personal Logs category colors.
    This file intentionally overrides selected v2.02 styles without rewriting styles.css. */
 
@@ -119,6 +119,73 @@
   color: var(--text);
 }
 
+.nexus-trend-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px 22px 0;
+  margin-bottom: 18px;
+}
+
+.nexus-trend-header h3 {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 30px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.nexus-trend-header p,
+.nexus-trend-footnote {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.nexus-trend-canvas {
+  min-height: 260px;
+  overflow: hidden;
+}
+
+.nexus-telemetry-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.nexus-telemetry-chart text {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.telemetry-grid-line {
+  stroke: rgba(255, 255, 255, .08);
+  stroke-width: 1;
+}
+
+.telemetry-area {
+  fill: rgba(125, 216, 255, .12);
+}
+
+.telemetry-line {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 14px rgba(125, 216, 255, .42));
+}
+
+.telemetry-dot.is-estimated {
+  opacity: .55;
+}
+
+.nexus-trend-footnote {
+  padding: 0 22px 22px;
+  margin-top: -6px;
+}
+
 .note-category {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 0 18px rgba(125, 216, 255, .08);
 }
@@ -162,5 +229,23 @@
   .dashboard-stat,
   .telemetry-card {
     border-radius: 18px;
+  }
+
+  .nexus-trend-header {
+    flex-direction: column;
+    padding: 18px 18px 0;
+  }
+
+  .nexus-trend-canvas {
+    overflow-x: auto;
+  }
+
+  .nexus-telemetry-chart svg {
+    width: 620px;
+    max-width: none;
+  }
+
+  .nexus-trend-footnote {
+    padding: 0 18px 18px;
   }
 }
