@@ -621,6 +621,21 @@ function latestDashboardRows(rows) {
   return [...latest.values()].sort((a, b) => dashboardNumber(b.total_downloads) - dashboardNumber(a.total_downloads));
 }
 
+function syncNexusModsFromRows(rows) {
+  latestDashboardRows(rows).forEach((row) => {
+    const mod = (data.mods || []).find((item) =>
+      (item.links || []).some((link) => String(link.url).includes(`/mods/${row.mod_id}`))
+    );
+    if (!mod) return;
+    mod.downloads = numberFormatter.format(dashboardNumber(row.total_downloads));
+    mod.endorsements = numberFormatter.format(dashboardNumber(row.likes));
+  });
+
+  renderFeaturedMod();
+  renderMods("[data-home-mods]", { excludeFeatured: true, limit: 3 });
+  renderMods("[data-all-mods]");
+}
+
 function formatCompactNumber(value) {
   const number = dashboardNumber(value);
   if (number >= 1000000) {
@@ -645,6 +660,7 @@ function renderHomeCreationMetric() {
 }
 
 function renderHomeNexusMetrics(rows) {
+  syncNexusModsFromRows(rows);
   const latest = latestDashboardRows(rows);
   const creationTotals = (data.creations || []).reduce(
     (sum, item) => {
@@ -799,6 +815,7 @@ function setupNexusDashboard() {
     .then((response) => response.text())
     .then((text) => {
       const rows = parseDashboardCSV(text);
+      syncNexusModsFromRows(rows);
       const modSelect = document.querySelector("[data-dashboard-mod]");
       if (modSelect) {
         const mods = latestDashboardRows(rows);
