@@ -621,6 +621,10 @@ function latestDashboardRows(rows) {
   return [...latest.values()].sort((a, b) => dashboardNumber(b.total_downloads) - dashboardNumber(a.total_downloads));
 }
 
+function dataUrl(path) {
+  return `${path}?v=${Date.now()}`;
+}
+
 function syncNexusModsFromRows(rows) {
   latestDashboardRows(rows).forEach((row) => {
     const mod = (data.mods || []).find((item) =>
@@ -690,7 +694,7 @@ function setupHomeMetrics() {
   if (!document.querySelector("[data-home-metric]")) return;
 
   renderHomeCreationMetric();
-  fetch("./assets/data/nexus-history.csv", { cache: "no-store" })
+  fetch(dataUrl("./assets/data/nexus-history.csv"), { cache: "no-store" })
     .then((response) => response.text())
     .then((text) => renderHomeNexusMetrics(parseDashboardCSV(text)))
     .catch(() => {
@@ -811,7 +815,7 @@ function setupNexusDashboard() {
   const dashboard = document.querySelector("[data-nexus-dashboard]");
   if (!dashboard) return;
 
-  fetch("./assets/data/nexus-history.csv", { cache: "no-store" })
+  fetch(dataUrl("./assets/data/nexus-history.csv"), { cache: "no-store" })
     .then((response) => response.text())
     .then((text) => {
       const rows = parseDashboardCSV(text);
