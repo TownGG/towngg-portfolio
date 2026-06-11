@@ -10,6 +10,11 @@ window.creatorNotesMeta = {
   timeline: [
     {
       date: "2026.06",
+      title: "Personal Logs started on a preview branch",
+      text: "A new place for development notes, Cassilia Universe fragments and small creator moments began taking shape."
+    },
+    {
+      date: "2026.06",
       title: "Cassilia Uniform reached 3700 downloads",
       text: "A small milestone for the Cassilia Universe and a useful reminder that the quiet work adds up."
     },
@@ -27,6 +32,41 @@ window.creatorNotesMeta = {
 };
 
 window.creatorNotes = [
+  {
+    id: "personal-logs-preview-branch",
+    category: "Website",
+    title: "Building Personal Logs On A Preview Branch",
+    date: "2026.06.11",
+    excerpt: "I started moving the portfolio workflow away from local edits and into safer preview branches.",
+    cover: "",
+    content: `Today I started building the new Personal Logs section for the portfolio.
+
+At first, this website was mostly a place to show my Starfield mods, screenshots and download numbers.
+
+But after working on Cassilia, THE TERMINUS and the Cassilia Universe for a while, I realized that some things are worth recording outside of normal mod pages.
+
+Not everything is a release note.
+
+Sometimes it is a small idea.
+Sometimes it is a development problem.
+Sometimes it is a player comment that makes the whole project feel more real.
+
+That is why I wanted Personal Logs to feel less official and more personal.
+
+I also moved this work into a preview branch instead of editing the live site directly. After spending too much time pushing local changes and waiting for deployment, this feels like a much better workflow.
+
+The plan is simple:
+
+* build new website features in preview branches
+* review them safely
+* merge them only when they feel ready
+
+This should make future updates faster, cleaner and less stressful.
+
+Personal Logs is still a small feature, but I think it will become an important part of the site.
+
+It will be a place for modding notes, Cassilia Universe fragments, website updates, and random moments from the road to becoming a better Starfield creator.`
+  },
   {
     id: "cassilia-3700-downloads",
     category: "Release",
