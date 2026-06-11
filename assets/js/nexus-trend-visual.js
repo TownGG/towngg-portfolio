@@ -2,7 +2,8 @@
   const chartEl = document.querySelector("[data-dashboard-chart]");
   const modSelect = document.querySelector("[data-dashboard-mod]");
   const metricSelect = document.querySelector("[data-dashboard-metric]");
-  const toolbar = chartEl?.closest(".dashboard-panel")?.querySelector(".dashboard-toolbar");
+  const panel = chartEl?.closest(".dashboard-panel");
+  const toolbar = panel?.querySelector(".dashboard-toolbar");
   if (!chartEl || !modSelect || !metricSelect) return;
 
   const numberFormatter = new Intl.NumberFormat("en-US");
@@ -143,6 +144,7 @@
 
     const note = "Nexus release activity based on tracked mod history. Showing the latest 7 days of daily downloads across all releases.";
 
+    panel?.classList.add("is-nexus-trend-panel");
     chartEl.className = "dashboard-chart nexus-telemetry-chart";
     chartEl.innerHTML = `
       <div class="nexus-trend-shell">
