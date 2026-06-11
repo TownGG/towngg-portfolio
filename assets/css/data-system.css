@@ -1,4 +1,4 @@
-/* TownGG Portfolio v2.03.01 / v2.03.02
+/* TownGG Portfolio v2.03.01 / v2.03.03
    Data visual system, dashboard polish and Personal Logs category colors.
    This file intentionally overrides selected v2.02 styles without rewriting styles.css. */
 
@@ -28,6 +28,11 @@
 .metrics .metric-number,
 .notes-metrics .metric-number {
   font-size: clamp(42px, 4vw, 58px);
+  line-height: .9;
+}
+
+.dashboard-stat strong {
+  font-size: clamp(38px, 3.4vw, 52px);
   line-height: .9;
 }
 
