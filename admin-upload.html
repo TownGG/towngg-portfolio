@@ -5,19 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <meta name="description" content="Hidden admin upload page for TownGG Portfolio gallery assets.">
-  <title>Admin Upload | TownGG MOD Portfolio</title>
+  <title>Admin | TownGG MOD Portfolio</title>
   <link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./assets/css/styles.css?v=2.04.12">
-  <link rel="stylesheet" href="./assets/css/data-system.css?v=2.04.12">
-  <link rel="stylesheet" href="./assets/css/admin-upload.css?v=2.04.12">
-  <link rel="stylesheet" href="./assets/css/admin-upload-status.css?v=2.04.12">
-  <link rel="stylesheet" href="./assets/css/admin-upload-modules.css?v=2.04.12">
-  <link rel="stylesheet" href="./assets/css/admin-gallery-manager.css?v=2.04.12">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=2.04.32">
+  <link rel="stylesheet" href="./assets/css/data-system.css?v=2.04.32">
+  <link rel="stylesheet" href="./assets/css/mobile-interaction.css?v=2.04.32">
+  <link rel="stylesheet" href="./assets/css/admin-upload.css?v=2.04.32">
+  <link rel="stylesheet" href="./assets/css/admin-upload-status.css?v=2.04.32">
+  <link rel="stylesheet" href="./assets/css/admin-upload-modules.css?v=2.04.32">
+  <link rel="stylesheet" href="./assets/css/admin-gallery-manager.css?v=2.04.32">
 </head>
 <body class="admin-upload-page is-locked" data-page="admin-upload">
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="./index.html">TownGG <span>MOD</span></a>
+      <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="./index.html">Home</a>
+        <a href="./mods.html">Mods</a>
+        <a href="./gallery.html">Gallery</a>
+        <a href="./dev-log.html">Personal Logs</a>
+        <a href="./message-board.html">Message Board</a>
+        <a href="./about.html">About</a>
+        <a class="is-active" href="./admin-upload.html">Admin</a>
+      </nav>
+    </div>
+  </header>
+
   <section class="admin-login-screen" data-admin-login-screen>
     <form class="admin-login-card panel" data-admin-login-form>
       <div class="eyebrow">TownGG Secure Terminal</div>
@@ -36,7 +57,6 @@
 
       <div class="admin-actions">
         <button class="button primary" type="submit">Enter Upload System</button>
-        <a class="button" href="./gallery.html">Back to Gallery</a>
       </div>
       <small class="admin-security-note">The saved key is stored only in this browser. Use this only on your own device.</small>
       <small class="admin-login-message" data-login-message></small>
@@ -52,7 +72,6 @@
       </div>
       <div class="admin-hero-actions">
         <button class="button" type="button" data-lock-admin>Lock Admin</button>
-        <a class="button" href="./gallery.html">Back to Gallery</a>
       </div>
     </section>
 
@@ -205,7 +224,9 @@
     </section>
   </main>
 
-  <script src="./assets/js/admin-upload.js?v=2.04.12"></script>
-  <script src="./assets/js/admin-gallery-manager.js?v=2.04.12"></script>
+  <script src="./assets/js/version-sync.js?v=2.04.32"></script>
+  <script src="./assets/js/main.js?v=2.04.32"></script>
+  <script src="./assets/js/admin-upload.js?v=2.04.32"></script>
+  <script src="./assets/js/admin-gallery-manager.js?v=2.04.32"></script>
 </body>
 </html>
