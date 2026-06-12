@@ -10,11 +10,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./assets/css/styles.css?v=2.04.06">
-  <link rel="stylesheet" href="./assets/css/data-system.css?v=2.04.06">
-  <link rel="stylesheet" href="./assets/css/admin-upload.css?v=2.04.06">
-  <link rel="stylesheet" href="./assets/css/admin-upload-status.css?v=2.04.06">
-  <link rel="stylesheet" href="./assets/css/admin-upload-modules.css?v=2.04.06">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=2.04.08">
+  <link rel="stylesheet" href="./assets/css/data-system.css?v=2.04.08">
+  <link rel="stylesheet" href="./assets/css/admin-upload.css?v=2.04.08">
+  <link rel="stylesheet" href="./assets/css/admin-upload-status.css?v=2.04.08">
+  <link rel="stylesheet" href="./assets/css/admin-upload-modules.css?v=2.04.08">
+  <link rel="stylesheet" href="./assets/css/admin-gallery-manager.css?v=2.04.08">
 </head>
 <body class="admin-upload-page is-locked" data-page="admin-upload">
   <section class="admin-login-screen" data-admin-login-screen>
@@ -166,24 +167,43 @@
         </div>
 
         <div class="admin-module-panel admin-module-manage">
-          <section class="admin-card panel admin-manager-placeholder">
-            <div>
-              <div class="eyebrow">Gallery Manager</div>
-              <h2>Image Management</h2>
-              <p>This module will manage existing Concept Art and In-Game Screenshots separately from the upload workflow. It will support loading gallery records, previewing existing images, and deleting an image file together with its JSON entry.</p>
-              <ul class="admin-manager-steps">
-                <li>Step 1: Load current gallery image records.</li>
-                <li>Step 2: Add delete confirmation for each image.</li>
-                <li>Step 3: Delete both the image file and the matching gallery JSON record.</li>
-              </ul>
+          <section class="admin-card panel">
+            <div class="admin-manager-toolbar">
+              <div>
+                <div class="eyebrow">Gallery Manager</div>
+                <h2>Image Management</h2>
+                <p class="admin-subtitle">Load existing gallery images, then delete an image together with its JSON record.</p>
+              </div>
+              <div class="admin-manager-controls">
+                <label class="admin-field">
+                  <span>Category</span>
+                  <select data-manager-type>
+                    <option value="screenshots">In-Game Screenshots</option>
+                    <option value="concept">Concept Art</option>
+                  </select>
+                </label>
+                <button class="button primary" type="button" data-manager-refresh>Load Images</button>
+              </div>
             </div>
-            <div class="admin-manager-icon">IMG</div>
+
+            <div class="upload-log admin-manager-status is-idle" data-manager-status>
+              <span class="upload-status-icon">↻</span>
+              <div class="upload-status-body">
+                <strong class="upload-status-title">Ready</strong>
+                <span class="upload-status-message">Click Load Images to view current gallery records.</span>
+              </div>
+            </div>
+
+            <div class="admin-manager-grid" data-manager-grid>
+              <div class="empty-state">Image records are not loaded yet.</div>
+            </div>
           </section>
         </div>
       </div>
     </section>
   </main>
 
-  <script src="./assets/js/admin-upload.js?v=2.04.06"></script>
+  <script src="./assets/js/admin-upload.js?v=2.04.08"></script>
+  <script src="./assets/js/admin-gallery-manager.js?v=2.04.08"></script>
 </body>
 </html>
