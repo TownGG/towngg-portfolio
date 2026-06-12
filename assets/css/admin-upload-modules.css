@@ -2,7 +2,7 @@
    Upload / Image Management module tabs for admin page. */
 
 .admin-module-switcher {
-  margin: 0 0 24px;
+  margin: 0;
 }
 
 .admin-module-radio {
@@ -15,6 +15,7 @@
   display: inline-flex;
   gap: 10px;
   padding: 8px;
+  margin-bottom: 24px;
   border: 1px solid rgba(125, 216, 255, .14);
   border-radius: 999px;
   background:
@@ -57,6 +58,10 @@
   box-shadow: 0 0 24px rgba(125, 216, 255, .08);
 }
 
+.admin-module-content {
+  display: block;
+}
+
 .admin-module-panel {
   display: none;
 }
@@ -66,10 +71,21 @@
   display: block;
 }
 
+.admin-module-upload > .admin-grid,
+.admin-module-upload > .admin-card,
+.admin-module-manage > .admin-card {
+  margin-bottom: 24px;
+}
+
+.admin-module-upload > :last-child,
+.admin-module-manage > :last-child {
+  margin-bottom: 0;
+}
+
 .admin-manager-placeholder {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 22px;
+  gap: 24px;
   align-items: center;
 }
 
@@ -88,8 +104,8 @@
 
 .admin-manager-steps {
   display: grid;
-  gap: 10px;
-  margin-top: 18px;
+  gap: 12px;
+  margin-top: 24px;
   padding: 0;
   list-style: none;
 }
