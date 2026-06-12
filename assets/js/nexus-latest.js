@@ -63,7 +63,7 @@
     );
 
     target.innerHTML = [
-      ["Tracked Mods", totals.mods],
+      ["Unique Downloads", totals.unique],
       ["Daily Downloads", totals.daily],
       ["Total Downloads", totals.total],
       ["Endorsements", totals.likes]
