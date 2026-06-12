@@ -1,8 +1,7 @@
 (() => {
   const MAX_DIMENSION = 1920;
   const JPEG_QUALITY = 0.86;
-  const UPLOAD_ENDPOINT = "/api/admin/gallery-upload";
-  const AUTH_ENDPOINT = "/api/admin/auth-check";
+  const API_ENDPOINT = "/api/admin/gallery-upload";
   const STORAGE_KEY = "towngg_admin_upload_key";
 
   const body = document.body;
@@ -10,7 +9,6 @@
   const loginForm = document.querySelector("[data-admin-login-form]");
   const loginAdminKeyInput = document.querySelector("[data-login-admin-key]");
   const rememberAdminKeyInput = document.querySelector("[data-remember-admin-key]");
-  const loginMessage = document.querySelector("[data-login-message]");
   const adminShell = document.querySelector("[data-admin-shell]");
   const adminKeyState = document.querySelector("[data-admin-key-state]");
   const lockAdminButton = document.querySelector("[data-lock-admin]");
@@ -39,11 +37,6 @@
     uploadLog.textContent = message;
   };
 
-  const writeLoginMessage = (message) => {
-    if (!loginMessage) return;
-    loginMessage.textContent = message;
-  };
-
   const getStoredAdminKey = () => {
     try {
       return localStorage.getItem(STORAGE_KEY) || "";
@@ -70,23 +63,6 @@
 
   const getAdminKey = () => sessionAdminKey || getStoredAdminKey();
 
-  const verifyAdminKey = async (key) => {
-    const response = await fetch(AUTH_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Admin-Key": key
-      },
-      body: JSON.stringify({ check: true })
-    });
-
-    const result = await response.json().catch(() => null);
-    if (!response.ok || !result?.success) {
-      throw new Error(result?.error || `Admin key check failed with HTTP ${response.status}.`);
-    }
-    return result;
-  };
-
   const updateAdminKeyState = () => {
     if (!adminKeyState) return;
     adminKeyState.textContent = rememberedKeyLoaded ? "Remembered on this device" : "Session only";
@@ -98,9 +74,8 @@
     body?.classList.remove("is-locked");
     loginScreen?.classList.add("is-hidden");
     if (adminShell) adminShell.hidden = false;
-    writeLoginMessage("");
     updateAdminKeyState();
-    writeLog(remembered ? "Admin key verified from this browser. Ready." : "Admin key verified. Ready.");
+    writeLog(remembered ? "Admin key loaded from this browser. Ready." : "Admin session unlocked. Ready.");
   };
 
   const lockAdmin = () => {
@@ -113,22 +88,13 @@
     updateAdminKeyState();
   };
 
-  const bootAdminGate = async () => {
+  const bootAdminGate = () => {
     const rememberedKey = getStoredAdminKey();
-    if (!rememberedKey) {
-      lockAdmin();
+    if (rememberedKey) {
+      unlockAdmin(rememberedKey, true);
       return;
     }
-
-    writeLoginMessage("Checking remembered key...");
-    try {
-      await verifyAdminKey(rememberedKey);
-      unlockAdmin(rememberedKey, true);
-    } catch (error) {
-      clearStoredAdminKey();
-      lockAdmin();
-      writeLoginMessage("Remembered key is invalid or Worker route is not ready. Please log in again.");
-    }
+    lockAdmin();
   };
 
   const formatBytes = (bytes) => {
@@ -300,26 +266,19 @@
     writeLog(`Ready. ${pendingFiles.length} compressed image(s) waiting for upload.`);
   };
 
-  loginForm?.addEventListener("submit", async (event) => {
+  loginForm?.addEventListener("submit", (event) => {
     event.preventDefault();
     const key = loginAdminKeyInput?.value.trim() || "";
     if (!key) return;
 
-    writeLoginMessage("Checking admin key...");
-
-    try {
-      await verifyAdminKey(key);
-      const shouldRemember = Boolean(rememberAdminKeyInput?.checked);
-      if (shouldRemember) {
-        setStoredAdminKey(key);
-      } else {
-        clearStoredAdminKey();
-      }
-      unlockAdmin(key, shouldRemember);
-    } catch (error) {
+    const shouldRemember = Boolean(rememberAdminKeyInput?.checked);
+    if (shouldRemember) {
+      setStoredAdminKey(key);
+    } else {
       clearStoredAdminKey();
-      writeLoginMessage(`Login failed: ${error.message}`);
     }
+
+    unlockAdmin(key, shouldRemember);
   });
 
   lockAdminButton?.addEventListener("click", () => {
@@ -416,7 +375,7 @@
         files
       };
 
-      const response = await fetch(UPLOAD_ENDPOINT, {
+      const response = await fetch(API_ENDPOINT, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
