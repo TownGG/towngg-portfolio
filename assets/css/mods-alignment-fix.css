@@ -1,54 +1,95 @@
-/* TownGG Portfolio v2.04.34
+/* TownGG Portfolio v2.04.35
    Mods page alignment and platform tab state fixes. */
 
-.mod-platforms .container {
-  width: min(1380px, 92%);
+.mod-platforms .container,
+.mod-platforms .platform-panel,
+.mod-platforms .dashboard-summary,
+.mod-platforms .mods-control-bar,
+.mod-platforms .projects,
+.mod-platforms .dashboard-panel {
+  width: min(1380px, 92vw);
+  max-width: 1380px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.mods-control-bar {
-  display: flex;
+.mod-platforms .dashboard-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.mod-platforms .mods-control-bar {
+  display: grid;
+  grid-template-columns: minmax(260px, auto) 1fr;
   align-items: center;
-  justify-content: space-between;
+  justify-content: stretch;
   gap: 24px;
-  margin: 32px 0 34px;
+  margin-top: 32px;
+  margin-bottom: 34px;
+  padding-left: 0;
+  padding-right: 0;
 }
 
-.mods-platform-control,
-.mods-filter-control {
-  flex: 0 0 auto;
+.mod-platforms .mods-platform-control {
+  min-width: 0;
+  justify-self: start;
 }
 
-.mods-filter-control {
+.mod-platforms .mods-filter-control {
   display: flex;
+  min-width: 0;
+  justify-self: end;
   justify-content: flex-end;
 }
 
-.platform-tabs {
+.mod-platforms .desktop-filter-chips {
+  justify-content: flex-end;
+}
+
+.mod-platforms .platform-tabs {
   flex-shrink: 0;
+}
+
+.mod-platforms .projects {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .platform-tab.is-active,
 .platform-tab[aria-selected="true"] {
-  border-color: rgba(125, 216, 255, .42) !important;
-  background: rgba(125, 216, 255, .12) !important;
+  border-color: rgba(125, 216, 255, .46) !important;
+  background:
+    linear-gradient(135deg, rgba(125, 216, 255, .16), rgba(125, 216, 255, .06)),
+    rgba(3, 7, 12, .58) !important;
   color: #eaf8ff !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 0 0 1px rgba(125, 216, 255, .06);
 }
 
-.desktop-filter-chips {
-  justify-content: flex-end;
+@media (max-width: 1120px) {
+  .mod-platforms .dashboard-summary,
+  .mod-platforms .projects {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 980px) {
-  .mods-control-bar {
+  .mod-platforms .mods-control-bar {
+    grid-template-columns: 1fr;
     align-items: stretch;
-    flex-direction: column;
     gap: 14px;
   }
 
-  .mods-filter-control,
-  .desktop-filter-chips,
-  .platform-tabs {
+  .mod-platforms .mods-platform-control,
+  .mod-platforms .mods-filter-control,
+  .mod-platforms .desktop-filter-chips,
+  .mod-platforms .platform-tabs {
+    justify-self: stretch;
     justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .mod-platforms .dashboard-summary,
+  .mod-platforms .projects {
+    grid-template-columns: 1fr;
   }
 }
