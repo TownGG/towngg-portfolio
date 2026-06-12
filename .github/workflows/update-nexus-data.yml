@@ -8,11 +8,17 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: update-nexus-dashboard-data
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -25,5 +31,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add assets/data/nexus-history.csv assets/data/nexus-latest.json
-          git diff --cached --quiet || git commit -m "Update Nexus dashboard data"
-          git push
+          if git diff --cached --quiet; then
+            echo "No Nexus data changes to commit."
+            exit 0
+          fi
+          git commit -m "Update Nexus dashboard data"
+          git pull --rebase origin main
+          git push origin HEAD:main
