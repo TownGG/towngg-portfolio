@@ -33,13 +33,20 @@ export default {
     }
 
     const url = new URL(request.url);
-    if (request.method !== "POST" || !url.pathname.endsWith("/api/admin/gallery-upload")) {
+    const isAuthCheck = url.pathname.endsWith("/api/admin/auth-check");
+    const isGalleryUpload = url.pathname.endsWith("/api/admin/gallery-upload");
+
+    if (request.method !== "POST" || (!isAuthCheck && !isGalleryUpload)) {
       return jsonResponse({ success: false, error: "Not found" }, 404);
     }
 
     try {
       assertEnv(env);
       authorize(request, env);
+
+      if (isAuthCheck) {
+        return jsonResponse({ success: true, authenticated: true });
+      }
 
       const payload = await request.json();
       validatePayload(payload);
