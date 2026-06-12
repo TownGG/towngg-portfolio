@@ -1,4 +1,4 @@
-/* TownGG Portfolio v2.04.10
+/* TownGG Portfolio v2.04.11
    Image Management module for admin page. */
 
 .admin-manager-toolbar {
@@ -22,18 +22,25 @@
   margin-bottom: 0;
 }
 
-.admin-manager-controls .button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 12px 20px;
-  border-radius: 14px;
+.admin-manager-controls .button,
+.admin-manager-controls .button.primary,
+.admin-manager-controls button[data-manager-refresh] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+  align-self: flex-end !important;
+  width: auto !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  padding: 0 20px !important;
+  border-radius: 14px !important;
   font-family: "Inter", sans-serif;
-  font-size: 14px;
+  font-size: 14px !important;
   font-weight: 800;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 1 !important;
   white-space: nowrap;
 }
 
@@ -132,7 +139,13 @@
 
   .admin-manager-controls .admin-field,
   .admin-manager-controls .button {
-    width: 100%;
+    width: 100% !important;
+  }
+
+  .admin-manager-controls .button,
+  .admin-manager-controls .button.primary,
+  .admin-manager-controls button[data-manager-refresh] {
+    align-self: stretch !important;
   }
 
   .admin-manager-grid {
