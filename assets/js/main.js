@@ -885,7 +885,7 @@ function renderDashboardSummary(rows) {
   );
 
   target.innerHTML = [
-    ["Tracked Mods", totals.mods],
+    ["Unique Downloads", totals.unique],
     ["Daily Downloads", totals.daily],
     ["Total Downloads", totals.total],
     ["Endorsements", totals.likes]
@@ -1041,88 +1041,76 @@ function setupCreationsDashboard() {
       plays: "Most Played",
       libraryAdds: "Most Added"
     };
-
-    function renderRanking() {
-      const key = rankingMetric?.value || "likes";
-      const rows = [...confirmedCreations]
-        .filter((item) => dashboardNumber(item[key]) > 0)
-        .sort((a, b) => dashboardNumber(b[key]) - dashboardNumber(a[key]))
-        .slice(0, 10);
-      const max = Math.max(1, ...rows.map((item) => dashboardNumber(item[key])));
-
-      ranking.innerHTML = `
-        <article class="ranking-card">
-          <h4>${labels[key]}</h4>
-          <div class="creation-bars">
-            ${rows.map((item) => {
-              const value = dashboardNumber(item[key]);
-              const width = Math.max(5, (value / max) * 100);
-              return `
-                <div class="creation-bar">
-                  <div class="creation-bar-head">
-                    <span>${item.title}</span>
-                    <strong>${numberFormatter.format(value)}</strong>
-                  </div>
-                  <div class="creation-bar-track">
-                    <span style="width: ${width}%"></span>
-                  </div>
-                </div>
-              `;
-            }).join("")}
-          </div>
+    const renderRanking = (metric) => {
+      const sorted = [...confirmedCreations]
+        .sort((a, b) => dashboardNumber(b[metric]) - dashboardNumber(a[metric]))
+        .slice(0, 8);
+      ranking.innerHTML = sorted.map((item) => `
+        <article class="creation-bar">
+          <span>${item.title}</span>
+          <strong>${metricDisplay(item[metric])}</strong>
         </article>
-      `;
-    }
+      `).join("");
+      ranking.dataset.label = labels[metric] || "Ranking";
+    };
 
-    rankingMetric?.addEventListener("change", renderRanking);
-    renderRanking();
+    renderRanking(rankingMetric?.value || "likes");
+    rankingMetric?.addEventListener("change", () => renderRanking(rankingMetric.value));
   }
 }
 
-function renderSiteVersion() {
-  document.querySelectorAll("[data-site-version]").forEach((target) => {
-    target.textContent = siteVersion ? `Version ${siteVersion}` : "Version v2.01";
-  });
+function setupDiscussionEmbed() {
+  const target = document.querySelector("[data-giscus]");
+  if (!target) return;
+
+  const script = document.createElement("script");
+  script.src = "https://giscus.app/client.js";
+  script.dataset.repo = "TownGG/towngg-portfolio";
+  script.dataset.repoId = "R_kgDOSgBRWw";
+  script.dataset.category = "General";
+  script.dataset.categoryId = "DIC_kwDOSgBRW84C-1ju";
+  script.dataset.mapping = "pathname";
+  script.dataset.strict = "0";
+  script.dataset.reactionsEnabled = "1";
+  script.dataset.emitMetadata = "1";
+  script.dataset.inputPosition = "bottom";
+  script.dataset.theme = "dark";
+  script.dataset.lang = "zh-CN";
+  script.dataset.loading = "lazy";
+  script.crossOrigin = "anonymous";
+  script.async = true;
+  target.appendChild(script);
 }
 
 async function init() {
   const shouldContinue = await checkSiteVersion();
   if (!shouldContinue) return;
   await loadDynamicData();
-
-  renderSiteVersion();
-  renderFeaturedMod();
   renderFeaturedVideo();
   renderLatestNotes();
   renderNotesPage();
   renderNotesTimeline();
   renderNoteDetail();
+  renderFeaturedMod();
   renderMods("[data-home-mods]", { excludeFeatured: true, limit: 3 });
   renderMods("[data-all-mods]");
   renderCreations();
-  renderGallery("[data-home-gallery]", { source: "featured", loop: true, twoRows: true });
-  renderGallery("[data-all-gallery]", { source: "concept" });
+  renderGallery("[data-home-gallery]", { source: "featured", limit: 12, loop: true, twoRows: true });
+  renderGallery("[data-all-gallery]", { source: "concept", emptyState: true });
   renderSocials();
-  setupNav();
-  setupPlatformTabs();
-  if (document.querySelector("[data-message-pagination]")) {
-    setupMessagePagination();
-  } else {
-    renderMessages(document.body.dataset.page === "home" ? 8 : undefined);
-  }
-  setupFilters();
-  setupStickyToolbars();
-  setupGalleryTabs();
-  setupGalleryModal();
+  renderMessages(document.body.dataset.page === "home" ? 8 : undefined);
+  setupMessagePagination();
   setupMessageForm();
+  setupAutoScroll("[data-home-gallery]", { axis: "x", step: 1, interval: 28 });
+  setupGalleryTabs();
+  setupNav();
+  setupFilters();
+  setupPlatformTabs();
+  setupStickyToolbars();
+  setupGalleryModal();
   setupNexusDashboard();
   setupCreationsDashboard();
-  setupHomeMetrics();
-  setupAutoScroll("[data-home-gallery]", { axis: "x", step: 1, interval: 18 });
-  setupAutoScroll("body[data-page='home'] [data-message-list]", { axis: "y", step: 1, interval: 38 });
+  setupDiscussionEmbed();
 }
 
 init();
-
-
-
