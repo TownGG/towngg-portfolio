@@ -38,6 +38,12 @@
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
+  const typeLabel = (type) => {
+    if (type === "featured") return "Homepage Featured";
+    if (type === "concept") return "Concept Art";
+    return "In-Game Screenshots";
+  };
+
   const setUploadStatus = (type, title, message) => {
     if (!uploadLog) return;
     const icon = type === "success" ? "✓" : type === "error" ? "!" : "↑";
@@ -127,13 +133,11 @@
     return `${size.toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
   };
 
-  const sanitizePart = (value) => {
-    return String(value || "")
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "_")
-      .replace(/^_+|_+$/g, "");
-  };
+  const sanitizePart = (value) => String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
 
   const getDateStamp = () => {
     const now = new Date();
@@ -154,16 +158,16 @@
       .replace(/\s+/g, " ");
 
     if (cleanPrefix) {
-      return type === "concept"
-        ? `${cleanPrefix} concept artwork`
-        : `${cleanPrefix} in-game screenshot`;
+      if (type === "featured") return `${cleanPrefix} homepage featured artwork`;
+      return type === "concept" ? `${cleanPrefix} concept artwork` : `${cleanPrefix} in-game screenshot`;
     }
 
+    if (type === "featured") return "TownGG homepage featured artwork";
     return type === "concept" ? "TownGG concept artwork" : "TownGG in-game screenshot";
   };
 
   const makeOutputName = (type, prefix, index) => {
-    const base = type === "concept" ? "concept" : "screenshot";
+    const base = type === "featured" ? "featured" : type === "concept" ? "concept" : "screenshot";
     const cleanPrefix = sanitizePart(prefix);
     const sequence = String(index + 1).padStart(3, "0");
     return [base, cleanPrefix, getDateStamp(), sequence].filter(Boolean).join("_") + ".jpg";
@@ -269,12 +273,7 @@
     for (const file of files) {
       try {
         const compressed = await compressImage(file);
-        pendingFiles.push({
-          originalName: file.name,
-          outputName: file.name,
-          alt: "",
-          ...compressed
-        });
+        pendingFiles.push({ originalName: file.name, outputName: file.name, alt: "", ...compressed });
       } catch (error) {
         setUploadStatus("error", "Image processing failed", error.message);
       }
@@ -290,18 +289,13 @@
     if (!key) return;
 
     const shouldRemember = Boolean(rememberAdminKeyInput?.checked);
-    if (shouldRemember) {
-      setStoredAdminKey(key);
-    } else {
-      clearStoredAdminKey();
-    }
+    if (shouldRemember) setStoredAdminKey(key);
+    else clearStoredAdminKey();
 
     unlockAdmin(key, shouldRemember);
   });
 
-  lockAdminButton?.addEventListener("click", () => {
-    lockAdmin();
-  });
+  lockAdminButton?.addEventListener("click", lockAdmin);
 
   forgetAdminKeyButton?.addEventListener("click", () => {
     clearStoredAdminKey();
@@ -316,9 +310,7 @@
     dropZone.classList.add("is-dragging");
   });
 
-  dropZone?.addEventListener("dragleave", () => {
-    dropZone.classList.remove("is-dragging");
-  });
+  dropZone?.addEventListener("dragleave", () => dropZone.classList.remove("is-dragging"));
 
   dropZone?.addEventListener("drop", (event) => {
     event.preventDefault();
@@ -378,16 +370,12 @@
     try {
       const files = [];
       for (const item of pendingFiles) {
-        files.push({
-          filename: item.outputName,
-          mime: "image/jpeg",
-          alt: item.alt,
-          base64: await readBlobAsBase64(item.blob)
-        });
+        files.push({ filename: item.outputName, mime: "image/jpeg", alt: item.alt, base64: await readBlobAsBase64(item.blob) });
       }
 
+      const uploadType = uploadTypeInput?.value || "screenshots";
       const payload = {
-        type: uploadTypeInput?.value || "screenshots",
+        type: uploadType,
         prefix: prefixInput?.value || "",
         altMode: altModeInput?.value || "auto",
         files
@@ -395,10 +383,7 @@
 
       const response = await fetch(API_ENDPOINT, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Admin-Key": adminKey
-        },
+        headers: { "Content-Type": "application/json", "X-Admin-Key": adminKey },
         body: JSON.stringify(payload)
       });
 
@@ -408,8 +393,7 @@
       }
 
       const uploadedCount = Array.isArray(result.uploaded) ? result.uploaded.length : files.length;
-      const target = result.updatedDataFile?.includes("screenshots") ? "In-Game Screenshots" : "Concept Art";
-      setUploadStatus("success", "Upload successful", `${uploadedCount} image(s) added to ${target}. The gallery may take a moment to refresh.`);
+      setUploadStatus("success", "Upload successful", `${uploadedCount} image(s) added to ${typeLabel(uploadType)}. The gallery may take a moment to refresh.`);
     } catch (error) {
       setUploadStatus("error", "Upload failed", error.message);
     }
