@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Hidden admin upload page for TownGG Portfolio gallery assets.">
+  <title>Admin Upload | TownGG MOD Portfolio</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=2.04.00">
+  <link rel="stylesheet" href="./assets/css/data-system.css?v=2.04.00">
+  <link rel="stylesheet" href="./assets/css/admin-upload.css?v=2.04.00">
+</head>
+<body class="admin-upload-page" data-page="admin-upload">
+  <main class="admin-shell">
+    <section class="admin-hero panel">
+      <div>
+        <div class="eyebrow">Hidden Admin Terminal</div>
+        <h1>Gallery<br><span>Upload System</span></h1>
+        <p class="admin-subtitle">Drag images, choose Concept Art or In-Game Screenshots, preview compressed output and upload through the secure Worker API.</p>
+      </div>
+      <a class="button" href="./index.html">Back to Portfolio</a>
+    </section>
+
+    <section class="admin-grid">
+      <form class="admin-card panel" data-upload-form>
+        <div class="admin-card-header">
+          <div>
+            <div class="eyebrow">Access</div>
+            <h2>Upload Settings</h2>
+          </div>
+          <span class="admin-status-pill" data-worker-status>Worker not connected</span>
+        </div>
+
+        <label class="admin-field">
+          <span>Admin Key</span>
+          <input type="password" name="adminKey" autocomplete="off" placeholder="Enter admin upload key" data-admin-key>
+        </label>
+
+        <label class="admin-field">
+          <span>Upload Type</span>
+          <select name="uploadType" data-upload-type>
+            <option value="screenshots">In-Game Screenshots</option>
+            <option value="concept">Concept Art</option>
+          </select>
+        </label>
+
+        <label class="admin-field">
+          <span>Project Prefix</span>
+          <input type="text" name="prefix" placeholder="cassilia / terminus / uc_power_fist" data-project-prefix>
+          <small>Optional. Used for automatic filenames and alt text.</small>
+        </label>
+
+        <label class="admin-field">
+          <span>Alt Text Mode</span>
+          <select name="altMode" data-alt-mode>
+            <option value="auto">Auto</option>
+            <option value="custom">Use custom text for all</option>
+          </select>
+        </label>
+
+        <label class="admin-field" data-custom-alt-wrap hidden>
+          <span>Custom Alt Text</span>
+          <input type="text" name="customAlt" placeholder="Cassilia UC Power Fist in-game screenshot" data-custom-alt>
+        </label>
+
+        <div class="admin-actions">
+          <button class="button" type="button" data-clear-files>Clear</button>
+          <button class="button primary" type="submit">Upload</button>
+        </div>
+      </form>
+
+      <section class="admin-card panel upload-zone-card">
+        <div class="admin-card-header">
+          <div>
+            <div class="eyebrow">Images</div>
+            <h2>Drag & Drop</h2>
+          </div>
+          <span class="admin-file-count" data-file-count>0 files</span>
+        </div>
+
+        <div class="drop-zone" data-drop-zone>
+          <input type="file" accept="image/png,image/jpeg,image/webp" multiple data-file-input>
+          <div class="drop-zone-inner">
+            <strong>Drop images here</strong>
+            <span>or click to select JPG, PNG or WEBP files</span>
+            <small>Browser compression target: max 1920px, JPG quality 0.86</small>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="admin-card panel">
+      <div class="admin-card-header">
+        <div>
+          <div class="eyebrow">Preview</div>
+          <h2>Pending Uploads</h2>
+        </div>
+        <span class="admin-total-size" data-total-size>0 KB</span>
+      </div>
+      <div class="upload-preview-list" data-preview-list>
+        <div class="empty-state">No images selected yet.</div>
+      </div>
+    </section>
+
+    <section class="admin-card panel">
+      <div class="admin-card-header">
+        <div>
+          <div class="eyebrow">Result</div>
+          <h2>Upload Log</h2>
+        </div>
+      </div>
+      <pre class="upload-log" data-upload-log>Ready. The page UI is active. Worker API will be connected in the next development step.</pre>
+    </section>
+  </main>
+
+  <script src="./assets/js/admin-upload.js?v=2.04.00"></script>
+</body>
+</html>
