@@ -10,9 +10,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./assets/css/styles.css?v=2.04.02">
-  <link rel="stylesheet" href="./assets/css/data-system.css?v=2.04.02">
-  <link rel="stylesheet" href="./assets/css/admin-upload.css?v=2.04.02">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=2.04.05">
+  <link rel="stylesheet" href="./assets/css/data-system.css?v=2.04.05">
+  <link rel="stylesheet" href="./assets/css/admin-upload.css?v=2.04.05">
+  <link rel="stylesheet" href="./assets/css/admin-upload-status.css?v=2.04.05">
 </head>
 <body class="admin-upload-page is-locked" data-page="admin-upload">
   <section class="admin-login-screen" data-admin-login-screen>
@@ -60,7 +61,7 @@
             <div class="eyebrow">Access</div>
             <h2>Upload Settings</h2>
           </div>
-          <span class="admin-status-pill" data-worker-status>Worker not connected</span>
+          <span class="admin-status-pill" data-worker-status>Worker connected</span>
         </div>
 
         <div class="admin-session-box">
@@ -139,13 +140,19 @@
       <div class="admin-card-header">
         <div>
           <div class="eyebrow">Result</div>
-          <h2>Upload Log</h2>
+          <h2>Upload Status</h2>
         </div>
       </div>
-      <pre class="upload-log" data-upload-log>Ready. The page UI is active. Worker API will be connected in the next development step.</pre>
+      <div class="upload-log is-idle" data-upload-log>
+        <span class="upload-status-icon">↑</span>
+        <div class="upload-status-body">
+          <strong class="upload-status-title">Ready</strong>
+          <span class="upload-status-message">Select images, then click Upload.</span>
+        </div>
+      </div>
     </section>
   </main>
 
-  <script src="./assets/js/admin-upload.js?v=2.04.02"></script>
+  <script src="./assets/js/admin-upload.js?v=2.04.05"></script>
 </body>
 </html>
