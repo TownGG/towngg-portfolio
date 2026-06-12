@@ -1,0 +1,38 @@
+/* TownGG Portfolio v2.04.07
+   Visual status for Nexus latest snapshot timestamp. */
+
+.dashboard-date {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 8px 13px;
+  border: 1px solid rgba(125, 216, 255, .18);
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .02)),
+    rgba(3, 7, 12, .36);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(12px);
+}
+
+.dashboard-date.is-fresh {
+  border-color: rgba(93, 255, 176, .24);
+  color: #d8fff0;
+}
+
+.dashboard-date.is-stale {
+  border-color: rgba(255, 185, 92, .34);
+  color: #ffd9a1;
+}
+
+@media (max-width: 720px) {
+  .dashboard-date {
+    width: fit-content;
+    margin-top: 12px;
+    font-size: 11px;
+  }
+}
