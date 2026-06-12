@@ -35,8 +35,10 @@ export default {
     const url = new URL(request.url);
     const isAuthCheck = url.pathname.endsWith("/api/admin/auth-check");
     const isGalleryUpload = url.pathname.endsWith("/api/admin/gallery-upload");
+    const isGalleryList = url.pathname.endsWith("/api/admin/gallery-list");
+    const isGalleryDelete = url.pathname.endsWith("/api/admin/gallery-delete");
 
-    if (request.method !== "POST" || (!isAuthCheck && !isGalleryUpload)) {
+    if (request.method !== "POST" || (!isAuthCheck && !isGalleryUpload && !isGalleryList && !isGalleryDelete)) {
       return jsonResponse({ success: false, error: "Not found" }, 404);
     }
 
@@ -48,10 +50,22 @@ export default {
         return jsonResponse({ success: true, authenticated: true });
       }
 
-      const payload = await request.json();
-      validatePayload(payload);
-
       const config = getConfig(env);
+
+      if (isGalleryList) {
+        const result = await listGalleryImages(config);
+        return jsonResponse({ success: true, ...result });
+      }
+
+      const payload = await request.json();
+
+      if (isGalleryDelete) {
+        validateDeletePayload(payload);
+        const result = await deleteGalleryImage(config, payload);
+        return jsonResponse({ success: true, ...result });
+      }
+
+      validatePayload(payload);
       const result = await commitGalleryUpload(config, payload);
 
       return jsonResponse({ success: true, ...result });
@@ -99,6 +113,14 @@ function getConfig(env) {
     repo: env.GITHUB_REPO || DEFAULT_REPO,
     branch: env.GITHUB_BRANCH || DEFAULT_BRANCH
   };
+}
+
+function dataPathForType(type) {
+  return type === "concept" ? CONCEPT_DATA_PATH : SCREENSHOT_DATA_PATH;
+}
+
+function displayType(type) {
+  return type === "concept" ? "Concept Art" : "In-Game Screenshots";
 }
 
 function validatePayload(payload) {
@@ -159,12 +181,78 @@ function validatePayload(payload) {
   }
 }
 
+function validateDeletePayload(payload) {
+  if (!payload || typeof payload !== "object") {
+    const error = new Error("Invalid delete payload");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!["concept", "screenshots"].includes(payload.type)) {
+    const error = new Error("Invalid delete type");
+    error.status = 400;
+    throw error;
+  }
+
+  const imagePath = normalizeImagePath(payload.image);
+  if (!isManagedImagePath(imagePath)) {
+    const error = new Error("Image path is not managed by the gallery uploader.");
+    error.status = 400;
+    throw error;
+  }
+}
+
 function isSafeJpegName(name) {
   return /^[a-z0-9][a-z0-9_-]*\.jpg$/.test(String(name || ""));
 }
 
+function normalizeImagePath(image) {
+  return String(image || "").trim().replace(/^\.\//, "");
+}
+
+function isManagedImagePath(path) {
+  return path.startsWith(`${IMAGE_DIR}/`) && /^[a-z0-9_\-/]+\.jpg$/.test(path);
+}
+
+function imageFilename(path) {
+  return String(path || "").split("/").pop() || path;
+}
+
+async function listGalleryImages(config) {
+  const concept = await readJsonFile(config, CONCEPT_DATA_PATH, config.branch, []);
+  const screenshots = await readJsonFile(config, SCREENSHOT_DATA_PATH, config.branch, []);
+
+  return {
+    images: [
+      ...normalizeGalleryEntries(concept, "concept"),
+      ...normalizeGalleryEntries(screenshots, "screenshots")
+    ],
+    counts: {
+      concept: concept.length,
+      screenshots: screenshots.length,
+      total: concept.length + screenshots.length
+    }
+  };
+}
+
+function normalizeGalleryEntries(entries, type) {
+  return (Array.isArray(entries) ? entries : []).map((entry, index) => {
+    const image = String(entry.image || "");
+    const path = normalizeImagePath(image);
+    return {
+      id: `${type}-${index}-${imageFilename(path)}`,
+      type,
+      typeLabel: displayType(type),
+      image,
+      path,
+      filename: imageFilename(path),
+      alt: String(entry.alt || "")
+    };
+  });
+}
+
 async function commitGalleryUpload(config, payload) {
-  const dataPath = payload.type === "concept" ? CONCEPT_DATA_PATH : SCREENSHOT_DATA_PATH;
+  const dataPath = dataPathForType(payload.type);
   const uploaded = [];
   const treeItems = [];
 
@@ -258,6 +346,84 @@ async function commitGalleryUpload(config, payload) {
     version: updatedVersionData.version,
     updatedDataFile: dataPath,
     uploaded
+  };
+}
+
+async function deleteGalleryImage(config, payload) {
+  const type = payload.type;
+  const dataPath = dataPathForType(type);
+  const imagePath = normalizeImagePath(payload.image);
+  const imageRef = imagePath.startsWith("./") ? imagePath : `./${imagePath}`;
+
+  const ref = await github(config, `/git/ref/heads/${config.branch}`);
+  const parentSha = ref.object.sha;
+  const parentCommit = await github(config, `/git/commits/${parentSha}`);
+  const baseTreeSha = parentCommit.tree.sha;
+
+  const latestGalleryData = await readJsonFile(config, dataPath, config.branch, []);
+  const latestVersionData = await readJsonFile(config, VERSION_DATA_PATH, config.branch, {});
+  const beforeCount = latestGalleryData.length;
+  const updatedGalleryData = latestGalleryData.filter((entry) => normalizeImagePath(entry.image) !== imagePath);
+
+  if (updatedGalleryData.length === beforeCount) {
+    const error = new Error("Gallery record was not found.");
+    error.status = 404;
+    throw error;
+  }
+
+  const galleryBlob = await github(config, "/git/blobs", {
+    method: "POST",
+    body: {
+      content: JSON.stringify(updatedGalleryData, null, 2) + "\n",
+      encoding: "utf-8"
+    }
+  });
+
+  const versionBlob = await github(config, "/git/blobs", {
+    method: "POST",
+    body: {
+      content: JSON.stringify(nextVersionData(latestVersionData), null, 2) + "\n",
+      encoding: "utf-8"
+    }
+  });
+
+  const tree = await github(config, "/git/trees", {
+    method: "POST",
+    body: {
+      base_tree: baseTreeSha,
+      tree: [
+        { path: imagePath, mode: "100644", type: "blob", sha: null },
+        { path: dataPath, mode: "100644", type: "blob", sha: galleryBlob.sha },
+        { path: VERSION_DATA_PATH, mode: "100644", type: "blob", sha: versionBlob.sha }
+      ]
+    }
+  });
+
+  const commit = await github(config, "/git/commits", {
+    method: "POST",
+    body: {
+      message: type === "concept" ? `Delete concept art ${imageFilename(imagePath)}` : `Delete screenshot ${imageFilename(imagePath)}`,
+      tree: tree.sha,
+      parents: [parentSha]
+    }
+  });
+
+  await github(config, `/git/refs/heads/${config.branch}`, {
+    method: "PATCH",
+    body: {
+      sha: commit.sha,
+      force: false
+    }
+  });
+
+  return {
+    commitSha: commit.sha,
+    deleted: {
+      type,
+      image: imageRef,
+      path: imagePath
+    },
+    updatedDataFile: dataPath
   };
 }
 
