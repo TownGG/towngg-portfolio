@@ -899,7 +899,6 @@ function renderDashboardSummary(rows) {
 
 function renderDashboardTable(rows) {
   const target = document.querySelector("[data-dashboard-table]");
-  const updated = document.querySelector("[data-dashboard-updated]");
   if (!target) return;
 
   const latest = latestDashboardRows(rows);
@@ -912,9 +911,6 @@ function renderDashboardTable(rows) {
       <td>${numberFormatter.format(dashboardNumber(row.likes))}</td>
     </tr>
   `).join("");
-
-  const dates = rows.map((row) => row.date).sort();
-  if (updated && dates.length) updated.textContent = `Updated ${dates.at(-1)}`;
 }
 
 function renderDashboardChart(rows) {
