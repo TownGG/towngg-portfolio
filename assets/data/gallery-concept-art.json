@@ -1,5 +1,33 @@
 [
   {
+    "image": "./assets/images/gallery-all-compressed/concept_01_20260612_001.jpg",
+    "alt": "01 concept artwork"
+  },
+  {
+    "image": "./assets/images/gallery-all-compressed/concept_01_20260612_002.jpg",
+    "alt": "01 concept artwork"
+  },
+  {
+    "image": "./assets/images/gallery-all-compressed/concept_01_20260612_003.jpg",
+    "alt": "01 concept artwork"
+  },
+  {
+    "image": "./assets/images/gallery-all-compressed/concept_01_20260612_004.jpg",
+    "alt": "01 concept artwork"
+  },
+  {
+    "image": "./assets/images/gallery-all-compressed/concept_01_20260612_005.jpg",
+    "alt": "01 concept artwork"
+  },
+  {
+    "image": "./assets/images/gallery-all-compressed/concept_01_20260612_006.jpg",
+    "alt": "01 concept artwork"
+  },
+  {
+    "image": "./assets/images/gallery-all-compressed/concept_01_20260612_007.jpg",
+    "alt": "01 concept artwork"
+  },
+  {
     "image": "./assets/images/gallery-all-compressed/concept_20260612_001.jpg",
     "alt": "TownGG concept artwork"
   },
