@@ -13,11 +13,14 @@ const DEFAULT_OWNER = "TownGG";
 const DEFAULT_REPO = "towngg-portfolio";
 const DEFAULT_BRANCH = "main";
 const IMAGE_DIR = "assets/images/gallery-all-compressed";
+const FEATURED_IMAGE_DIR = "assets/images/gallery-featured-compressed";
 const CONCEPT_DATA_PATH = "assets/data/gallery-concept-art.json";
 const SCREENSHOT_DATA_PATH = "assets/data/gallery-screenshots.json";
+const SITE_DATA_PATH = "assets/js/site-data.js";
 const VERSION_DATA_PATH = "assets/data/site-version.json";
 const MAX_FILES = 20;
 const MAX_BASE64_CHARS = 16 * 1024 * 1024;
+const VALID_TYPES = ["concept", "screenshots", "featured"];
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -116,11 +119,26 @@ function getConfig(env) {
 }
 
 function dataPathForType(type) {
-  return type === "concept" ? CONCEPT_DATA_PATH : SCREENSHOT_DATA_PATH;
+  if (type === "concept") return CONCEPT_DATA_PATH;
+  if (type === "screenshots") return SCREENSHOT_DATA_PATH;
+  return "";
+}
+
+function imageDirForType(type) {
+  return type === "featured" ? FEATURED_IMAGE_DIR : IMAGE_DIR;
 }
 
 function displayType(type) {
+  if (type === "featured") return "Homepage Featured";
   return type === "concept" ? "Concept Art" : "In-Game Screenshots";
+}
+
+function validateType(type, message = "Invalid type") {
+  if (!VALID_TYPES.includes(type)) {
+    const error = new Error(message);
+    error.status = 400;
+    throw error;
+  }
 }
 
 function validatePayload(payload) {
@@ -130,11 +148,7 @@ function validatePayload(payload) {
     throw error;
   }
 
-  if (!["concept", "screenshots"].includes(payload.type)) {
-    const error = new Error("Invalid upload type");
-    error.status = 400;
-    throw error;
-  }
+  validateType(payload.type, "Invalid upload type");
 
   if (!Array.isArray(payload.files) || payload.files.length === 0) {
     const error = new Error("No files provided");
@@ -188,11 +202,7 @@ function validateDeletePayload(payload) {
     throw error;
   }
 
-  if (!["concept", "screenshots"].includes(payload.type)) {
-    const error = new Error("Invalid delete type");
-    error.status = 400;
-    throw error;
-  }
+  validateType(payload.type, "Invalid delete type");
 
   const imagePath = normalizeImagePath(payload.image);
   if (!isManagedImagePath(imagePath)) {
@@ -211,7 +221,8 @@ function normalizeImagePath(image) {
 }
 
 function isManagedImagePath(path) {
-  return path.startsWith(`${IMAGE_DIR}/`) && /^[a-z0-9_\-/]+\.jpg$/.test(path);
+  const isKnownDir = path.startsWith(`${IMAGE_DIR}/`) || path.startsWith(`${FEATURED_IMAGE_DIR}/`);
+  return isKnownDir && /^[a-z0-9_\-/]+\.(jpg|jpeg|png|webp)$/i.test(path);
 }
 
 function imageFilename(path) {
@@ -221,16 +232,20 @@ function imageFilename(path) {
 async function listGalleryImages(config) {
   const concept = await readJsonFile(config, CONCEPT_DATA_PATH, config.branch, []);
   const screenshots = await readJsonFile(config, SCREENSHOT_DATA_PATH, config.branch, []);
+  const siteDataText = await readTextFile(config, SITE_DATA_PATH, config.branch, "");
+  const featured = extractFeaturedArtworks(siteDataText);
 
   return {
     images: [
+      ...normalizeGalleryEntries(featured, "featured"),
       ...normalizeGalleryEntries(concept, "concept"),
       ...normalizeGalleryEntries(screenshots, "screenshots")
     ],
     counts: {
+      featured: featured.length,
       concept: concept.length,
       screenshots: screenshots.length,
-      total: concept.length + screenshots.length
+      total: featured.length + concept.length + screenshots.length
     }
   };
 }
@@ -252,7 +267,12 @@ function normalizeGalleryEntries(entries, type) {
 }
 
 async function commitGalleryUpload(config, payload) {
+  if (payload.type === "featured") {
+    return commitFeaturedUpload(config, payload);
+  }
+
   const dataPath = dataPathForType(payload.type);
+  const imageDir = imageDirForType(payload.type);
   const uploaded = [];
   const treeItems = [];
 
@@ -265,8 +285,8 @@ async function commitGalleryUpload(config, payload) {
   const latestVersionData = await readJsonFile(config, VERSION_DATA_PATH, config.branch, {});
 
   for (const file of payload.files) {
-    const uniqueName = await makeUniqueFilename(config, file.filename, config.branch);
-    const imagePath = `${IMAGE_DIR}/${uniqueName}`;
+    const uniqueName = await makeUniqueFilename(config, file.filename, config.branch, imageDir);
+    const imagePath = `${imageDir}/${uniqueName}`;
     const imageBlob = await github(config, "/git/blobs", {
       method: "POST",
       body: {
@@ -275,71 +295,28 @@ async function commitGalleryUpload(config, payload) {
       }
     });
 
-    treeItems.push({
-      path: imagePath,
-      mode: "100644",
-      type: "blob",
-      sha: imageBlob.sha
-    });
-
-    uploaded.push({
-      path: imagePath,
-      image: `./${imagePath}`,
-      alt: normalizeAlt(file.alt, payload.type)
-    });
+    treeItems.push({ path: imagePath, mode: "100644", type: "blob", sha: imageBlob.sha });
+    uploaded.push({ path: imagePath, image: `./${imagePath}`, alt: normalizeAlt(file.alt, payload.type) });
   }
 
-  const newEntries = uploaded.map((item) => ({
-    image: item.image,
-    alt: item.alt
-  }));
-
+  const newEntries = uploaded.map((item) => ({ image: item.image, alt: item.alt }));
   const updatedGalleryData = [...newEntries, ...latestGalleryData];
   const updatedVersionData = nextVersionData(latestVersionData);
 
   const galleryBlob = await github(config, "/git/blobs", {
     method: "POST",
-    body: {
-      content: JSON.stringify(updatedGalleryData, null, 2) + "\n",
-      encoding: "utf-8"
-    }
+    body: { content: JSON.stringify(updatedGalleryData, null, 2) + "\n", encoding: "utf-8" }
   });
 
   const versionBlob = await github(config, "/git/blobs", {
     method: "POST",
-    body: {
-      content: JSON.stringify(updatedVersionData, null, 2) + "\n",
-      encoding: "utf-8"
-    }
+    body: { content: JSON.stringify(updatedVersionData, null, 2) + "\n", encoding: "utf-8" }
   });
 
   treeItems.push({ path: dataPath, mode: "100644", type: "blob", sha: galleryBlob.sha });
   treeItems.push({ path: VERSION_DATA_PATH, mode: "100644", type: "blob", sha: versionBlob.sha });
 
-  const tree = await github(config, "/git/trees", {
-    method: "POST",
-    body: {
-      base_tree: baseTreeSha,
-      tree: treeItems
-    }
-  });
-
-  const commit = await github(config, "/git/commits", {
-    method: "POST",
-    body: {
-      message: payload.type === "concept" ? "Add concept art uploads" : "Add in-game screenshot uploads",
-      tree: tree.sha,
-      parents: [parentSha]
-    }
-  });
-
-  await github(config, `/git/refs/heads/${config.branch}`, {
-    method: "PATCH",
-    body: {
-      sha: commit.sha,
-      force: false
-    }
-  });
+  const commit = await createCommitFromTree(config, baseTreeSha, treeItems, parentSha, payload.type === "concept" ? "Add concept art uploads" : "Add in-game screenshot uploads");
 
   return {
     commitSha: commit.sha,
@@ -349,7 +326,62 @@ async function commitGalleryUpload(config, payload) {
   };
 }
 
+async function commitFeaturedUpload(config, payload) {
+  const uploaded = [];
+  const treeItems = [];
+  const ref = await github(config, `/git/ref/heads/${config.branch}`);
+  const parentSha = ref.object.sha;
+  const parentCommit = await github(config, `/git/commits/${parentSha}`);
+  const baseTreeSha = parentCommit.tree.sha;
+
+  const latestSiteDataText = await readTextFile(config, SITE_DATA_PATH, config.branch, "");
+  const latestFeatured = extractFeaturedArtworks(latestSiteDataText);
+  const latestVersionData = await readJsonFile(config, VERSION_DATA_PATH, config.branch, {});
+
+  for (const file of payload.files) {
+    const uniqueName = await makeUniqueFilename(config, file.filename, config.branch, FEATURED_IMAGE_DIR);
+    const imagePath = `${FEATURED_IMAGE_DIR}/${uniqueName}`;
+    const imageBlob = await github(config, "/git/blobs", {
+      method: "POST",
+      body: { content: file.base64, encoding: "base64" }
+    });
+
+    treeItems.push({ path: imagePath, mode: "100644", type: "blob", sha: imageBlob.sha });
+    uploaded.push({ path: imagePath, image: `./${imagePath}`, alt: normalizeAlt(file.alt, payload.type) });
+  }
+
+  const updatedFeatured = [...uploaded.map(({ image, alt }) => ({ image, alt })), ...latestFeatured];
+  const updatedSiteDataText = replaceFeaturedArtworks(latestSiteDataText, updatedFeatured);
+  const updatedVersionData = nextVersionData(latestVersionData);
+
+  const siteDataBlob = await github(config, "/git/blobs", {
+    method: "POST",
+    body: { content: updatedSiteDataText, encoding: "utf-8" }
+  });
+
+  const versionBlob = await github(config, "/git/blobs", {
+    method: "POST",
+    body: { content: JSON.stringify(updatedVersionData, null, 2) + "\n", encoding: "utf-8" }
+  });
+
+  treeItems.push({ path: SITE_DATA_PATH, mode: "100644", type: "blob", sha: siteDataBlob.sha });
+  treeItems.push({ path: VERSION_DATA_PATH, mode: "100644", type: "blob", sha: versionBlob.sha });
+
+  const commit = await createCommitFromTree(config, baseTreeSha, treeItems, parentSha, "Add homepage featured image uploads");
+
+  return {
+    commitSha: commit.sha,
+    version: updatedVersionData.version,
+    updatedDataFile: SITE_DATA_PATH,
+    uploaded
+  };
+}
+
 async function deleteGalleryImage(config, payload) {
+  if (payload.type === "featured") {
+    return deleteFeaturedImage(config, payload);
+  }
+
   const type = payload.type;
   const dataPath = dataPathForType(type);
   const imagePath = normalizeImagePath(payload.image);
@@ -373,61 +405,129 @@ async function deleteGalleryImage(config, payload) {
 
   const galleryBlob = await github(config, "/git/blobs", {
     method: "POST",
-    body: {
-      content: JSON.stringify(updatedGalleryData, null, 2) + "\n",
-      encoding: "utf-8"
-    }
+    body: { content: JSON.stringify(updatedGalleryData, null, 2) + "\n", encoding: "utf-8" }
   });
 
+  const updatedVersionData = nextVersionData(latestVersionData);
   const versionBlob = await github(config, "/git/blobs", {
     method: "POST",
-    body: {
-      content: JSON.stringify(nextVersionData(latestVersionData), null, 2) + "\n",
-      encoding: "utf-8"
-    }
+    body: { content: JSON.stringify(updatedVersionData, null, 2) + "\n", encoding: "utf-8" }
   });
 
-  const tree = await github(config, "/git/trees", {
-    method: "POST",
-    body: {
-      base_tree: baseTreeSha,
-      tree: [
-        { path: imagePath, mode: "100644", type: "blob", sha: null },
-        { path: dataPath, mode: "100644", type: "blob", sha: galleryBlob.sha },
-        { path: VERSION_DATA_PATH, mode: "100644", type: "blob", sha: versionBlob.sha }
-      ]
-    }
-  });
-
-  const commit = await github(config, "/git/commits", {
-    method: "POST",
-    body: {
-      message: type === "concept" ? `Delete concept art ${imageFilename(imagePath)}` : `Delete screenshot ${imageFilename(imagePath)}`,
-      tree: tree.sha,
-      parents: [parentSha]
-    }
-  });
-
-  await github(config, `/git/refs/heads/${config.branch}`, {
-    method: "PATCH",
-    body: {
-      sha: commit.sha,
-      force: false
-    }
-  });
+  const commit = await createCommitFromTree(config, baseTreeSha, [
+    { path: imagePath, mode: "100644", type: "blob", sha: null },
+    { path: dataPath, mode: "100644", type: "blob", sha: galleryBlob.sha },
+    { path: VERSION_DATA_PATH, mode: "100644", type: "blob", sha: versionBlob.sha }
+  ], parentSha, type === "concept" ? `Delete concept art ${imageFilename(imagePath)}` : `Delete screenshot ${imageFilename(imagePath)}`);
 
   return {
     commitSha: commit.sha,
-    deleted: {
-      type,
-      image: imageRef,
-      path: imagePath
-    },
+    version: updatedVersionData.version,
+    deleted: { type, image: imageRef, path: imagePath },
     updatedDataFile: dataPath
   };
 }
 
+async function deleteFeaturedImage(config, payload) {
+  const imagePath = normalizeImagePath(payload.image);
+  const imageRef = imagePath.startsWith("./") ? imagePath : `./${imagePath}`;
+
+  const ref = await github(config, `/git/ref/heads/${config.branch}`);
+  const parentSha = ref.object.sha;
+  const parentCommit = await github(config, `/git/commits/${parentSha}`);
+  const baseTreeSha = parentCommit.tree.sha;
+
+  const latestSiteDataText = await readTextFile(config, SITE_DATA_PATH, config.branch, "");
+  const latestFeatured = extractFeaturedArtworks(latestSiteDataText);
+  const latestVersionData = await readJsonFile(config, VERSION_DATA_PATH, config.branch, {});
+  const beforeCount = latestFeatured.length;
+  const updatedFeatured = latestFeatured.filter((entry) => normalizeImagePath(entry.image) !== imagePath);
+
+  if (updatedFeatured.length === beforeCount) {
+    const error = new Error("Featured image record was not found.");
+    error.status = 404;
+    throw error;
+  }
+
+  const updatedSiteDataText = replaceFeaturedArtworks(latestSiteDataText, updatedFeatured);
+  const updatedVersionData = nextVersionData(latestVersionData);
+
+  const siteDataBlob = await github(config, "/git/blobs", {
+    method: "POST",
+    body: { content: updatedSiteDataText, encoding: "utf-8" }
+  });
+
+  const versionBlob = await github(config, "/git/blobs", {
+    method: "POST",
+    body: { content: JSON.stringify(updatedVersionData, null, 2) + "\n", encoding: "utf-8" }
+  });
+
+  const commit = await createCommitFromTree(config, baseTreeSha, [
+    { path: imagePath, mode: "100644", type: "blob", sha: null },
+    { path: SITE_DATA_PATH, mode: "100644", type: "blob", sha: siteDataBlob.sha },
+    { path: VERSION_DATA_PATH, mode: "100644", type: "blob", sha: versionBlob.sha }
+  ], parentSha, `Delete homepage featured image ${imageFilename(imagePath)}`);
+
+  return {
+    commitSha: commit.sha,
+    version: updatedVersionData.version,
+    deleted: { type: "featured", image: imageRef, path: imagePath },
+    updatedDataFile: SITE_DATA_PATH
+  };
+}
+
+function extractFeaturedArtworks(siteDataText) {
+  const match = String(siteDataText || "").match(/featuredArtworks:\s*\[([\s\S]*?)\]\s*,\s*artworks:/);
+  if (!match) return [];
+  const block = match[1];
+  const entries = [];
+  const itemPattern = /\{\s*image:\s*(["'])(.*?)\1\s*,\s*alt:\s*(["'])(.*?)\3\s*\}/g;
+  let item;
+  while ((item = itemPattern.exec(block))) {
+    entries.push({ image: item[2], alt: item[4] });
+  }
+  return entries;
+}
+
+function replaceFeaturedArtworks(siteDataText, entries) {
+  const formatted = JSON.stringify(entries, null, 4)
+    .replace(/"image"/g, "image")
+    .replace(/"alt"/g, "alt")
+    .split("\n")
+    .map((line, index) => index === 0 ? line : `  ${line}`)
+    .join("\n");
+
+  const replacement = `featuredArtworks: ${formatted},\n  artworks:`;
+  const updated = String(siteDataText || "").replace(/featuredArtworks:\s*\[[\s\S]*?\]\s*,\s*artworks:/, replacement);
+  if (updated === siteDataText) {
+    const error = new Error("Unable to update featuredArtworks in site-data.js.");
+    error.status = 500;
+    throw error;
+  }
+  return updated;
+}
+
+async function createCommitFromTree(config, baseTreeSha, treeItems, parentSha, message) {
+  const tree = await github(config, "/git/trees", {
+    method: "POST",
+    body: { base_tree: baseTreeSha, tree: treeItems }
+  });
+
+  const commit = await github(config, "/git/commits", {
+    method: "POST",
+    body: { message, tree: tree.sha, parents: [parentSha] }
+  });
+
+  await github(config, `/git/refs/heads/${config.branch}`, {
+    method: "PATCH",
+    body: { sha: commit.sha, force: false }
+  });
+
+  return commit;
+}
+
 function normalizeAlt(alt, type) {
+  if (type === "featured") return String(alt || "TownGG homepage featured artwork").trim().slice(0, 180) || "TownGG homepage featured artwork";
   const fallback = type === "concept" ? "TownGG concept artwork" : "TownGG in-game screenshot";
   return String(alt || fallback).trim().slice(0, 180) || fallback;
 }
@@ -453,14 +553,14 @@ function nextVersionData(current) {
   };
 }
 
-async function makeUniqueFilename(config, filename, branch) {
+async function makeUniqueFilename(config, filename, branch, imageDir = IMAGE_DIR) {
   const dotIndex = filename.lastIndexOf(".");
   const base = filename.slice(0, dotIndex);
   const ext = filename.slice(dotIndex);
   let candidate = filename;
   let counter = 1;
 
-  while (await fileExists(config, `${IMAGE_DIR}/${candidate}`, branch)) {
+  while (await fileExists(config, `${imageDir}/${candidate}`, branch)) {
     counter += 1;
     candidate = `${base}_${String(counter).padStart(2, "0")}${ext}`;
   }
@@ -480,10 +580,15 @@ async function fileExists(config, path, branch) {
 }
 
 async function readJsonFile(config, path, branch, fallback) {
+  const text = await readTextFile(config, path, branch, "");
+  if (!text) return fallback;
+  return JSON.parse(text);
+}
+
+async function readTextFile(config, path, branch, fallback) {
   const file = await github(config, `/contents/${encodeURIComponentPath(path)}?ref=${encodeURIComponent(branch)}`);
   if (!file || !file.content) return fallback;
-  const decoded = decodeBase64Utf8(file.content.replace(/\n/g, ""));
-  return JSON.parse(decoded);
+  return decodeBase64Utf8(file.content.replace(/\n/g, ""));
 }
 
 async function github(config, path, options = {}) {
