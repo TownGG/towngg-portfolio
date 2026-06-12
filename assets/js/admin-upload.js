@@ -2,6 +2,17 @@
   const MAX_DIMENSION = 1920;
   const JPEG_QUALITY = 0.86;
   const API_ENDPOINT = "/api/admin/gallery-upload";
+  const STORAGE_KEY = "towngg_admin_upload_key";
+
+  const body = document.body;
+  const loginScreen = document.querySelector("[data-admin-login-screen]");
+  const loginForm = document.querySelector("[data-admin-login-form]");
+  const loginAdminKeyInput = document.querySelector("[data-login-admin-key]");
+  const rememberAdminKeyInput = document.querySelector("[data-remember-admin-key]");
+  const adminShell = document.querySelector("[data-admin-shell]");
+  const adminKeyState = document.querySelector("[data-admin-key-state]");
+  const lockAdminButton = document.querySelector("[data-lock-admin]");
+  const forgetAdminKeyButton = document.querySelector("[data-forget-admin-key]");
 
   const form = document.querySelector("[data-upload-form]");
   const dropZone = document.querySelector("[data-drop-zone]");
@@ -18,10 +29,72 @@
   const customAltInput = document.querySelector("[data-custom-alt]");
 
   let pendingFiles = [];
+  let sessionAdminKey = "";
+  let rememberedKeyLoaded = false;
 
   const writeLog = (message) => {
     if (!uploadLog) return;
     uploadLog.textContent = message;
+  };
+
+  const getStoredAdminKey = () => {
+    try {
+      return localStorage.getItem(STORAGE_KEY) || "";
+    } catch (error) {
+      return "";
+    }
+  };
+
+  const setStoredAdminKey = (value) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, value);
+    } catch (error) {
+      writeLog("Unable to remember key in this browser.");
+    }
+  };
+
+  const clearStoredAdminKey = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      // Ignore storage cleanup errors.
+    }
+  };
+
+  const getAdminKey = () => sessionAdminKey || getStoredAdminKey();
+
+  const updateAdminKeyState = () => {
+    if (!adminKeyState) return;
+    adminKeyState.textContent = rememberedKeyLoaded ? "Remembered on this device" : "Session only";
+  };
+
+  const unlockAdmin = (key, remembered = false) => {
+    sessionAdminKey = key;
+    rememberedKeyLoaded = remembered;
+    body?.classList.remove("is-locked");
+    loginScreen?.classList.add("is-hidden");
+    if (adminShell) adminShell.hidden = false;
+    updateAdminKeyState();
+    writeLog(remembered ? "Admin key loaded from this browser. Ready." : "Admin session unlocked. Ready.");
+  };
+
+  const lockAdmin = () => {
+    sessionAdminKey = "";
+    rememberedKeyLoaded = false;
+    body?.classList.add("is-locked");
+    loginScreen?.classList.remove("is-hidden");
+    if (adminShell) adminShell.hidden = true;
+    if (loginAdminKeyInput) loginAdminKeyInput.value = "";
+    updateAdminKeyState();
+  };
+
+  const bootAdminGate = () => {
+    const rememberedKey = getStoredAdminKey();
+    if (rememberedKey) {
+      unlockAdmin(rememberedKey, true);
+      return;
+    }
+    lockAdmin();
   };
 
   const formatBytes = (bytes) => {
@@ -193,6 +266,33 @@
     writeLog(`Ready. ${pendingFiles.length} compressed image(s) waiting for upload.`);
   };
 
+  loginForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const key = loginAdminKeyInput?.value.trim() || "";
+    if (!key) return;
+
+    const shouldRemember = Boolean(rememberAdminKeyInput?.checked);
+    if (shouldRemember) {
+      setStoredAdminKey(key);
+    } else {
+      clearStoredAdminKey();
+    }
+
+    unlockAdmin(key, shouldRemember);
+  });
+
+  lockAdminButton?.addEventListener("click", () => {
+    lockAdmin();
+  });
+
+  forgetAdminKeyButton?.addEventListener("click", () => {
+    clearStoredAdminKey();
+    sessionAdminKey = "";
+    rememberedKeyLoaded = false;
+    writeLog("Saved admin key removed from this browser. Please log in again.");
+    lockAdmin();
+  });
+
   dropZone?.addEventListener("dragover", (event) => {
     event.preventDefault();
     dropZone.classList.add("is-dragging");
@@ -243,9 +343,10 @@
     event.preventDefault();
     refreshNames();
 
-    const adminKey = document.querySelector("[data-admin-key]")?.value.trim();
+    const adminKey = getAdminKey();
     if (!adminKey) {
-      writeLog("Admin Key is required.");
+      writeLog("Admin Key is required. Please log in again.");
+      lockAdmin();
       return;
     }
 
@@ -294,5 +395,6 @@
     }
   });
 
+  bootAdminGate();
   renderPreview();
 })();
