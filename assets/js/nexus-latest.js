@@ -1,9 +1,11 @@
 (() => {
   const formatter = new Intl.NumberFormat("en-US");
+  const LATEST_REFRESH_MS = 5 * 60 * 1000;
+  const STALE_AFTER_MS = 90 * 60 * 1000;
 
-  function versioned(path) {
-    const version = window.__townggSiteVersion || localStorage.getItem("townggSiteVersion") || Date.now();
-    return `${path}?v=${encodeURIComponent(version)}`;
+  function latestSnapshotPath(path) {
+    const bucket = Math.floor(Date.now() / LATEST_REFRESH_MS);
+    return `${path}?latest=${bucket}`;
   }
 
   function number(value) {
@@ -89,17 +91,29 @@
     `).join("");
   }
 
+  function formatDateTime(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hour = String(date.getHours()).padStart(2, "0");
+    const minute = String(date.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hour}:${minute}`;
+  }
+
   function updateTimestamp(updatedAt) {
     const target = document.querySelector("[data-dashboard-updated]");
     if (!target || !updatedAt) return;
     const date = new Date(updatedAt);
     if (Number.isNaN(date.getTime())) return;
-    target.textContent = `Latest sync ${date.toLocaleString(undefined, {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    })}`;
+
+    const age = Date.now() - date.getTime();
+    const isStale = age > STALE_AFTER_MS;
+    target.classList.toggle("is-stale", isStale);
+    target.classList.toggle("is-fresh", !isStale);
+    target.textContent = `Updated ${formatDateTime(date)}`;
+    target.title = isStale
+      ? "Nexus latest snapshot is older than the expected hourly sync window."
+      : "Nexus latest snapshot loaded independently from the trend chart.";
   }
 
   async function applyNexusLatest() {
@@ -107,7 +121,7 @@
     if (!dashboard) return;
 
     try {
-      const response = await fetch(versioned("./assets/data/nexus-latest.json"), { cache: "no-store" });
+      const response = await fetch(latestSnapshotPath("./assets/data/nexus-latest.json"), { cache: "no-store" });
       if (!response.ok) return;
       const payload = await response.json();
       const latestRows = Array.isArray(payload.mods) ? payload.mods : [];
