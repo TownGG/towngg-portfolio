@@ -1,0 +1,81 @@
+/* TownGG Portfolio v2.04.34
+   Mods page alignment and active-state fixes. */
+
+.mod-platforms .container {
+  max-width: 1380px;
+}
+
+.mod-platforms .platform-panel {
+  width: 100%;
+}
+
+.mod-platforms .dashboard-summary,
+.mod-platforms .mods-control-bar,
+.mod-platforms .projects,
+.mod-platforms .dashboard-panel {
+  width: 100%;
+}
+
+.mod-platforms .dashboard-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.mod-platforms .mods-control-bar {
+  display: grid;
+  grid-template-columns: minmax(260px, auto) 1fr;
+  align-items: center;
+  justify-content: stretch;
+  gap: 18px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.mod-platforms .mods-platform-control {
+  justify-self: start;
+}
+
+.mod-platforms .mods-filter-control,
+.mod-platforms .desktop-filter-chips {
+  justify-self: end;
+}
+
+.mod-platforms .projects {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.platform-tab.is-active,
+.platform-tab[aria-selected="true"] {
+  border-color: rgba(125, 216, 255, .46);
+  background:
+    linear-gradient(135deg, rgba(125, 216, 255, .16), rgba(125, 216, 255, .06)),
+    rgba(3, 7, 12, .58);
+  color: #eaf8ff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 0 0 1px rgba(125, 216, 255, .04);
+}
+
+@media (max-width: 1120px) {
+  .mod-platforms .dashboard-summary,
+  .mod-platforms .projects {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .mod-platforms .dashboard-summary,
+  .mod-platforms .projects,
+  .mod-platforms .mods-control-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .mod-platforms .mods-platform-control,
+  .mod-platforms .mods-filter-control,
+  .mod-platforms .desktop-filter-chips {
+    justify-self: stretch;
+  }
+
+  .mod-platforms .platform-tabs,
+  .mod-platforms .desktop-filter-chips {
+    width: 100%;
+  }
+}
