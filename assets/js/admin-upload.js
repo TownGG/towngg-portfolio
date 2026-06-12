@@ -32,9 +32,27 @@
   let sessionAdminKey = "";
   let rememberedKeyLoaded = false;
 
-  const writeLog = (message) => {
+  const escapeHtml = (value) => String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+  const setUploadStatus = (type, title, message) => {
     if (!uploadLog) return;
-    uploadLog.textContent = message;
+    const icon = type === "success" ? "✓" : type === "error" ? "!" : "↑";
+    uploadLog.className = `upload-log is-${type}`;
+    uploadLog.innerHTML = `
+      <span class="upload-status-icon">${icon}</span>
+      <div class="upload-status-body">
+        <strong class="upload-status-title">${escapeHtml(title)}</strong>
+        <span class="upload-status-message">${escapeHtml(message)}</span>
+      </div>
+    `;
+  };
+
+  const writeLog = (message) => {
+    setUploadStatus("idle", "Status", message);
   };
 
   const getStoredAdminKey = () => {
@@ -258,12 +276,12 @@
           ...compressed
         });
       } catch (error) {
-        writeLog(error.message);
+        setUploadStatus("error", "Image processing failed", error.message);
       }
     }
 
     renderPreview();
-    writeLog(`Ready. ${pendingFiles.length} compressed image(s) waiting for upload.`);
+    writeLog(`${pendingFiles.length} compressed image(s) waiting for upload.`);
   };
 
   loginForm?.addEventListener("submit", (event) => {
@@ -345,7 +363,7 @@
 
     const adminKey = getAdminKey();
     if (!adminKey) {
-      writeLog("Admin Key is required. Please log in again.");
+      setUploadStatus("error", "Upload failed", "Admin Key is required. Please log in again.");
       lockAdmin();
       return;
     }
@@ -355,7 +373,7 @@
       return;
     }
 
-    writeLog("Preparing upload payload...");
+    writeLog("Uploading images...");
 
     try {
       const files = [];
@@ -389,9 +407,11 @@
         throw new Error(result?.error || `Upload API failed with HTTP ${response.status}. Worker may not be deployed yet.`);
       }
 
-      writeLog(JSON.stringify(result, null, 2));
+      const uploadedCount = Array.isArray(result.uploaded) ? result.uploaded.length : files.length;
+      const target = result.updatedDataFile?.includes("screenshots") ? "In-Game Screenshots" : "Concept Art";
+      setUploadStatus("success", "Upload successful", `${uploadedCount} image(s) added to ${target}. The gallery may take a moment to refresh.`);
     } catch (error) {
-      writeLog(`Upload not completed.\n${error.message}`);
+      setUploadStatus("error", "Upload failed", error.message);
     }
   });
 
