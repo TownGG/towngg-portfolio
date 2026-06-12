@@ -1,0 +1,20 @@
+/* TownGG Portfolio v2.04.32
+   Admin page navigation alignment. */
+
+.admin-upload-page .site-header {
+  z-index: 20;
+}
+
+.admin-upload-page .admin-login-screen {
+  z-index: 40;
+}
+
+.admin-upload-page .admin-shell {
+  padding-top: 116px;
+}
+
+@media (max-width: 760px) {
+  .admin-upload-page .admin-shell {
+    padding-top: 104px;
+  }
+}
