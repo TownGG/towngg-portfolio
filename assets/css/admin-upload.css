@@ -1,4 +1,4 @@
-/* TownGG Portfolio v2.04.00
+/* TownGG Portfolio v2.04.01
    Hidden Gallery Upload System UI.
    This stylesheet is isolated from the public portfolio pages. */
 
@@ -9,6 +9,61 @@
     radial-gradient(circle at 12% 24%, rgba(139, 92, 246, .12), transparent 26%),
     linear-gradient(145deg, rgba(7, 11, 18, .96), rgba(3, 7, 12, .98)),
     var(--bg);
+}
+
+.admin-upload-page.is-locked {
+  overflow: hidden;
+}
+
+.admin-login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(125, 216, 255, .16), transparent 36%),
+    radial-gradient(circle at bottom left, rgba(139, 92, 246, .15), transparent 30%),
+    rgba(3, 7, 12, .92);
+  backdrop-filter: blur(18px);
+}
+
+.admin-login-screen.is-hidden {
+  display: none;
+}
+
+.admin-login-card {
+  width: min(520px, 100%);
+  padding: 34px;
+  border-radius: 30px;
+}
+
+.admin-login-card h1 {
+  margin: 16px 0;
+  font-size: clamp(48px, 8vw, 76px);
+}
+
+.admin-login-card p,
+.admin-security-note {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.remember-key-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 18px;
+  color: #d8e9f8;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.remember-key-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: #7dd8ff;
 }
 
 .admin-shell {
@@ -37,6 +92,13 @@
   color: var(--muted);
   font-size: 16px;
   line-height: 1.75;
+}
+
+.admin-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 .admin-grid {
@@ -80,6 +142,36 @@
   font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
+}
+
+.admin-session-box {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 14px;
+  border: 1px solid rgba(125, 216, 255, .14);
+  border-radius: 18px;
+  background: rgba(125, 216, 255, .055);
+}
+
+.admin-session-box span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.admin-session-box strong {
+  color: #eaf8ff;
+  font-size: 14px;
+}
+
+.button.mini {
+  width: fit-content;
+  min-height: 34px;
+  padding: 8px 12px;
+  font-size: 12px;
 }
 
 .admin-field {
@@ -280,9 +372,15 @@
   }
 
   .admin-card,
-  .admin-hero {
+  .admin-hero,
+  .admin-login-card {
     padding: 20px;
     border-radius: 22px;
+  }
+
+  .admin-hero-actions,
+  .admin-actions {
+    justify-content: flex-start;
   }
 
   .preview-item {
