@@ -10,19 +10,46 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./assets/css/styles.css?v=2.04.00">
-  <link rel="stylesheet" href="./assets/css/data-system.css?v=2.04.00">
-  <link rel="stylesheet" href="./assets/css/admin-upload.css?v=2.04.00">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=2.04.01">
+  <link rel="stylesheet" href="./assets/css/data-system.css?v=2.04.01">
+  <link rel="stylesheet" href="./assets/css/admin-upload.css?v=2.04.01">
 </head>
-<body class="admin-upload-page" data-page="admin-upload">
-  <main class="admin-shell">
+<body class="admin-upload-page is-locked" data-page="admin-upload">
+  <section class="admin-login-screen" data-admin-login-screen>
+    <form class="admin-login-card panel" data-admin-login-form>
+      <div class="eyebrow">TownGG Secure Terminal</div>
+      <h1>Admin<br><span>Login</span></h1>
+      <p>Enter your admin upload key once. Choose remember key to unlock this upload page automatically next time on this device.</p>
+
+      <label class="admin-field">
+        <span>Admin Key</span>
+        <input type="password" autocomplete="off" placeholder="Enter admin upload key" data-login-admin-key>
+      </label>
+
+      <label class="remember-key-row">
+        <input type="checkbox" data-remember-admin-key>
+        <span>Remember key on this device</span>
+      </label>
+
+      <div class="admin-actions">
+        <button class="button primary" type="submit">Enter Upload System</button>
+        <a class="button" href="./index.html">Back to Portfolio</a>
+      </div>
+      <small class="admin-security-note">The saved key is stored only in this browser. Use this only on your own device.</small>
+    </form>
+  </section>
+
+  <main class="admin-shell" data-admin-shell hidden>
     <section class="admin-hero panel">
       <div>
         <div class="eyebrow">Hidden Admin Terminal</div>
         <h1>Gallery<br><span>Upload System</span></h1>
         <p class="admin-subtitle">Drag images, choose Concept Art or In-Game Screenshots, preview compressed output and upload through the secure Worker API.</p>
       </div>
-      <a class="button" href="./index.html">Back to Portfolio</a>
+      <div class="admin-hero-actions">
+        <button class="button" type="button" data-lock-admin>Lock Admin</button>
+        <a class="button" href="./index.html">Back to Portfolio</a>
+      </div>
     </section>
 
     <section class="admin-grid">
@@ -35,10 +62,11 @@
           <span class="admin-status-pill" data-worker-status>Worker not connected</span>
         </div>
 
-        <label class="admin-field">
-          <span>Admin Key</span>
-          <input type="password" name="adminKey" autocomplete="off" placeholder="Enter admin upload key" data-admin-key>
-        </label>
+        <div class="admin-session-box">
+          <span>Admin key loaded</span>
+          <strong data-admin-key-state>Session only</strong>
+          <button class="button mini" type="button" data-forget-admin-key>Forget Key</button>
+        </div>
 
         <label class="admin-field">
           <span>Upload Type</span>
@@ -117,6 +145,6 @@
     </section>
   </main>
 
-  <script src="./assets/js/admin-upload.js?v=2.04.00"></script>
+  <script src="./assets/js/admin-upload.js?v=2.04.01"></script>
 </body>
 </html>
