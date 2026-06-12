@@ -2,6 +2,7 @@
   const LIST_ENDPOINT = "/api/admin/gallery-list";
   const DELETE_ENDPOINT = "/api/admin/gallery-delete";
   const STORAGE_KEY = "towngg_admin_upload_key";
+  const RAW_REPO_BASE = "https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/";
 
   const typeInput = document.querySelector("[data-manager-type]");
   const refreshButton = document.querySelector("[data-manager-refresh]");
@@ -25,6 +26,16 @@
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+
+  const normalizePath = (image) => String(image || "").replace(/^\.\//, "");
+
+  const cacheBustedImage = (image) => {
+    const path = normalizePath(image);
+    const joiner = image.includes("?") ? "&" : "?";
+    return `${image}${joiner}adminPreview=${Date.now()}`;
+  };
+
+  const rawImage = (image) => `${RAW_REPO_BASE}${encodeURI(normalizePath(image))}`;
 
   const setStatus = (type, title, message) => {
     const icon = type === "success" ? "✓" : type === "error" ? "!" : "↻";
@@ -70,7 +81,7 @@
     grid.innerHTML = list.map((item) => `
       <article class="admin-image-card" data-image-card="${escapeHtml(item.image)}" data-image-type="${escapeHtml(item.type)}">
         <div class="admin-image-thumb">
-          <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.alt)}" loading="lazy">
+          <img src="${escapeHtml(cacheBustedImage(item.image))}" data-raw-src="${escapeHtml(rawImage(item.image))}" alt="${escapeHtml(item.alt)}" loading="lazy">
           <span class="admin-image-tag">${escapeHtml(item.typeLabel)}</span>
         </div>
         <div class="admin-image-body">
@@ -116,6 +127,13 @@
     render();
     setStatus("idle", "Category changed", `${visibleImages().length} image(s) shown.`);
   });
+
+  grid.addEventListener("error", (event) => {
+    const image = event.target.closest("img[data-raw-src]");
+    if (!image || image.dataset.rawFallbackUsed === "true") return;
+    image.dataset.rawFallbackUsed = "true";
+    image.src = `${image.dataset.rawSrc}?adminPreview=${Date.now()}`;
+  }, true);
 
   grid.addEventListener("click", (event) => {
     const button = event.target.closest("[data-delete-image]");
