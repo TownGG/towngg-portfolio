@@ -2,7 +2,7 @@ name: Update Nexus dashboard data
 
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "17,47 * * * *"
   workflow_dispatch:
 
 permissions:
