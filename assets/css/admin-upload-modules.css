@@ -138,15 +138,60 @@
 @media (max-width: 820px) {
   .admin-module-tabs {
     display: grid;
+    grid-template-columns: 1fr 1fr;
     width: 100%;
-    border-radius: 24px;
+    gap: 8px;
+    padding: 6px;
+    margin-bottom: 18px;
+    border-radius: 22px;
   }
 
   .admin-module-tab {
     width: 100%;
+    min-height: 46px;
+    padding: 10px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    letter-spacing: .04em;
+    text-align: center;
+  }
+
+  .admin-module-upload > .admin-grid,
+  .admin-module-upload > .admin-card,
+  .admin-module-manage > .admin-card {
+    margin-bottom: 18px;
   }
 
   .admin-manager-placeholder {
     grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .admin-manager-placeholder h2 {
+    font-size: 34px;
+  }
+
+  .admin-manager-steps {
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .admin-manager-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 22px;
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 460px) {
+  .admin-module-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-module-tab {
+    justify-content: flex-start;
+    min-height: 44px;
+    padding-inline: 16px;
   }
 }
