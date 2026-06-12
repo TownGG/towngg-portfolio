@@ -5,7 +5,10 @@
   if (!chartEl) return;
 
   const numberFormatter = new Intl.NumberFormat("en-US");
-  const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.03.10-preview";
+  const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.03.11-preview";
+  let cachedRows = [];
+  let isRendering = false;
+  let rerenderTimer = 0;
 
   function dashboardNumber(value) {
     const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, ""));
@@ -73,9 +76,13 @@
   }
 
   function renderChart(rows) {
+    if (isRendering) return;
+    isRendering = true;
+
     const data = buildDailySeries(rows);
     if (!data.length) {
       chartEl.innerHTML = '<p class="section-desc">No Nexus history data available yet.</p>';
+      isRendering = false;
       return;
     }
 
@@ -126,8 +133,9 @@
     panel?.classList.add("is-nexus-trend-panel");
     toolbar?.classList.add("is-hidden-for-nexus-trend");
     chartEl.className = "dashboard-chart nexus-telemetry-chart";
+    chartEl.dataset.trendRenderer = "nexus-trend-fix";
     chartEl.innerHTML = `
-      <div class="nexus-trend-shell">
+      <div class="nexus-trend-shell" data-trend-renderer="nexus-trend-fix">
         <div class="nexus-trend-header">
           <div>
             <h3>7-Day Nexus Downloads Trend</h3>
@@ -152,16 +160,37 @@
 
     chartEl.dataset.trendTotal = String(total);
     chartEl.dataset.trendLatestDate = latestDate;
+    isRendering = false;
+  }
+
+  function scheduleRender(delay = 60) {
+    if (!cachedRows.length) return;
+    window.clearTimeout(rerenderTimer);
+    rerenderTimer = window.setTimeout(() => renderChart(cachedRows), delay);
+  }
+
+  function installLegacyChartGuard() {
+    const observer = new MutationObserver(() => {
+      if (isRendering || !cachedRows.length) return;
+      if (!chartEl.querySelector('[data-trend-renderer="nexus-trend-fix"]')) {
+        scheduleRender(40);
+      }
+    });
+
+    observer.observe(chartEl, { childList: true, subtree: false });
+    window.addEventListener("load", () => scheduleRender(80));
   }
 
   async function init() {
     try {
+      installLegacyChartGuard();
       const response = await fetch(`./assets/data/nexus-history.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" });
       if (!response.ok) throw new Error("Nexus history could not be loaded.");
-      const rows = parseCSV(await response.text());
-      if (!rows.length) return;
-      window.setTimeout(() => renderChart(rows), 0);
-      window.setTimeout(() => renderChart(rows), 450);
+      cachedRows = parseCSV(await response.text());
+      if (!cachedRows.length) return;
+      window.setTimeout(() => renderChart(cachedRows), 0);
+      window.setTimeout(() => renderChart(cachedRows), 450);
+      window.setTimeout(() => renderChart(cachedRows), 1400);
     } catch (error) {
       console.warn("Nexus trend fix skipped", error);
     }
