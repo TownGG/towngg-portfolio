@@ -1,0 +1,46 @@
+/* TownGG Portfolio v2.04.39
+   Personal Logs card interaction polish. */
+
+.note-card.is-clickable {
+  cursor: pointer;
+  transition:
+    transform .22s ease,
+    border-color .22s ease,
+    box-shadow .22s ease,
+    background .22s ease;
+  will-change: transform;
+}
+
+.note-card.is-clickable:hover,
+.note-card.is-clickable:focus-within {
+  transform: translateY(-6px) scale(1.018);
+  border-color: rgba(125, 216, 255, .42);
+  background:
+    linear-gradient(135deg, rgba(125, 216, 255, .09), rgba(255, 255, 255, .025)),
+    rgba(9, 15, 23, .78);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, .34),
+    0 0 0 1px rgba(125, 216, 255, .06),
+    0 0 26px rgba(125, 216, 255, .08);
+}
+
+.note-card.is-clickable:active {
+  transform: translateY(-3px) scale(1.01);
+}
+
+.note-card.is-clickable .note-link {
+  position: relative;
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note-card.is-clickable {
+    transition: none;
+  }
+
+  .note-card.is-clickable:hover,
+  .note-card.is-clickable:focus-within,
+  .note-card.is-clickable:active {
+    transform: none;
+  }
+}
