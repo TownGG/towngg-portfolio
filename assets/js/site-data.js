@@ -163,10 +163,6 @@ window.siteData = {
           alt: "TownGG featured concept artwork"
       },
       {
-          image: "./assets/images/gallery-featured-compressed/Meshy_AI_36b7d7905022f940154211682801efe7c7439d52510ba4ccc809d2eb889806a5.jpg",
-          alt: "TownGG featured concept artwork"
-      },
-      {
           image: "./assets/images/gallery-featured-compressed/Meshy_AI_8369df48cdb211eef8b84011df6753d8b9c9aadb8ff2fc673611a4a19e035373.jpg",
           alt: "TownGG featured concept artwork"
       },
