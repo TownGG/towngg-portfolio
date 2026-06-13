@@ -151,10 +151,6 @@ window.siteData = {
           alt: "TownGG featured concept artwork"
       },
       {
-          image: "./assets/images/gallery-featured-compressed/22.jpg",
-          alt: "TownGG featured concept artwork"
-      },
-      {
           image: "./assets/images/gallery-featured-compressed/5.jpg",
           alt: "TownGG featured concept artwork"
       },
