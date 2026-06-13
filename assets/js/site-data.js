@@ -127,6 +127,10 @@ window.siteData = {
   ],
   featuredArtworks: [
       {
+          image: "./assets/images/gallery-featured-compressed/featured_02_20260613_001.jpg",
+          alt: "02 homepage featured artwork"
+      },
+      {
           image: "./assets/images/gallery-featured-compressed/featured_01_20260613_001.jpg",
           alt: "01 homepage featured artwork"
       },
