@@ -1,4 +1,4 @@
-﻿window.siteData = {
+window.siteData = {
   mods: [
     {
       title: "THE TERMINUS",
@@ -126,21 +126,70 @@
     { title: "TGGs Sexy Lingerie Set", links: [{ label: "Bethesda Creations", url: "https://creations.bethesda.net/en/starfield/details/84236e15-08af-492c-b732-636a88bb987b/TGGs_Sexy_Lingerie_Set" }] }
   ],
   featuredArtworks: [
-    { image: "./assets/images/gallery-featured-compressed/1.png", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/16.jpg", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/18.jpg", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/19.jpg", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/22.jpg", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/5.jpg", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/6.jpg", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/9.jpg", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/Meshy_AI_36b7d7905022f940154211682801efe7c7439d52510ba4ccc809d2eb889806a5.jpg", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/Meshy_AI_8369df48cdb211eef8b84011df6753d8b9c9aadb8ff2fc673611a4a19e035373.jpg", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/Meshy_AI_c38763d8e33ae224e1ef459ca0bd8a1dceb9744d5fbb637217cdcdcd6d1257f6.png", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/Meshy_AI_d1ff97ce411719c229f5b83935334e7b398f962be5c5e712adbf6df84cbe659d.jpg", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/Meshy_AI_d6f64d852fdfc53fce9c8859b989ec304e9b7243b5e39cac6da22f1ca70d8fdb.jpg", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/Meshy_AI_dea2eed656e470fdaf5e73e448de0c9ad3ef77dd05084b2ecfa1ee76f7cbb885.jpg", alt: "TownGG featured concept artwork" },
-    { image: "./assets/images/gallery-featured-compressed/Meshy_AI_e8998b293b01d8531dd73b8af320c0e1d3cf039c35646faf5bcac5df7eb33205.png", alt: "TownGG featured concept artwork" }
+      {
+          image: "./assets/images/gallery-featured-compressed/featured_01_20260613_001.jpg",
+          alt: "01 homepage featured artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/1.png",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/16.jpg",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/18.jpg",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/19.jpg",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/22.jpg",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/5.jpg",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/6.jpg",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/9.jpg",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/Meshy_AI_36b7d7905022f940154211682801efe7c7439d52510ba4ccc809d2eb889806a5.jpg",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/Meshy_AI_8369df48cdb211eef8b84011df6753d8b9c9aadb8ff2fc673611a4a19e035373.jpg",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/Meshy_AI_c38763d8e33ae224e1ef459ca0bd8a1dceb9744d5fbb637217cdcdcd6d1257f6.png",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/Meshy_AI_d1ff97ce411719c229f5b83935334e7b398f962be5c5e712adbf6df84cbe659d.jpg",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/Meshy_AI_d6f64d852fdfc53fce9c8859b989ec304e9b7243b5e39cac6da22f1ca70d8fdb.jpg",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/Meshy_AI_dea2eed656e470fdaf5e73e448de0c9ad3ef77dd05084b2ecfa1ee76f7cbb885.jpg",
+          alt: "TownGG featured concept artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/Meshy_AI_e8998b293b01d8531dd73b8af320c0e1d3cf039c35646faf5bcac5df7eb33205.png",
+          alt: "TownGG featured concept artwork"
+      }
   ],
   artworks: [
     { image: "./assets/images/gallery-all-compressed/1.png", alt: "TownGG concept artwork" },
