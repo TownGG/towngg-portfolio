@@ -34,11 +34,6 @@ function parseNumberValue(value) {
   return Number.isFinite(number) ? number : 0;
 }
 
-function formatNumberValue(value) {
-  const number = parseNumberValue(value);
-  return number > 0 ? numberFormat.format(Math.round(number)) : null;
-}
-
 function aggregateLabeledNumbers(text, labels) {
   const normalized = String(text || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
   let total = 0;
@@ -55,12 +50,12 @@ function aggregateLabeledNumbers(text, labels) {
 
 function parsePlatformStats(text) {
   return {
-    likes: aggregateLabeledNumbers(text, ['likes', 'like']),
-    downloads: aggregateLabeledNumbers(text, ['downloads', 'download']),
-    bookmarks: aggregateLabeledNumbers(text, ['bookmarks', 'bookmark']),
-    views: aggregateLabeledNumbers(text, ['views', 'view']),
-    plays: aggregateLabeledNumbers(text, ['plays', 'play']),
-    libraryAdds: aggregateLabeledNumbers(text, ['subscribes', 'subscribe', 'subscriptions', 'library adds', 'library add'])
+    likes: aggregateLabeledNumbers(text, ['likes', 'like', '喜欢']),
+    downloads: aggregateLabeledNumbers(text, ['downloads', 'download', '下载']),
+    bookmarks: aggregateLabeledNumbers(text, ['bookmarks', 'bookmark', '书签']),
+    views: aggregateLabeledNumbers(text, ['views', 'view', '查看']),
+    plays: aggregateLabeledNumbers(text, ['plays', 'play', '播放数']),
+    libraryAdds: aggregateLabeledNumbers(text, ['subscribes', 'subscribe', 'subscriptions', 'library adds', 'library add', '订阅数'])
   };
 }
 
@@ -260,38 +255,39 @@ async function scrapeAllPlatformsStats(page) {
       return Number.isFinite(number) && number > 0 ? Math.round(number).toLocaleString('en-US') : null;
     };
 
-    const allElements = [...document.querySelectorAll('body *')]
-      .map((element) => {
-        const rect = element.getBoundingClientRect();
-        const text = (element.textContent || '').trim();
-        return { element, rect, text };
-      })
-      .filter((item) => item.text && item.rect.width > 0 && item.rect.height > 0);
+    const root = document.querySelector('#ugc-content') || document.body;
+    const text = (root.innerText || root.textContent || '').replace(/\u00a0/g, ' ').trim();
+    const lines = text.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+    const labelIndex = lines.findIndex((line) => /^(ALL PLATFORMS|所有平台)$/i.test(line));
 
-    const label = allElements.find((item) => /^ALL PLATFORMS$/i.test(item.text));
-    if (!label) return {};
+    if (labelIndex > 0) {
+      const numbersBefore = [];
+      for (let index = labelIndex - 1; index >= 0 && numbersBefore.length < 2; index -= 1) {
+        if (/^[0-9][0-9,.]*$/.test(lines[index])) numbersBefore.push(lines[index]);
+      }
+      if (numbersBefore.length >= 2) {
+        return {
+          likes: parseNumber(numbersBefore[1]),
+          downloads: parseNumber(numbersBefore[0])
+        };
+      }
+    }
 
-    const nearby = allElements
-      .filter((item) => {
-        const sameBand = Math.abs(item.rect.top - label.rect.top) < 90;
-        const rightSide = item.rect.left >= label.rect.left - 40 && item.rect.left <= label.rect.left + 520;
-        return sameBand && rightSide;
-      })
-      .sort((a, b) => a.rect.left - b.rect.left)
-      .map((item) => item.text)
-      .filter((text) => /^[0-9][0-9,.]*$/.test(text));
+    const inlineMatch = /by\s+TownGG\s+([0-9][0-9,.]*)\s+([0-9][0-9,.]*)\s+(?:ALL PLATFORMS|所有平台)/i.exec(text.replace(/\s+/g, ' '));
+    if (inlineMatch) {
+      return {
+        likes: parseNumber(inlineMatch[1]),
+        downloads: parseNumber(inlineMatch[2])
+      };
+    }
 
-    if (nearby.length < 2) return {};
-    return {
-      likes: parseNumber(nearby[0]),
-      downloads: parseNumber(nearby[1])
-    };
+    return {};
   });
 }
 
 async function openDetailsTab(page) {
   await page.getByRole('tab', { name: /details/i }).click({ timeout: 5000 }).catch(async () => {
-    await page.getByText(/^details$/i).click({ timeout: 5000 }).catch(() => {});
+    await page.getByText(/^(details|详情)$/i).click({ timeout: 5000 }).catch(() => {});
   });
   await page.waitForTimeout(500);
 }
