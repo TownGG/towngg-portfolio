@@ -15,14 +15,6 @@ const CREATIONS_HOME = 'https://creations.bethesda.net/en/starfield/all?author_d
 
 const numberFormat = new Intl.NumberFormat('en-US');
 const statKeys = ['views', 'bookmarks', 'likes', 'downloads', 'plays', 'libraryAdds'];
-const labelMap = {
-  views: ['views', 'view'],
-  bookmarks: ['bookmarks', 'bookmark'],
-  likes: ['likes', 'like'],
-  downloads: ['downloads', 'download'],
-  plays: ['plays', 'play'],
-  libraryAdds: ['library adds', 'library add', 'added to library', 'library']
-};
 
 function loadSiteData(source) {
   const context = { window: {} };
@@ -35,27 +27,45 @@ function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function parseStat(text, key) {
-  const labels = labelMap[key] || [key];
-  const normalized = String(text || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
-
-  for (const label of labels) {
-    const escaped = escapeRegExp(label);
-    const afterLabel = new RegExp(`${escaped}\\s*[:\\-]?\\s*([0-9][0-9,.]*)`, 'i').exec(normalized);
-    if (afterLabel) return afterLabel[1];
-
-    const beforeLabel = new RegExp(`([0-9][0-9,.]*)\\s*${escaped}`, 'i').exec(normalized);
-    if (beforeLabel) return beforeLabel[1];
-  }
-
-  return null;
-}
-
 function normalizeNumber(value) {
   if (!value) return null;
   const number = Number(String(value).replace(/[^0-9.]/g, ''));
   if (!Number.isFinite(number)) return null;
   return numberFormat.format(Math.round(number));
+}
+
+function parseNumberValue(value) {
+  const number = Number(String(value || '').replace(/[^0-9.]/g, ''));
+  return Number.isFinite(number) ? number : 0;
+}
+
+function aggregateLabeledNumbers(text, labels) {
+  const normalized = String(text || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
+  let total = 0;
+
+  for (const label of labels) {
+    const pattern = new RegExp(`\\b${escapeRegExp(label)}\\b\\s*[:\\-]?\\s*([0-9][0-9,.]*)`, 'gi');
+    for (const match of normalized.matchAll(pattern)) {
+      total += parseNumberValue(match[1]);
+    }
+  }
+
+  return total > 0 ? numberFormat.format(Math.round(total)) : null;
+}
+
+function parsePlatformStats(text) {
+  return {
+    likes: aggregateLabeledNumbers(text, ['likes', 'like']),
+    downloads: aggregateLabeledNumbers(text, ['downloads', 'download']),
+    bookmarks: aggregateLabeledNumbers(text, ['bookmarks', 'bookmark']),
+    views: aggregateLabeledNumbers(text, ['views', 'view']),
+    plays: aggregateLabeledNumbers(text, ['plays', 'play']),
+    libraryAdds: aggregateLabeledNumbers(text, ['subscribes', 'subscribe', 'subscriptions', 'library adds', 'library add'])
+  };
+}
+
+function compactStats(stats) {
+  return Object.fromEntries(Object.entries(stats).filter(([, value]) => value));
 }
 
 function normalizeImageUrl(value, pageUrl) {
@@ -74,6 +84,17 @@ function normalizeImageUrl(value, pageUrl) {
 
 function getCreationUrl(creation) {
   return creation?.links?.find((link) => /creations\.bethesda\.net/i.test(link.url))?.url;
+}
+
+function shouldSyncCreation(creation) {
+  return Boolean(
+    getCreationUrl(creation) &&
+    creation.group &&
+    creation.category &&
+    creation.description &&
+    Array.isArray(creation.tags) &&
+    creation.tags.length > 0
+  );
 }
 
 function findMatchingBrace(source, openIndex) {
@@ -216,6 +237,13 @@ async function scrapeCoverImage(page) {
   });
 }
 
+async function openDetailsTab(page) {
+  await page.getByRole('tab', { name: /details/i }).click({ timeout: 5000 }).catch(async () => {
+    await page.getByText(/^details$/i).click({ timeout: 5000 }).catch(() => {});
+  });
+  await page.waitForTimeout(500);
+}
+
 async function scrapeCreation(page, creation) {
   const url = getCreationUrl(creation);
   if (!url) return { ok: false, error: 'missing_url' };
@@ -224,14 +252,11 @@ async function scrapeCreation(page, creation) {
   await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   await page.waitForTimeout(SLOW_MS);
 
-  const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS });
-  const stats = {};
-  for (const key of statKeys) {
-    const value = normalizeNumber(parseStat(text, key));
-    if (value) stats[key] = value;
-  }
-
   const coverImage = normalizeImageUrl(await scrapeCoverImage(page), url);
+  await openDetailsTab(page);
+
+  const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS });
+  const stats = compactStats(parsePlatformStats(text));
 
   if (!Object.keys(stats).length && !coverImage) {
     return { ok: false, error: 'no_stats_or_cover_found' };
@@ -264,11 +289,14 @@ async function sync() {
   let nextSource = source;
   let success = 0;
   let failed = 0;
+  let skipped = 0;
   const today = new Date().toISOString().slice(0, 10);
 
   for (const creation of creations) {
-    const url = getCreationUrl(creation);
-    if (!url) continue;
+    if (!shouldSyncCreation(creation)) {
+      skipped += 1;
+      continue;
+    }
 
     process.stdout.write(`Syncing ${creation.title}... `);
     try {
@@ -288,7 +316,7 @@ async function sync() {
       };
       nextSource = replaceCreationObject(nextSource, creation.title, renderCreationObject(merged));
       success += 1;
-      console.log(result.coverImage ? 'updated stats + cover' : 'updated stats');
+      console.log(result.coverImage ? 'updated platform totals + cover' : 'updated platform totals');
     } catch (error) {
       failed += 1;
       console.log(`kept old data (${error.message})`);
@@ -301,7 +329,7 @@ async function sync() {
     await fs.writeFile(SITE_DATA_PATH, nextSource, 'utf8');
   }
 
-  console.log(`Bethesda Creations sync complete: ${success} updated, ${failed} kept from previous data.`);
+  console.log(`Bethesda Creations sync complete: ${success} updated, ${failed} kept, ${skipped} skipped.`);
 }
 
 if (LOGIN_MODE) {
