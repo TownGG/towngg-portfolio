@@ -39,9 +39,7 @@ function formatNumberValue(value) {
 }
 
 function freshUrl(url) {
-  const next = new URL(url);
-  next.searchParams.set('cc_sync_ts', String(Date.now()));
-  return next.toString();
+  return url;
 }
 
 function findValueAfterLabel(lines, labels) {
