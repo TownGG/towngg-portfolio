@@ -2,6 +2,7 @@
   const MAX_DIMENSION = 1920;
   const JPEG_QUALITY = 0.86;
   const API_ENDPOINT = "/api/admin/gallery-upload";
+  const LIST_ENDPOINT = "/api/admin/gallery-list";
   const STORAGE_KEY = "towngg_admin_upload_key";
 
   const body = document.body;
@@ -31,12 +32,17 @@
   let pendingFiles = [];
   let sessionAdminKey = "";
   let rememberedKeyLoaded = false;
+  let existingGalleryImages = [];
+  let existingGalleryLoaded = false;
+  let sequenceOffset = 0;
 
   const escapeHtml = (value) => String(value || "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+
+  const escapeRegExp = (value) => String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
   const typeLabel = (type) => {
     if (type === "featured") return "Homepage Featured";
@@ -95,6 +101,7 @@
   const unlockAdmin = (key, remembered = false) => {
     sessionAdminKey = key;
     rememberedKeyLoaded = remembered;
+    existingGalleryLoaded = false;
     body?.classList.remove("is-locked");
     loginScreen?.classList.add("is-hidden");
     if (adminShell) adminShell.hidden = false;
@@ -105,6 +112,9 @@
   const lockAdmin = () => {
     sessionAdminKey = "";
     rememberedKeyLoaded = false;
+    existingGalleryImages = [];
+    existingGalleryLoaded = false;
+    sequenceOffset = 0;
     body?.classList.add("is-locked");
     loginScreen?.classList.remove("is-hidden");
     if (adminShell) adminShell.hidden = true;
@@ -166,11 +176,56 @@
     return type === "concept" ? "TownGG concept artwork" : "TownGG in-game screenshot";
   };
 
-  const makeOutputName = (type, prefix, index) => {
+  const filenameFromImage = (image) => String(image || "").split("/").pop() || "";
+
+  const filenameStem = (type, prefix) => {
     const base = type === "featured" ? "featured" : type === "concept" ? "concept" : "screenshot";
     const cleanPrefix = sanitizePart(prefix);
-    const sequence = String(index + 1).padStart(3, "0");
-    return [base, cleanPrefix, getDateStamp(), sequence].filter(Boolean).join("_") + ".jpg";
+    return [base, cleanPrefix, getDateStamp()].filter(Boolean).join("_");
+  };
+
+  const sequenceFromFilename = (filename, type, prefix) => {
+    const stem = filenameStem(type, prefix);
+    const match = filename.match(new RegExp(`^${escapeRegExp(stem)}_(\\d{3})\\.jpg$`, "i"));
+    return match ? Number(match[1]) : 0;
+  };
+
+  const loadExistingGalleryImages = async (force = false) => {
+    if (existingGalleryLoaded && !force) return existingGalleryImages;
+
+    const adminKey = getAdminKey();
+    if (!adminKey) return existingGalleryImages;
+
+    const response = await fetch(LIST_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Admin-Key": adminKey },
+      body: JSON.stringify({})
+    });
+
+    const result = await response.json().catch(() => null);
+    if (!response.ok || !result?.success) {
+      throw new Error(result?.error || `Gallery list API failed with HTTP ${response.status}.`);
+    }
+
+    existingGalleryImages = Array.isArray(result.images) ? result.images : [];
+    existingGalleryLoaded = true;
+    return existingGalleryImages;
+  };
+
+  const updateSequenceOffset = async (force = false) => {
+    const type = uploadTypeInput?.value || "screenshots";
+    const prefix = prefixInput?.value || "";
+    const images = await loadExistingGalleryImages(force);
+    sequenceOffset = images.reduce((max, item) => {
+      if (item?.type && item.type !== type) return max;
+      const filename = filenameFromImage(item.path || item.image || "");
+      return Math.max(max, sequenceFromFilename(filename, type, prefix));
+    }, 0);
+  };
+
+  const makeOutputName = (type, prefix, index) => {
+    const sequence = String(sequenceOffset + index + 1).padStart(3, "0");
+    return `${filenameStem(type, prefix)}_${sequence}.jpg`;
   };
 
   const loadImage = (file) => new Promise((resolve, reject) => {
@@ -246,7 +301,7 @@
     if (!pendingFiles.length) {
       previewList.innerHTML = '<div class="empty-state">No images selected yet.</div>';
     } else {
-      previewList.innerHTML = pendingFiles.map((item, index) => `
+      previewList.innerHTML = pendingFiles.map((item) => `
         <article class="preview-item">
           <div class="preview-thumb"><img src="${item.previewUrl}" alt=""></div>
           <div class="preview-meta">
@@ -255,13 +310,22 @@
             <span>${item.width}x${item.height} | ${formatBytes(item.originalSize)} → ${formatBytes(item.compressedSize)}</span>
             <span>Alt: ${item.alt}</span>
           </div>
-          <button class="preview-remove" type="button" data-remove-index="${index}" aria-label="Remove ${item.outputName}">×</button>
+          <button class="preview-remove" type="button" data-remove-index="${pendingFiles.indexOf(item)}" aria-label="Remove ${item.outputName}">×</button>
         </article>
       `).join("");
     }
 
     if (fileCount) fileCount.textContent = `${pendingFiles.length} file${pendingFiles.length === 1 ? "" : "s"}`;
     if (totalSize) totalSize.textContent = formatBytes(pendingFiles.reduce((sum, item) => sum + item.compressedSize, 0));
+  };
+
+  const refreshExistingSequenceAndPreview = async (force = false) => {
+    try {
+      await updateSequenceOffset(force);
+    } catch (error) {
+      writeLog(`Using local numbering. Could not load existing gallery names: ${error.message}`);
+    }
+    renderPreview();
   };
 
   const addFiles = async (fileList) => {
@@ -279,7 +343,7 @@
       }
     }
 
-    renderPreview();
+    await refreshExistingSequenceAndPreview(true);
     writeLog(`${pendingFiles.length} compressed image(s) waiting for upload.`);
   };
 
@@ -293,6 +357,7 @@
     else clearStoredAdminKey();
 
     unlockAdmin(key, shouldRemember);
+    refreshExistingSequenceAndPreview(true);
   });
 
   lockAdminButton?.addEventListener("click", lockAdmin);
@@ -301,6 +366,9 @@
     clearStoredAdminKey();
     sessionAdminKey = "";
     rememberedKeyLoaded = false;
+    existingGalleryImages = [];
+    existingGalleryLoaded = false;
+    sequenceOffset = 0;
     writeLog("Saved admin key removed from this browser. Please log in again.");
     lockAdmin();
   });
@@ -339,10 +407,13 @@
     writeLog("Cleared pending uploads.");
   });
 
-  [uploadTypeInput, prefixInput, customAltInput].forEach((input) => {
-    input?.addEventListener("input", renderPreview);
-    input?.addEventListener("change", renderPreview);
+  [uploadTypeInput, prefixInput].forEach((input) => {
+    input?.addEventListener("input", () => refreshExistingSequenceAndPreview(false));
+    input?.addEventListener("change", () => refreshExistingSequenceAndPreview(false));
   });
+
+  customAltInput?.addEventListener("input", renderPreview);
+  customAltInput?.addEventListener("change", renderPreview);
 
   altModeInput?.addEventListener("change", () => {
     if (customAltWrap) customAltWrap.hidden = altModeInput.value !== "custom";
@@ -351,7 +422,6 @@
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    refreshNames();
 
     const adminKey = getAdminKey();
     if (!adminKey) {
@@ -365,6 +435,9 @@
       return;
     }
 
+    writeLog("Checking existing filenames...");
+    await refreshExistingSequenceAndPreview(true);
+    refreshNames();
     writeLog("Uploading images...");
 
     try {
@@ -393,7 +466,11 @@
       }
 
       const uploadedCount = Array.isArray(result.uploaded) ? result.uploaded.length : files.length;
-      setUploadStatus("success", "Upload successful", `${uploadedCount} image(s) added to ${typeLabel(uploadType)}. The gallery may take a moment to refresh.`);
+      existingGalleryLoaded = false;
+      pendingFiles.forEach((item) => item.previewUrl && URL.revokeObjectURL(item.previewUrl));
+      pendingFiles = [];
+      await refreshExistingSequenceAndPreview(true);
+      setUploadStatus("success", "Upload successful", `${uploadedCount} image(s) added to ${typeLabel(uploadType)}. The next upload will continue the filename sequence.`);
     } catch (error) {
       setUploadStatus("error", "Upload failed", error.message);
     }
