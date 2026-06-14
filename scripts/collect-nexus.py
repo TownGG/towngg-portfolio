@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "assets" / "data" / "nexus-mods.json"
 HISTORY_PATH = ROOT / "assets" / "data" / "nexus-history.csv"
 LATEST_PATH = ROOT / "assets" / "data" / "nexus-latest.json"
+SITE_DATA_PATH = ROOT / "assets" / "js" / "site-data.js"
 
 DEFAULT_DISCOVERY_GAME = "starfield"
 DEFAULT_DISCOVERY_AUTHOR = "TownGG"
@@ -76,6 +77,10 @@ def request_json(url, api_key):
 
 def nexus_mod_url(game, mod_id):
     return f"https://www.nexusmods.com/{game}/mods/{mod_id}"
+
+
+def js(value):
+    return json.dumps(value, ensure_ascii=False)
 
 
 def read_config():
@@ -308,6 +313,74 @@ def row_from_item(mod, item):
     }
 
 
+def site_data_has_mod_id(site_data_text, mod_id):
+    return f"/mods/{mod_id}" in site_data_text
+
+
+def infer_group(name):
+    text = str(name or "").lower()
+    if any(keyword in text for keyword in ("uniform", "suit", "bodysuit", "lingerie", "cloth", "dress", "outfit")):
+        return "Clothing"
+    if any(keyword in text for keyword in ("terminus", "quest", "boss")):
+        return "Quest"
+    if any(keyword in text for keyword in ("weapon", "fist", "sword", "grenade")):
+        return "Weapon"
+    return "Gameplay"
+
+
+def site_data_card(mod, item):
+    mod_id = str(mod.get("mod_id", ""))
+    name = item.get("name") or mod.get("name") or f"Nexus Mod {mod_id}"
+    game = mod.get("game", DEFAULT_DISCOVERY_GAME)
+    url = mod.get("url") or nexus_mod_url(game, mod_id)
+    image = item.get("picture_url") or "./assets/images/mods/terminus-nexus-cover.png"
+    group = infer_group(name)
+    return "\n".join([
+        "    {",
+        f"      title: {js(name)},",
+        "      category: \"Nexus Mods / Auto Synced\",",
+        f"      group: {js(group)},",
+        f"      image: {js(image)},",
+        f"      alt: {js(name + ' Nexus Mods cover image')},",
+        "      description: \"Automatically synced from Nexus Mods.\",",
+        "      tags: [\"Nexus\", \"Auto Synced\", \"Starfield\"],",
+        f"      downloads: {js(str(number(item.get('total_downloads') or item.get('downloads') or item.get('mod_downloads')))},",
+        f"      endorsements: {js(str(number(item.get('endorsement_count') or item.get('endorsements')))},",
+        "      links: [",
+        f"        {{ label: \"Nexus Mods\", url: {js(url)} }}",
+        "      ]",
+        "    }",
+    ])
+
+
+def write_missing_site_cards(mods, item_by_id):
+    if not SITE_DATA_PATH.exists():
+        return 0
+
+    site_data_text = SITE_DATA_PATH.read_text(encoding="utf-8")
+    marker = "\n  ],\n  creations:"
+    if marker not in site_data_text:
+        print("Unable to insert auto-synced Nexus cards: siteData mods marker not found.")
+        return 0
+
+    cards = []
+    for mod in mods:
+        mod_id = str(mod.get("mod_id", ""))
+        item = item_by_id.get(mod_id)
+        if not mod_id or not item or site_data_has_mod_id(site_data_text, mod_id):
+            continue
+        cards.append(site_data_card(mod, item))
+
+    if not cards:
+        return 0
+
+    insertion = ",\n" + ",\n".join(cards)
+    updated = site_data_text.replace(marker, insertion + marker, 1)
+    SITE_DATA_PATH.write_text(updated, encoding="utf-8")
+    print(f"Added {len(cards)} auto-synced Nexus mod card(s) to {SITE_DATA_PATH}")
+    return len(cards)
+
+
 def main():
     api_key = os.environ.get("NEXUS_API_KEY", "").strip()
     if not api_key:
@@ -322,6 +395,7 @@ def main():
     mods, added = merge_discovered_mods(config, discovered)
     previous_rows = read_history()
     fresh_rows = []
+    item_by_id = {}
 
     for mod in mods:
         url = f"https://api.nexusmods.com/v1/games/{mod['game']}/mods/{mod['mod_id']}.json"
@@ -330,6 +404,8 @@ def main():
         except Exception as exc:
             print(f"Failed to collect {mod['mod_id']}: {exc}")
             continue
+        mod_id = str(mod["mod_id"])
+        item_by_id[mod_id] = item
         fresh_rows.append(row_from_item(mod, item))
 
     if not fresh_rows:
@@ -343,10 +419,13 @@ def main():
     ]
     write_history(kept + normalized)
     write_latest(normalized, updated_at)
+    card_count = write_missing_site_cards(mods, item_by_id)
     print(f"Saved {len(normalized)} rows to {HISTORY_PATH}")
     print(f"Saved latest snapshot to {LATEST_PATH}")
     if added:
         print(f"Added {len(added)} discovered Nexus mod(s) to {CONFIG_PATH}")
+    if card_count:
+        print(f"Added {card_count} siteData mod card(s)")
 
 
 if __name__ == "__main__":
