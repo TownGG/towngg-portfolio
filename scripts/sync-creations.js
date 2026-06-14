@@ -58,6 +58,20 @@ function normalizeNumber(value) {
   return numberFormat.format(Math.round(number));
 }
 
+function normalizeImageUrl(value, pageUrl) {
+  if (!value) return null;
+  const raw = String(value).trim();
+  if (!raw || raw.startsWith('data:') || raw.startsWith('blob:')) return null;
+  try {
+    const url = new URL(raw, pageUrl).toString();
+    if (!/^https?:\/\//i.test(url)) return null;
+    if (/favicon|avatar|logo|icon|spinner|placeholder/i.test(url)) return null;
+    return url;
+  } catch {
+    return null;
+  }
+}
+
 function getCreationUrl(creation) {
   return creation?.links?.find((link) => /creations\.bethesda\.net/i.test(link.url))?.url;
 }
@@ -149,6 +163,41 @@ async function openContext() {
   });
 }
 
+async function scrapeCoverImage(page) {
+  return page.evaluate(() => {
+    const metaSelectors = [
+      'meta[property="og:image"]',
+      'meta[name="og:image"]',
+      'meta[property="twitter:image"]',
+      'meta[name="twitter:image"]'
+    ];
+
+    for (const selector of metaSelectors) {
+      const content = document.querySelector(selector)?.getAttribute('content');
+      if (content) return content;
+    }
+
+    const candidates = [...document.images]
+      .map((img) => {
+        const rect = img.getBoundingClientRect();
+        const src = img.currentSrc || img.src || img.getAttribute('src') || img.getAttribute('data-src') || '';
+        const alt = img.alt || '';
+        return {
+          src,
+          alt,
+          width: Math.max(img.naturalWidth || 0, rect.width || 0),
+          height: Math.max(img.naturalHeight || 0, rect.height || 0),
+          area: Math.max(img.naturalWidth || 0, rect.width || 0) * Math.max(img.naturalHeight || 0, rect.height || 0)
+        };
+      })
+      .filter((item) => item.src && item.width >= 220 && item.height >= 120)
+      .filter((item) => !/avatar|logo|icon|favicon|spinner|placeholder/i.test(`${item.src} ${item.alt}`))
+      .sort((a, b) => b.area - a.area);
+
+    return candidates[0]?.src || null;
+  });
+}
+
 async function scrapeCreation(page, creation) {
   const url = getCreationUrl(creation);
   if (!url) return { ok: false, error: 'missing_url' };
@@ -164,11 +213,13 @@ async function scrapeCreation(page, creation) {
     if (value) stats[key] = value;
   }
 
-  if (!Object.keys(stats).length) {
-    return { ok: false, error: 'no_stats_found' };
+  const coverImage = normalizeImageUrl(await scrapeCoverImage(page), url);
+
+  if (!Object.keys(stats).length && !coverImage) {
+    return { ok: false, error: 'no_stats_or_cover_found' };
   }
 
-  return { ok: true, stats };
+  return { ok: true, stats, coverImage };
 }
 
 async function login() {
@@ -213,12 +264,13 @@ async function sync() {
       const merged = {
         ...creation,
         ...result.stats,
+        ...(result.coverImage ? { image: result.coverImage } : {}),
         updatedAt: today,
         source: 'Browser Capture'
       };
       nextSource = replaceCreationObject(nextSource, creation.title, renderCreationObject(merged));
       success += 1;
-      console.log('updated');
+      console.log(result.coverImage ? 'updated stats + cover' : 'updated stats');
     } catch (error) {
       failed += 1;
       console.log(`kept old data (${error.message})`);
