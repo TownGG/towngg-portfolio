@@ -204,34 +204,29 @@ async function openContext() {
 
 async function scrapeCoverImage(page) {
   return page.evaluate(() => {
-    const metaSelectors = [
-      'meta[property="og:image"]',
-      'meta[name="og:image"]',
-      'meta[property="twitter:image"]',
-      'meta[name="twitter:image"]'
-    ];
-
-    for (const selector of metaSelectors) {
-      const content = document.querySelector(selector)?.getAttribute('content');
-      if (content) return content;
-    }
-
     const candidates = [...document.images]
       .map((img) => {
         const rect = img.getBoundingClientRect();
         const src = img.currentSrc || img.src || img.getAttribute('src') || img.getAttribute('data-src') || '';
         const alt = img.alt || '';
-        return {
-          src,
-          alt,
-          width: Math.max(img.naturalWidth || 0, rect.width || 0),
-          height: Math.max(img.naturalHeight || 0, rect.height || 0),
-          area: Math.max(img.naturalWidth || 0, rect.width || 0) * Math.max(img.naturalHeight || 0, rect.height || 0)
-        };
+        const width = Math.max(img.naturalWidth || 0, rect.width || 0);
+        const height = Math.max(img.naturalHeight || 0, rect.height || 0);
+        const ratio = width / Math.max(1, height);
+        const isVisible = rect.width > 20 && rect.height > 20 && rect.bottom > 40 && rect.top < window.innerHeight;
+        return { src, alt, width, height, ratio, rectTop: rect.top, rectLeft: rect.left, area: width * height, isVisible };
       })
-      .filter((item) => item.src && item.width >= 220 && item.height >= 120)
-      .filter((item) => !/avatar|logo|icon|favicon|spinner|placeholder/i.test(`${item.src} ${item.alt}`))
-      .sort((a, b) => b.area - a.area);
+      .filter((item) => item.src && item.isVisible)
+      .filter((item) => item.width >= 80 && item.height >= 80)
+      .filter((item) => item.ratio >= 0.75 && item.ratio <= 2.25)
+      .filter((item) => item.area <= 450000)
+      .filter((item) => !/avatar|logo|icon|favicon|spinner|placeholder|banner|hero|background/i.test(`${item.src} ${item.alt}`))
+      .sort((a, b) => {
+        const aHeroPenalty = a.ratio > 2 || a.width > 800 ? 10000 : 0;
+        const bHeroPenalty = b.ratio > 2 || b.width > 800 ? 10000 : 0;
+        const aScore = Math.abs(a.rectTop - 260) + Math.abs(a.rectLeft - 80) + aHeroPenalty;
+        const bScore = Math.abs(b.rectTop - 260) + Math.abs(b.rectLeft - 80) + bHeroPenalty;
+        return aScore - bScore;
+      });
 
     return candidates[0]?.src || null;
   });
