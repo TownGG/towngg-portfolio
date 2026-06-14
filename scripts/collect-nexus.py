@@ -335,6 +335,8 @@ def site_data_card(mod, item):
     url = mod.get("url") or nexus_mod_url(game, mod_id)
     image = item.get("picture_url") or "./assets/images/mods/terminus-nexus-cover.png"
     group = infer_group(name)
+    downloads = number(item.get("total_downloads") or item.get("downloads") or item.get("mod_downloads"))
+    endorsements = number(item.get("endorsement_count") or item.get("endorsements"))
     return "\n".join([
         "    {",
         f"      title: {js(name)},",
@@ -344,8 +346,8 @@ def site_data_card(mod, item):
         f"      alt: {js(name + ' Nexus Mods cover image')},",
         "      description: \"Automatically synced from Nexus Mods.\",",
         "      tags: [\"Nexus\", \"Auto Synced\", \"Starfield\"],",
-        f"      downloads: {js(str(number(item.get('total_downloads') or item.get('downloads') or item.get('mod_downloads')))},",
-        f"      endorsements: {js(str(number(item.get('endorsement_count') or item.get('endorsements')))},",
+        f"      downloads: {js(str(downloads))},",
+        f"      endorsements: {js(str(endorsements))},",
         "      links: [",
         f"        {{ label: \"Nexus Mods\", url: {js(url)} }}",
         "      ]",
