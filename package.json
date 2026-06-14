@@ -1,12 +1,13 @@
 {
   "name": "towngg-portfolio",
   "private": true,
-  "version": "2.5.2",
+  "version": "2.5.3",
   "type": "module",
   "scripts": {
     "cc:login": "node scripts/sync-creations.js --login",
     "cc:sync": "node scripts/sync-creations.js",
-    "cc:sync:headed": "node scripts/sync-creations.js --headed"
+    "cc:sync:headed": "node scripts/sync-creations.js --headed",
+    "cc:debug": "node scripts/debug-creations.js --headed"
   },
   "devDependencies": {
     "@playwright/test": "^1.53.0"
