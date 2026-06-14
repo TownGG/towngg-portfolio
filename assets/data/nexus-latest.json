@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-13T23:31:07Z",
+  "updatedAt": "2026-06-14T00:01:06Z",
   "mods": [
     {
       "platform": "nexus",
@@ -9,7 +9,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
       "total_downloads": 364,
       "unique_downloads": 330,
-      "daily_downloads": 9,
+      "daily_downloads": 0,
       "likes": 21,
       "views": 0
     },
@@ -21,7 +21,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
       "total_downloads": 1238,
       "unique_downloads": 599,
-      "daily_downloads": 24,
+      "daily_downloads": 0,
       "likes": 25,
       "views": 0
     },
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 317,
-      "unique_downloads": 286,
-      "daily_downloads": 8,
+      "total_downloads": 318,
+      "unique_downloads": 287,
+      "daily_downloads": 1,
       "likes": 14,
       "views": 0
     },
@@ -45,7 +45,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
       "total_downloads": 237,
       "unique_downloads": 170,
-      "daily_downloads": 8,
+      "daily_downloads": 0,
       "likes": 5,
       "views": 0
     },
@@ -57,7 +57,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
       "total_downloads": 370,
       "unique_downloads": 284,
-      "daily_downloads": 16,
+      "daily_downloads": 0,
       "likes": 19,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 1837,
-      "unique_downloads": 1410,
-      "daily_downloads": 151,
+      "total_downloads": 1838,
+      "unique_downloads": 1411,
+      "daily_downloads": 1,
       "likes": 78,
       "views": 0
     }
