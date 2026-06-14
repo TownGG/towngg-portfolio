@@ -76,18 +76,12 @@ function getCreationUrl(creation) {
   return creation?.links?.find((link) => /creations\.bethesda\.net/i.test(link.url))?.url;
 }
 
-function replaceCreationObject(source, title, nextObjectText) {
-  const escapedTitle = JSON.stringify(title).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const titlePattern = new RegExp(`\\{\\s*title:\\s*${escapedTitle}`);
-  const match = titlePattern.exec(source);
-  if (!match) return source;
-
-  let index = match.index;
+function findMatchingBrace(source, openIndex) {
   let depth = 0;
   let quote = null;
   let escaped = false;
 
-  for (; index < source.length; index += 1) {
+  for (let index = openIndex; index < source.length; index += 1) {
     const char = source[index];
 
     if (quote) {
@@ -106,16 +100,40 @@ function replaceCreationObject(source, title, nextObjectText) {
       continue;
     }
 
-    if (char === '{') depth += 1;
-    if (char === '}') {
+    if (char === '{' || char === '[') depth += 1;
+    if (char === '}' || char === ']') {
       depth -= 1;
-      if (depth === 0) {
-        return source.slice(0, match.index) + nextObjectText + source.slice(index + 1);
-      }
+      if (depth === 0) return index;
     }
   }
 
-  return source;
+  return -1;
+}
+
+function findCreationsArrayRange(source) {
+  const match = /creations\s*:\s*\[/.exec(source);
+  if (!match) return null;
+  const openIndex = source.indexOf('[', match.index);
+  const closeIndex = findMatchingBrace(source, openIndex);
+  if (openIndex < 0 || closeIndex < 0) return null;
+  return { openIndex, closeIndex };
+}
+
+function replaceCreationObject(source, title, nextObjectText) {
+  const range = findCreationsArrayRange(source);
+  if (!range) return source;
+
+  const segment = source.slice(range.openIndex + 1, range.closeIndex);
+  const escapedTitle = JSON.stringify(title).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const titlePattern = new RegExp(`\\{\\s*title:\\s*${escapedTitle}`);
+  const match = titlePattern.exec(segment);
+  if (!match) return source;
+
+  const objectStart = range.openIndex + 1 + match.index;
+  const objectEnd = findMatchingBrace(source, objectStart);
+  if (objectEnd < 0 || objectEnd > range.closeIndex) return source;
+
+  return source.slice(0, objectStart) + nextObjectText + source.slice(objectEnd + 1);
 }
 
 function jsString(value) {
