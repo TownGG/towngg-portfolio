@@ -5,7 +5,9 @@ import vm from 'node:vm';
 
 const ROOT = process.cwd();
 const SITE_DATA_PATH = path.join(ROOT, 'assets/js/site-data.js');
-const PROFILE_DIR = path.join(ROOT, '.auth/bethesda-profile');
+const AUTH_DIR = path.join(ROOT, '.auth');
+const PROFILE_DIR = path.join(AUTH_DIR, 'bethesda-profile');
+const STORAGE_PATH = path.join(AUTH_DIR, 'bethesda-storage.json');
 const LOGIN_MODE = process.argv.includes('--login');
 const HEADED_MODE = process.argv.includes('--headed');
 const HEADLESS = !LOGIN_MODE && !HEADED_MODE && process.env.HEADLESS !== 'false';
@@ -27,13 +29,6 @@ function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function normalizeNumber(value) {
-  if (!value) return null;
-  const number = Number(String(value).replace(/[^0-9.]/g, ''));
-  if (!Number.isFinite(number)) return null;
-  return numberFormat.format(Math.round(number));
-}
-
 function parseNumberValue(value) {
   const number = Number(String(value || '').replace(/[^0-9.]/g, ''));
   return Number.isFinite(number) ? number : 0;
@@ -44,7 +39,7 @@ function aggregateLabeledNumbers(text, labels) {
   let total = 0;
 
   for (const label of labels) {
-    const pattern = new RegExp(`\\b${escapeRegExp(label)}\\b\\s*[:\\-]?\\s*([0-9][0-9,.]*)`, 'gi');
+    const pattern = new RegExp(`\\b${escapeRegExp(label)}\\b[^0-9]{0,80}([0-9][0-9,.]*)`, 'gi');
     for (const match of normalized.matchAll(pattern)) {
       total += parseNumberValue(match[1]);
     }
@@ -97,6 +92,15 @@ function shouldSyncCreation(creation) {
   );
 }
 
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function findMatchingBrace(source, openIndex) {
   let depth = 0;
   let quote = null;
@@ -106,13 +110,9 @@ function findMatchingBrace(source, openIndex) {
     const char = source[index];
 
     if (quote) {
-      if (escaped) {
-        escaped = false;
-      } else if (char === '\\') {
-        escaped = true;
-      } else if (char === quote) {
-        quote = null;
-      }
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === quote) quote = null;
       continue;
     }
 
@@ -164,8 +164,7 @@ function jsString(value) {
 function renderCreationObject(item) {
   const ordered = [];
   const push = (key, value) => {
-    if (value === undefined) return;
-    ordered.push([key, value]);
+    if (value !== undefined) ordered.push([key, value]);
   };
 
   push('title', item.title);
@@ -195,11 +194,28 @@ function renderCreationObject(item) {
 }
 
 async function openContext() {
-  await fs.mkdir(PROFILE_DIR, { recursive: true });
+  await fs.mkdir(AUTH_DIR, { recursive: true });
+
+  if (!LOGIN_MODE && await fileExists(STORAGE_PATH)) {
+    const browser = await chromium.launch({ headless: HEADLESS });
+    const context = await browser.newContext({
+      storageState: STORAGE_PATH,
+      viewport: { width: 1366, height: 900 }
+    });
+    context.__browser = browser;
+    return context;
+  }
+
   return chromium.launchPersistentContext(PROFILE_DIR, {
     headless: HEADLESS,
     viewport: { width: 1366, height: 900 }
   });
+}
+
+async function closeContext(context) {
+  const browser = context.__browser;
+  await context.close();
+  if (browser) await browser.close();
 }
 
 async function scrapeCoverImage(page) {
@@ -265,12 +281,14 @@ async function login() {
   const page = context.pages()[0] || await context.newPage();
   await page.goto(CREATIONS_HOME, { waitUntil: 'domcontentloaded' });
   console.log('Login mode: finish Bethesda login in the opened browser.');
-  console.log('When your account is visible, return here and press Enter. The persistent profile will be saved under .auth/bethesda-profile.');
+  console.log('When your account is visible, return here and press Enter. A storage state file will be saved under .auth/bethesda-storage.json.');
 
   process.stdin.resume();
   await new Promise((resolve) => process.stdin.once('data', resolve));
-  await context.close();
-  console.log('Bethesda login profile saved. Now run: npm run cc:sync:headed');
+  await fs.mkdir(AUTH_DIR, { recursive: true });
+  await context.storageState({ path: STORAGE_PATH });
+  await closeContext(context);
+  console.log('Bethesda storage state saved. Now run: npm run cc:sync:headed');
 }
 
 async function sync() {
@@ -318,7 +336,7 @@ async function sync() {
     }
   }
 
-  await context.close();
+  await closeContext(context);
 
   if (success > 0) {
     await fs.writeFile(SITE_DATA_PATH, nextSource, 'utf8');
