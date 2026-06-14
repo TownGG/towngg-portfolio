@@ -85,6 +85,20 @@ window.siteData = {
       links: [
         { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17070" }
       ]
+    },
+    {
+      title: "Cassilias Power Fist",
+      category: "Nexus Mods / Auto Synced",
+      group: "Weapon",
+      image: "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
+      alt: "Cassilias Power Fist Nexus Mods cover image",
+      description: "Automatically synced from Nexus Mods.",
+      tags: ["Nexus", "Auto Synced", "Starfield"],
+      downloads: "15",
+      endorsements: "1",
+      links: [
+        { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17461" }
+      ]
     }
   ],
   creations: [
