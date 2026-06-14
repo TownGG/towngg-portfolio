@@ -42,11 +42,13 @@ jobs:
       - name: Sync Bethesda Creations stats and covers
         run: npm run cc:sync
 
-      - name: Stamp Creations sync time
+      - name: Stamp Creations sync time and history
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const file = 'assets/js/site-data.js';
+          const vm = require('vm');
+          const siteFile = 'assets/js/site-data.js';
+          const historyFile = 'assets/data/creations-history.csv';
           const parts = Object.fromEntries(
             new Intl.DateTimeFormat('en-CA', {
               timeZone: 'Asia/Shanghai',
@@ -59,21 +61,52 @@ jobs:
             }).formatToParts(new Date()).map((part) => [part.type, part.value])
           );
           const stamp = `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
-          let source = fs.readFileSync(file, 'utf8');
+          const date = stamp.slice(0, 10);
+          let source = fs.readFileSync(siteFile, 'utf8');
           source = source.replace(/updatedAt: "\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2})?"/g, `updatedAt: "${stamp}"`);
-          fs.writeFileSync(file, source);
+          fs.writeFileSync(siteFile, source);
+
+          const context = { window: {} };
+          vm.createContext(context);
+          vm.runInContext(source, context, { filename: 'site-data.js' });
+          const creations = Array.isArray(context.window.siteData?.creations) ? context.window.siteData.creations : [];
+          const number = (value) => Number(String(value || '0').replace(/[^0-9.-]/g, '')) || 0;
+          const totals = creations.reduce((sum, item) => {
+            sum.downloads += number(item.downloads);
+            sum.likes += number(item.likes);
+            sum.plays += number(item.plays);
+            sum.libraryAdds += number(item.libraryAdds);
+            return sum;
+          }, { downloads: 0, likes: 0, plays: 0, libraryAdds: 0 });
+
+          const header = 'timestamp,date,total_downloads,total_likes,total_plays,total_library_adds';
+          const row = [stamp, date, totals.downloads, totals.likes, totals.plays, totals.libraryAdds].join(',');
+          let lines = [];
+          if (fs.existsSync(historyFile)) {
+            lines = fs.readFileSync(historyFile, 'utf8').split(/\r?\n/).filter(Boolean);
+          }
+          if (!lines.length || lines[0] !== header) lines = [header, ...lines.filter((line) => !line.startsWith('timestamp,'))];
+          lines = lines.filter((line) => !line.startsWith(`${stamp},`));
+          lines.push(row);
+          const cutoff = new Date(Date.now() - 70 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+          lines = [lines[0], ...lines.slice(1).filter((line) => {
+            const dateColumn = line.split(',')[1] || '';
+            return dateColumn >= cutoff;
+          })];
+          fs.writeFileSync(historyFile, `${lines.join('\n')}\n`);
           console.log(`Creations sync timestamp stamped: ${stamp}`);
+          console.log(`Creations history snapshot recorded: ${row}`);
           NODE
 
       - name: Commit and push changes
         run: |
-          if git diff --quiet -- assets/js/site-data.js; then
+          if git diff --quiet -- assets/js/site-data.js assets/data/creations-history.csv; then
             echo "No Creations changes to commit."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/js/site-data.js
+          git add assets/js/site-data.js assets/data/creations-history.csv
           git commit -m "Update Creations stats and covers"
           git push
