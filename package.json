@@ -1,10 +1,10 @@
 {
   "name": "towngg-portfolio",
   "private": true,
-  "version": "2.5.0",
+  "version": "2.5.1",
   "type": "module",
   "scripts": {
-    "cc:login": "playwright codegen --save-storage=.auth/bethesda-storage.json https://creations.bethesda.net/en/starfield/all?author_displayname=TownGG",
+    "cc:login": "node scripts/sync-creations.js --login",
     "cc:sync": "node scripts/sync-creations.js",
     "cc:sync:headed": "HEADLESS=false node scripts/sync-creations.js"
   },
