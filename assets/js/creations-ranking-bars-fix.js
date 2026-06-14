@@ -12,10 +12,10 @@
     const siteData = window.siteData || {};
     const ranking = document.querySelector("[data-creations-ranking]");
     const metricSelect = document.querySelector("[data-creations-ranking-metric]");
-    if (!ranking || !metricSelect) return;
+    if (!ranking || !metricSelect || !Array.isArray(siteData.creations)) return;
 
     const metric = metricSelect.value || "likes";
-    const confirmedCreations = (siteData.creations || []).filter((item) =>
+    const confirmedCreations = siteData.creations.filter((item) =>
       ["likes", "downloads", "plays", "libraryAdds"].some((key) => toNumber(item[key]) > 0)
     );
 
@@ -44,18 +44,42 @@
     }).join("");
   }
 
-  function initCreationsRankingBarsFix() {
+  function installFix() {
+    const ranking = document.querySelector("[data-creations-ranking]");
     const metricSelect = document.querySelector("[data-creations-ranking-metric]");
-    if (metricSelect && !metricSelect.dataset.barsFixReady) {
-      metricSelect.addEventListener("change", renderCreationsRankingBars);
+    if (!ranking || !metricSelect) return;
+
+    if (!metricSelect.dataset.barsFixReady) {
+      metricSelect.addEventListener("change", () => {
+        window.setTimeout(renderCreationsRankingBars, 0);
+      });
       metricSelect.dataset.barsFixReady = "true";
     }
+
+    if (!ranking.dataset.barsObserverReady) {
+      const observer = new MutationObserver(() => {
+        if (!ranking.querySelector(".creation-bar-track")) {
+          window.setTimeout(renderCreationsRankingBars, 0);
+        }
+      });
+      observer.observe(ranking, { childList: true, subtree: true });
+      ranking.dataset.barsObserverReady = "true";
+    }
+
     renderCreationsRankingBars();
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => window.setTimeout(initCreationsRankingBarsFix, 0));
-  } else {
-    window.setTimeout(initCreationsRankingBarsFix, 0);
+  function scheduleFix() {
+    [0, 50, 150, 400, 900].forEach((delay) => {
+      window.setTimeout(installFix, delay);
+    });
   }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", scheduleFix);
+  } else {
+    scheduleFix();
+  }
+
+  window.addEventListener("load", scheduleFix);
 })();
