@@ -27,6 +27,18 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
+      - name: Restore Bethesda login state
+        env:
+          BETHESDA_STORAGE_STATE: ${{ secrets.BETHESDA_STORAGE_STATE }}
+        run: |
+          if [ -n "$BETHESDA_STORAGE_STATE" ]; then
+            mkdir -p .auth
+            printf '%s' "$BETHESDA_STORAGE_STATE" > .auth/bethesda-storage.json
+            echo "Bethesda storage state restored."
+          else
+            echo "No Bethesda storage state secret found. Public data only."
+          fi
+
       - name: Sync Bethesda Creations stats and covers
         run: npm run cc:sync
 
