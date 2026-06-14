@@ -34,6 +34,53 @@ function parseNumberValue(value) {
   return Number.isFinite(number) ? number : 0;
 }
 
+function formatNumberValue(value) {
+  return value > 0 ? numberFormat.format(Math.round(value)) : null;
+}
+
+function findValueAfterLabel(lines, labels) {
+  const labelPattern = new RegExp(`^(${labels.map(escapeRegExp).join('|')})$`, 'i');
+  for (let index = 0; index < lines.length; index += 1) {
+    if (!labelPattern.test(lines[index])) continue;
+    for (let valueIndex = index + 1; valueIndex < Math.min(lines.length, index + 5); valueIndex += 1) {
+      if (/^[0-9][0-9,.]*$/.test(lines[valueIndex])) return parseNumberValue(lines[valueIndex]);
+    }
+  }
+  return 0;
+}
+
+function parsePlatformSections(text) {
+  const lines = String(text || '').replace(/\u00a0/g, ' ').split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  const platformRegex = /^(Xbox|Playstation|PlayStation|Computer|PC|电脑|计算机)$/i;
+  const totals = { likes: 0, downloads: 0, bookmarks: 0, views: 0, plays: 0, libraryAdds: 0 };
+  let foundPlatforms = 0;
+
+  for (let index = 0; index < lines.length; index += 1) {
+    if (!platformRegex.test(lines[index])) continue;
+    foundPlatforms += 1;
+    const section = [];
+    for (let sectionIndex = index + 1; sectionIndex < lines.length; sectionIndex += 1) {
+      if (platformRegex.test(lines[sectionIndex])) break;
+      if (/^(VERSION|DETAILS|LAST UPDATE|CREATED ON|INSTALLATION SIZE|版本|详情|最新更新|创建日|安装大小|适用于)$/i.test(lines[sectionIndex])) break;
+      section.push(lines[sectionIndex]);
+    }
+
+    totals.likes += findValueAfterLabel(section, ['LIKES', 'LIKE', '喜欢']);
+    totals.downloads += findValueAfterLabel(section, ['DOWNLOADS', 'DOWNLOAD', '下载']);
+    totals.bookmarks += findValueAfterLabel(section, ['BOOKMARKS', 'BOOKMARK', '书签']);
+    totals.views += findValueAfterLabel(section, ['VIEWS', 'VIEW', '查看']);
+    totals.plays += findValueAfterLabel(section, ['PLAYS', 'PLAY', '播放数']);
+    totals.libraryAdds += findValueAfterLabel(section, ['SUBSCRIBES', 'SUBSCRIBE', 'SUBSCRIPTIONS', '订阅数']);
+  }
+
+  if (!foundPlatforms) return {};
+  return Object.fromEntries(
+    Object.entries(totals)
+      .map(([key, value]) => [key, formatNumberValue(value)])
+      .filter(([, value]) => value)
+  );
+}
+
 function aggregateLabeledNumbers(text, labels) {
   const normalized = String(text || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
   let total = 0;
@@ -49,6 +96,9 @@ function aggregateLabeledNumbers(text, labels) {
 }
 
 function parsePlatformStats(text) {
+  const sectionStats = parsePlatformSections(text);
+  if (Object.keys(sectionStats).length) return sectionStats;
+
   return {
     likes: aggregateLabeledNumbers(text, ['likes', 'like', '喜欢']),
     downloads: aggregateLabeledNumbers(text, ['downloads', 'download', '下载']),
