@@ -60,7 +60,8 @@ function getCreationUrl(creation) {
 }
 
 function replaceCreationObject(source, title, nextObjectText) {
-  const titlePattern = new RegExp(`\\{\\s*title:\\s*${JSON.stringify(title).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`);
+  const escapedTitle = JSON.stringify(title).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const titlePattern = new RegExp(`\\{\\s*title:\\s*${escapedTitle}`);
   const match = titlePattern.exec(source);
   if (!match) return source;
 
