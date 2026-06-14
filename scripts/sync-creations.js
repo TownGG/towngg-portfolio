@@ -132,14 +132,7 @@ function getCreationUrl(creation) {
 }
 
 function shouldSyncCreation(creation) {
-  return Boolean(
-    getCreationUrl(creation) &&
-    creation.group &&
-    creation.category &&
-    creation.description &&
-    Array.isArray(creation.tags) &&
-    creation.tags.length > 0
-  );
+  return Boolean(getCreationUrl(creation));
 }
 
 async function fileExists(filePath) {
@@ -308,26 +301,14 @@ async function scrapeAllPlatformsStats(page) {
     const root = document.querySelector('#ugc-content') || document.body;
     const text = (root.innerText || root.textContent || '').replace(/\u00a0/g, ' ').trim();
     const lines = text.split(/\n+/).map((line) => line.trim()).filter(Boolean);
-    const labelIndex = lines.findIndex((line) => /^(ALL PLATFORMS|所有平台)$/i.test(line));
+    const candidates = lines.filter((line) => /all platforms|所有平台|by towngg|^[0-9][0-9,.]*$/i.test(line));
+    const numbers = candidates.filter((line) => /^[0-9][0-9,.]*$/.test(line));
 
-    if (labelIndex > 0) {
-      const numbersBefore = [];
-      for (let index = labelIndex - 1; index >= 0 && numbersBefore.length < 2; index -= 1) {
-        if (/^[0-9][0-9,.]*$/.test(lines[index])) numbersBefore.push(lines[index]);
-      }
-      if (numbersBefore.length >= 2) {
-        return {
-          likes: parseNumber(numbersBefore[1]),
-          downloads: parseNumber(numbersBefore[0])
-        };
-      }
-    }
-
-    const inlineMatch = /by\s+TownGG\s+([0-9][0-9,.]*)\s+([0-9][0-9,.]*)\s+(?:ALL PLATFORMS|所有平台)/i.exec(text.replace(/\s+/g, ' '));
-    if (inlineMatch) {
+    if (numbers.length >= 2) {
       return {
-        likes: parseNumber(inlineMatch[1]),
-        downloads: parseNumber(inlineMatch[2])
+        likes: parseNumber(numbers[0]),
+        downloads: parseNumber(numbers[1]),
+        _topDebug: `${numbers[0]} / ${numbers[1]}`
       };
     }
 
@@ -351,7 +332,10 @@ async function scrapeCreation(page, creation) {
   await page.waitForTimeout(SLOW_MS);
 
   const coverImage = normalizeImageUrl(await scrapeCoverImage(page), url);
-  const allPlatformsStats = compactStats(await scrapeAllPlatformsStats(page));
+  const allPlatformsStatsRaw = compactStats(await scrapeAllPlatformsStats(page));
+  const allPlatformsStats = { ...allPlatformsStatsRaw };
+  const topDebug = allPlatformsStats._topDebug;
+  delete allPlatformsStats._topDebug;
 
   await openDetailsTab(page);
   const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS });
@@ -362,7 +346,7 @@ async function scrapeCreation(page, creation) {
     return { ok: false, error: 'no_stats_or_cover_found' };
   }
 
-  return { ok: true, stats, coverImage };
+  return { ok: true, stats, coverImage, topDebug };
 }
 
 async function login() {
@@ -418,7 +402,7 @@ async function sync() {
       };
       nextSource = replaceCreationObject(nextSource, creation.title, renderCreationObject(merged));
       success += 1;
-      console.log(result.stats?.downloads ? 'updated all-platform totals + cover' : 'updated available stats + cover');
+      console.log(result.topDebug ? `updated top ${result.topDebug} + cover` : 'updated available stats + cover');
     } catch (error) {
       failed += 1;
       console.log(`kept old data (${error.message})`);
