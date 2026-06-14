@@ -38,6 +38,12 @@ function formatNumberValue(value) {
   return value > 0 ? numberFormat.format(Math.round(value)) : null;
 }
 
+function freshUrl(url) {
+  const next = new URL(url);
+  next.searchParams.set('cc_sync_ts', String(Date.now()));
+  return next.toString();
+}
+
 function findValueAfterLabel(lines, labels) {
   const labelPattern = new RegExp(`^(${labels.map(escapeRegExp).join('|')})$`, 'i');
   for (let index = 0; index < lines.length; index += 1) {
@@ -243,7 +249,8 @@ async function openContext() {
     const browser = await chromium.launch({ headless: HEADLESS });
     const context = await browser.newContext({
       storageState: STORAGE_PATH,
-      viewport: { width: 1366, height: 900 }
+      viewport: { width: 1366, height: 900 },
+      serviceWorkers: 'block'
     });
     context.__browser = browser;
     return context;
@@ -251,7 +258,8 @@ async function openContext() {
 
   return chromium.launchPersistentContext(PROFILE_DIR, {
     headless: HEADLESS,
-    viewport: { width: 1366, height: 900 }
+    viewport: { width: 1366, height: 900 },
+    serviceWorkers: 'block'
   });
 }
 
@@ -259,6 +267,13 @@ async function closeContext(context) {
   const browser = context.__browser;
   await context.close();
   if (browser) await browser.close();
+}
+
+async function prepareFreshPage(page) {
+  await page.setExtraHTTPHeaders({
+    'Cache-Control': 'no-cache',
+    Pragma: 'no-cache'
+  });
 }
 
 async function scrapeCoverImage(page) {
@@ -327,7 +342,7 @@ async function scrapeCreation(page, creation) {
   const url = getCreationUrl(creation);
   if (!url) return { ok: false, error: 'missing_url' };
 
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: TIMEOUT_MS });
+  await page.goto(freshUrl(url), { waitUntil: 'domcontentloaded', timeout: TIMEOUT_MS });
   await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   await page.waitForTimeout(SLOW_MS);
 
@@ -352,7 +367,8 @@ async function scrapeCreation(page, creation) {
 async function login() {
   const context = await openContext();
   const page = context.pages()[0] || await context.newPage();
-  await page.goto(CREATIONS_HOME, { waitUntil: 'domcontentloaded' });
+  await prepareFreshPage(page);
+  await page.goto(freshUrl(CREATIONS_HOME), { waitUntil: 'domcontentloaded' });
   console.log('Login mode: finish Bethesda login in the opened browser.');
   console.log('When your account is visible, return here and press Enter. A storage state file will be saved under .auth/bethesda-storage.json.');
 
@@ -371,6 +387,7 @@ async function sync() {
 
   const context = await openContext();
   const page = context.pages()[0] || await context.newPage();
+  await prepareFreshPage(page);
 
   let nextSource = source;
   let success = 0;
