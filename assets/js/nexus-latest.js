@@ -19,6 +19,14 @@
     return match?.[1] || "";
   }
 
+  function isNexusImage(url) {
+    return String(url || "").includes("staticdelivery.nexusmods.com");
+  }
+
+  function latestImageFromRow(row) {
+    return row?.image_url || row?.picture_url || row?.image || "";
+  }
+
   function getSiteMods() {
     return window.siteData?.mods || [];
   }
@@ -28,6 +36,12 @@
     getSiteMods().forEach((mod) => {
       const latest = byId.get(nexusIdFromMod(mod));
       if (!latest) return;
+
+      const latestImage = latestImageFromRow(latest);
+      if (latestImage && isNexusImage(mod.image) && mod.image !== latestImage) {
+        mod.image = latestImage;
+      }
+
       mod.downloads = formatter.format(number(latest.total_downloads));
       mod.endorsements = formatter.format(number(latest.likes));
       mod.uniqueDownloads = formatter.format(number(latest.unique_downloads));
