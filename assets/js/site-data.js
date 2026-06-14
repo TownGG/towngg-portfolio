@@ -141,6 +141,10 @@ window.siteData = {
   ],
   featuredArtworks: [
       {
+          image: "./assets/images/gallery-featured-compressed/featured_20260614_001.jpg",
+          alt: "TownGG homepage featured artwork"
+      },
+      {
           image: "./assets/images/gallery-featured-compressed/featured_02_20260613_001.jpg",
           alt: "02 homepage featured artwork"
       },
