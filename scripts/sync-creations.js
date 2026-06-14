@@ -34,6 +34,11 @@ function parseNumberValue(value) {
   return Number.isFinite(number) ? number : 0;
 }
 
+function formatNumberValue(value) {
+  const number = parseNumberValue(value);
+  return number > 0 ? numberFormat.format(Math.round(number)) : null;
+}
+
 function aggregateLabeledNumbers(text, labels) {
   const normalized = String(text || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
   let total = 0;
@@ -248,6 +253,42 @@ async function scrapeCoverImage(page) {
   });
 }
 
+async function scrapeAllPlatformsStats(page) {
+  return page.evaluate(() => {
+    const parseNumber = (value) => {
+      const number = Number(String(value || '').replace(/[^0-9.]/g, ''));
+      return Number.isFinite(number) && number > 0 ? Math.round(number).toLocaleString('en-US') : null;
+    };
+
+    const allElements = [...document.querySelectorAll('body *')]
+      .map((element) => {
+        const rect = element.getBoundingClientRect();
+        const text = (element.textContent || '').trim();
+        return { element, rect, text };
+      })
+      .filter((item) => item.text && item.rect.width > 0 && item.rect.height > 0);
+
+    const label = allElements.find((item) => /^ALL PLATFORMS$/i.test(item.text));
+    if (!label) return {};
+
+    const nearby = allElements
+      .filter((item) => {
+        const sameBand = Math.abs(item.rect.top - label.rect.top) < 90;
+        const rightSide = item.rect.left >= label.rect.left - 40 && item.rect.left <= label.rect.left + 520;
+        return sameBand && rightSide;
+      })
+      .sort((a, b) => a.rect.left - b.rect.left)
+      .map((item) => item.text)
+      .filter((text) => /^[0-9][0-9,.]*$/.test(text));
+
+    if (nearby.length < 2) return {};
+    return {
+      likes: parseNumber(nearby[0]),
+      downloads: parseNumber(nearby[1])
+    };
+  });
+}
+
 async function openDetailsTab(page) {
   await page.getByRole('tab', { name: /details/i }).click({ timeout: 5000 }).catch(async () => {
     await page.getByText(/^details$/i).click({ timeout: 5000 }).catch(() => {});
@@ -264,10 +305,12 @@ async function scrapeCreation(page, creation) {
   await page.waitForTimeout(SLOW_MS);
 
   const coverImage = normalizeImageUrl(await scrapeCoverImage(page), url);
-  await openDetailsTab(page);
+  const allPlatformsStats = compactStats(await scrapeAllPlatformsStats(page));
 
+  await openDetailsTab(page);
   const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS });
-  const stats = compactStats(parsePlatformStats(text));
+  const platformStats = compactStats(parsePlatformStats(text));
+  const stats = { ...platformStats, ...allPlatformsStats };
 
   if (!Object.keys(stats).length && !coverImage) {
     return { ok: false, error: 'no_stats_or_cover_found' };
@@ -329,7 +372,7 @@ async function sync() {
       };
       nextSource = replaceCreationObject(nextSource, creation.title, renderCreationObject(merged));
       success += 1;
-      console.log(result.coverImage ? 'updated platform totals + cover' : 'updated platform totals');
+      console.log(result.stats?.downloads ? 'updated all-platform totals + cover' : 'updated available stats + cover');
     } catch (error) {
       failed += 1;
       console.log(`kept old data (${error.message})`);
