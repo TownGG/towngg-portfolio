@@ -3,8 +3,8 @@ name: Sync Bethesda Creations
 on:
   workflow_dispatch:
   schedule:
-    # Runs every day at 03:30 UTC / 11:30 Beijing time.
-    - cron: "30 3 * * *"
+    # Runs every 30 minutes.
+    - cron: "*/30 * * * *"
 
 permissions:
   contents: write
