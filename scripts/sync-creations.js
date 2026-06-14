@@ -5,10 +5,12 @@ import vm from 'node:vm';
 
 const ROOT = process.cwd();
 const SITE_DATA_PATH = path.join(ROOT, 'assets/js/site-data.js');
-const STORAGE_PATH = path.join(ROOT, '.auth/bethesda-storage.json');
+const PROFILE_DIR = path.join(ROOT, '.auth/bethesda-profile');
 const HEADLESS = process.env.HEADLESS !== 'false';
-const SLOW_MS = Number(process.env.CC_SLOW_MS || 900);
+const LOGIN_MODE = process.argv.includes('--login');
+const SLOW_MS = Number(process.env.CC_SLOW_MS || 1200);
 const TIMEOUT_MS = Number(process.env.CC_TIMEOUT_MS || 45000);
+const CREATIONS_HOME = 'https://creations.bethesda.net/en/starfield/all?author_displayname=TownGG';
 
 const numberFormat = new Intl.NumberFormat('en-US');
 const statKeys = ['views', 'bookmarks', 'likes', 'downloads', 'plays', 'libraryAdds'];
@@ -138,13 +140,12 @@ function renderCreationObject(item) {
   return `{ ${parts.join(', ')} }`;
 }
 
-async function storageStateExists() {
-  try {
-    await fs.access(STORAGE_PATH);
-    return true;
-  } catch {
-    return false;
-  }
+async function openContext() {
+  await fs.mkdir(PROFILE_DIR, { recursive: true });
+  return chromium.launchPersistentContext(PROFILE_DIR, {
+    headless: LOGIN_MODE ? false : HEADLESS,
+    viewport: { width: 1366, height: 900 }
+  });
 }
 
 async function scrapeCreation(page, creation) {
@@ -169,15 +170,26 @@ async function scrapeCreation(page, creation) {
   return { ok: true, stats };
 }
 
-async function main() {
+async function login() {
+  const context = await openContext();
+  const page = context.pages()[0] || await context.newPage();
+  await page.goto(CREATIONS_HOME, { waitUntil: 'domcontentloaded' });
+  console.log('Login mode: finish Bethesda login in the opened browser.');
+  console.log('When your account is visible, return here and press Enter. The persistent profile will be saved under .auth/bethesda-profile.');
+
+  process.stdin.resume();
+  await new Promise((resolve) => process.stdin.once('data', resolve));
+  await context.close();
+  console.log('Bethesda login profile saved. Now run: npm run cc:sync:headed');
+}
+
+async function sync() {
   const source = await fs.readFile(SITE_DATA_PATH, 'utf8');
   const siteData = loadSiteData(source);
   const creations = Array.isArray(siteData.creations) ? siteData.creations : [];
 
-  const hasStorage = await storageStateExists();
-  const browser = await chromium.launch({ headless: HEADLESS });
-  const context = await browser.newContext(hasStorage ? { storageState: STORAGE_PATH } : {});
-  const page = await context.newPage();
+  const context = await openContext();
+  const page = context.pages()[0] || await context.newPage();
 
   let nextSource = source;
   let success = 0;
@@ -212,7 +224,7 @@ async function main() {
     }
   }
 
-  await browser.close();
+  await context.close();
 
   if (success > 0) {
     await fs.writeFile(SITE_DATA_PATH, nextSource, 'utf8');
@@ -221,7 +233,14 @@ async function main() {
   console.log(`Bethesda Creations sync complete: ${success} updated, ${failed} kept from previous data.`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+if (LOGIN_MODE) {
+  login().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+} else {
+  sync().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}
