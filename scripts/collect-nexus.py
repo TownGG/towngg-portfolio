@@ -5,6 +5,7 @@ import os
 import re
 import ssl
 import sys
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -13,6 +14,11 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "assets" / "data" / "nexus-mods.json"
 HISTORY_PATH = ROOT / "assets" / "data" / "nexus-history.csv"
 LATEST_PATH = ROOT / "assets" / "data" / "nexus-latest.json"
+SITE_DATA_PATH = ROOT / "assets" / "js" / "site-data.js"
+
+DEFAULT_DISCOVERY_GAME = "starfield"
+DEFAULT_DISCOVERY_AUTHOR = "TownGG"
+DEFAULT_DISCOVERY_PERIOD = "1m"
 
 FIELDS = [
     "date",
@@ -67,6 +73,25 @@ def request_json(url, api_key):
     )
     with urllib.request.urlopen(req, timeout=30, context=ssl.create_default_context()) as response:
         return json.loads(response.read().decode("utf-8", "replace"))
+
+
+def nexus_mod_url(game, mod_id):
+    return f"https://www.nexusmods.com/{game}/mods/{mod_id}"
+
+
+def js(value):
+    return json.dumps(value, ensure_ascii=False)
+
+
+def read_config():
+    if not CONFIG_PATH.exists():
+        return {"mods": []}
+    return json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+
+
+def write_config(config):
+    CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CONFIG_PATH.write_text(json.dumps(config, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def read_history():
@@ -130,6 +155,232 @@ def normalize(row, previous_rows, date):
     return normalized
 
 
+def candidate_list(payload):
+    if isinstance(payload, list):
+        return payload
+    if isinstance(payload, dict):
+        for key in ("mods", "results", "data", "items"):
+            if isinstance(payload.get(key), list):
+                return payload[key]
+    return []
+
+
+def candidate_mod_id(item):
+    for key in ("mod_id", "modId", "id"):
+        value = item.get(key) if isinstance(item, dict) else None
+        if value:
+            return str(value)
+    return ""
+
+
+def strings_from_value(value):
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, (int, float)):
+        return [str(value)]
+    if isinstance(value, dict):
+        strings = []
+        for key in ("name", "username", "user_name", "member_name", "display_name", "author"):
+            if key in value:
+                strings.extend(strings_from_value(value.get(key)))
+        return strings
+    if isinstance(value, list):
+        strings = []
+        for item in value:
+            strings.extend(strings_from_value(item))
+        return strings
+    return []
+
+
+def author_strings(item):
+    if not isinstance(item, dict):
+        return []
+    fields = (
+        "author",
+        "user",
+        "uploader",
+        "uploaded_by",
+        "uploaded_by_name",
+        "username",
+        "member_name",
+        "owner",
+        "submitted_by",
+    )
+    strings = []
+    for field in fields:
+        if field in item:
+            strings.extend(strings_from_value(item.get(field)))
+    return strings
+
+
+def is_author_match(item, author_name):
+    target = str(author_name or "").strip().lower()
+    if not target:
+        return False
+    for value in author_strings(item):
+        text = str(value or "").strip().lower()
+        if text == target:
+            return True
+    return False
+
+
+def discover_author_mods(api_key, config_mods):
+    author_name = os.environ.get("NEXUS_AUTHOR_NAME", DEFAULT_DISCOVERY_AUTHOR).strip()
+    game = os.environ.get("NEXUS_DISCOVERY_GAME", DEFAULT_DISCOVERY_GAME).strip() or DEFAULT_DISCOVERY_GAME
+    period = os.environ.get("NEXUS_DISCOVERY_PERIOD", DEFAULT_DISCOVERY_PERIOD).strip() or DEFAULT_DISCOVERY_PERIOD
+    enabled = os.environ.get("NEXUS_AUTO_DISCOVER", "true").strip().lower() not in {"0", "false", "no", "off"}
+
+    if not enabled or not author_name:
+        return []
+
+    known_ids = {str(mod.get("mod_id")) for mod in config_mods if mod.get("mod_id")}
+    updated_url = f"https://api.nexusmods.com/v1/games/{game}/mods/updated.json?period={urllib.parse.quote(period)}"
+
+    try:
+        updated_payload = request_json(updated_url, api_key)
+    except Exception as exc:
+        print(f"Nexus discovery skipped: {exc}")
+        return []
+
+    discovered = []
+    seen_ids = set()
+    for item in candidate_list(updated_payload):
+        if not isinstance(item, dict):
+            continue
+        mod_id = candidate_mod_id(item)
+        if not mod_id or mod_id in known_ids or mod_id in seen_ids:
+            continue
+        seen_ids.add(mod_id)
+
+        detail_url = f"https://api.nexusmods.com/v1/games/{game}/mods/{mod_id}.json"
+        try:
+            detail = request_json(detail_url, api_key)
+        except Exception as exc:
+            print(f"Failed to inspect discovered candidate {mod_id}: {exc}")
+            continue
+
+        if not (is_author_match(item, author_name) or is_author_match(detail, author_name)):
+            continue
+
+        discovered.append({
+            "game": game,
+            "mod_id": mod_id,
+            "name": detail.get("name") or item.get("name") or f"Nexus Mod {mod_id}",
+            "url": nexus_mod_url(game, mod_id),
+        })
+
+    return discovered
+
+
+def merge_discovered_mods(config, discovered):
+    mods = list(config.get("mods", []))
+    known_ids = {str(mod.get("mod_id")) for mod in mods if mod.get("mod_id")}
+    added = []
+
+    for mod in discovered:
+        mod_id = str(mod.get("mod_id", ""))
+        if not mod_id or mod_id in known_ids:
+            continue
+        mods.append(mod)
+        known_ids.add(mod_id)
+        added.append(mod)
+
+    if added:
+        config["mods"] = mods
+        write_config(config)
+        for mod in added:
+            print(f"Discovered Nexus mod {mod['mod_id']}: {mod.get('name', '')}")
+
+    return mods, added
+
+
+def row_from_item(mod, item):
+    mod_id = str(mod["mod_id"])
+    game = mod.get("game", DEFAULT_DISCOVERY_GAME)
+    return {
+        "platform": "nexus",
+        "mod_id": mod_id,
+        "mod_name": item.get("name") or mod.get("name", ""),
+        "mod_url": mod.get("url") or nexus_mod_url(game, mod_id),
+        "image_url": item.get("picture_url", ""),
+        "total_downloads": item.get("total_downloads") or item.get("downloads") or item.get("mod_downloads"),
+        "unique_downloads": item.get("unique_downloads") or item.get("mod_unique_downloads"),
+        "likes": item.get("endorsement_count") or item.get("endorsements"),
+        "views": item.get("views"),
+        "notes": "Collected via Nexus Mods API.",
+    }
+
+
+def site_data_has_mod_id(site_data_text, mod_id):
+    return f"/mods/{mod_id}" in site_data_text
+
+
+def infer_group(name):
+    text = str(name or "").lower()
+    if any(keyword in text for keyword in ("uniform", "suit", "bodysuit", "lingerie", "cloth", "dress", "outfit")):
+        return "Clothing"
+    if any(keyword in text for keyword in ("terminus", "quest", "boss")):
+        return "Quest"
+    if any(keyword in text for keyword in ("weapon", "fist", "sword", "grenade")):
+        return "Weapon"
+    return "Gameplay"
+
+
+def site_data_card(mod, item):
+    mod_id = str(mod.get("mod_id", ""))
+    name = item.get("name") or mod.get("name") or f"Nexus Mod {mod_id}"
+    game = mod.get("game", DEFAULT_DISCOVERY_GAME)
+    url = mod.get("url") or nexus_mod_url(game, mod_id)
+    image = item.get("picture_url") or "./assets/images/mods/terminus-nexus-cover.png"
+    group = infer_group(name)
+    return "\n".join([
+        "    {",
+        f"      title: {js(name)},",
+        "      category: \"Nexus Mods / Auto Synced\",",
+        f"      group: {js(group)},",
+        f"      image: {js(image)},",
+        f"      alt: {js(name + ' Nexus Mods cover image')},",
+        "      description: \"Automatically synced from Nexus Mods.\",",
+        "      tags: [\"Nexus\", \"Auto Synced\", \"Starfield\"],",
+        f"      downloads: {js(str(number(item.get('total_downloads') or item.get('downloads') or item.get('mod_downloads')))},",
+        f"      endorsements: {js(str(number(item.get('endorsement_count') or item.get('endorsements')))},",
+        "      links: [",
+        f"        {{ label: \"Nexus Mods\", url: {js(url)} }}",
+        "      ]",
+        "    }",
+    ])
+
+
+def write_missing_site_cards(mods, item_by_id):
+    if not SITE_DATA_PATH.exists():
+        return 0
+
+    site_data_text = SITE_DATA_PATH.read_text(encoding="utf-8")
+    marker = "\n  ],\n  creations:"
+    if marker not in site_data_text:
+        print("Unable to insert auto-synced Nexus cards: siteData mods marker not found.")
+        return 0
+
+    cards = []
+    for mod in mods:
+        mod_id = str(mod.get("mod_id", ""))
+        item = item_by_id.get(mod_id)
+        if not mod_id or not item or site_data_has_mod_id(site_data_text, mod_id):
+            continue
+        cards.append(site_data_card(mod, item))
+
+    if not cards:
+        return 0
+
+    insertion = ",\n" + ",\n".join(cards)
+    updated = site_data_text.replace(marker, insertion + marker, 1)
+    SITE_DATA_PATH.write_text(updated, encoding="utf-8")
+    print(f"Added {len(cards)} auto-synced Nexus mod card(s) to {SITE_DATA_PATH}")
+    return len(cards)
+
+
 def main():
     api_key = os.environ.get("NEXUS_API_KEY", "").strip()
     if not api_key:
@@ -138,29 +389,24 @@ def main():
 
     date = sys.argv[1] if len(sys.argv) > 1 else today()
     updated_at = iso_now()
-    config = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+    config = read_config()
+    config_mods = list(config.get("mods", []))
+    discovered = discover_author_mods(api_key, config_mods)
+    mods, added = merge_discovered_mods(config, discovered)
     previous_rows = read_history()
     fresh_rows = []
+    item_by_id = {}
 
-    for mod in config.get("mods", []):
+    for mod in mods:
         url = f"https://api.nexusmods.com/v1/games/{mod['game']}/mods/{mod['mod_id']}.json"
         try:
             item = request_json(url, api_key)
         except Exception as exc:
             print(f"Failed to collect {mod['mod_id']}: {exc}")
             continue
-        fresh_rows.append({
-            "platform": "nexus",
-            "mod_id": str(mod["mod_id"]),
-            "mod_name": item.get("name") or mod.get("name", ""),
-            "mod_url": mod.get("url", ""),
-            "image_url": item.get("picture_url", ""),
-            "total_downloads": item.get("total_downloads") or item.get("downloads") or item.get("mod_downloads"),
-            "unique_downloads": item.get("unique_downloads") or item.get("mod_unique_downloads"),
-            "likes": item.get("endorsement_count") or item.get("endorsements"),
-            "views": item.get("views"),
-            "notes": "Collected via Nexus Mods API.",
-        })
+        mod_id = str(mod["mod_id"])
+        item_by_id[mod_id] = item
+        fresh_rows.append(row_from_item(mod, item))
 
     if not fresh_rows:
         print("No fresh rows collected.")
@@ -173,8 +419,13 @@ def main():
     ]
     write_history(kept + normalized)
     write_latest(normalized, updated_at)
+    card_count = write_missing_site_cards(mods, item_by_id)
     print(f"Saved {len(normalized)} rows to {HISTORY_PATH}")
     print(f"Saved latest snapshot to {LATEST_PATH}")
+    if added:
+        print(f"Added {len(added)} discovered Nexus mod(s) to {CONFIG_PATH}")
+    if card_count:
+        print(f"Added {card_count} siteData mod card(s)")
 
 
 if __name__ == "__main__":
