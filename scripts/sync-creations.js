@@ -6,8 +6,9 @@ import vm from 'node:vm';
 const ROOT = process.cwd();
 const SITE_DATA_PATH = path.join(ROOT, 'assets/js/site-data.js');
 const PROFILE_DIR = path.join(ROOT, '.auth/bethesda-profile');
-const HEADLESS = process.env.HEADLESS !== 'false';
 const LOGIN_MODE = process.argv.includes('--login');
+const HEADED_MODE = process.argv.includes('--headed');
+const HEADLESS = !LOGIN_MODE && !HEADED_MODE && process.env.HEADLESS !== 'false';
 const SLOW_MS = Number(process.env.CC_SLOW_MS || 1200);
 const TIMEOUT_MS = Number(process.env.CC_TIMEOUT_MS || 45000);
 const CREATIONS_HOME = 'https://creations.bethesda.net/en/starfield/all?author_displayname=TownGG';
@@ -143,7 +144,7 @@ function renderCreationObject(item) {
 async function openContext() {
   await fs.mkdir(PROFILE_DIR, { recursive: true });
   return chromium.launchPersistentContext(PROFILE_DIR, {
-    headless: LOGIN_MODE ? false : HEADLESS,
+    headless: HEADLESS,
     viewport: { width: 1366, height: 900 }
   });
 }
