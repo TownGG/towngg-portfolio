@@ -7,8 +7,8 @@
     "cc:login": "node scripts/sync-creations.js --login",
     "cc:discover": "node scripts/discover-creations.js",
     "cc:discover:headed": "node scripts/discover-creations.js --headed",
-    "cc:sync": "node scripts/sync-creations-top-fallback.js && node scripts/sync-creations-stats-alltime.js",
-    "cc:sync:headed": "node scripts/sync-creations-top-fallback.js --headed && node scripts/sync-creations-stats-alltime.js --headed",
+    "cc:sync": "node scripts/sync-creations.js && node scripts/sync-creations-top-fallback.js",
+    "cc:sync:headed": "node scripts/sync-creations.js --headed && node scripts/sync-creations-top-fallback.js --headed",
     "cc:debug": "node scripts/debug-creations.js --headed"
   },
   "devDependencies": {
