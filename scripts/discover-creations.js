@@ -2,6 +2,7 @@ import { chromium } from '@playwright/test';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import vm from 'node:vm';
+import { savePageDebug } from './cc-debug.js';
 
 const ROOT = process.cwd();
 const SITE_DATA_PATH = path.join(ROOT, 'assets/js/site-data.js');
@@ -218,7 +219,16 @@ async function discoverCreationLinks(page) {
     await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   }
 
-  return [...allLinks.values()];
+  const links = [...allLinks.values()];
+  if (!links.length) {
+    await savePageDebug(page, 'discover-author-page-0-links', {
+      reason: 'no_author_links_found',
+      authorUrl: CREATIONS_HOME,
+      currentUrl: page.url()
+    });
+  }
+
+  return links;
 }
 
 async function main() {
