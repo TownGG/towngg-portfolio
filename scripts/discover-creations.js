@@ -10,6 +10,7 @@ const STORAGE_PATH = path.join(AUTH_DIR, 'bethesda-storage.json');
 const CREATIONS_HOME = 'https://creations.bethesda.net/en/starfield/all?author_displayname=TownGG';
 const TIMEOUT_MS = Number(process.env.CC_TIMEOUT_MS || 45000);
 const HEADLESS = !process.argv.includes('--headed') && process.env.HEADLESS !== 'false';
+const MAX_AUTHOR_PAGES = Number(process.env.CC_MAX_AUTHOR_PAGES || 20);
 
 function loadSiteData(source) {
   const context = { window: {} };
@@ -25,10 +26,6 @@ async function fileExists(filePath) {
   } catch {
     return false;
   }
-}
-
-function escapeRegExp(value) {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function creationIdFromUrl(url) {
@@ -133,19 +130,14 @@ async function scrollAuthorPage(page) {
   for (let index = 0; index < 14; index += 1) {
     const height = await page.evaluate(() => document.body.scrollHeight).catch(() => 0);
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
-    await page.waitForTimeout(900);
+    await page.waitForTimeout(650);
     if (height && height === previousHeight) break;
     previousHeight = height;
   }
 }
 
-async function discoverCreationLinks(page) {
-  await page.goto(CREATIONS_HOME, { waitUntil: 'domcontentloaded', timeout: TIMEOUT_MS });
-  await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
-  await page.waitForTimeout(1800);
-  await scrollAuthorPage(page);
-
-  const links = await page.evaluate(() => {
+async function extractCreationLinksFromPage(page) {
+  return page.evaluate(() => {
     const seen = new Set();
     return [...document.querySelectorAll('a[href*="/starfield/details/"]')]
       .map((anchor) => {
@@ -161,8 +153,72 @@ async function discoverCreationLinks(page) {
       })
       .filter((url) => url && !seen.has(url) && seen.add(url));
   });
+}
 
-  return links;
+async function clickNextAuthorPage(page) {
+  const clickedByRole = await page.getByRole('button', { name: /^(next|next page|下一页|下一頁)$/i }).click({ timeout: 1500 }).then(() => true).catch(() => false)
+    || await page.getByRole('link', { name: /^(next|next page|下一页|下一頁)$/i }).click({ timeout: 1500 }).then(() => true).catch(() => false);
+  if (clickedByRole) return true;
+
+  return page.evaluate(() => {
+    const candidates = [...document.querySelectorAll('button, a')];
+    const next = candidates.find((element) => {
+      const label = [
+        element.innerText,
+        element.textContent,
+        element.getAttribute('aria-label'),
+        element.getAttribute('title')
+      ].map((value) => String(value || '').trim()).filter(Boolean).join(' ');
+      const normalized = label.replace(/\s+/g, ' ').trim();
+      const disabled = element.disabled
+        || element.getAttribute('aria-disabled') === 'true'
+        || element.classList.contains('disabled')
+        || element.classList.contains('is-disabled');
+      if (disabled) return false;
+      return /(^|\b)(next|next page|下一页|下一頁)(\b|$)/i.test(normalized)
+        || normalized === '›'
+        || normalized === '>'
+        || normalized === '»';
+    });
+
+    if (!next) return false;
+    next.scrollIntoView({ block: 'center', inline: 'center' });
+    next.click();
+    return true;
+  }).catch(() => false);
+}
+
+async function discoverCreationLinks(page) {
+  await page.goto(CREATIONS_HOME, { waitUntil: 'domcontentloaded', timeout: TIMEOUT_MS });
+  await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
+  await page.waitForTimeout(1800);
+
+  const allLinks = new Map();
+  const seenPageSignatures = new Set();
+
+  for (let pageIndex = 1; pageIndex <= MAX_AUTHOR_PAGES; pageIndex += 1) {
+    await scrollAuthorPage(page);
+    const pageLinks = await extractCreationLinksFromPage(page);
+    const signature = pageLinks.map((url) => creationIdFromUrl(url)).filter(Boolean).join('|');
+
+    for (const url of pageLinks) {
+      const id = creationIdFromUrl(url);
+      if (id && !allLinks.has(id)) allLinks.set(id, url);
+    }
+
+    console.log(`Author page ${pageIndex}: ${pageLinks.length} links found, ${allLinks.size} total unique.`);
+
+    if (!pageLinks.length || seenPageSignatures.has(signature)) break;
+    seenPageSignatures.add(signature);
+
+    const clickedNext = await clickNextAuthorPage(page);
+    if (!clickedNext) break;
+
+    await page.waitForTimeout(1800);
+    await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
+  }
+
+  return [...allLinks.values()];
 }
 
 async function main() {
