@@ -1,7 +1,6 @@
 (() => {
   const chartEl = document.querySelector("[data-creations-chart]");
-  const panel = chartEl?.closest(".dashboard-panel");
-  const toolbar = panel?.querySelector(".dashboard-toolbar");
+  const toolbar = chartEl?.closest(".dashboard-panel")?.querySelector(".dashboard-toolbar");
   if (!chartEl) return;
 
   const numberFormatter = new Intl.NumberFormat("en-US");
@@ -66,47 +65,34 @@
       const total = toNumber(row.total_downloads);
       const timestamp = String(row.timestamp || "");
       const current = groups.get(row.date) || { date: row.date, first: row, last: row, firstTotal: total, lastTotal: total };
-
       if (!current.first || timestamp < String(current.first.timestamp || "")) {
         current.first = row;
         current.firstTotal = total;
       }
-
       if (!current.last || timestamp > String(current.last.timestamp || "")) {
         current.last = row;
         current.lastTotal = total;
       }
-
       groups.set(row.date, current);
     });
-
     return [...groups.values()].sort((a, b) => String(a.date).localeCompare(String(b.date)));
   }
 
   function buildDailySeries(rows) {
     const groups = snapshotsGroupedByDay(rows);
     if (!groups.length) return [];
-
-    const daily = groups.map((group, index) => {
+    return groups.map((group, index) => {
       const current = group.lastTotal;
       const previous = index > 0 ? groups[index - 1].lastTotal : group.firstTotal;
-      return {
-        date: group.date,
-        value: Math.max(0, current - previous),
-        total: current
-      };
-    });
-
-    return daily.slice(-7);
+      return { date: group.date, value: Math.max(0, current - previous), total: current };
+    }).slice(-7);
   }
 
   function latestModDailyTotal(rows) {
     if (!rows.length) return null;
     const latestDate = rows.map((row) => row.date).filter(Boolean).sort().at(-1);
     if (!latestDate) return null;
-    return rows
-      .filter((row) => row.date === latestDate)
-      .reduce((sum, row) => sum + toNumber(row.daily_downloads), 0);
+    return rows.filter((row) => row.date === latestDate).reduce((sum, row) => sum + toNumber(row.daily_downloads), 0);
   }
 
   function currentCreationTotals() {
@@ -122,7 +108,6 @@
   function updateDailySummary(data) {
     const target = document.querySelector("[data-creations-summary]");
     if (!target) return;
-
     const totals = currentCreationTotals();
     const perModDailyTotal = latestModDailyTotal(cachedModDailyRows);
     const dailyDownloads = perModDailyTotal ?? data.at(-1)?.value ?? 0;
@@ -145,12 +130,24 @@
     return points.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
   }
 
+  function renderToolbar(latestDate) {
+    if (!toolbar) return;
+    toolbar.innerHTML = `
+      <div>
+        <h3>7-Day Creations Downloads Trend</h3>
+        <p class="dashboard-note">Creations release activity based on tracked CC history. Showing actual daily downloads from CSV history. Latest snapshot: ${formatDateLabel(latestDate)}.</p>
+      </div>
+      <span class="telemetry-pill">Daily downloads</span>
+    `;
+  }
+
   function renderChart(rows) {
     if (isRendering) return;
     isRendering = true;
 
     const data = buildDailySeries(rows);
     updateDailySummary(data);
+    renderToolbar(data.at(-1)?.date || "");
 
     if (!data.length) {
       chartEl.innerHTML = '<p class="section-desc">No Creations history data available yet. It will appear after the next scheduled CC sync.</p>';
@@ -179,7 +176,7 @@
     const areaPoints = [
       `${points[0].x.toFixed(2)},${(height - padBottom).toFixed(2)}`,
       pointLine(points),
-      `${points[points.length - 1].x.toFixed(2)},${(height - padBottom).toFixed(2)}`,
+      `${points[points.length - 1].x.toFixed(2)},${(height - padBottom).toFixed(2)}`
     ].join(" ");
 
     const gridRows = [0, 1, 2, 3, 4].map((step) => {
@@ -188,18 +185,6 @@
       return `
         <line class="telemetry-grid-line" x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" />
         <text class="nexus-axis-label" x="14" y="${y + 5}">${numberFormatter.format(label)}</text>
-      `;
-    }).join("");
-
-    const bars = data.map((item, index) => {
-      const barW = Math.max(18, chartW / data.length * 0.42);
-      const x = padLeft + (chartW / Math.max(1, data.length - 1)) * index - barW / 2;
-      const barH = (Number(item.value) / yMax) * chartH;
-      const y = padTop + chartH - barH;
-      return `
-        <rect class="nexus-bar" x="${x}" y="${y}" width="${barW}" height="${Math.max(2, barH)}" rx="6">
-          <title>${item.date}: ${numberFormatter.format(item.value)} total-snapshot delta, ${numberFormatter.format(item.total)} total downloads</title>
-        </rect>
       `;
     }).join("");
 
@@ -217,10 +202,9 @@
           </linearGradient>
         </defs>
         ${gridRows}
-        ${bars}
         <polygon class="nexus-chart-area" points="${areaPoints}" fill="url(#creationsArea)"></polygon>
         <polyline class="nexus-chart-line" points="${pointLine(points)}"></polyline>
-        ${points.map((point) => `<circle class="nexus-chart-point" cx="${point.x}" cy="${point.y}" r="5"><title>${point.item.date}: ${numberFormatter.format(point.item.value)} total-snapshot delta</title></circle>`).join("")}
+        ${points.map((point) => `<circle class="nexus-chart-point" cx="${point.x}" cy="${point.y}" r="5" aria-label="${point.item.date}: ${numberFormatter.format(point.item.value)} daily downloads"></circle>`).join("")}
         ${labels}
       </svg>
     `;
@@ -242,19 +226,6 @@
   function scheduleRender() {
     clearTimeout(rerenderTimer);
     rerenderTimer = setTimeout(() => renderChart(cachedRows), 120);
-  }
-
-  if (toolbar && !toolbar.querySelector("[data-creations-refresh]")) {
-    const refresh = document.createElement("button");
-    refresh.type = "button";
-    refresh.className = "dashboard-refresh";
-    refresh.dataset.creationsRefresh = "true";
-    refresh.textContent = "Refresh";
-    refresh.addEventListener("click", async () => {
-      [cachedRows, cachedModDailyRows] = await Promise.all([loadRows(), loadModDailyRows()]);
-      renderChart(cachedRows);
-    });
-    toolbar.appendChild(refresh);
   }
 
   Promise.all([loadRows(), loadModDailyRows()]).then(([rows, modDailyRows]) => {
