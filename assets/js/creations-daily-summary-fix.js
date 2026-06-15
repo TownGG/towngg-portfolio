@@ -59,10 +59,9 @@
     return (window.siteData?.creations || []).reduce((sum, item) => {
       sum.likes += toNumber(item.likes);
       sum.downloads += toNumber(item.downloads);
-      sum.plays += toNumber(item.plays);
       sum.libraryAdds += toNumber(item.libraryAdds);
       return sum;
-    }, { likes: 0, downloads: 0, plays: 0, libraryAdds: 0 });
+    }, { likes: 0, downloads: 0, libraryAdds: 0 });
   }
 
   function renderSummary() {
@@ -76,7 +75,6 @@
       ["Daily Downloads", daily],
       ["Likes", t.likes],
       ["Total Downloads", t.downloads],
-      ["Plays", t.plays],
       ["Library Adds", t.libraryAdds]
     ].map(([label, value]) => `
       <article class="dashboard-stat">
@@ -104,8 +102,10 @@
     if (!target) return;
 
     const observer = new MutationObserver(() => {
-      const firstLabel = target.querySelector(".dashboard-stat span")?.textContent?.trim();
-      if (firstLabel !== "Daily Downloads") window.setTimeout(renderSummary, 0);
+      const labels = [...target.querySelectorAll(".dashboard-stat span")].map((item) => item.textContent?.trim());
+      if (labels[0] !== "Daily Downloads" || labels.includes("Plays") || labels.length !== 4) {
+        window.setTimeout(renderSummary, 0);
+      }
     });
 
     observer.observe(target, { childList: true, subtree: true });
