@@ -209,11 +209,11 @@ async function selectNativeOption(page, optionPattern) {
 async function openDropdownByPattern(page, triggerPattern) {
   return page.evaluate((pattern) => {
     const triggerRegex = new RegExp(pattern, 'i');
-    const candidates = [...document.querySelectorAll('button,[role="button"],[aria-haspopup="listbox"],[aria-haspopup="menu"]')]
+    const candidates = [...document.querySelectorAll('button,[role="button"],[role="combobox"],[aria-haspopup="listbox"],[aria-haspopup="menu"],[class*="MuiSelect-select"],[class*="Select-select"],[class*="select"],[class*="dropdown"]')]
       .filter((item) => {
         const rect = item.getBoundingClientRect();
         if (rect.width <= 2 || rect.height <= 2) return false;
-        const text = `${item.innerText || ''} ${item.getAttribute('aria-label') || ''}`;
+        const text = `${item.innerText || ''} ${item.textContent || ''} ${item.getAttribute('aria-label') || ''}`;
         return triggerRegex.test(text);
       })
       .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
@@ -238,9 +238,34 @@ async function selectStatsOption(page, triggerPattern, optionPattern) {
   await page.waitForTimeout(700);
 }
 
+async function selectPlatformAny(page) {
+  const clicked = await page.evaluate(() => {
+    const candidates = [...document.querySelectorAll('button,[role="button"]')]
+      .filter((item) => {
+        const rect = item.getBoundingClientRect();
+        if (rect.width <= 2 || rect.height <= 2) return false;
+        const text = String(item.innerText || item.textContent || '').trim();
+        return /^(any|all platforms|所有平台|全部平台)$/i.test(text);
+      })
+      .sort((a, b) => b.getBoundingClientRect().top - a.getBoundingClientRect().top);
+    const target = candidates[0];
+    if (!target) return false;
+    target.click();
+    return true;
+  }).catch(() => false);
+
+  if (!clicked) {
+    await page.getByRole('button', { name: /^(any|all platforms)$/i }).click({ timeout: 2500 }).catch(() => {});
+  }
+
+  await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
+  await page.waitForTimeout(900);
+}
+
 async function selectStatsFilters(page) {
   await selectStatsOption(page, /time\s*range|last\s*day|last\s*7|last\s*30|all\s*time|时间/i, /^(all\s*time|所有时间|全部时间)$/i);
   await selectStatsOption(page, /platform|any|all\s*platforms|xbox|playstation|computer|pc|平台/i, /^(any|all\s*platforms|所有平台|全部平台)$/i);
+  await selectPlatformAny(page);
   await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   await page.waitForTimeout(SLOW_MS);
 }
@@ -290,9 +315,23 @@ function parseStatsText(text) {
   return compactStats(parsed);
 }
 
+function statNumeric(stats, key) {
+  return parseNumberValue(stats[key]);
+}
+
 function statsScore(stats) {
   return ['views', 'plays', 'bookmarks', 'downloads', 'libraryAdds']
     .reduce((score, key) => score + (stats[key] ? 1 : 0), 0);
+}
+
+function statsRank(stats) {
+  const completeness = statsScore(stats);
+  const magnitude = statNumeric(stats, 'downloads') * 1000000
+    + statNumeric(stats, 'plays') * 1000
+    + statNumeric(stats, 'libraryAdds') * 100
+    + statNumeric(stats, 'bookmarks') * 10
+    + statNumeric(stats, 'views');
+  return completeness * 1000000000000000 + magnitude;
 }
 
 async function hoverStatsChart(page) {
@@ -314,8 +353,8 @@ async function hoverStatsChart(page) {
 
   const samples = [];
   boxes.forEach((box) => {
-    [0.08, 0.18, 0.32, 0.5, 0.72, 0.9].forEach((xFactor) => {
-      [0.25, 0.48, 0.72].forEach((yFactor) => {
+    [0.995, 0.98, 0.94, 0.9, 0.78, 0.6, 0.42, 0.24, 0.08].forEach((xFactor) => {
+      [0.18, 0.35, 0.52, 0.7, 0.86].forEach((yFactor) => {
         samples.push({ x: box.x + box.width * xFactor, y: box.y + box.height * yFactor });
       });
     });
@@ -327,8 +366,7 @@ async function hoverStatsChart(page) {
     await page.waitForTimeout(140);
     const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
     const stats = parseStatsText(text);
-    if (statsScore(stats) > statsScore(bestStats)) bestStats = stats;
-    if (stats.views && stats.plays && stats.bookmarks && stats.downloads && stats.libraryAdds) return stats;
+    if (statsRank(stats) > statsRank(bestStats)) bestStats = stats;
   }
 
   return bestStats;
@@ -346,7 +384,7 @@ async function scrapeStatsAllTime(page, url) {
   let bestStats = parseStatsText(directText);
 
   const hoveredStats = await hoverStatsChart(page);
-  if (statsScore(hoveredStats) > statsScore(bestStats)) bestStats = hoveredStats;
+  if (statsRank(hoveredStats) > statsRank(bestStats)) bestStats = hoveredStats;
 
   return compactStats(bestStats);
 }
