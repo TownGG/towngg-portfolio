@@ -85,6 +85,37 @@
     return daily.slice(-7);
   }
 
+  function currentCreationTotals() {
+    return (window.siteData?.creations || []).reduce((sum, item) => {
+      sum.likes += toNumber(item.likes);
+      sum.downloads += toNumber(item.downloads);
+      sum.plays += toNumber(item.plays);
+      sum.libraryAdds += toNumber(item.libraryAdds);
+      return sum;
+    }, { likes: 0, downloads: 0, plays: 0, libraryAdds: 0 });
+  }
+
+  function updateDailySummary(data) {
+    const target = document.querySelector("[data-creations-summary]");
+    if (!target) return;
+
+    const totals = currentCreationTotals();
+    const dailyDownloads = data.at(-1)?.value || 0;
+
+    target.innerHTML = [
+      ["Daily Downloads", dailyDownloads],
+      ["Likes", totals.likes],
+      ["Downloads", totals.downloads],
+      ["Plays", totals.plays],
+      ["Library Adds", totals.libraryAdds]
+    ].map(([label, value]) => `
+      <article class="dashboard-stat">
+        <span>${label}</span>
+        <strong>${numberFormatter.format(value)}</strong>
+      </article>
+    `).join("");
+  }
+
   function pointLine(points) {
     return points.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
   }
@@ -94,6 +125,8 @@
     isRendering = true;
 
     const data = buildDailySeries(rows);
+    updateDailySummary(data);
+
     if (!data.length) {
       chartEl.innerHTML = '<p class="section-desc">No Creations history data available yet. It will appear after the next scheduled CC sync.</p>';
       isRendering = false;
@@ -143,7 +176,8 @@
     const latestDate = data.at(-1)?.date || "";
     const total = data.reduce((sum, item) => sum + item.value, 0);
     const latestTotal = data.at(-1)?.total || 0;
-    const note = `Bethesda Creations trend based on scheduled 30-minute snapshots. Latest total downloads: ${numberFormatter.format(latestTotal)}.`;
+    const latestDaily = data.at(-1)?.value || 0;
+    const note = `Bethesda Creations trend based on scheduled snapshots. Today downloads: ${numberFormatter.format(latestDaily)}. Latest total downloads: ${numberFormatter.format(latestTotal)}.`;
 
     panel?.classList.add("is-nexus-trend-panel");
     toolbar?.classList.add("is-hidden-for-nexus-trend");
@@ -202,11 +236,15 @@
       const response = await fetch(`./assets/data/creations-history.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" });
       if (!response.ok) throw new Error("Creations history could not be loaded.");
       cachedRows = parseCSV(await response.text());
-      if (!cachedRows.length) return;
+      if (!cachedRows.length) {
+        updateDailySummary([]);
+        return;
+      }
       window.setTimeout(() => renderChart(cachedRows), 0);
       window.setTimeout(() => renderChart(cachedRows), 450);
       window.setTimeout(() => renderChart(cachedRows), 1400);
     } catch (error) {
+      updateDailySummary([]);
       console.warn("Creations trend skipped", error);
     }
   }
