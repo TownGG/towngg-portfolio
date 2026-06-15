@@ -8,8 +8,7 @@
     "cc:discover": "node scripts/discover-creations.js",
     "cc:discover:headed": "node scripts/discover-creations.js --headed",
     "cc:sync": "node scripts/sync-creations.js",
-    "cc:sync:headed": "CC_LIKE_DEBUG_THRESHOLD=-1 node scripts/sync-creations.js --headed",
-    "cc:like-debug:headed": "node scripts/debug-creations-like-matches.js --headed",
+    "cc:sync:headed": "node scripts/sync-creations.js --headed",
     "cc:debug": "node scripts/debug-creations.js --headed"
   },
   "devDependencies": {
