@@ -21,10 +21,6 @@ function loadSiteData(source) {
   return context.window.siteData;
 }
 
-function escapeRegExp(value) {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 function parseNumberValue(value) {
   const number = Number(String(value || '').replace(/[^0-9.]/g, ''));
   return Number.isFinite(number) ? number : 0;
@@ -92,7 +88,7 @@ function replaceCreationFields(source, title, fields) {
 
   const segment = source.slice(range.openIndex + 1, range.closeIndex);
   const escapedTitle = JSON.stringify(title).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const titlePattern = new RegExp(`\\{\\s*title:\\s*${escapedTitle}`);
+  const titlePattern = new RegExp(`\{\s*title:\s*${escapedTitle}`);
   const match = titlePattern.exec(segment);
   if (!match) return source;
 
@@ -104,7 +100,7 @@ function replaceCreationFields(source, title, fields) {
   for (const [key, value] of Object.entries(fields)) {
     if (value === undefined || value === null || String(value).trim() === '') continue;
     const replacement = `${key}: ${JSON.stringify(String(value))}`;
-    const fieldPattern = new RegExp(`${key}\\s*:\\s*"(?:\\\\.|[^"\\\\])*"`);
+    const fieldPattern = new RegExp(`${key}\s*:\s*"(?:\\\\.|[^"\\\\])*"`);
     if (fieldPattern.test(objectText)) {
       objectText = objectText.replace(fieldPattern, replacement);
       continue;
@@ -175,9 +171,10 @@ async function scrapeTopFallback(page, pageUrl) {
     const lines = text.split(/\n+/).map((line) => line.trim()).filter(Boolean);
     const markerIndex = lines.findIndex((line) => /^(all platforms|所有平台)$/i.test(line));
     const searchStart = markerIndex >= 0 ? markerIndex : Math.max(0, lines.findIndex((line) => /by\s*towngg/i.test(line)));
-    const windowLines = lines.slice(Math.max(0, searchStart), searchStart + 12);
+    const windowLines = lines.slice(Math.max(0, searchStart), searchStart + 14);
     const numbers = windowLines.filter((line) => /^[0-9][0-9,.]*$/.test(line)).map(parseNumber).filter(Boolean);
     const likes = numbers[0] || null;
+    const downloads = numbers[1] || null;
 
     const imageCandidates = [];
     const pushImage = (url, score) => {
@@ -214,9 +211,10 @@ async function scrapeTopFallback(page, pageUrl) {
     });
 
     imageCandidates.sort((a, b) => b.score - a.score);
-    return { likes, coverImage: imageCandidates[0]?.url || null };
+    return { likes, downloads, coverImage: imageCandidates[0]?.url || null };
   }).then((result) => ({
     likes: result.likes || null,
+    downloads: result.downloads || null,
     coverImage: normalizeImageUrl(result.coverImage, pageUrl)
   }));
 }
@@ -240,7 +238,7 @@ async function syncTopFallback() {
       continue;
     }
 
-    process.stdout.write(`Top fallback ${creation.title}... `);
+    process.stdout.write(`Top detail stats ${creation.title}... `);
     try {
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: TIMEOUT_MS });
       await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
@@ -248,16 +246,17 @@ async function syncTopFallback() {
       const result = await scrapeTopFallback(page, url);
       const fields = {
         ...(result.likes ? { likes: result.likes } : {}),
+        ...(result.downloads ? { downloads: result.downloads } : {}),
         ...(result.coverImage ? { image: result.coverImage } : {})
       };
       if (!Object.keys(fields).length) {
         failed += 1;
-        console.log('no likes or cover found');
+        console.log('no top likes, downloads or cover found');
         continue;
       }
       nextSource = replaceCreationFields(nextSource, creation.title, fields);
       success += 1;
-      console.log(`likes=${result.likes || '-'}, cover=${result.coverImage ? 'yes' : 'no'}`);
+      console.log(`likes=${result.likes || '-'}, downloads=${result.downloads || '-'}, cover=${result.coverImage ? 'yes' : 'no'}`);
     } catch (error) {
       failed += 1;
       console.log(`kept existing data (${error.message})`);
@@ -266,7 +265,7 @@ async function syncTopFallback() {
 
   await closeContext(context);
   if (success > 0) await fs.writeFile(SITE_DATA_PATH, nextSource, 'utf8');
-  console.log(`Bethesda Creations top fallback sync complete: ${success} updated, ${failed} kept, ${skipped} skipped.`);
+  console.log(`Bethesda Creations top detail stats sync complete: ${success} updated, ${failed} kept, ${skipped} skipped.`);
 }
 
 syncTopFallback().catch((error) => {
