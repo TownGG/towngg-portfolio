@@ -26,10 +26,6 @@ function parseNumberValue(value) {
   return Number.isFinite(number) ? number : 0;
 }
 
-function formatNumberValue(value) {
-  return value > 0 ? numberFormat.format(Math.round(value)) : null;
-}
-
 async function fileExists(filePath) {
   try {
     await fs.access(filePath);
@@ -87,33 +83,47 @@ function replaceCreationFields(source, title, fields) {
   if (!range) return source;
 
   const segment = source.slice(range.openIndex + 1, range.closeIndex);
-  const escapedTitle = JSON.stringify(title).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const titlePattern = new RegExp(`\{\s*title:\s*${escapedTitle}`);
-  const match = titlePattern.exec(segment);
-  if (!match) return source;
+  const objectPattern = /\{\s*title\s*:/g;
+  let match;
 
-  const objectStart = range.openIndex + 1 + match.index;
-  const objectEnd = findMatchingBrace(source, objectStart);
-  if (objectEnd < 0 || objectEnd > range.closeIndex) return source;
+  while ((match = objectPattern.exec(segment))) {
+    const objectStart = range.openIndex + 1 + match.index;
+    const objectEnd = findMatchingBrace(source, objectStart);
+    if (objectEnd < 0 || objectEnd > range.closeIndex) continue;
 
-  let objectText = source.slice(objectStart, objectEnd + 1);
-  for (const [key, value] of Object.entries(fields)) {
-    if (value === undefined || value === null || String(value).trim() === '') continue;
-    const replacement = `${key}: ${JSON.stringify(String(value))}`;
-    const fieldPattern = new RegExp(`${key}\s*:\s*"(?:\\\\.|[^"\\\\])*"`);
-    if (fieldPattern.test(objectText)) {
-      objectText = objectText.replace(fieldPattern, replacement);
-      continue;
+    let objectText = source.slice(objectStart, objectEnd + 1);
+    let candidate = null;
+    try {
+      const context = { value: null };
+      vm.createContext(context);
+      vm.runInContext(`value = (${objectText});`, context);
+      candidate = context.value;
+    } catch {
+      candidate = null;
     }
-    const insertBefore = objectText.match(/,\s*updatedAt\s*:/) || objectText.match(/,\s*source\s*:/) || objectText.match(/,\s*links\s*:/);
-    if (insertBefore?.index !== undefined) {
-      objectText = `${objectText.slice(0, insertBefore.index)}, ${replacement}${objectText.slice(insertBefore.index)}`;
-    } else {
-      objectText = objectText.replace(/\s*}$/, `, ${replacement} }`);
+
+    if (!candidate || candidate.title !== title) continue;
+
+    for (const [key, value] of Object.entries(fields)) {
+      if (value === undefined || value === null || String(value).trim() === '') continue;
+      const replacement = `${key}: ${JSON.stringify(String(value))}`;
+      const fieldPattern = new RegExp(`${key}\\s*:\\s*"(?:\\\\.|[^"\\\\])*"`);
+      if (fieldPattern.test(objectText)) {
+        objectText = objectText.replace(fieldPattern, replacement);
+        continue;
+      }
+      const insertBefore = objectText.match(/,\s*updatedAt\s*:/) || objectText.match(/,\s*source\s*:/) || objectText.match(/,\s*links\s*:/);
+      if (insertBefore?.index !== undefined) {
+        objectText = `${objectText.slice(0, insertBefore.index)}, ${replacement}${objectText.slice(insertBefore.index)}`;
+      } else {
+        objectText = objectText.replace(/\s*}$/, `, ${replacement} }`);
+      }
     }
+
+    return source.slice(0, objectStart) + objectText + source.slice(objectEnd + 1);
   }
 
-  return source.slice(0, objectStart) + objectText + source.slice(objectEnd + 1);
+  return source;
 }
 
 async function openContext() {
