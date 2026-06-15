@@ -19,11 +19,11 @@
       fr: "Tendance des téléchargements Nexus sur 7 jours"
     },
     note: {
-      zh: "Nexus 发布活动基于已跟踪的模组历史记录。显示 CSV 历史中的实际每日下载量。最新快照：",
-      ja: "Nexus リリース活動は追跡済み Mod 履歴に基づきます。CSV 履歴から実際の日次ダウンロードを表示しています。最新スナップショット：",
-      ko: "Nexus 릴리스 활동은 추적된 모드 기록을 기반으로 합니다. CSV 기록의 실제 일일 다운로드를 표시합니다. 최신 스냅샷:",
-      ru: "Активность релизов Nexus основана на отслеживаемой истории модов. Показаны фактические ежедневные загрузки из CSV. Последний снимок:",
-      fr: "L’activité des sorties Nexus est basée sur l’historique des mods suivis. Affiche les téléchargements quotidiens réels depuis l’historique CSV. Dernier instantané :"
+      zh: "基于 Nexus 历史记录的每日下载趋势。最新快照：",
+      ja: "Nexus 履歴に基づく日次ダウンロード推移です。最新スナップショット：",
+      ko: "Nexus 기록을 기반으로 한 일일 다운로드 추세입니다. 최신 스냅샷:",
+      ru: "Ежедневный тренд загрузок на основе истории Nexus. Последний снимок:",
+      fr: "Tendance des téléchargements quotidiens basée sur l’historique Nexus. Dernier instantané :"
     }
   };
 
@@ -36,8 +36,14 @@
   }
 
   function localCopy(key, fallback) {
-    const current = lang();
-    return copy[key]?.[current] || fallback;
+    return copy[key]?.[lang()] || fallback;
+  }
+
+  function compactNumber(value) {
+    const number = Number(value || 0);
+    if (number >= 1_000_000) return `${(number / 1_000_000).toFixed(2)}M`;
+    if (number >= 1_000) return `${(number / 1_000).toFixed(2)}K`;
+    return numberFormatter.format(number);
   }
 
   function dashboardNumber(value) {
@@ -84,7 +90,7 @@
 
   function formatDateLabel(value) {
     const date = new Date(`${value}T00:00:00`);
-    if (Number.isNaN(date.getTime())) return value.slice(5);
+    if (Number.isNaN(date.getTime())) return String(value || "").slice(5);
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   }
 
@@ -105,93 +111,84 @@
     return points.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
   }
 
+  function renderHeader(latestDate) {
+    if (!toolbar) return;
+    toolbar.className = "dashboard-toolbar telemetry-chart-header";
+    const note = lang() === "en"
+      ? `Daily downloads from tracked Nexus history. Latest snapshot: ${formatDateLabel(latestDate)}.`
+      : `${localCopy("note", "")} ${formatDateLabel(latestDate)}.`;
+    toolbar.innerHTML = `
+      <div>
+        <h3>${localCopy("title", "7-Day Nexus Downloads Trend")}</h3>
+        <p class="telemetry-note">${note}</p>
+      </div>
+      <span class="telemetry-pill">${tr("Daily downloads")}</span>
+    `;
+  }
+
   function renderChart(rows) {
     if (isRendering) return;
     isRendering = true;
 
     const data = buildDailySeries(rows);
+    const latestDate = data.at(-1)?.date || "";
+    renderHeader(latestDate);
+    panel?.classList.add("telemetry-chart-panel");
+
     if (!data.length) {
-      chartEl.innerHTML = `<p class="section-desc">${tr("No Nexus data available yet.")}</p>`;
+      chartEl.className = "telemetry-chart telemetry-error";
+      chartEl.textContent = tr("No Nexus data available yet.");
       isRendering = false;
       return;
     }
 
     const width = 920;
     const height = 260;
-    const padLeft = 64;
-    const padRight = 38;
-    const padTop = 24;
+    const padX = 54;
+    const padTop = 26;
     const padBottom = 44;
-    const chartW = width - padLeft - padRight;
+    const chartW = width - padX * 2;
     const chartH = height - padTop - padBottom;
     const values = data.map((item) => Number(item.value));
     const maxValue = Math.max(...values, 1);
-    const yMax = Math.max(4, Math.ceil(maxValue / 4) * 4);
+    const minValue = Math.min(...values, 0);
+    const valueRange = Math.max(maxValue - minValue, 1);
 
     const points = data.map((item, index) => {
-      const x = padLeft + (chartW / Math.max(1, data.length - 1)) * index;
-      const y = padTop + chartH - (Number(item.value) / yMax) * chartH;
+      const x = padX + (data.length === 1 ? chartW / 2 : (chartW / (data.length - 1)) * index);
+      const y = padTop + chartH - ((Number(item.value) - minValue) / valueRange) * chartH;
       return { x, y, item };
     });
 
     const areaPoints = [
       `${points[0].x.toFixed(2)},${(height - padBottom).toFixed(2)}`,
       pointLine(points),
-      `${points[points.length - 1].x.toFixed(2)},${(height - padBottom).toFixed(2)}`,
+      `${points[points.length - 1].x.toFixed(2)},${(height - padBottom).toFixed(2)}`
     ].join(" ");
 
-    const gridRows = [0, 1, 2, 3, 4].map((step) => {
-      const y = padTop + (chartH / 4) * step;
-      const label = Math.round(yMax * (1 - step / 4));
-      return `
-        <line class="telemetry-grid-line" x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" />
-        <text class="nexus-axis-label" x="14" y="${y + 5}">${numberFormatter.format(label)}</text>
-      `;
+    const gridRows = [0, 1, 2, 3].map((step) => {
+      const y = padTop + (chartH / 3) * step;
+      return `<line class="telemetry-grid-line" x1="${padX}" y1="${y}" x2="${width - padX}" y2="${y}" />`;
     }).join("");
 
-    const labels = points.map(({ x, item }) => `<text class="nexus-date-label" x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`).join("");
+    const labels = points.map(({ x, item }) => `<text x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`).join("");
     const dots = points.map(({ x, y, item }) => `
-      <g class="nexus-point" tabindex="0" aria-label="${numberFormatter.format(item.value)} daily downloads on ${item.date}">
-        <circle class="telemetry-dot" cx="${x}" cy="${y}" r="5"></circle>
-      </g>
+      <circle class="telemetry-dot" cx="${x}" cy="${y}" r="5">
+        <title>${formatDateLabel(item.date)}: ${compactNumber(item.value)} downloads</title>
+      </circle>
     `).join("");
 
-    const latestDate = data.at(-1)?.date || "";
-    const total = data.reduce((sum, item) => sum + item.value, 0);
-    const note = lang() === "en"
-      ? `Nexus release activity based on tracked mod history. Showing actual daily downloads from CSV history. Latest snapshot: ${formatDateLabel(latestDate)}.`
-      : `${localCopy("note", "")} ${formatDateLabel(latestDate)}.`;
-
-    panel?.classList.add("is-nexus-trend-panel");
-    toolbar?.classList.add("is-hidden-for-nexus-trend");
-    chartEl.className = "dashboard-chart nexus-telemetry-chart";
-    chartEl.dataset.trendRenderer = "nexus-trend-fix";
+    chartEl.className = "telemetry-chart";
+    chartEl.dataset.trendRenderer = "nexus-telemetry";
     chartEl.innerHTML = `
-      <div class="nexus-trend-shell" data-trend-renderer="nexus-trend-fix">
-        <div class="nexus-trend-header">
-          <div>
-            <h3>${localCopy("title", "7-Day Nexus Downloads Trend")}</h3>
-            <p>${note}</p>
-          </div>
-          <span class="telemetry-pill">${tr("Daily downloads")}</span>
-        </div>
-        <div class="nexus-trend-canvas">
-          <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Accurate Nexus daily downloads trend chart" preserveAspectRatio="xMidYMid meet">
-            ${gridRows}
-            <polygon class="telemetry-area" points="${areaPoints}" />
-            <polyline class="telemetry-line" points="${pointLine(points)}" />
-            ${dots}
-            ${labels}
-          </svg>
-          ${points.map(({ x, y, item }) => `
-            <span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${numberFormatter.format(item.value)}</span>
-          `).join("")}
-        </div>
-      </div>
+      <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="7-day Nexus downloads trend chart" preserveAspectRatio="xMidYMid meet">
+        ${gridRows}
+        <polygon class="telemetry-area" points="${areaPoints}" />
+        <polyline class="telemetry-line" points="${pointLine(points)}" />
+        ${dots}
+        ${labels}
+      </svg>
     `;
-
-    chartEl.dataset.trendTotal = String(total);
-    chartEl.dataset.trendLatestDate = latestDate;
     isRendering = false;
   }
 
@@ -204,12 +201,11 @@
   function installLegacyChartGuard() {
     const observer = new MutationObserver(() => {
       if (isRendering || !cachedRows.length) return;
-      if (!chartEl.querySelector('[data-trend-renderer="nexus-trend-fix"]')) {
+      if (chartEl.dataset.trendRenderer !== "nexus-telemetry") {
         scheduleRender(40);
       }
     });
-
-    observer.observe(chartEl, { childList: true, subtree: false });
+    observer.observe(chartEl, { childList: true, subtree: false, attributes: true });
     window.addEventListener("load", () => scheduleRender(80));
   }
 
@@ -220,9 +216,7 @@
       if (!response.ok) throw new Error("Nexus history could not be loaded.");
       cachedRows = parseCSV(await response.text());
       if (!cachedRows.length) return;
-      window.setTimeout(() => renderChart(cachedRows), 0);
-      window.setTimeout(() => renderChart(cachedRows), 450);
-      window.setTimeout(() => renderChart(cachedRows), 1400);
+      [0, 450, 1400].forEach((delay) => window.setTimeout(() => renderChart(cachedRows), delay));
     } catch (error) {
       console.warn("Nexus trend fix skipped", error);
     }
