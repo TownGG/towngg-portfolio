@@ -1,17 +1,21 @@
 (() => {
+  function localizedColumns(entries) {
+    return new Map(entries.flatMap(([type, labels]) => labels.map((label) => [normalize(label), type])));
+  }
+
   const TABLES = [
     {
       bodySelector: '[data-creations-table]',
       tableName: 'creations',
       buttonAttr: 'data-creations-table-sort',
       ready: (table) => table.dataset.creationsDailyReady === 'true',
-      columns: new Map([
-        ['creation', 'text'],
-        ['likes', 'number'],
-        ['downloads', 'number'],
-        ['plays', 'number'],
-        ['library adds', 'number'],
-        ['daily', 'number']
+      columns: localizedColumns([
+        ['text', ['creation', 'Creation']],
+        ['number', ['likes', 'Likes', '点赞', 'いいね', '좋아요', 'Лайки']],
+        ['number', ['downloads', 'Downloads', '下载', 'ダウンロード', '다운로드', 'Загрузки', 'Téléchargements']],
+        ['number', ['plays', 'Plays', '游玩', 'プレイ', '플레이', 'Запуски', 'Lectures']],
+        ['number', ['library adds', 'Library Adds', '加入库', 'ライブラリ追加', '라이브러리 추가', 'Добавления в библиотеку', 'Ajouts à la bibliothèque']],
+        ['number', ['daily', 'Daily', '每日', '日次', '일일', 'За день', 'Jour']]
       ])
     },
     {
@@ -19,12 +23,12 @@
       tableName: 'nexus',
       buttonAttr: 'data-nexus-table-sort',
       ready: () => true,
-      columns: new Map([
-        ['mod', 'text'],
-        ['daily', 'number'],
-        ['total', 'number'],
-        ['unique', 'number'],
-        ['endorse', 'number']
+      columns: localizedColumns([
+        ['text', ['mod', 'Mod', '模组', '모드', 'Мод']],
+        ['number', ['daily', 'Daily', '每日', '日次', '일일', 'За день', 'Jour']],
+        ['number', ['total', 'Total', '总计', '合計', '전체', 'Всего']],
+        ['number', ['unique', 'Unique', '独立', 'ユニーク', '고유', 'Уникальные']],
+        ['number', ['endorse', 'Endorse', '点赞', '支持', '추천', 'Одобрить']]
       ])
     }
   ];
@@ -115,9 +119,11 @@
     table.dataset.sortableTable = config.tableName;
 
     [...headerRow.children].forEach((header, index) => {
-      const label = header.textContent.trim();
+      const existingButton = header.querySelector(`[${config.buttonAttr}]`);
+      const label = existingButton?.textContent.trim() || header.textContent.trim();
       const type = columnType(config, label);
-      if (!type || header.querySelector(`[${config.buttonAttr}]`)) return;
+      if (!type) return;
+      if (existingButton) return;
 
       header.innerHTML = `<button type="button" class="dashboard-table-sort" ${config.buttonAttr}="${normalize(label)}" aria-sort="none">${label}</button>`;
       header.querySelector(`[${config.buttonAttr}]`).addEventListener('click', () => {
