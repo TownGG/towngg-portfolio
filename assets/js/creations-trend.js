@@ -190,23 +190,35 @@
 
     const labels = data.map((item, index) => {
       const x = padLeft + (chartW / Math.max(1, data.length - 1)) * index;
-      return `<text class="nexus-axis-label" x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`;
+      return `<text class="nexus-date-label" x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`;
     }).join("");
 
+    const dots = points.map(({ x, y, item }) => `
+      <g class="nexus-point" tabindex="0" aria-label="${numberFormatter.format(item.value)} daily downloads on ${item.date}">
+        <circle class="telemetry-dot" cx="${x}" cy="${y}" r="5"></circle>
+      </g>
+    `).join("");
+
+    chartEl.className = "dashboard-chart nexus-telemetry-chart";
     chartEl.innerHTML = `
-      <svg class="nexus-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Creations daily downloads chart">
-        <defs>
-          <linearGradient id="creationsArea" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="rgba(116, 217, 255, 0.28)" />
-            <stop offset="100%" stop-color="rgba(116, 217, 255, 0.03)" />
-          </linearGradient>
-        </defs>
-        ${gridRows}
-        <polygon class="nexus-chart-area" points="${areaPoints}" fill="url(#creationsArea)"></polygon>
-        <polyline class="nexus-chart-line" points="${pointLine(points)}"></polyline>
-        ${points.map((point) => `<circle class="nexus-chart-point" cx="${point.x}" cy="${point.y}" r="5" aria-label="${point.item.date}: ${numberFormatter.format(point.item.value)} daily downloads"></circle>`).join("")}
-        ${labels}
-      </svg>
+      <div class="nexus-trend-canvas">
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Creations daily downloads chart" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="creationsArea" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="rgba(116, 217, 255, 0.28)" />
+              <stop offset="100%" stop-color="rgba(116, 217, 255, 0.03)" />
+            </linearGradient>
+          </defs>
+          ${gridRows}
+          <polygon class="nexus-chart-area" points="${areaPoints}" fill="url(#creationsArea)"></polygon>
+          <polyline class="nexus-chart-line" points="${pointLine(points)}"></polyline>
+          ${dots}
+          ${labels}
+        </svg>
+        ${points.map(({ x, y, item }) => `
+          <span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${numberFormatter.format(item.value)}</span>
+        `).join("")}
+      </div>
     `;
     isRendering = false;
   }
