@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: sync-creations
+  cancel-in-progress: false
+
 jobs:
   sync-creations:
     runs-on: ubuntu-latest
