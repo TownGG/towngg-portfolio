@@ -3,7 +3,7 @@
   const DEFAULT_SORT = "time";
   const controlsReady = new WeakSet();
   const observerState = new WeakMap();
-  let isApplyingSort = false;
+  const applyingTargets = new WeakSet();
 
   function number(value) {
     const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, ""));
@@ -102,6 +102,11 @@
     return platform === "creations" ? "[data-creations-mods]" : "[data-all-mods]";
   }
 
+  function storedSortForPlatform(platform) {
+    const stored = localStorage.getItem(`${STORAGE_PREFIX}:${platform}`) || DEFAULT_SORT;
+    return ["time", "downloads", "likes"].includes(stored) ? stored : DEFAULT_SORT;
+  }
+
   function ensureSortControl(panel) {
     if (!panel || controlsReady.has(panel)) return;
 
@@ -111,7 +116,6 @@
 
     const platform = panel.dataset.platformPanel || "nexus";
     const id = `mod-sort-${platform}`;
-    const stored = localStorage.getItem(`${STORAGE_PREFIX}:${platform}`) || DEFAULT_SORT;
     const control = document.createElement("div");
     control.className = "mods-sort-control";
     control.innerHTML = `
@@ -124,7 +128,7 @@
     `;
 
     const select = control.querySelector("[data-mod-sort]");
-    select.value = ["time", "downloads", "likes"].includes(stored) ? stored : DEFAULT_SORT;
+    select.value = storedSortForPlatform(platform);
     select.addEventListener("change", () => {
       localStorage.setItem(`${STORAGE_PREFIX}:${platform}`, select.value);
       applyPanelSort(panel);
@@ -135,12 +139,15 @@
   }
 
   function applyPanelSort(panel) {
-    if (!panel || isApplyingSort) return;
+    if (!panel) return;
 
     const platform = panel.dataset.platformPanel || "nexus";
     const target = panel.querySelector(targetSelector(platform));
-    const metric = panel.querySelector("[data-mod-sort]")?.value || DEFAULT_SORT;
-    if (!target) return;
+    const metric = panel.querySelector("[data-mod-sort]")?.value || storedSortForPlatform(platform);
+    if (!target || applyingTargets.has(target)) return;
+
+    const cards = [...target.children].filter((element) => element.classList.contains("project-card"));
+    if (!cards.length) return;
 
     const entries = sourceForPlatform(platform).map((item, index) => ({ item, index }));
     const sortedEntries = [...entries].sort((a, b) => {
@@ -149,7 +156,6 @@
       return a.index - b.index;
     });
 
-    const cards = [...target.children].filter((element) => element.classList.contains("project-card"));
     const cardsByKey = new Map(cards.map((card) => [cardKey(card), card]));
     const appended = new Set();
     const fragment = document.createDocumentFragment();
@@ -169,10 +175,10 @@
 
     if (!fragment.childNodes.length) return;
 
-    isApplyingSort = true;
+    applyingTargets.add(target);
     target.appendChild(fragment);
     requestAnimationFrame(() => {
-      isApplyingSort = false;
+      applyingTargets.delete(target);
     });
   }
 
@@ -182,8 +188,9 @@
     if (!target || observerState.has(target)) return;
 
     const observer = new MutationObserver(() => {
-      if (isApplyingSort) return;
+      if (applyingTargets.has(target)) return;
       requestAnimationFrame(() => applyPanelSort(panel));
+      window.setTimeout(() => applyPanelSort(panel), 80);
     });
     observer.observe(target, { childList: true });
     observerState.set(target, observer);
@@ -197,9 +204,25 @@
     });
   }
 
+  function applyActivePanelSort() {
+    setupModListSort();
+    const activePanel = document.querySelector("[data-platform-panel].is-active");
+    applyPanelSort(activePanel);
+  }
+
+  document.addEventListener("click", (event) => {
+    const tab = event.target.closest("[data-platform-tab]");
+    if (!tab) return;
+    requestAnimationFrame(applyActivePanelSort);
+    window.setTimeout(applyActivePanelSort, 120);
+  });
+
   window.addEventListener("DOMContentLoaded", () => {
     setupModListSort();
     window.setTimeout(setupModListSort, 700);
     window.setTimeout(setupModListSort, 1600);
+    window.setTimeout(applyActivePanelSort, 2400);
   });
+
+  window.townggApplyModListSort = applyActivePanelSort;
 })();
