@@ -3,6 +3,10 @@
   const LATEST_REFRESH_MS = 5 * 60 * 1000;
   const STALE_AFTER_MS = 90 * 60 * 1000;
 
+  function tr(text) {
+    return typeof window.tggTranslate === "function" ? window.tggTranslate(text) : text;
+  }
+
   function latestSnapshotPath(path) {
     const bucket = Math.floor(Date.now() / LATEST_REFRESH_MS);
     return `${path}?latest=${bucket}`;
@@ -83,7 +87,7 @@
       ["Endorsements", totals.likes]
     ].map(([label, value]) => `
       <article class="dashboard-stat">
-        <span>${label}</span>
+        <span>${tr(label)}</span>
         <strong>${formatter.format(value)}</strong>
       </article>
     `).join("");
@@ -124,7 +128,7 @@
     const isStale = age > STALE_AFTER_MS;
     target.classList.toggle("is-stale", isStale);
     target.classList.toggle("is-fresh", !isStale);
-    target.textContent = `Updated ${formatDateTime(date)}`;
+    target.textContent = `${tr("Updated")} ${formatDateTime(date)}`;
     target.title = isStale
       ? "Nexus latest snapshot is older than the expected hourly sync window."
       : "Nexus latest snapshot loaded independently from the trend chart.";
