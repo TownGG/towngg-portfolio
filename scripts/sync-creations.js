@@ -34,10 +34,6 @@ function parseNumberValue(value) {
   return Number.isFinite(number) ? number : 0;
 }
 
-function formatNumberValue(value) {
-  return value > 0 ? numberFormat.format(Math.round(value)) : null;
-}
-
 function normalize(value) {
   return String(value || '').trim().toLowerCase().replace(/\/$/, '');
 }
@@ -207,23 +203,77 @@ async function closeContext(context) {
   if (browser) await browser.close();
 }
 
-async function scrapeTitle(page, fallbackTitle) {
-  return page.evaluate((fallback) => {
+function decodeHtmlEntities(value) {
+  return String(value || '')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
+    .replace(/&apos;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>');
+}
+
+function cleanTitle(value) {
+  return decodeHtmlEntities(value)
+    .replace(/\s+\|\s*Bethesda.*$/i, '')
+    .replace(/\s+-\s*Bethesda.*$/i, '')
+    .replace(/\b39\s+s\b/gi, "'s")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function titleFromUrl(url) {
+  const slug = String(url || '').split('/').filter(Boolean).at(-1) || '';
+  if (!slug || /^[0-9a-f-]{20,}$/i.test(slug) || /^details$/i.test(slug)) return '';
+  try {
+    return cleanTitle(decodeURIComponent(slug).replace(/[_-]+/g, ' '));
+  } catch {
+    return cleanTitle(slug.replace(/[_-]+/g, ' '));
+  }
+}
+
+async function scrapeTitle(page, fallbackTitle, urlTitle) {
+  const pageTitle = await page.evaluate((fallback) => {
     const clean = (value) => String(value || '')
       .replace(/\s+\|\s*Bethesda.*$/i, '')
       .replace(/\s+-\s*Bethesda.*$/i, '')
       .replace(/\s+/g, ' ')
       .trim();
 
+    const titleSelectors = [
+      'h1',
+      '[data-testid="creation-title"]',
+      '[class*="title" i]',
+      '[class*="Title" i]'
+    ];
+
+    const visibleTexts = titleSelectors.flatMap((selector) =>
+      [...document.querySelectorAll(selector)]
+        .filter((node) => {
+          const rect = node.getBoundingClientRect();
+          return rect.width > 20 && rect.height > 8;
+        })
+        .map((node) => node.innerText || node.textContent || '')
+    );
+
     const candidates = [
-      document.querySelector('h1')?.innerText,
-      document.querySelector('[data-testid="creation-title"]')?.textContent,
+      ...visibleTexts,
       document.querySelector('meta[property="og:title"]')?.getAttribute('content'),
-      document.title
+      document.title,
+      fallback
     ].map(clean).filter(Boolean);
 
-    return candidates.find((item) => !/^bethesda creations?$/i.test(item)) || fallback;
+    return candidates.find((item) => !/^bethesda creations?$/i.test(item) && !/^(stats|details|overview)$/i.test(item)) || fallback;
   }, fallbackTitle).catch(() => fallbackTitle);
+
+  const cleanedPageTitle = cleanTitle(pageTitle);
+  const cleanedUrlTitle = cleanTitle(urlTitle);
+  const cleanedFallback = cleanTitle(fallbackTitle);
+
+  if (cleanedPageTitle && cleanedPageTitle !== cleanedFallback) return cleanedPageTitle;
+  if (cleanedUrlTitle && cleanedUrlTitle !== cleanedFallback) return cleanedUrlTitle;
+  return cleanedPageTitle || cleanedUrlTitle || cleanedFallback;
 }
 
 function normalizeImageUrl(value, pageUrl) {
@@ -357,7 +407,8 @@ async function scrapeCreation(page, creation) {
   await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   await page.waitForTimeout(SLOW_MS);
 
-  const title = await scrapeTitle(page, creation.title);
+  const finalUrl = page.url() || url;
+  const title = await scrapeTitle(page, creation.title, titleFromUrl(finalUrl) || titleFromUrl(url));
   const coverImage = normalizeImageUrl(await scrapeCoverImage(page), url);
   const allTime = await scrapeAllTimeEngagementStats(page);
   let fallbackStats = {};
