@@ -17,8 +17,12 @@
 }
 
 .mod-platforms .dashboard-summary {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
+}
+
+.mod-platforms [data-platform-panel="creations"] .dashboard-summary {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .mod-platforms .mods-control-bar {
@@ -55,7 +59,8 @@
 }
 
 @media (max-width: 1120px) {
-  .mod-platforms .dashboard-summary {
+  .mod-platforms .dashboard-summary,
+  .mod-platforms [data-platform-panel="creations"] .dashboard-summary {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
@@ -65,7 +70,8 @@
 }
 
 @media (max-width: 760px) {
-  .mod-platforms .dashboard-summary {
+  .mod-platforms .dashboard-summary,
+  .mod-platforms [data-platform-panel="creations"] .dashboard-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
