@@ -6,8 +6,7 @@
     ['downloads', 'number'],
     ['plays', 'number'],
     ['library adds', 'number'],
-    ['daily', 'number'],
-    ['updated', 'date']
+    ['daily', 'number']
   ]);
 
   let activeKey = '';
@@ -21,14 +20,6 @@
   function toNumber(value) {
     const parsed = Number(String(value || '0').replace(/[^0-9.-]/g, ''));
     return Number.isFinite(parsed) ? parsed : 0;
-  }
-
-  function toTimestamp(value) {
-    const raw = String(value || '').trim();
-    if (!raw || raw === '-') return 0;
-    const normalized = raw.length === 10 ? `${raw} 00:00` : raw;
-    const parsed = Date.parse(normalized.replace(' ', 'T'));
-    return Number.isNaN(parsed) ? 0 : parsed;
   }
 
   function tableElements() {
@@ -47,7 +38,6 @@
   function cellValue(row, index, type) {
     const text = row.children[index]?.textContent || '';
     if (type === 'number') return toNumber(text);
-    if (type === 'date') return toTimestamp(text);
     return normalize(text);
   }
 
