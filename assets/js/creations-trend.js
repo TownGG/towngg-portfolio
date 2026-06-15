@@ -130,15 +130,6 @@
     return points.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
   }
 
-  function niceAxisMax(value) {
-    const raw = Math.max(1, Number(value) || 1);
-    const magnitude = 10 ** Math.floor(Math.log10(raw));
-    const normalized = raw / magnitude;
-    const steps = [1, 1.25, 1.5, 2, 2.5, 4, 5, 8, 10];
-    const step = steps.find((item) => normalized <= item) || 10;
-    return Math.ceil(step * magnitude);
-  }
-
   function renderToolbar(latestDate) {
     if (!toolbar) return;
     toolbar.innerHTML = `
@@ -174,7 +165,7 @@
     const chartH = height - padTop - padBottom;
     const values = data.map((item) => Number(item.value));
     const maxValue = Math.max(...values, 1);
-    const yMax = Math.max(4, niceAxisMax(maxValue));
+    const yMax = Math.max(4, Math.ceil(maxValue / 4) * 4);
 
     const points = data.map((item, index) => {
       const x = padLeft + (chartW / Math.max(1, data.length - 1)) * index;
@@ -249,7 +240,7 @@
     rerenderTimer = setTimeout(() => renderChart(cachedRows), 120);
   }
 
-  Promise.all([loadRows(), loadModDailyRows()]).then(([rows, modDailyRows]) => {
+  Promise.all([loadRows(), loadModDailyRows]).then(([rows, modDailyRows]) => {
     cachedRows = rows;
     cachedModDailyRows = modDailyRows;
     renderChart(rows);
