@@ -7,6 +7,7 @@
   const numberFormatter = new Intl.NumberFormat("en-US");
   const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.04.41-preview";
   let cachedRows = [];
+  let cachedModDailyRows = [];
   let isRendering = false;
   let rerenderTimer = 0;
 
@@ -99,6 +100,15 @@
     return daily.slice(-7);
   }
 
+  function latestModDailyTotal(rows) {
+    if (!rows.length) return null;
+    const latestDate = rows.map((row) => row.date).filter(Boolean).sort().at(-1);
+    if (!latestDate) return null;
+    return rows
+      .filter((row) => row.date === latestDate)
+      .reduce((sum, row) => sum + toNumber(row.daily_downloads), 0);
+  }
+
   function currentCreationTotals() {
     return (window.siteData?.creations || []).reduce((sum, item) => {
       sum.likes += toNumber(item.likes);
@@ -114,7 +124,8 @@
     if (!target) return;
 
     const totals = currentCreationTotals();
-    const dailyDownloads = data.at(-1)?.value || 0;
+    const perModDailyTotal = latestModDailyTotal(cachedModDailyRows);
+    const dailyDownloads = perModDailyTotal ?? data.at(-1)?.value ?? 0;
 
     target.innerHTML = [
       ["Daily Downloads", dailyDownloads],
@@ -187,7 +198,7 @@
       const y = padTop + chartH - barH;
       return `
         <rect class="nexus-bar" x="${x}" y="${y}" width="${barW}" height="${Math.max(2, barH)}" rx="6">
-          <title>${item.date}: ${numberFormatter.format(item.value)} daily downloads, ${numberFormatter.format(item.total)} total downloads</title>
+          <title>${item.date}: ${numberFormatter.format(item.value)} total-snapshot delta, ${numberFormatter.format(item.total)} total downloads</title>
         </rect>
       `;
     }).join("");
@@ -209,7 +220,7 @@
         ${bars}
         <polygon class="nexus-chart-area" points="${areaPoints}" fill="url(#creationsArea)"></polygon>
         <polyline class="nexus-chart-line" points="${pointLine(points)}"></polyline>
-        ${points.map((point) => `<circle class="nexus-chart-point" cx="${point.x}" cy="${point.y}" r="5"><title>${point.item.date}: ${numberFormatter.format(point.item.value)} daily downloads</title></circle>`).join("")}
+        ${points.map((point) => `<circle class="nexus-chart-point" cx="${point.x}" cy="${point.y}" r="5"><title>${point.item.date}: ${numberFormatter.format(point.item.value)} total-snapshot delta</title></circle>`).join("")}
         ${labels}
       </svg>
     `;
@@ -218,6 +229,12 @@
 
   async function loadRows() {
     const response = await fetch(`./assets/data/creations-history.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) return [];
+    return parseCSV(await response.text());
+  }
+
+  async function loadModDailyRows() {
+    const response = await fetch(`./assets/data/creations-mod-daily.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" });
     if (!response.ok) return [];
     return parseCSV(await response.text());
   }
@@ -234,14 +251,15 @@
     refresh.dataset.creationsRefresh = "true";
     refresh.textContent = "Refresh";
     refresh.addEventListener("click", async () => {
-      cachedRows = await loadRows();
+      [cachedRows, cachedModDailyRows] = await Promise.all([loadRows(), loadModDailyRows()]);
       renderChart(cachedRows);
     });
     toolbar.appendChild(refresh);
   }
 
-  loadRows().then((rows) => {
+  Promise.all([loadRows(), loadModDailyRows()]).then(([rows, modDailyRows]) => {
     cachedRows = rows;
+    cachedModDailyRows = modDailyRows;
     renderChart(rows);
   }).catch(() => updateDailySummary([]));
 
