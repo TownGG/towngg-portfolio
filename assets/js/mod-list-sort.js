@@ -22,6 +22,37 @@
     return String(url || "").match(/\/mods\/(\d+)/)?.[1] || "";
   }
 
+  function decodeBase64Url(value) {
+    const normalized = String(value || "").replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+    try {
+      return atob(padded);
+    } catch {
+      return "";
+    }
+  }
+
+  function bethesdaContentIdFromImage(url) {
+    const raw = String(url || "");
+    const direct = raw.match(/GENESIS\/(\d+)/i);
+    if (direct) return direct[1];
+
+    const encoded = decodeURIComponent(raw.split("/image/")[1]?.split(/[?#]/)[0] || "");
+    const decoded = decodeBase64Url(encoded);
+    const match = decoded.match(/GENESIS\\?\/(\d+)/i);
+    return match?.[1] || "";
+  }
+
+  function bethesdaContentId(item) {
+    return item?.creationId
+      || item?.contentId
+      || item?.content_id
+      || bethesdaContentIdFromImage(item?.image)
+      || bethesdaContentIdFromImage(item?.thumbnail)
+      || bethesdaContentIdFromImage(item?.cover)
+      || "";
+  }
+
   function itemKey(item) {
     return normalize(primaryUrl(item)) || normalize(item?.title);
   }
@@ -53,14 +84,18 @@
       return number(item.likes || item.endorsements);
     }
 
+    if (platform === "creations") {
+      const explicitDate = item.publishedAt || item.releaseDate || item.createdAt || item.date;
+      const dateValue = parseDateValue(explicitDate);
+      if (dateValue) return dateValue;
+
+      return number(bethesdaContentId(item)) || -entry.index;
+    }
+
     const dateValue = parseDateValue(item.publishedAt || item.releaseDate || item.updatedAt || item.createdAt || item.date);
     if (dateValue) return dateValue;
 
-    if (platform === "nexus") {
-      return number(nexusIdFromUrl(primaryUrl(item)) || item.mod_id);
-    }
-
-    return -entry.index;
+    return number(nexusIdFromUrl(primaryUrl(item)) || item.mod_id) || -entry.index;
   }
 
   function targetSelector(platform) {
