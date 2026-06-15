@@ -187,6 +187,13 @@ async function selectStatsOption(page, triggerPattern, optionPattern) {
   return true;
 }
 
+async function forceSelectAllTime(page) {
+  await page.getByText(/^Daily$/i).click({ timeout: 3500 }).catch(() => {});
+  await page.waitForTimeout(350);
+  await page.getByText(/^All time$/i).click({ timeout: 3500 }).catch(() => {});
+  await page.waitForTimeout(900);
+}
+
 async function selectPlatformAny(page) {
   await page.evaluate(() => {
     const candidates = [...document.querySelectorAll('button,[role="button"]')]
@@ -209,7 +216,7 @@ async function selectedTimeRangeLabel(page) {
     const lines = text.split(/\n+/).map((line) => line.trim()).filter(Boolean);
     for (let index = 0; index < lines.length; index += 1) {
       if (/^time\s*range$/i.test(lines[index]) && lines[index + 1]) return lines[index + 1];
-      const inline = lines[index].match(/time\s*range\s*:?\s*(all\s*time|daily|weekly|monthly|today|last[^\n]+)/i);
+      const inline = lines[index].match(/time\s*range\s*:?\s*(all\s*time|daily|weekly|monthly|yearly|today|last[^\n]+)/i);
       if (inline) return inline[1];
     }
     return '';
@@ -217,11 +224,16 @@ async function selectedTimeRangeLabel(page) {
 }
 
 async function selectStatsFilters(page) {
-  await selectStatsOption(page, /time\s*range|daily|weekly|monthly|today|last\s*day|last\s*7|last\s*30|all\s*time|时间/i, /^(all\s*time|所有时间|全部时间)$/i);
+  await forceSelectAllTime(page);
+  let timeRange = await selectedTimeRangeLabel(page);
+  if (!/all\s*time|所有时间|全部时间/i.test(timeRange)) {
+    await selectStatsOption(page, /time\s*range|daily|weekly|monthly|yearly|today|last\s*day|last\s*7|last\s*30|all\s*time|时间/i, /^(all\s*time|所有时间|全部时间)$/i);
+    timeRange = await selectedTimeRangeLabel(page);
+  }
   await selectPlatformAny(page);
   await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   await page.waitForTimeout(SLOW_MS);
-  return { timeRange: await selectedTimeRangeLabel(page) };
+  return { timeRange };
 }
 
 function findMetricNumber(text, labels) {
