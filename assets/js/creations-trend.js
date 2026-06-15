@@ -11,6 +11,10 @@
   let isRendering = false;
   let rerenderTimer = 0;
 
+  function tr(text) {
+    return typeof window.tggTranslate === "function" ? window.tggTranslate(text) : text;
+  }
+
   function toNumber(value) {
     const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, ""));
     return Number.isFinite(parsed) ? parsed : 0;
@@ -127,15 +131,16 @@
     const perModDailyTotal = latestModDailyTotal(cachedModDailyRows);
     const dailyDownloads = perModDailyTotal ?? data.at(-1)?.value ?? 0;
 
+    target.dataset.creationsTrendSummary = "true";
     target.innerHTML = [
       ["Daily Downloads", dailyDownloads],
       ["Likes", totals.likes],
-      ["Total Downloads", totals.downloads],
+      ["Downloads", totals.downloads],
       ["Plays", totals.plays],
       ["Library Adds", totals.libraryAdds]
     ].map(([label, value]) => `
       <article class="dashboard-stat">
-        <span>${label}</span>
+        <span>${tr(label)}</span>
         <strong>${numberFormatter.format(value)}</strong>
       </article>
     `).join("");
@@ -152,8 +157,11 @@
     const data = buildDailySeries(rows);
     updateDailySummary(data);
 
+    const title = toolbar?.querySelector("h3");
+    if (title) title.textContent = tr("Creations Ranking").replace(tr("Ranking"), tr("Trend")) || tr("Trend");
+
     if (!data.length) {
-      chartEl.innerHTML = '<p class="section-desc">No Creations history data available yet. It will appear after the next scheduled CC sync.</p>';
+      chartEl.innerHTML = `<p class="section-desc">${tr("No Creations history data available yet. It will appear after the next scheduled CC sync.")}</p>`;
       isRendering = false;
       return;
     }
@@ -205,8 +213,10 @@
       return `<text class="nexus-axis-label" x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`;
     }).join("");
 
+    chartEl.className = "dashboard-chart creations-telemetry-chart";
+    chartEl.dataset.trendRenderer = "creations-trend";
     chartEl.innerHTML = `
-      <svg class="nexus-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Creations daily downloads chart">
+      <svg class="nexus-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Creations daily downloads chart" pointer-events="none">
         <defs>
           <linearGradient id="creationsArea" x1="0" x2="0" y1="0" y2="1">
             <stop offset="0%" stop-color="rgba(116, 217, 255, 0.28)" />
@@ -236,9 +246,23 @@
     return parseCSV(await response.text());
   }
 
-  function scheduleRender() {
+  function scheduleRender(delay = 120) {
+    if (!cachedRows.length) return;
     clearTimeout(rerenderTimer);
-    rerenderTimer = setTimeout(() => renderChart(cachedRows), 120);
+    rerenderTimer = setTimeout(() => renderChart(cachedRows), delay);
+  }
+
+  function installRenderGuard() {
+    const summary = document.querySelector("[data-creations-summary]");
+    const observer = new MutationObserver(() => {
+      if (isRendering || !cachedRows.length) return;
+      const summaryReady = summary?.dataset.creationsTrendSummary === "true";
+      const chartReady = chartEl.dataset.trendRenderer === "creations-trend";
+      if (!summaryReady || !chartReady) scheduleRender(40);
+    });
+
+    if (summary) observer.observe(summary, { childList: true, subtree: true, attributes: true });
+    observer.observe(chartEl, { childList: true, subtree: false, attributes: true });
   }
 
   if (toolbar && !toolbar.querySelector("[data-creations-refresh]")) {
@@ -257,9 +281,11 @@
   Promise.all([loadRows(), loadModDailyRows()]).then(([rows, modDailyRows]) => {
     cachedRows = rows;
     cachedModDailyRows = modDailyRows;
-    renderChart(rows);
+    installRenderGuard();
+    [0, 500, 1400, 2600].forEach((delay) => setTimeout(() => renderChart(rows), delay));
   }).catch(() => updateDailySummary([]));
 
-  window.addEventListener("focus", scheduleRender);
-  window.addEventListener("storage", scheduleRender);
+  window.addEventListener("focus", () => scheduleRender(80));
+  window.addEventListener("storage", () => scheduleRender(80));
+  window.addEventListener("towngg:languagechange", () => scheduleRender(30));
 })();
