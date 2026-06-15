@@ -323,6 +323,141 @@ async function openDetailsTab(page) {
   await page.waitForTimeout(500);
 }
 
+async function openStatsTab(page) {
+  await page.getByRole('tab', { name: /stats/i }).click({ timeout: 8000 }).catch(async () => {
+    await page.getByText(/^(stats|统计)$/i).click({ timeout: 5000 }).catch(() => {});
+  });
+  await page.waitForTimeout(700);
+}
+
+async function forceSelectAllTime(page) {
+  await page.getByText(/^Daily$/i).click({ timeout: 3500 }).catch(() => {});
+  await page.waitForTimeout(350);
+  await page.getByText(/^All time$/i).click({ timeout: 3500 }).catch(() => {});
+  await page.waitForTimeout(900);
+}
+
+async function selectPlatformAny(page) {
+  await page.evaluate(() => {
+    const candidates = [...document.querySelectorAll('button,[role="button"]')]
+      .filter((item) => {
+        const rect = item.getBoundingClientRect();
+        if (rect.width <= 2 || rect.height <= 2) return false;
+        const text = String(item.innerText || item.textContent || '').trim();
+        return /^(any|all platforms|所有平台|全部平台)$/i.test(text);
+      })
+      .sort((a, b) => b.getBoundingClientRect().top - a.getBoundingClientRect().top);
+    candidates[0]?.click();
+  }).catch(() => {});
+  await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
+  await page.waitForTimeout(900);
+}
+
+async function selectedTimeRangeLabel(page) {
+  return page.evaluate(() => {
+    const text = (document.body.innerText || document.body.textContent || '').replace(/\u00a0/g, ' ');
+    const lines = text.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+    for (let index = 0; index < lines.length; index += 1) {
+      if (/^time\s*range$/i.test(lines[index]) && lines[index + 1]) return lines[index + 1];
+      const inline = lines[index].match(/time\s*range\s*:?\s*(all\s*time|daily|weekly|monthly|yearly|today|last[^\n]+)/i);
+      if (inline) return inline[1];
+    }
+    return '';
+  }).catch(() => '');
+}
+
+function findMetricNumber(text, labels) {
+  const lines = String(text || '').replace(/\u00a0/g, ' ').split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  const labelPattern = new RegExp(`^(${labels.map(escapeRegExp).join('|')})$`, 'i');
+  const inlinePattern = new RegExp(`^(${labels.map(escapeRegExp).join('|')})\\s*:?\\s*([0-9][0-9,.]*)$`, 'i');
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const inline = lines[index].match(inlinePattern);
+    if (inline) return parseNumberValue(inline[2]);
+    if (!labelPattern.test(lines[index])) continue;
+    for (let valueIndex = index + 1; valueIndex < Math.min(lines.length, index + 5); valueIndex += 1) {
+      if (/^[0-9][0-9,.]*$/.test(lines[valueIndex])) return parseNumberValue(lines[valueIndex]);
+    }
+  }
+
+  const normalized = lines.join(' ');
+  for (const label of labels) {
+    const pattern = new RegExp(`\\b${escapeRegExp(label)}\\b[^0-9]{0,60}([0-9][0-9,.]*)`, 'i');
+    const match = normalized.match(pattern);
+    if (match) return parseNumberValue(match[1]);
+  }
+  return 0;
+}
+
+function parseAllTimeStatsText(text) {
+  const metrics = {
+    views: ['Views', 'View', '查看'],
+    plays: ['Plays', 'Play', '游玩数', '播放数'],
+    bookmarks: ['Bookmarks', 'Bookmark', '书签数', '书签'],
+    libraryAdds: ['Library Adds', 'Library Add', '库添加数', '加入库', '加入收藏库']
+  };
+  const parsed = {};
+  for (const [key, labels] of Object.entries(metrics)) parsed[key] = formatNumberValue(findMetricNumber(text, labels));
+  return compactStats(parsed);
+}
+
+function statNumeric(stats, key) {
+  return parseNumberValue(stats[key]);
+}
+
+function allTimeStatsRank(stats) {
+  const completeness = ['views', 'plays', 'bookmarks', 'libraryAdds'].reduce((score, key) => score + (stats[key] ? 1 : 0), 0);
+  const magnitude = statNumeric(stats, 'plays') * 1000000 + statNumeric(stats, 'libraryAdds') * 1000 + statNumeric(stats, 'bookmarks') * 100 + statNumeric(stats, 'views');
+  return completeness * 1000000000000000 + magnitude;
+}
+
+async function hoverAllTimeStats(page) {
+  const boxes = await page.locator('svg, canvas').evaluateAll((nodes) => nodes
+    .map((node) => {
+      const rect = node.getBoundingClientRect();
+      return { x: rect.left, y: rect.top, width: rect.width, height: rect.height, area: rect.width * rect.height };
+    })
+    .filter((rect) => rect.width > 180 && rect.height > 100 && rect.y > 0)
+    .sort((a, b) => b.area - a.area)
+    .slice(0, 3)
+  ).catch(() => []);
+
+  const samples = [];
+  boxes.forEach((box) => {
+    [0.995, 0.98, 0.94, 0.9, 0.78, 0.6, 0.42, 0.24, 0.08].forEach((xFactor) => {
+      [0.18, 0.35, 0.52, 0.7, 0.86].forEach((yFactor) => samples.push({ x: box.x + box.width * xFactor, y: box.y + box.height * yFactor }));
+    });
+  });
+
+  let bestStats = {};
+  for (const point of samples) {
+    await page.mouse.move(point.x, point.y).catch(() => {});
+    await page.waitForTimeout(140);
+    const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
+    const stats = parseAllTimeStatsText(text);
+    if (allTimeStatsRank(stats) > allTimeStatsRank(bestStats)) bestStats = stats;
+  }
+  return bestStats;
+}
+
+async function scrapeAllTimeEngagementStats(page) {
+  await openStatsTab(page);
+  await forceSelectAllTime(page);
+  await selectPlatformAny(page);
+  const timeRange = await selectedTimeRangeLabel(page);
+  if (!/all\s*time|所有时间|全部时间/i.test(timeRange)) return { ok: false, timeRange };
+
+  const directText = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
+  let bestStats = parseAllTimeStatsText(directText);
+  const hoveredStats = await hoverAllTimeStats(page);
+  if (allTimeStatsRank(hoveredStats) > allTimeStatsRank(bestStats)) bestStats = hoveredStats;
+  return { ok: true, timeRange, stats: compactStats(bestStats) };
+}
+
+function statsLine(stats, coverImage, timeline) {
+  return `timeline=${timeline || '-'}, likes=${stats.likes || '-'}, downloads=${stats.downloads || '-'}, cover=${coverImage ? 'yes' : 'no'}, views=${stats.views || '-'}, plays=${stats.plays || '-'}, bookmarks=${stats.bookmarks || '-'}, libraryAdds=${stats.libraryAdds || '-'}`;
+}
+
 async function scrapeCreation(page, creation) {
   const url = getCreationUrl(creation);
   if (!url) return { ok: false, error: 'missing_url' };
@@ -337,16 +472,25 @@ async function scrapeCreation(page, creation) {
   const topDebug = allPlatformsStats._topDebug;
   delete allPlatformsStats._topDebug;
 
-  await openDetailsTab(page);
-  const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS });
-  const platformStats = compactStats(parsePlatformStats(text));
-  const stats = { ...platformStats, ...allPlatformsStats };
+  const allTime = await scrapeAllTimeEngagementStats(page);
+  let fallbackStats = {};
+  if (!allTime.ok) {
+    await openDetailsTab(page);
+    const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS });
+    fallbackStats = compactStats(parsePlatformStats(text));
+  }
+
+  const stats = {
+    ...fallbackStats,
+    ...(allTime.ok ? allTime.stats : {}),
+    ...allPlatformsStats
+  };
 
   if (!Object.keys(stats).length && !coverImage) {
     return { ok: false, error: 'no_stats_or_cover_found' };
   }
 
-  return { ok: true, stats, coverImage, topDebug };
+  return { ok: true, stats, coverImage, topDebug, timeline: allTime.ok ? allTime.timeRange : `fallback:${allTime.timeRange || 'unknown'}` };
 }
 
 async function login() {
@@ -402,7 +546,7 @@ async function sync() {
       };
       nextSource = replaceCreationObject(nextSource, creation.title, renderCreationObject(merged));
       success += 1;
-      console.log(result.topDebug ? `updated top ${result.topDebug} + cover` : 'updated available stats + cover');
+      console.log(statsLine(result.stats, result.coverImage, result.timeline));
     } catch (error) {
       failed += 1;
       console.log(`kept old data (${error.message})`);
@@ -418,14 +562,5 @@ async function sync() {
   console.log(`Bethesda Creations sync complete: ${success} updated, ${failed} kept, ${skipped} skipped.`);
 }
 
-if (LOGIN_MODE) {
-  login().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-  });
-} else {
-  sync().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-  });
-}
+if (LOGIN_MODE) login();
+else sync();
