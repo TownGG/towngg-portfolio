@@ -40,10 +40,10 @@ jobs:
           fi
 
       - name: Discover Bethesda Creations list
-        run: npm run cc:discover
+        run: xvfb-run -a npm run cc:discover:headed
 
       - name: Sync Bethesda Creations stats and covers
-        run: npm run cc:sync
+        run: xvfb-run -a npm run cc:sync:headed
 
       - name: Capture Bethesda debug pages
         if: always()
