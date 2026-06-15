@@ -78,7 +78,7 @@
     const dailyMap = latestDailyByTitle(await loadDailyRows());
     const headerRow = table.querySelector('thead tr');
     if (headerRow) {
-      headerRow.insertAdjacentHTML('beforeend', '<th>Daily</th><th>Updated</th>');
+      headerRow.insertAdjacentHTML('beforeend', '<th>Daily</th>');
     }
 
     const confirmed = (window.siteData?.creations || []).filter((item) =>
@@ -89,10 +89,9 @@
       const item = confirmed[index] || {};
       const daily = dailyMap.get(normalize(item.title));
       const dailyValue = daily ? toNumber(daily.daily_downloads) : 0;
-      const updatedAt = daily?.last_updated || item.updatedAt || '-';
       row.insertAdjacentHTML(
         'beforeend',
-        `<td>${numberFormatter.format(dailyValue)}</td><td>${updatedAt}</td>`
+        `<td>${numberFormatter.format(dailyValue)}</td>`
       );
     });
 
