@@ -10,6 +10,36 @@
   let isRendering = false;
   let rerenderTimer = 0;
 
+  const copy = {
+    title: {
+      zh: "7 日 Nexus 下载趋势",
+      ja: "7日間 Nexus ダウンロードトレンド",
+      ko: "7일 Nexus 다운로드 추세",
+      ru: "Тренд загрузок Nexus за 7 дней",
+      fr: "Tendance des téléchargements Nexus sur 7 jours"
+    },
+    note: {
+      zh: "Nexus 发布活动基于已跟踪的模组历史记录。显示 CSV 历史中的实际每日下载量。最新快照：",
+      ja: "Nexus リリース活動は追跡済み Mod 履歴に基づきます。CSV 履歴から実際の日次ダウンロードを表示しています。最新スナップショット：",
+      ko: "Nexus 릴리스 활동은 추적된 모드 기록을 기반으로 합니다. CSV 기록의 실제 일일 다운로드를 표시합니다. 최신 스냅샷:",
+      ru: "Активность релизов Nexus основана на отслеживаемой истории модов. Показаны фактические ежедневные загрузки из CSV. Последний снимок:",
+      fr: "L’activité des sorties Nexus est basée sur l’historique des mods suivis. Affiche les téléchargements quotidiens réels depuis l’historique CSV. Dernier instantané :"
+    }
+  };
+
+  function lang() {
+    return window.tggCurrentLanguage || localStorage.getItem("towngg_language") || "en";
+  }
+
+  function tr(text) {
+    return typeof window.tggTranslate === "function" ? window.tggTranslate(text) : text;
+  }
+
+  function localCopy(key, fallback) {
+    const current = lang();
+    return copy[key]?.[current] || fallback;
+  }
+
   function dashboardNumber(value) {
     const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, ""));
     return Number.isFinite(parsed) ? parsed : 0;
@@ -81,7 +111,7 @@
 
     const data = buildDailySeries(rows);
     if (!data.length) {
-      chartEl.innerHTML = '<p class="section-desc">No Nexus history data available yet.</p>';
+      chartEl.innerHTML = `<p class="section-desc">${tr("No Nexus data available yet.")}</p>`;
       isRendering = false;
       return;
     }
@@ -128,7 +158,9 @@
 
     const latestDate = data.at(-1)?.date || "";
     const total = data.reduce((sum, item) => sum + item.value, 0);
-    const note = `Nexus release activity based on tracked mod history. Showing actual daily downloads from CSV history. Latest snapshot: ${formatDateLabel(latestDate)}.`;
+    const note = lang() === "en"
+      ? `Nexus release activity based on tracked mod history. Showing actual daily downloads from CSV history. Latest snapshot: ${formatDateLabel(latestDate)}.`
+      : `${localCopy("note", "")} ${formatDateLabel(latestDate)}.`;
 
     panel?.classList.add("is-nexus-trend-panel");
     toolbar?.classList.add("is-hidden-for-nexus-trend");
@@ -138,10 +170,10 @@
       <div class="nexus-trend-shell" data-trend-renderer="nexus-trend-fix">
         <div class="nexus-trend-header">
           <div>
-            <h3>7-Day Nexus Downloads Trend</h3>
+            <h3>${localCopy("title", "7-Day Nexus Downloads Trend")}</h3>
             <p>${note}</p>
           </div>
-          <span class="telemetry-pill">Daily downloads</span>
+          <span class="telemetry-pill">${tr("Daily downloads")}</span>
         </div>
         <div class="nexus-trend-canvas">
           <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Accurate Nexus daily downloads trend chart" preserveAspectRatio="xMidYMid meet">
@@ -196,5 +228,6 @@
     }
   }
 
+  window.addEventListener("towngg:languagechange", () => scheduleRender(30));
   init();
 })();
