@@ -46,11 +46,8 @@ jobs:
       - name: Sync Bethesda Creations stats and covers
         run: xvfb-run -a npm run cc:sync:headed
 
-      - name: Sync Bethesda Creations likes and covers fallback
-        run: xvfb-run -a node scripts/sync-creations-top-fallback.js --headed
-
-      - name: Sync Bethesda Creations Stats All Time
-        run: xvfb-run -a node scripts/sync-creations-stats-alltime.js --headed
+      - name: Sync Bethesda Creations plays and bookmarks
+        run: xvfb-run -a node scripts/sync-creations-engagement-stats.js --headed
 
       - name: Print captured Creations stats
         if: always()
