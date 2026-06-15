@@ -45,6 +45,20 @@ jobs:
       - name: Sync Bethesda Creations stats and covers
         run: npm run cc:sync
 
+      - name: Capture Bethesda debug pages
+        if: always()
+        continue-on-error: true
+        run: node scripts/debug-creations-cloud.js
+
+      - name: Upload Bethesda debug artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bethesda-creations-debug
+          path: artifacts/creations-debug
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Check Creations data changes
         id: cc_changes
         run: |
