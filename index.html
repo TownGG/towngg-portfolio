@@ -15,14 +15,17 @@
   <link rel="stylesheet" href="./assets/css/styles.css?v=2.04.38">
   <link rel="stylesheet" href="./assets/css/data-system.css?v=2.04.38">
   <link rel="stylesheet" href="./assets/css/mobile-interaction.css?v=2.04.38">
-  <link rel="stylesheet" href="./assets/css/lang-dropdown.css?v=1">
 </head>
 <body data-page="home">
   <header class="site-header">
     <div class="container nav">
       <a class="brand" href="./index.html">TownGG <span>MOD</span></a>
-
-      <nav class="nav-links nav-center" aria-label="Primary navigation">
+      <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav class="nav-links" aria-label="Primary navigation">
         <a class="is-active" href="./index.html">Home</a>
         <a href="./mods.html">Mods</a>
         <a href="./gallery.html">Gallery</a>
@@ -30,30 +33,6 @@
         <a href="./message-board.html">Message Board</a>
         <a href="./about.html">About</a>
       </nav>
-
-      <div class="nav-right">
-        <div class="lang-dropdown">
-          <button class="lang-switch" id="langSwitch" data-lang-toggle>
-            🌍 EN ▾
-          </button>
-
-          <div class="lang-menu" id="langMenu">
-            <button data-lang="en">English</button>
-            <button data-lang="zh">中文</button>
-            <button data-lang="ja">日本語</button>
-            <button data-lang="ko">한국어</button>
-            <button data-lang="ru">Русский</button>
-            <button data-lang="fr">Français</button>
-            <button data-lang="de">Deutsch</button>
-          </div>
-        </div>
-
-        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </div>
     </div>
   </header>
 
