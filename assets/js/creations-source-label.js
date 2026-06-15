@@ -11,6 +11,52 @@
     return String(value || '').trim().toLowerCase();
   }
 
+  function primaryUrl(item) {
+    return item?.links?.[0]?.url || item?.url || '';
+  }
+
+  function uuidFromUrl(url) {
+    return String(url || '').match(/details\/([0-9a-f-]{36})(?:\/|$)/i)?.[1]?.toLowerCase() || '';
+  }
+
+  function decodeBase64Url(value) {
+    const normalized = String(value || '').replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+    try {
+      return atob(padded);
+    } catch {
+      return '';
+    }
+  }
+
+  function contentIdFromImage(url) {
+    const raw = String(url || '');
+    const direct = raw.match(/GENESIS\/(\d+)/i);
+    if (direct) return direct[1];
+
+    const encoded = decodeURIComponent(raw.split('/image/')[1]?.split(/[?#]/)[0] || '');
+    const decoded = decodeBase64Url(encoded);
+    const match = decoded.match(/GENESIS\\?\/(\d+)/i);
+    return match?.[1] || '';
+  }
+
+  function creationKeyFromItem(item) {
+    return item?.creationKey
+      || item?.creation_key
+      || item?.creationId
+      || item?.contentId
+      || item?.content_id
+      || uuidFromUrl(primaryUrl(item))
+      || contentIdFromImage(item?.image)
+      || contentIdFromImage(item?.thumbnail)
+      || contentIdFromImage(item?.cover)
+      || normalize(item?.title);
+  }
+
+  function creationKeyFromRow(row) {
+    return row.creation_key || row.creationKey || row.content_id || row.contentId || row.creation_id || row.creationId || normalize(row.title);
+  }
+
   function parseCSV(text) {
     const rows = [];
     let cell = '';
@@ -57,10 +103,10 @@
     return dailyRowsPromise;
   }
 
-  function latestDailyByTitle(rows) {
+  function latestDailyByKey(rows) {
     const latest = new Map();
     rows.forEach((row) => {
-      const key = normalize(row.title);
+      const key = creationKeyFromRow(row);
       if (!key) return;
       const current = latest.get(key);
       const order = `${row.date || ''} ${row.last_updated || ''}`;
@@ -75,7 +121,7 @@
     const body = document.querySelector('[data-creations-table]');
     if (!table || !body || !body.children.length || table.dataset.creationsDailyReady === 'true') return;
 
-    const dailyMap = latestDailyByTitle(await loadDailyRows());
+    const dailyMap = latestDailyByKey(await loadDailyRows());
     const headerRow = table.querySelector('thead tr');
     if (headerRow) {
       headerRow.insertAdjacentHTML('beforeend', '<th>Daily</th>');
@@ -87,7 +133,7 @@
 
     [...body.querySelectorAll('tr')].forEach((row, index) => {
       const item = confirmed[index] || {};
-      const daily = dailyMap.get(normalize(item.title));
+      const daily = dailyMap.get(creationKeyFromItem(item)) || dailyMap.get(normalize(item.title));
       const dailyValue = daily ? toNumber(daily.daily_downloads) : 0;
       row.insertAdjacentHTML(
         'beforeend',
