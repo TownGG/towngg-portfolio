@@ -325,20 +325,27 @@ function compactStats(stats) {
   return Object.fromEntries(Object.entries(stats).filter(([, value]) => value));
 }
 
-function aggregateLabeledNumbers(text, labels, context = {}) {
+function isEmptyMetricValue(value) {
+  return /^[-–—]+$|^n\/?a$/i.test(String(value || '').trim());
+}
+
+function aggregateImmediateLabeledNumbers(text, labels, context = {}) {
   const normalized = String(text || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
   let total = 0;
+  let matchCount = 0;
   const debugMatches = [];
 
   for (const label of labels) {
-    const pattern = new RegExp(`\\b${escapeRegExp(label)}\\b[^0-9]{0,80}([0-9][0-9,.]*)`, 'gi');
+    const pattern = new RegExp(`\\b${escapeRegExp(label)}\\b\\s*:?\\s*(---|[-–—]|n\\/?a|[0-9][0-9,.]*)`, 'gi');
     for (const match of normalized.matchAll(pattern)) {
-      const value = parseNumberValue(match[1]);
+      const raw = String(match[1] || '').trim();
+      const value = isEmptyMetricValue(raw) ? 0 : parseNumberValue(raw);
       total += value;
+      matchCount += 1;
       if (context.debug && context.metric === 'likes') {
         const start = Math.max(0, match.index - 90);
         const end = Math.min(normalized.length, match.index + match[0].length + 90);
-        debugMatches.push({ label, raw: match[1], value, snippet: normalized.slice(start, end) });
+        debugMatches.push({ label, raw, value, snippet: normalized.slice(start, end) });
       }
     }
   }
@@ -347,9 +354,9 @@ function aggregateLabeledNumbers(text, labels, context = {}) {
     console.log('');
     console.log(`[LIKE INLINE DEBUG] title=${context.title || '-'}`);
     console.log(`[LIKE INLINE DEBUG] source=${context.source || '-'}`);
-    console.log(`[LIKE INLINE DEBUG] matchCount=${debugMatches.length}, matchedSum=${total}, formatted=${total > 0 ? numberFormat.format(Math.round(total)) : '-'}`);
+    console.log(`[LIKE INLINE DEBUG] matchCount=${debugMatches.length}, matchedSum=${total}, formatted=${matchCount > 0 ? numberFormat.format(Math.round(total)) : '-'}`);
     if (!debugMatches.length) {
-      console.log('[LIKE INLINE DEBUG] no like/likes matches found at main sync parse moment.');
+      console.log('[LIKE INLINE DEBUG] no immediate like/likes value found at main sync parse moment.');
     }
     debugMatches.forEach((item, index) => {
       console.log(`[LIKE INLINE DEBUG] #${index + 1} label=${item.label}, raw=${item.raw}, value=${item.value}`);
@@ -357,12 +364,26 @@ function aggregateLabeledNumbers(text, labels, context = {}) {
     });
   }
 
+  return matchCount > 0 ? numberFormat.format(Math.round(total)) : null;
+}
+
+function aggregateLabeledNumbers(text, labels) {
+  const normalized = String(text || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
+  let total = 0;
+
+  for (const label of labels) {
+    const pattern = new RegExp(`\\b${escapeRegExp(label)}\\b[^0-9]{0,80}([0-9][0-9,.]*)`, 'gi');
+    for (const match of normalized.matchAll(pattern)) {
+      total += parseNumberValue(match[1]);
+    }
+  }
+
   return total > 0 ? numberFormat.format(Math.round(total)) : null;
 }
 
 function parsePlatformStats(text, context = {}) {
   return {
-    likes: aggregateLabeledNumbers(text, ['likes', 'like', '喜欢'], { ...context, metric: 'likes' }),
+    likes: aggregateImmediateLabeledNumbers(text, ['likes', 'like', '喜欢'], { ...context, metric: 'likes' }),
     downloads: aggregateLabeledNumbers(text, ['downloads', 'download', '下载']),
     bookmarks: aggregateLabeledNumbers(text, ['bookmarks', 'bookmark', '书签']),
     views: aggregateLabeledNumbers(text, ['views', 'view', '查看']),
