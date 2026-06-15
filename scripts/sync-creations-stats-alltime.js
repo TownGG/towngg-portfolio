@@ -40,7 +40,7 @@ function compactStats(stats) {
 }
 
 function statsSummary(stats) {
-  const ordered = ['views', 'bookmarks', 'likes', 'downloads', 'plays', 'libraryAdds'];
+  const ordered = ['views', 'bookmarks', 'plays', 'libraryAdds'];
   return ordered.map((key) => `${key}=${stats[key] || '-'}`).join(', ');
 }
 
@@ -304,7 +304,6 @@ function parseStatsText(text) {
     views: ['Views', 'View', '查看'],
     plays: ['Plays', 'Play', '游玩数', '播放数'],
     bookmarks: ['Bookmarks', 'Bookmark', '书签数', '书签'],
-    downloads: ['Downloads', 'Download', '下载'],
     libraryAdds: ['Library Adds', 'Library Add', '库添加数', '加入库', '加入收藏库']
   };
 
@@ -320,14 +319,13 @@ function statNumeric(stats, key) {
 }
 
 function statsScore(stats) {
-  return ['views', 'plays', 'bookmarks', 'downloads', 'libraryAdds']
+  return ['views', 'plays', 'bookmarks', 'libraryAdds']
     .reduce((score, key) => score + (stats[key] ? 1 : 0), 0);
 }
 
 function statsRank(stats) {
   const completeness = statsScore(stats);
-  const magnitude = statNumeric(stats, 'downloads') * 1000000
-    + statNumeric(stats, 'plays') * 1000
+  const magnitude = statNumeric(stats, 'plays') * 1000
     + statNumeric(stats, 'libraryAdds') * 100
     + statNumeric(stats, 'bookmarks') * 10
     + statNumeric(stats, 'views');
