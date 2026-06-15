@@ -58,25 +58,39 @@
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   }
 
-  function latestSnapshotPerDay(rows) {
-    const latest = new Map();
+  function snapshotsGroupedByDay(rows) {
+    const groups = new Map();
     rows.forEach((row) => {
       if (!row.date) return;
-      const current = latest.get(row.date);
-      if (!current || String(row.timestamp || "") > String(current.timestamp || "")) latest.set(row.date, row);
+      const total = toNumber(row.total_downloads);
+      const timestamp = String(row.timestamp || "");
+      const current = groups.get(row.date) || { date: row.date, first: row, last: row, firstTotal: total, lastTotal: total };
+
+      if (!current.first || timestamp < String(current.first.timestamp || "")) {
+        current.first = row;
+        current.firstTotal = total;
+      }
+
+      if (!current.last || timestamp > String(current.last.timestamp || "")) {
+        current.last = row;
+        current.lastTotal = total;
+      }
+
+      groups.set(row.date, current);
     });
-    return [...latest.values()].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+    return [...groups.values()].sort((a, b) => String(a.date).localeCompare(String(b.date)));
   }
 
   function buildDailySeries(rows) {
-    const snapshots = latestSnapshotPerDay(rows);
-    if (!snapshots.length) return [];
+    const groups = snapshotsGroupedByDay(rows);
+    if (!groups.length) return [];
 
-    const daily = snapshots.map((row, index) => {
-      const current = toNumber(row.total_downloads);
-      const previous = index > 0 ? toNumber(snapshots[index - 1].total_downloads) : current;
+    const daily = groups.map((group, index) => {
+      const current = group.lastTotal;
+      const previous = index > 0 ? groups[index - 1].lastTotal : group.firstTotal;
       return {
-        date: row.date,
+        date: group.date,
         value: Math.max(0, current - previous),
         total: current
       };
