@@ -11,8 +11,34 @@
   let isRendering = false;
   let rerenderTimer = 0;
 
+  const copy = {
+    title: {
+      zh: "7 日 Creations 下载趋势",
+      ja: "7日間 Creations ダウンロードトレンド",
+      ko: "7일 Creations 다운로드 추세",
+      ru: "Тренд загрузок Creations за 7 дней",
+      fr: "Tendance des téléchargements Creations sur 7 jours"
+    },
+    note: {
+      zh: "Creations 发布活动基于已跟踪的 CC 历史记录。显示 CSV 历史中的实际每日下载量。最新快照：",
+      ja: "Creations の公開アクティビティは追跡済み CC 履歴に基づきます。CSV 履歴から実際の日次ダウンロードを表示しています。最新スナップショット：",
+      ko: "Creations 릴리스 활동은 추적된 CC 기록을 기반으로 합니다. CSV 기록의 실제 일일 다운로드를 표시합니다. 최신 스냅샷:",
+      ru: "Активность Creations основана на отслеживаемой истории CC. Показаны фактические ежедневные загрузки из CSV. Последний снимок:",
+      fr: "L’activité Creations est basée sur l’historique CC suivi. Affiche les téléchargements quotidiens réels depuis l’historique CSV. Dernier instantané :"
+    }
+  };
+
+  function lang() {
+    return window.tggCurrentLanguage || localStorage.getItem("towngg_language") || "en";
+  }
+
   function tr(text) {
     return typeof window.tggTranslate === "function" ? window.tggTranslate(text) : text;
+  }
+
+  function localCopy(key, fallback) {
+    const current = lang();
+    return copy[key]?.[current] || fallback;
   }
 
   function toNumber(value) {
@@ -157,9 +183,6 @@
     const data = buildDailySeries(rows);
     updateDailySummary(data);
 
-    const title = toolbar?.querySelector("h3");
-    if (title) title.textContent = tr("Creations Ranking").replace(tr("Ranking"), tr("Trend")) || tr("Trend");
-
     if (!data.length) {
       chartEl.innerHTML = `<p class="section-desc">${tr("No Creations history data available yet. It will appear after the next scheduled CC sync.")}</p>`;
       isRendering = false;
@@ -199,38 +222,49 @@
       `;
     }).join("");
 
-    const bars = data.map((item, index) => {
-      const barW = Math.max(18, chartW / data.length * 0.42);
-      const x = padLeft + (chartW / Math.max(1, data.length - 1)) * index - barW / 2;
-      const barH = (Number(item.value) / yMax) * chartH;
-      const y = padTop + chartH - barH;
-      const aria = `${item.date}: ${numberFormatter.format(item.value)} daily downloads, ${numberFormatter.format(item.total)} total downloads`;
-      return `<rect class="nexus-bar" x="${x}" y="${y}" width="${barW}" height="${Math.max(2, barH)}" rx="6" aria-label="${aria}"></rect>`;
-    }).join("");
+    const labels = points.map(({ x, item }) => `<text class="nexus-date-label" x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`).join("");
+    const dots = points.map(({ x, y, item }) => `
+      <g class="nexus-point" tabindex="0" aria-label="${numberFormatter.format(item.value)} daily downloads on ${item.date}">
+        <circle class="telemetry-dot" cx="${x}" cy="${y}" r="5"></circle>
+      </g>
+    `).join("");
 
-    const labels = data.map((item, index) => {
-      const x = padLeft + (chartW / Math.max(1, data.length - 1)) * index;
-      return `<text class="nexus-axis-label" x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`;
-    }).join("");
+    const latestDate = data.at(-1)?.date || "";
+    const total = data.reduce((sum, item) => sum + item.value, 0);
+    const note = lang() === "en"
+      ? `Creations release activity based on tracked CC history. Showing actual daily downloads from CSV history. Latest snapshot: ${formatDateLabel(latestDate)}.`
+      : `${localCopy("note", "")} ${formatDateLabel(latestDate)}.`;
 
-    chartEl.className = "dashboard-chart creations-telemetry-chart";
+    panel?.classList.add("is-nexus-trend-panel");
+    toolbar?.classList.add("is-hidden-for-nexus-trend");
+    chartEl.className = "dashboard-chart nexus-telemetry-chart";
     chartEl.dataset.trendRenderer = "creations-trend";
     chartEl.innerHTML = `
-      <svg class="nexus-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Creations daily downloads chart" pointer-events="none">
-        <defs>
-          <linearGradient id="creationsArea" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="rgba(116, 217, 255, 0.28)" />
-            <stop offset="100%" stop-color="rgba(116, 217, 255, 0.03)" />
-          </linearGradient>
-        </defs>
-        ${gridRows}
-        ${bars}
-        <polygon class="nexus-chart-area" points="${areaPoints}" fill="url(#creationsArea)"></polygon>
-        <polyline class="nexus-chart-line" points="${pointLine(points)}"></polyline>
-        ${points.map((point) => `<circle class="nexus-chart-point" cx="${point.x}" cy="${point.y}" r="5" aria-label="${point.item.date}: ${numberFormatter.format(point.item.value)} daily downloads"></circle>`).join("")}
-        ${labels}
-      </svg>
+      <div class="nexus-trend-shell" data-trend-renderer="creations-trend">
+        <div class="nexus-trend-header">
+          <div>
+            <h3>${localCopy("title", "7-Day Creations Downloads Trend")}</h3>
+            <p>${note}</p>
+          </div>
+          <span class="telemetry-pill">${tr("Daily downloads")}</span>
+        </div>
+        <div class="nexus-trend-canvas">
+          <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Accurate Creations daily downloads trend chart" preserveAspectRatio="xMidYMid meet">
+            ${gridRows}
+            <polygon class="telemetry-area" points="${areaPoints}" />
+            <polyline class="telemetry-line" points="${pointLine(points)}" />
+            ${dots}
+            ${labels}
+          </svg>
+          ${points.map(({ x, y, item }) => `
+            <span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${numberFormatter.format(item.value)}</span>
+          `).join("")}
+        </div>
+      </div>
     `;
+
+    chartEl.dataset.trendTotal = String(total);
+    chartEl.dataset.trendLatestDate = latestDate;
     isRendering = false;
   }
 
@@ -246,7 +280,7 @@
     return parseCSV(await response.text());
   }
 
-  function scheduleRender(delay = 120) {
+  function scheduleRender(delay = 80) {
     if (!cachedRows.length) return;
     clearTimeout(rerenderTimer);
     rerenderTimer = setTimeout(() => renderChart(cachedRows), delay);
@@ -265,24 +299,11 @@
     observer.observe(chartEl, { childList: true, subtree: false, attributes: true });
   }
 
-  if (toolbar && !toolbar.querySelector("[data-creations-refresh]")) {
-    const refresh = document.createElement("button");
-    refresh.type = "button";
-    refresh.className = "button dashboard-refresh";
-    refresh.dataset.creationsRefresh = "true";
-    refresh.textContent = "Refresh";
-    refresh.addEventListener("click", async () => {
-      [cachedRows, cachedModDailyRows] = await Promise.all([loadRows(), loadModDailyRows()]);
-      renderChart(cachedRows);
-    });
-    toolbar.appendChild(refresh);
-  }
-
   Promise.all([loadRows(), loadModDailyRows()]).then(([rows, modDailyRows]) => {
     cachedRows = rows;
     cachedModDailyRows = modDailyRows;
     installRenderGuard();
-    [0, 500, 1400, 2600].forEach((delay) => setTimeout(() => renderChart(rows), delay));
+    [0, 450, 1400, 2600].forEach((delay) => setTimeout(() => renderChart(rows), delay));
   }).catch(() => updateDailySummary([]));
 
   window.addEventListener("focus", () => scheduleRender(80));
