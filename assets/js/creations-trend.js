@@ -196,11 +196,8 @@
       const x = padLeft + (chartW / Math.max(1, data.length - 1)) * index - barW / 2;
       const barH = (Number(item.value) / yMax) * chartH;
       const y = padTop + chartH - barH;
-      return `
-        <rect class="nexus-bar" x="${x}" y="${y}" width="${barW}" height="${Math.max(2, barH)}" rx="6">
-          <title>${item.date}: ${numberFormatter.format(item.value)} total-snapshot delta, ${numberFormatter.format(item.total)} total downloads</title>
-        </rect>
-      `;
+      const aria = `${item.date}: ${numberFormatter.format(item.value)} daily downloads, ${numberFormatter.format(item.total)} total downloads`;
+      return `<rect class="nexus-bar" x="${x}" y="${y}" width="${barW}" height="${Math.max(2, barH)}" rx="6" aria-label="${aria}"></rect>`;
     }).join("");
 
     const labels = data.map((item, index) => {
@@ -220,7 +217,7 @@
         ${bars}
         <polygon class="nexus-chart-area" points="${areaPoints}" fill="url(#creationsArea)"></polygon>
         <polyline class="nexus-chart-line" points="${pointLine(points)}"></polyline>
-        ${points.map((point) => `<circle class="nexus-chart-point" cx="${point.x}" cy="${point.y}" r="5"><title>${point.item.date}: ${numberFormatter.format(point.item.value)} total-snapshot delta</title></circle>`).join("")}
+        ${points.map((point) => `<circle class="nexus-chart-point" cx="${point.x}" cy="${point.y}" r="5" aria-label="${point.item.date}: ${numberFormatter.format(point.item.value)} daily downloads"></circle>`).join("")}
         ${labels}
       </svg>
     `;
@@ -247,7 +244,7 @@
   if (toolbar && !toolbar.querySelector("[data-creations-refresh]")) {
     const refresh = document.createElement("button");
     refresh.type = "button";
-    refresh.className = "dashboard-refresh";
+    refresh.className = "button dashboard-refresh";
     refresh.dataset.creationsRefresh = "true";
     refresh.textContent = "Refresh";
     refresh.addEventListener("click", async () => {
