@@ -25,11 +25,11 @@ function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function parseNumberValue(value) {
+function number(value) {
   return Number(String(value || '0').replace(/[^0-9.-]/g, '')) || 0;
 }
 
-function formatNumberValue(value) {
+function fmt(value) {
   return value > 0 ? numberFormat.format(Math.round(value)) : null;
 }
 
@@ -54,7 +54,6 @@ function findMatchingBrace(source, openIndex) {
   let depth = 0;
   let quote = null;
   let escaped = false;
-
   for (let index = openIndex; index < source.length; index += 1) {
     const char = source[index];
     if (quote) {
@@ -88,13 +87,10 @@ function findCreationsArrayRange(source) {
 function replaceCreationFields(source, title, fields) {
   const range = findCreationsArrayRange(source);
   if (!range) return source;
-
   const segment = source.slice(range.openIndex + 1, range.closeIndex);
   const escapedTitle = JSON.stringify(title).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const titlePattern = new RegExp(`\\{\\s*title:\\s*${escapedTitle}`);
-  const match = titlePattern.exec(segment);
+  const match = new RegExp(`\\{\\s*title:\\s*${escapedTitle}`).exec(segment);
   if (!match) return source;
-
   const objectStart = range.openIndex + 1 + match.index;
   const objectEnd = findMatchingBrace(source, objectStart);
   if (objectEnd < 0 || objectEnd > range.closeIndex) return source;
@@ -104,18 +100,13 @@ function replaceCreationFields(source, title, fields) {
     if (value === undefined || value === null || String(value).trim() === '') continue;
     const replacement = `${key}: ${JSON.stringify(String(value))}`;
     const fieldPattern = new RegExp(`${key}\\s*:\\s*"(?:\\\\.|[^"\\\\])*"`);
-    if (fieldPattern.test(objectText)) {
-      objectText = objectText.replace(fieldPattern, replacement);
-      continue;
-    }
-    const insertBefore = objectText.match(/,\s*updatedAt\s*:/) || objectText.match(/,\s*source\s*:/) || objectText.match(/,\s*links\s*:/);
-    if (insertBefore?.index !== undefined) {
-      objectText = `${objectText.slice(0, insertBefore.index)}, ${replacement}${objectText.slice(insertBefore.index)}`;
-    } else {
-      objectText = objectText.replace(/\s*}$/, `, ${replacement} }`);
+    if (fieldPattern.test(objectText)) objectText = objectText.replace(fieldPattern, replacement);
+    else {
+      const insertBefore = objectText.match(/,\s*updatedAt\s*:/) || objectText.match(/,\s*source\s*:/) || objectText.match(/,\s*links\s*:/);
+      if (insertBefore?.index !== undefined) objectText = `${objectText.slice(0, insertBefore.index)}, ${replacement}${objectText.slice(insertBefore.index)}`;
+      else objectText = objectText.replace(/\s*}$/, `, ${replacement} }`);
     }
   }
-
   return source.slice(0, objectStart) + objectText + source.slice(objectEnd + 1);
 }
 
@@ -147,6 +138,22 @@ async function clickVisibleText(page, pattern) {
   await page.getByText(pattern).last().click({ timeout: 2500 }).catch(() => {});
 }
 
+async function selectNativeOption(page, optionPattern) {
+  return page.evaluate((pattern) => {
+    const optionRegex = new RegExp(pattern, 'i');
+    let changed = false;
+    document.querySelectorAll('select').forEach((select) => {
+      const option = [...select.options].find((item) => optionRegex.test(item.textContent || ''));
+      if (!option) return;
+      select.value = option.value;
+      select.dispatchEvent(new Event('input', { bubbles: true }));
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      changed = true;
+    });
+    return changed;
+  }, optionPattern.source);
+}
+
 async function openDropdownByPattern(page, triggerPattern) {
   return page.evaluate((pattern) => {
     const triggerRegex = new RegExp(pattern, 'i');
@@ -164,22 +171,6 @@ async function openDropdownByPattern(page, triggerPattern) {
     target.click();
     return true;
   }, triggerPattern.source);
-}
-
-async function selectNativeOption(page, optionPattern) {
-  return page.evaluate((pattern) => {
-    const optionRegex = new RegExp(pattern, 'i');
-    let changed = false;
-    document.querySelectorAll('select').forEach((select) => {
-      const option = [...select.options].find((item) => optionRegex.test(item.textContent || ''));
-      if (!option) return;
-      select.value = option.value;
-      select.dispatchEvent(new Event('input', { bubbles: true }));
-      select.dispatchEvent(new Event('change', { bubbles: true }));
-      changed = true;
-    });
-    return changed;
-  }, optionPattern.source);
 }
 
 async function selectStatsOption(page, triggerPattern, optionPattern) {
@@ -218,7 +209,7 @@ async function selectedTimeRangeLabel(page) {
     const lines = text.split(/\n+/).map((line) => line.trim()).filter(Boolean);
     for (let index = 0; index < lines.length; index += 1) {
       if (/^time\s*range$/i.test(lines[index]) && lines[index + 1]) return lines[index + 1];
-      const inline = lines[index].match(/time\s*range\s*:?\s*(all\s*time|today|last[^\n]+)/i);
+      const inline = lines[index].match(/time\s*range\s*:?\s*(all\s*time|daily|weekly|monthly|today|last[^\n]+)/i);
       if (inline) return inline[1];
     }
     return '';
@@ -226,7 +217,7 @@ async function selectedTimeRangeLabel(page) {
 }
 
 async function selectStatsFilters(page) {
-  await selectStatsOption(page, /time\s*range|today|last\s*day|last\s*7|last\s*30|all\s*time|时间/i, /^(all\s*time|所有时间|全部时间)$/i);
+  await selectStatsOption(page, /time\s*range|daily|weekly|monthly|today|last\s*day|last\s*7|last\s*30|all\s*time|时间/i, /^(all\s*time|所有时间|全部时间)$/i);
   await selectPlatformAny(page);
   await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   await page.waitForTimeout(SLOW_MS);
@@ -234,28 +225,22 @@ async function selectStatsFilters(page) {
 }
 
 function findMetricNumber(text, labels) {
-  const lines = String(text || '')
-    .replace(/\u00a0/g, ' ')
-    .split(/\n+/)
-    .map((line) => line.trim())
-    .filter(Boolean);
+  const lines = String(text || '').replace(/\u00a0/g, ' ').split(/\n+/).map((line) => line.trim()).filter(Boolean);
   const labelPattern = new RegExp(`^(${labels.map(escapeRegExp).join('|')})$`, 'i');
   const inlinePattern = new RegExp(`^(${labels.map(escapeRegExp).join('|')})\\s*:?\\s*([0-9][0-9,.]*)$`, 'i');
-
   for (let index = 0; index < lines.length; index += 1) {
     const inline = lines[index].match(inlinePattern);
-    if (inline) return parseNumberValue(inline[2]);
+    if (inline) return number(inline[2]);
     if (!labelPattern.test(lines[index])) continue;
     for (let valueIndex = index + 1; valueIndex < Math.min(lines.length, index + 5); valueIndex += 1) {
-      if (/^[0-9][0-9,.]*$/.test(lines[valueIndex])) return parseNumberValue(lines[valueIndex]);
+      if (/^[0-9][0-9,.]*$/.test(lines[valueIndex])) return number(lines[valueIndex]);
     }
   }
-
   const normalized = lines.join(' ');
   for (const label of labels) {
     const pattern = new RegExp(`\\b${escapeRegExp(label)}\\b[^0-9]{0,60}([0-9][0-9,.]*)`, 'i');
     const match = normalized.match(pattern);
-    if (match) return parseNumberValue(match[1]);
+    if (match) return number(match[1]);
   }
   return 0;
 }
@@ -268,20 +253,17 @@ function parseStatsText(text) {
     libraryAdds: ['Library Adds', 'Library Add', '库添加数', '加入库', '加入收藏库']
   };
   const parsed = {};
-  for (const [key, labels] of Object.entries(metrics)) parsed[key] = formatNumberValue(findMetricNumber(text, labels));
+  for (const [key, labels] of Object.entries(metrics)) parsed[key] = fmt(findMetricNumber(text, labels));
   return Object.fromEntries(Object.entries(parsed).filter(([, value]) => value));
 }
 
 function statNumeric(stats, key) {
-  return parseNumberValue(stats[key]);
+  return number(stats[key]);
 }
 
 function statsRank(stats) {
   const completeness = ['views', 'plays', 'bookmarks', 'libraryAdds'].reduce((score, key) => score + (stats[key] ? 1 : 0), 0);
-  const magnitude = statNumeric(stats, 'plays') * 1000000
-    + statNumeric(stats, 'libraryAdds') * 1000
-    + statNumeric(stats, 'bookmarks') * 100
-    + statNumeric(stats, 'views');
+  const magnitude = statNumeric(stats, 'plays') * 1000000 + statNumeric(stats, 'libraryAdds') * 1000 + statNumeric(stats, 'bookmarks') * 100 + statNumeric(stats, 'views');
   return completeness * 1000000000000000 + magnitude;
 }
 
@@ -295,14 +277,12 @@ async function hoverStatsChart(page) {
     .sort((a, b) => b.area - a.area)
     .slice(0, 3)
   ).catch(() => []);
-
   const samples = [];
   boxes.forEach((box) => {
     [0.995, 0.98, 0.94, 0.9, 0.78, 0.6, 0.42, 0.24, 0.08].forEach((xFactor) => {
       [0.18, 0.35, 0.52, 0.7, 0.86].forEach((yFactor) => samples.push({ x: box.x + box.width * xFactor, y: box.y + box.height * yFactor }));
     });
   });
-
   let bestStats = {};
   for (const point of samples) {
     await page.mouse.move(point.x, point.y).catch(() => {});
@@ -330,8 +310,8 @@ async function scrapeEngagementStats(page, url) {
 function acceptedFields(current, stats) {
   const fields = {};
   ['views', 'plays', 'bookmarks', 'libraryAdds'].forEach((key) => {
-    const nextValue = parseNumberValue(stats[key]);
-    const currentValue = parseNumberValue(current[key]);
+    const nextValue = number(stats[key]);
+    const currentValue = number(current[key]);
     if (nextValue > 0 && nextValue >= currentValue) fields[key] = stats[key];
   });
   return fields;
@@ -347,19 +327,16 @@ async function syncEngagementStats() {
   const creations = Array.isArray(siteData.creations) ? siteData.creations : [];
   const context = await openContext();
   const page = context.pages()[0] || await context.newPage();
-
   let nextSource = source;
   let success = 0;
   let failed = 0;
   let skipped = 0;
-
   for (const creation of creations) {
     const url = getCreationUrl(creation);
     if (!shouldSyncCreation(creation)) {
       skipped += 1;
       continue;
     }
-
     process.stdout.write(`Engagement Stats ${creation.title}... `);
     try {
       const { stats, filters } = await scrapeEngagementStats(page, url);
@@ -383,7 +360,6 @@ async function syncEngagementStats() {
       console.log(`kept existing data (${error.message})`);
     }
   }
-
   await closeContext(context);
   if (success > 0) await fs.writeFile(SITE_DATA_PATH, nextSource, 'utf8');
   console.log(`Bethesda Creations engagement stats sync complete: ${success} updated, ${failed} kept, ${skipped} skipped.`);
