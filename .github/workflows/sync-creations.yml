@@ -39,6 +39,9 @@ jobs:
             echo "No Bethesda storage state secret found. Public data only."
           fi
 
+      - name: Discover Bethesda Creations list
+        run: npm run cc:discover
+
       - name: Sync Bethesda Creations stats and covers
         run: npm run cc:sync
 
