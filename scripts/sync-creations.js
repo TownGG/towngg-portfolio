@@ -17,6 +17,7 @@ const CREATIONS_HOME = 'https://creations.bethesda.net/en/starfield/all?author_d
 
 const numberFormat = new Intl.NumberFormat('en-US');
 const statKeys = ['views', 'bookmarks', 'likes', 'downloads', 'plays', 'libraryAdds'];
+const LIKE_DEBUG_THRESHOLD = Number(process.env.CC_LIKE_DEBUG_THRESHOLD || 100);
 
 function loadSiteData(source) {
   const context = { window: {} };
@@ -324,23 +325,44 @@ function compactStats(stats) {
   return Object.fromEntries(Object.entries(stats).filter(([, value]) => value));
 }
 
-function aggregateLabeledNumbers(text, labels) {
+function aggregateLabeledNumbers(text, labels, context = {}) {
   const normalized = String(text || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
   let total = 0;
+  const debugMatches = [];
 
   for (const label of labels) {
     const pattern = new RegExp(`\\b${escapeRegExp(label)}\\b[^0-9]{0,80}([0-9][0-9,.]*)`, 'gi');
     for (const match of normalized.matchAll(pattern)) {
-      total += parseNumberValue(match[1]);
+      const value = parseNumberValue(match[1]);
+      total += value;
+      if (context.debug && context.metric === 'likes') {
+        const start = Math.max(0, match.index - 90);
+        const end = Math.min(normalized.length, match.index + match[0].length + 90);
+        debugMatches.push({ label, raw: match[1], value, snippet: normalized.slice(start, end) });
+      }
     }
+  }
+
+  if (context.debug && context.metric === 'likes') {
+    console.log('');
+    console.log(`[LIKE INLINE DEBUG] title=${context.title || '-'}`);
+    console.log(`[LIKE INLINE DEBUG] source=${context.source || '-'}`);
+    console.log(`[LIKE INLINE DEBUG] matchCount=${debugMatches.length}, matchedSum=${total}, formatted=${total > 0 ? numberFormat.format(Math.round(total)) : '-'}`);
+    if (!debugMatches.length) {
+      console.log('[LIKE INLINE DEBUG] no like/likes matches found at main sync parse moment.');
+    }
+    debugMatches.forEach((item, index) => {
+      console.log(`[LIKE INLINE DEBUG] #${index + 1} label=${item.label}, raw=${item.raw}, value=${item.value}`);
+      console.log(`[LIKE INLINE DEBUG] #${index + 1} snippet=${item.snippet}`);
+    });
   }
 
   return total > 0 ? numberFormat.format(Math.round(total)) : null;
 }
 
-function parsePlatformStats(text) {
+function parsePlatformStats(text, context = {}) {
   return {
-    likes: aggregateLabeledNumbers(text, ['likes', 'like', '喜欢']),
+    likes: aggregateLabeledNumbers(text, ['likes', 'like', '喜欢'], { ...context, metric: 'likes' }),
     downloads: aggregateLabeledNumbers(text, ['downloads', 'download', '下载']),
     bookmarks: aggregateLabeledNumbers(text, ['bookmarks', 'bookmark', '书签']),
     views: aggregateLabeledNumbers(text, ['views', 'view', '查看']),
@@ -386,12 +408,12 @@ async function selectPlatformAny(page) {
   await page.waitForTimeout(900);
 }
 
-async function scrapeAllTimeEngagementStats(page) {
+async function scrapeAllTimeEngagementStats(page, debugContext = {}) {
   await openStatsTab(page);
   await forceSelectAllTime(page);
   await selectPlatformAny(page);
   const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
-  const stats = compactStats(parsePlatformStats(text));
+  const stats = compactStats(parsePlatformStats(text, { ...debugContext, source: 'STATS All time body' }));
   return { ok: Boolean(Object.keys(stats).length), stats, timeRange: 'all-time-or-fallback' };
 }
 
@@ -407,15 +429,17 @@ async function scrapeCreation(page, creation) {
   await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   await page.waitForTimeout(SLOW_MS);
 
+  const debugLikes = parseNumberValue(creation.likes) > LIKE_DEBUG_THRESHOLD;
+  const debugContext = { debug: debugLikes, title: creation.title };
   const finalUrl = page.url() || url;
   const title = await scrapeTitle(page, creation.title, titleFromUrl(finalUrl) || titleFromUrl(url));
   const coverImage = normalizeImageUrl(await scrapeCoverImage(page), url);
-  const allTime = await scrapeAllTimeEngagementStats(page);
+  const allTime = await scrapeAllTimeEngagementStats(page, debugContext);
   let fallbackStats = {};
   if (!allTime.ok) {
     await openDetailsTab(page);
     const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
-    fallbackStats = compactStats(parsePlatformStats(text));
+    fallbackStats = compactStats(parsePlatformStats(text, { ...debugContext, source: 'DETAILS fallback body' }));
   }
 
   const stats = {
