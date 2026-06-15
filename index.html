@@ -31,9 +31,22 @@
       </nav>
 
       <div class="nav-right">
-        <button class="lang-switch" id="langSwitch" data-lang-toggle>
-          EN
-        </button>
+        <!-- Language dropdown (7 languages) -->
+        <div class="lang-dropdown">
+          <button class="lang-switch" id="langSwitch" data-lang-toggle>
+            🌍 EN ▾
+          </button>
+
+          <div class="lang-menu" id="langMenu">
+            <button data-lang="en">English</button>
+            <button data-lang="zh">中文</button>
+            <button data-lang="ja">日本語</button>
+            <button data-lang="ko">한국어</button>
+            <button data-lang="ru">Русский</button>
+            <button data-lang="fr">Français</button>
+            <button data-lang="de">Deutsch</button>
+          </div>
+        </div>
 
         <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
           <span></span>
