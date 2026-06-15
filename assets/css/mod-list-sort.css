@@ -1,5 +1,5 @@
-/* TownGG Portfolio v2.04.52
-   Mods page list sorting controls. */
+/* TownGG Portfolio v2.04.54
+   Mods page list and table sorting controls. */
 
 .mod-platforms .mods-sort-control {
   display: inline-flex;
@@ -63,6 +63,57 @@
 .mod-platforms .mods-control-bar {
   grid-template-columns: minmax(260px, auto) minmax(190px, max-content) 1fr;
   gap: 18px;
+}
+
+.dashboard-table[data-sortable-table="creations"] th {
+  user-select: none;
+}
+
+.dashboard-table-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 900;
+  letter-spacing: inherit;
+  text-align: left;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.dashboard-table-sort::after {
+  content: "↕";
+  color: rgba(125, 216, 255, .46);
+  font-size: 12px;
+  line-height: 1;
+  opacity: .7;
+}
+
+.dashboard-table-sort:hover,
+.dashboard-table-sort:focus-visible {
+  color: #eaf8ff;
+  outline: none;
+}
+
+.dashboard-table th.is-sorted .dashboard-table-sort {
+  color: var(--blue);
+}
+
+.dashboard-table th.is-sorted[data-sort-direction="desc"] .dashboard-table-sort::after {
+  content: "↓";
+  color: var(--blue);
+  opacity: 1;
+}
+
+.dashboard-table th.is-sorted[data-sort-direction="asc"] .dashboard-table-sort::after {
+  content: "↑";
+  color: var(--blue);
+  opacity: 1;
 }
 
 @media (max-width: 980px) {
