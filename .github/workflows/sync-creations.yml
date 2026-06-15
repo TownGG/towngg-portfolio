@@ -45,7 +45,19 @@ jobs:
       - name: Sync Bethesda Creations stats and covers
         run: npm run cc:sync
 
+      - name: Check Creations data changes
+        id: cc_changes
+        run: |
+          if git diff --quiet -- assets/js/site-data.js; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No Creations data changes detected after sync. Timestamp and history will not be updated."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Creations data changed. Timestamp and history will be updated."
+          fi
+
       - name: Stamp Creations sync time and history
+        if: steps.cc_changes.outputs.changed == 'true'
         run: |
           node <<'NODE'
           const fs = require('fs');
