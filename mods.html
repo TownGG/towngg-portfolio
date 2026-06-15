@@ -64,6 +64,22 @@
 
           <div class="dashboard-summary" data-dashboard-summary></div>
 
+          <div class="dashboard-panel">
+            <div class="dashboard-toolbar">
+              <h3>Trend</h3>
+              <div class="dashboard-controls">
+                <select data-dashboard-mod aria-label="Filter by mod"></select>
+                <select data-dashboard-metric aria-label="Choose metric">
+                  <option value="daily_downloads">Daily downloads</option>
+                  <option value="total_downloads">Total downloads</option>
+                  <option value="unique_downloads">Unique downloads</option>
+                  <option value="likes">Endorsements</option>
+                </select>
+              </div>
+            </div>
+            <div class="dashboard-chart" data-dashboard-chart></div>
+          </div>
+
           <div class="mods-control-bar">
             <div class="mods-platform-control">
               <div class="platform-tabs" role="tablist" aria-label="Mod platform">
@@ -92,22 +108,6 @@
           </div>
 
           <div class="projects" data-all-mods></div>
-
-          <div class="dashboard-panel">
-            <div class="dashboard-toolbar">
-              <h3>Trend</h3>
-              <div class="dashboard-controls">
-                <select data-dashboard-mod aria-label="Filter by mod"></select>
-                <select data-dashboard-metric aria-label="Choose metric">
-                  <option value="daily_downloads">Daily downloads</option>
-                  <option value="total_downloads">Total downloads</option>
-                  <option value="unique_downloads">Unique downloads</option>
-                  <option value="likes">Endorsements</option>
-                </select>
-              </div>
-            </div>
-            <div class="dashboard-chart" data-dashboard-chart></div>
-          </div>
 
           <div class="dashboard-panel">
             <div class="dashboard-toolbar">
