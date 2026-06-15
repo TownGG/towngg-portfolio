@@ -38,97 +38,28 @@ function formatNumberValue(value) {
   return value > 0 ? numberFormat.format(Math.round(value)) : null;
 }
 
-function findValueAfterLabel(lines, labels) {
-  const labelPattern = new RegExp(`^(${labels.map(escapeRegExp).join('|')})$`, 'i');
-  for (let index = 0; index < lines.length; index += 1) {
-    if (!labelPattern.test(lines[index])) continue;
-    for (let valueIndex = index + 1; valueIndex < Math.min(lines.length, index + 5); valueIndex += 1) {
-      if (/^[0-9][0-9,.]*$/.test(lines[valueIndex])) return parseNumberValue(lines[valueIndex]);
-    }
-  }
-  return 0;
-}
-
-function parsePlatformSections(text) {
-  const lines = String(text || '').replace(/\u00a0/g, ' ').split(/\n+/).map((line) => line.trim()).filter(Boolean);
-  const platformRegex = /^(Xbox|Playstation|PlayStation|Computer|PC|电脑|计算机)$/i;
-  const totals = { likes: 0, downloads: 0, bookmarks: 0, views: 0, plays: 0, libraryAdds: 0 };
-  let foundPlatforms = 0;
-
-  for (let index = 0; index < lines.length; index += 1) {
-    if (!platformRegex.test(lines[index])) continue;
-    foundPlatforms += 1;
-    const section = [];
-    for (let sectionIndex = index + 1; sectionIndex < lines.length; sectionIndex += 1) {
-      if (platformRegex.test(lines[sectionIndex])) break;
-      if (/^(VERSION|DETAILS|LAST UPDATE|CREATED ON|INSTALLATION SIZE|版本|详情|最新更新|创建日|安装大小|适用于)$/i.test(lines[sectionIndex])) break;
-      section.push(lines[sectionIndex]);
-    }
-
-    totals.likes += findValueAfterLabel(section, ['LIKES', 'LIKE', '喜欢']);
-    totals.downloads += findValueAfterLabel(section, ['DOWNLOADS', 'DOWNLOAD', '下载']);
-    totals.bookmarks += findValueAfterLabel(section, ['BOOKMARKS', 'BOOKMARK', '书签']);
-    totals.views += findValueAfterLabel(section, ['VIEWS', 'VIEW', '查看']);
-    totals.plays += findValueAfterLabel(section, ['PLAYS', 'PLAY', '播放数']);
-    totals.libraryAdds += findValueAfterLabel(section, ['SUBSCRIBES', 'SUBSCRIBE', 'SUBSCRIPTIONS', '订阅数']);
-  }
-
-  if (!foundPlatforms) return {};
-  return Object.fromEntries(
-    Object.entries(totals)
-      .map(([key, value]) => [key, formatNumberValue(value)])
-      .filter(([, value]) => value)
-  );
-}
-
-function aggregateLabeledNumbers(text, labels) {
-  const normalized = String(text || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
-  let total = 0;
-
-  for (const label of labels) {
-    const pattern = new RegExp(`\\b${escapeRegExp(label)}\\b[^0-9]{0,80}([0-9][0-9,.]*)`, 'gi');
-    for (const match of normalized.matchAll(pattern)) {
-      total += parseNumberValue(match[1]);
-    }
-  }
-
-  return total > 0 ? numberFormat.format(Math.round(total)) : null;
-}
-
-function parsePlatformStats(text) {
-  const sectionStats = parsePlatformSections(text);
-  if (Object.keys(sectionStats).length) return sectionStats;
-
-  return {
-    likes: aggregateLabeledNumbers(text, ['likes', 'like', '喜欢']),
-    downloads: aggregateLabeledNumbers(text, ['downloads', 'download', '下载']),
-    bookmarks: aggregateLabeledNumbers(text, ['bookmarks', 'bookmark', '书签']),
-    views: aggregateLabeledNumbers(text, ['views', 'view', '查看']),
-    plays: aggregateLabeledNumbers(text, ['plays', 'play', '播放数']),
-    libraryAdds: aggregateLabeledNumbers(text, ['subscribes', 'subscribe', 'subscriptions', 'library adds', 'library add', '订阅数'])
-  };
-}
-
-function compactStats(stats) {
-  return Object.fromEntries(Object.entries(stats).filter(([, value]) => value));
-}
-
-function normalizeImageUrl(value, pageUrl) {
-  if (!value) return null;
-  const raw = String(value).trim();
-  if (!raw || raw.startsWith('data:') || raw.startsWith('blob:')) return null;
-  try {
-    const url = new URL(raw, pageUrl).toString();
-    if (!/^https?:\/\//i.test(url)) return null;
-    if (/favicon|avatar|logo|icon|spinner|placeholder/i.test(url)) return null;
-    return url;
-  } catch {
-    return null;
-  }
+function normalize(value) {
+  return String(value || '').trim().toLowerCase().replace(/\/$/, '');
 }
 
 function getCreationUrl(creation) {
-  return creation?.links?.find((link) => /creations\.bethesda\.net/i.test(link.url))?.url;
+  return creation?.links?.find((link) => /creations\.bethesda\.net/i.test(link.url))?.url || '';
+}
+
+function stableCreationKeyFromUrl(url) {
+  const raw = String(url || '');
+  const uuid = raw.match(/\/details\/([0-9a-f-]{36})(?:\/|$)/i)?.[1];
+  return uuid ? uuid.toLowerCase() : normalize(raw.split('?')[0].split('#')[0]);
+}
+
+function stableCreationKey(creation) {
+  return creation?.creationKey
+    || creation?.creation_key
+    || creation?.creationId
+    || creation?.contentId
+    || creation?.content_id
+    || stableCreationKeyFromUrl(getCreationUrl(creation))
+    || normalize(creation?.title);
 }
 
 function shouldSyncCreation(creation) {
@@ -183,21 +114,36 @@ function findCreationsArrayRange(source) {
   return { openIndex, closeIndex };
 }
 
-function replaceCreationObject(source, title, nextObjectText) {
+function replaceCreationObjectByKey(source, creation, nextObjectText) {
   const range = findCreationsArrayRange(source);
   if (!range) return source;
 
   const segment = source.slice(range.openIndex + 1, range.closeIndex);
-  const escapedTitle = JSON.stringify(title).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const titlePattern = new RegExp(`\\{\\s*title:\\s*${escapedTitle}`);
-  const match = titlePattern.exec(segment);
-  if (!match) return source;
+  const targetKey = stableCreationKey(creation);
+  const objectPattern = /\{\s*title\s*:/g;
+  let match;
 
-  const objectStart = range.openIndex + 1 + match.index;
-  const objectEnd = findMatchingBrace(source, objectStart);
-  if (objectEnd < 0 || objectEnd > range.closeIndex) return source;
+  while ((match = objectPattern.exec(segment))) {
+    const objectStart = range.openIndex + 1 + match.index;
+    const objectEnd = findMatchingBrace(source, objectStart);
+    if (objectEnd < 0 || objectEnd > range.closeIndex) continue;
 
-  return source.slice(0, objectStart) + nextObjectText + source.slice(objectEnd + 1);
+    const objectText = source.slice(objectStart, objectEnd + 1);
+    let candidate = null;
+    try {
+      const context = { value: null };
+      vm.createContext(context);
+      vm.runInContext(`value = (${objectText});`, context);
+      candidate = context.value;
+    } catch {
+      candidate = null;
+    }
+
+    if (!candidate || stableCreationKey(candidate) !== targetKey) continue;
+    return source.slice(0, objectStart) + nextObjectText + source.slice(objectEnd + 1);
+  }
+
+  return source;
 }
 
 function jsString(value) {
@@ -261,6 +207,39 @@ async function closeContext(context) {
   if (browser) await browser.close();
 }
 
+async function scrapeTitle(page, fallbackTitle) {
+  return page.evaluate((fallback) => {
+    const clean = (value) => String(value || '')
+      .replace(/\s+\|\s*Bethesda.*$/i, '')
+      .replace(/\s+-\s*Bethesda.*$/i, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const candidates = [
+      document.querySelector('h1')?.innerText,
+      document.querySelector('[data-testid="creation-title"]')?.textContent,
+      document.querySelector('meta[property="og:title"]')?.getAttribute('content'),
+      document.title
+    ].map(clean).filter(Boolean);
+
+    return candidates.find((item) => !/^bethesda creations?$/i.test(item)) || fallback;
+  }, fallbackTitle).catch(() => fallbackTitle);
+}
+
+function normalizeImageUrl(value, pageUrl) {
+  if (!value) return null;
+  const raw = String(value).trim();
+  if (!raw || raw.startsWith('data:') || raw.startsWith('blob:')) return null;
+  try {
+    const url = new URL(raw, pageUrl).toString();
+    if (!/^https?:\/\//i.test(url)) return null;
+    if (/favicon|avatar|logo|icon|spinner|placeholder/i.test(url)) return null;
+    return url;
+  } catch {
+    return null;
+  }
+}
+
 async function scrapeCoverImage(page) {
   return page.evaluate(() => {
     const candidates = [...document.images]
@@ -291,29 +270,33 @@ async function scrapeCoverImage(page) {
   });
 }
 
-async function scrapeAllPlatformsStats(page) {
-  return page.evaluate(() => {
-    const parseNumber = (value) => {
-      const number = Number(String(value || '').replace(/[^0-9.]/g, ''));
-      return Number.isFinite(number) && number > 0 ? Math.round(number).toLocaleString('en-US') : null;
-    };
+function compactStats(stats) {
+  return Object.fromEntries(Object.entries(stats).filter(([, value]) => value));
+}
 
-    const root = document.querySelector('#ugc-content') || document.body;
-    const text = (root.innerText || root.textContent || '').replace(/\u00a0/g, ' ').trim();
-    const lines = text.split(/\n+/).map((line) => line.trim()).filter(Boolean);
-    const candidates = lines.filter((line) => /all platforms|所有平台|by towngg|^[0-9][0-9,.]*$/i.test(line));
-    const numbers = candidates.filter((line) => /^[0-9][0-9,.]*$/.test(line));
+function aggregateLabeledNumbers(text, labels) {
+  const normalized = String(text || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
+  let total = 0;
 
-    if (numbers.length >= 2) {
-      return {
-        likes: parseNumber(numbers[0]),
-        downloads: parseNumber(numbers[1]),
-        _topDebug: `${numbers[0]} / ${numbers[1]}`
-      };
+  for (const label of labels) {
+    const pattern = new RegExp(`\\b${escapeRegExp(label)}\\b[^0-9]{0,80}([0-9][0-9,.]*)`, 'gi');
+    for (const match of normalized.matchAll(pattern)) {
+      total += parseNumberValue(match[1]);
     }
+  }
 
-    return {};
-  });
+  return total > 0 ? numberFormat.format(Math.round(total)) : null;
+}
+
+function parsePlatformStats(text) {
+  return {
+    likes: aggregateLabeledNumbers(text, ['likes', 'like', '喜欢']),
+    downloads: aggregateLabeledNumbers(text, ['downloads', 'download', '下载']),
+    bookmarks: aggregateLabeledNumbers(text, ['bookmarks', 'bookmark', '书签']),
+    views: aggregateLabeledNumbers(text, ['views', 'view', '查看']),
+    plays: aggregateLabeledNumbers(text, ['plays', 'play', '播放数']),
+    libraryAdds: aggregateLabeledNumbers(text, ['subscribes', 'subscribe', 'subscriptions', 'library adds', 'library add', '订阅数'])
+  };
 }
 
 async function openDetailsTab(page) {
@@ -353,109 +336,17 @@ async function selectPlatformAny(page) {
   await page.waitForTimeout(900);
 }
 
-async function selectedTimeRangeLabel(page) {
-  return page.evaluate(() => {
-    const text = (document.body.innerText || document.body.textContent || '').replace(/\u00a0/g, ' ');
-    const lines = text.split(/\n+/).map((line) => line.trim()).filter(Boolean);
-    for (let index = 0; index < lines.length; index += 1) {
-      if (/^time\s*range$/i.test(lines[index]) && lines[index + 1]) return lines[index + 1];
-      const inline = lines[index].match(/time\s*range\s*:?\s*(all\s*time|daily|weekly|monthly|yearly|today|last[^\n]+)/i);
-      if (inline) return inline[1];
-    }
-    return '';
-  }).catch(() => '');
-}
-
-function findMetricNumber(text, labels) {
-  const lines = String(text || '').replace(/\u00a0/g, ' ').split(/\n+/).map((line) => line.trim()).filter(Boolean);
-  const labelPattern = new RegExp(`^(${labels.map(escapeRegExp).join('|')})$`, 'i');
-  const inlinePattern = new RegExp(`^(${labels.map(escapeRegExp).join('|')})\\s*:?\\s*([0-9][0-9,.]*)$`, 'i');
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const inline = lines[index].match(inlinePattern);
-    if (inline) return parseNumberValue(inline[2]);
-    if (!labelPattern.test(lines[index])) continue;
-    for (let valueIndex = index + 1; valueIndex < Math.min(lines.length, index + 5); valueIndex += 1) {
-      if (/^[0-9][0-9,.]*$/.test(lines[valueIndex])) return parseNumberValue(lines[valueIndex]);
-    }
-  }
-
-  const normalized = lines.join(' ');
-  for (const label of labels) {
-    const pattern = new RegExp(`\\b${escapeRegExp(label)}\\b[^0-9]{0,60}([0-9][0-9,.]*)`, 'i');
-    const match = normalized.match(pattern);
-    if (match) return parseNumberValue(match[1]);
-  }
-  return 0;
-}
-
-function parseAllTimeStatsText(text) {
-  const metrics = {
-    views: ['Views', 'View', '查看'],
-    plays: ['Plays', 'Play', '游玩数', '播放数'],
-    bookmarks: ['Bookmarks', 'Bookmark', '书签数', '书签'],
-    libraryAdds: ['Library Adds', 'Library Add', '库添加数', '加入库', '加入收藏库']
-  };
-  const parsed = {};
-  for (const [key, labels] of Object.entries(metrics)) parsed[key] = formatNumberValue(findMetricNumber(text, labels));
-  return compactStats(parsed);
-}
-
-function statNumeric(stats, key) {
-  return parseNumberValue(stats[key]);
-}
-
-function allTimeStatsRank(stats) {
-  const completeness = ['views', 'plays', 'bookmarks', 'libraryAdds'].reduce((score, key) => score + (stats[key] ? 1 : 0), 0);
-  const magnitude = statNumeric(stats, 'plays') * 1000000 + statNumeric(stats, 'libraryAdds') * 1000 + statNumeric(stats, 'bookmarks') * 100 + statNumeric(stats, 'views');
-  return completeness * 1000000000000000 + magnitude;
-}
-
-async function hoverAllTimeStats(page) {
-  const boxes = await page.locator('svg, canvas').evaluateAll((nodes) => nodes
-    .map((node) => {
-      const rect = node.getBoundingClientRect();
-      return { x: rect.left, y: rect.top, width: rect.width, height: rect.height, area: rect.width * rect.height };
-    })
-    .filter((rect) => rect.width > 180 && rect.height > 100 && rect.y > 0)
-    .sort((a, b) => b.area - a.area)
-    .slice(0, 3)
-  ).catch(() => []);
-
-  const samples = [];
-  boxes.forEach((box) => {
-    [0.995, 0.98, 0.94, 0.9, 0.78, 0.6, 0.42, 0.24, 0.08].forEach((xFactor) => {
-      [0.18, 0.35, 0.52, 0.7, 0.86].forEach((yFactor) => samples.push({ x: box.x + box.width * xFactor, y: box.y + box.height * yFactor }));
-    });
-  });
-
-  let bestStats = {};
-  for (const point of samples) {
-    await page.mouse.move(point.x, point.y).catch(() => {});
-    await page.waitForTimeout(140);
-    const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
-    const stats = parseAllTimeStatsText(text);
-    if (allTimeStatsRank(stats) > allTimeStatsRank(bestStats)) bestStats = stats;
-  }
-  return bestStats;
-}
-
 async function scrapeAllTimeEngagementStats(page) {
   await openStatsTab(page);
   await forceSelectAllTime(page);
   await selectPlatformAny(page);
-  const timeRange = await selectedTimeRangeLabel(page);
-  if (!/all\s*time|所有时间|全部时间/i.test(timeRange)) return { ok: false, timeRange };
-
-  const directText = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
-  let bestStats = parseAllTimeStatsText(directText);
-  const hoveredStats = await hoverAllTimeStats(page);
-  if (allTimeStatsRank(hoveredStats) > allTimeStatsRank(bestStats)) bestStats = hoveredStats;
-  return { ok: true, timeRange, stats: compactStats(bestStats) };
+  const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
+  const stats = compactStats(parsePlatformStats(text));
+  return { ok: Boolean(Object.keys(stats).length), stats, timeRange: 'all-time-or-fallback' };
 }
 
-function statsLine(stats, coverImage, timeline) {
-  return `timeline=${timeline || '-'}, likes=${stats.likes || '-'}, downloads=${stats.downloads || '-'}, cover=${coverImage ? 'yes' : 'no'}, views=${stats.views || '-'}, plays=${stats.plays || '-'}, bookmarks=${stats.bookmarks || '-'}, libraryAdds=${stats.libraryAdds || '-'}`;
+function statsLine(stats, coverImage, title, oldTitle) {
+  return `title=${title && title !== oldTitle ? `${oldTitle} -> ${title}` : title || oldTitle}, likes=${stats.likes || '-'}, downloads=${stats.downloads || '-'}, cover=${coverImage ? 'yes' : 'no'}, views=${stats.views || '-'}, plays=${stats.plays || '-'}, bookmarks=${stats.bookmarks || '-'}, libraryAdds=${stats.libraryAdds || '-'}`;
 }
 
 async function scrapeCreation(page, creation) {
@@ -466,31 +357,26 @@ async function scrapeCreation(page, creation) {
   await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   await page.waitForTimeout(SLOW_MS);
 
+  const title = await scrapeTitle(page, creation.title);
   const coverImage = normalizeImageUrl(await scrapeCoverImage(page), url);
-  const allPlatformsStatsRaw = compactStats(await scrapeAllPlatformsStats(page));
-  const allPlatformsStats = { ...allPlatformsStatsRaw };
-  const topDebug = allPlatformsStats._topDebug;
-  delete allPlatformsStats._topDebug;
-
   const allTime = await scrapeAllTimeEngagementStats(page);
   let fallbackStats = {};
   if (!allTime.ok) {
     await openDetailsTab(page);
-    const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS });
+    const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
     fallbackStats = compactStats(parsePlatformStats(text));
   }
 
   const stats = {
     ...fallbackStats,
-    ...(allTime.ok ? allTime.stats : {}),
-    ...allPlatformsStats
+    ...(allTime.ok ? allTime.stats : {})
   };
 
-  if (!Object.keys(stats).length && !coverImage) {
-    return { ok: false, error: 'no_stats_or_cover_found' };
+  if (!Object.keys(stats).length && !coverImage && title === creation.title) {
+    return { ok: false, error: 'no_stats_cover_or_title_found' };
   }
 
-  return { ok: true, stats, coverImage, topDebug, timeline: allTime.ok ? allTime.timeRange : `fallback:${allTime.timeRange || 'unknown'}` };
+  return { ok: true, title, stats, coverImage };
 }
 
 async function login() {
@@ -539,14 +425,16 @@ async function sync() {
 
       const merged = {
         ...creation,
+        title: result.title || creation.title,
+        alt: creation.alt ? String(creation.alt).replace(creation.title, result.title || creation.title) : creation.alt,
         ...result.stats,
         ...(result.coverImage ? { image: result.coverImage } : {}),
         updatedAt: today,
         source: 'Browser Capture'
       };
-      nextSource = replaceCreationObject(nextSource, creation.title, renderCreationObject(merged));
+      nextSource = replaceCreationObjectByKey(nextSource, creation, renderCreationObject(merged));
       success += 1;
-      console.log(statsLine(result.stats, result.coverImage, result.timeline));
+      console.log(statsLine(result.stats, result.coverImage, result.title, creation.title));
     } catch (error) {
       failed += 1;
       console.log(`kept old data (${error.message})`);
