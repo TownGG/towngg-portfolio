@@ -14,6 +14,7 @@ const TIMEOUT_MS = Number(process.env.CC_TIMEOUT_MS || 45000);
 const COOKIE_WARNING_HOURS = Number(process.env.CC_COOKIE_WARNING_HOURS || 6);
 const CREATIONS_HOME = 'https://creations.bethesda.net/en/starfield/all?author_displayname=TownGG';
 const TRACKED_COOKIES = ['bnet-session', 'bnet-username', 'attunement:refresh.prod'];
+const REQUIRED_AUTH_COOKIES = ['bnet-session', 'attunement:refresh.prod'];
 
 async function fileExists(filePath) {
   try {
@@ -141,13 +142,15 @@ function printCookieExpiry(infos) {
 
 function cookieAuthHealth(infos) {
   if (!infos.length) return { ok: false, reason: 'no_cookie_info' };
-  const readable = infos.filter((item) => item.found && item.expires);
-  if (!readable.length) return { ok: false, reason: 'no_readable_cookie_expiry' };
 
-  const expired = readable.find((item) => item.remainingSeconds !== null && item.remainingSeconds <= 0);
-  if (expired) return { ok: false, reason: `${expired.name}_expired` };
+  for (const name of REQUIRED_AUTH_COOKIES) {
+    const item = infos.find((candidate) => candidate.name === name);
+    if (!item || !item.found) return { ok: false, reason: `${name}_missing` };
+    if (!item.expires) return { ok: false, reason: `${name}_expiry_unknown` };
+    if (item.remainingSeconds !== null && item.remainingSeconds <= 0) return { ok: false, reason: `${name}_expired` };
+  }
 
-  return { ok: true, reason: 'cookies_not_expired' };
+  return { ok: true, reason: 'required_cookies_not_expired' };
 }
 
 async function firstCreationUrl() {
@@ -201,6 +204,11 @@ const cookieInfos = await cookieExpiryInfos();
 printCookieExpiry(cookieInfos);
 const cookieHealth = cookieAuthHealth(cookieInfos);
 console.log(`[AUTH_COOKIE_FINAL] valid=${yn(cookieHealth.ok)}, reason=${cookieHealth.reason}`);
+if (!cookieHealth.ok) {
+  console.log('[AUTH_STATUS_FINAL] confirmed=no');
+  console.error(`[AUTH_STATUS_FINAL] Cookie validation failed: ${cookieHealth.reason}. Stop sync before opening Bethesda pages.`);
+  process.exit(1);
+}
 
 const context = await openContext();
 const page = context.pages()[0] || await context.newPage();
@@ -228,8 +236,7 @@ try {
   const confirmed = cookieHealth.ok && pageConfirmed;
   console.log(`[AUTH_STATUS_FINAL] confirmed=${yn(confirmed)}`);
   if (!confirmed) {
-    if (!cookieHealth.ok) console.error(`[AUTH_STATUS_FINAL] Cookie validation failed: ${cookieHealth.reason}. Stop sync before opening data capture.`);
-    else console.error('[AUTH_STATUS_FINAL] Bethesda login is not confirmed. Stop sync to avoid writing public/partial stats.');
+    console.error('[AUTH_STATUS_FINAL] Bethesda login is not confirmed. Stop sync to avoid writing public/partial stats.');
     process.exitCode = 1;
   }
 } finally {
