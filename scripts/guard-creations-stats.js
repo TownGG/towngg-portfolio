@@ -105,6 +105,11 @@ function getOldSource() {
   }
 }
 
+function valueLabel(value) {
+  const text = String(value || '').trim();
+  return text || '-';
+}
+
 const oldSource = getOldSource();
 if (!oldSource) {
   console.log('[GUARD] skipped: no previous site-data.js found in HEAD.');
@@ -116,6 +121,8 @@ const oldData = loadSiteData(oldSource);
 const newData = loadSiteData(nextSource);
 const oldByKey = new Map((oldData.creations || []).map((item) => [stableKey(item), item]));
 let corrections = 0;
+let checked = 0;
+let accepted = 0;
 
 for (const item of newData.creations || []) {
   const key = stableKey(item);
@@ -132,13 +139,25 @@ for (const item of newData.creations || []) {
     const newValue = item[statKey];
     const oldNumber = parseNumberValue(oldValue);
     const newNumber = parseNumberValue(newValue);
-    if (oldNumber <= 0) continue;
-    if (newNumber >= oldNumber) continue;
+    checked += 1;
 
-    objectText = replaceStringField(objectText, statKey, oldValue);
-    changed = true;
-    corrections += 1;
-    console.log(`[GUARD_REJECTED] title=${item.title || previous.title || '-'} field=${statKey} old=${oldValue || '-'} new=${newValue || '-'} reason=new_less_than_existing`);
+    if (oldNumber <= 0 && newNumber <= 0) {
+      console.log(`[GUARD_CHECK] title=${item.title || previous.title || '-'} field=${statKey} current=${valueLabel(oldValue)} scraped=${valueLabel(newValue)} decision=keep_empty`);
+      continue;
+    }
+
+    if (newNumber < oldNumber) {
+      console.log(`[GUARD_CHECK] title=${item.title || previous.title || '-'} field=${statKey} current=${valueLabel(oldValue)} scraped=${valueLabel(newValue)} decision=reject_lower`);
+      objectText = replaceStringField(objectText, statKey, oldValue);
+      changed = true;
+      corrections += 1;
+      console.log(`[GUARD_REJECTED] title=${item.title || previous.title || '-'} field=${statKey} current=${valueLabel(oldValue)} scraped=${valueLabel(newValue)} final=${valueLabel(oldValue)} reason=new_less_than_existing`);
+      continue;
+    }
+
+    accepted += 1;
+    const decision = newNumber > oldNumber ? 'accept_increase' : 'keep_equal';
+    console.log(`[GUARD_CHECK] title=${item.title || previous.title || '-'} field=${statKey} current=${valueLabel(oldValue)} scraped=${valueLabel(newValue)} decision=${decision}`);
   }
 
   if (changed) {
@@ -147,4 +166,4 @@ for (const item of newData.creations || []) {
 }
 
 if (corrections > 0) fs.writeFileSync(SITE_DATA_PATH, nextSource, 'utf8');
-console.log(`[GUARD] Creations non-decreasing stat guard complete: ${corrections} correction(s).`);
+console.log(`[GUARD] Creations non-decreasing stat guard complete: checked=${checked}, accepted=${accepted}, rejected=${corrections}.`);
