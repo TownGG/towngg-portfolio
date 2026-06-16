@@ -1,0 +1,150 @@
+import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import vm from 'node:vm';
+
+const SITE_DATA_PATH = 'assets/js/site-data.js';
+const STAT_KEYS = ['views', 'bookmarks', 'likes', 'downloads', 'plays', 'libraryAdds'];
+
+function loadSiteData(source) {
+  const context = { window: {} };
+  vm.createContext(context);
+  vm.runInContext(source, context, { filename: 'site-data.js' });
+  return context.window.siteData || {};
+}
+
+function parseNumberValue(value) {
+  const number = Number(String(value || '').replace(/[^0-9.]/g, ''));
+  return Number.isFinite(number) ? number : 0;
+}
+
+function getCreationUrl(item) {
+  return item?.links?.find((link) => /creations\.bethesda\.net/i.test(link.url))?.url || '';
+}
+
+function stableKeyFromUrl(url) {
+  const raw = String(url || '');
+  const uuid = raw.match(/\/details\/([0-9a-f-]{36})(?:\/|$)/i)?.[1];
+  return uuid ? uuid.toLowerCase() : raw.split('?')[0].split('#')[0].replace(/\/$/, '').toLowerCase();
+}
+
+function stableKey(item) {
+  return stableKeyFromUrl(getCreationUrl(item)) || String(item?.title || '').trim().toLowerCase();
+}
+
+function findMatchingBrace(source, openIndex) {
+  let depth = 0;
+  let quote = null;
+  let escaped = false;
+  for (let index = openIndex; index < source.length; index += 1) {
+    const char = source[index];
+    if (quote) {
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === quote) quote = null;
+      continue;
+    }
+    if (char === '"' || char === "'" || char === '`') {
+      quote = char;
+      continue;
+    }
+    if (char === '{' || char === '[') depth += 1;
+    if (char === '}' || char === ']') {
+      depth -= 1;
+      if (depth === 0) return index;
+    }
+  }
+  return -1;
+}
+
+function findCreationsArrayRange(source) {
+  const match = /creations\s*:\s*\[/.exec(source);
+  if (!match) return null;
+  const openIndex = source.indexOf('[', match.index);
+  const closeIndex = findMatchingBrace(source, openIndex);
+  if (openIndex < 0 || closeIndex < 0) return null;
+  return { openIndex, closeIndex };
+}
+
+function findCreationObject(source, key) {
+  const range = findCreationsArrayRange(source);
+  if (!range) return null;
+  const objectPattern = /\{\s*title\s*:/g;
+  const segment = source.slice(range.openIndex + 1, range.closeIndex);
+  let match;
+  while ((match = objectPattern.exec(segment))) {
+    const objectStart = range.openIndex + 1 + match.index;
+    const objectEnd = findMatchingBrace(source, objectStart);
+    if (objectEnd < 0 || objectEnd > range.closeIndex) continue;
+    const objectText = source.slice(objectStart, objectEnd + 1);
+    try {
+      const context = { value: null };
+      vm.createContext(context);
+      vm.runInContext(`value = (${objectText});`, context);
+      if (stableKey(context.value) === key) return { objectStart, objectEnd, objectText };
+    } catch {
+      // Keep scanning.
+    }
+  }
+  return null;
+}
+
+function replaceStringField(objectText, key, value) {
+  const replacement = `${key}: ${JSON.stringify(String(value ?? ''))}`;
+  const fieldPattern = new RegExp(`${key}\\s*:\\s*"(?:\\\\.|[^"\\\\])*"`);
+  if (fieldPattern.test(objectText)) return objectText.replace(fieldPattern, replacement);
+  const insertBefore = objectText.match(/,\s*updatedAt\s*:/) || objectText.match(/,\s*source\s*:/) || objectText.match(/,\s*links\s*:/);
+  if (insertBefore?.index !== undefined) return `${objectText.slice(0, insertBefore.index)}, ${replacement}${objectText.slice(insertBefore.index)}`;
+  return objectText.replace(/\s*}$/, `, ${replacement} }`);
+}
+
+function getOldSource() {
+  try {
+    return execFileSync('git', ['show', `HEAD:${SITE_DATA_PATH}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+  } catch {
+    return '';
+  }
+}
+
+const oldSource = getOldSource();
+if (!oldSource) {
+  console.log('[GUARD] skipped: no previous site-data.js found in HEAD.');
+  process.exit(0);
+}
+
+let nextSource = fs.readFileSync(SITE_DATA_PATH, 'utf8');
+const oldData = loadSiteData(oldSource);
+const newData = loadSiteData(nextSource);
+const oldByKey = new Map((oldData.creations || []).map((item) => [stableKey(item), item]));
+let corrections = 0;
+
+for (const item of newData.creations || []) {
+  const key = stableKey(item);
+  const previous = oldByKey.get(key);
+  if (!previous) continue;
+  const found = findCreationObject(nextSource, key);
+  if (!found) continue;
+
+  let objectText = found.objectText;
+  let changed = false;
+
+  for (const statKey of STAT_KEYS) {
+    const oldValue = previous[statKey];
+    const newValue = item[statKey];
+    const oldNumber = parseNumberValue(oldValue);
+    const newNumber = parseNumberValue(newValue);
+    if (oldNumber <= 0) continue;
+    if (newNumber >= oldNumber) continue;
+
+    objectText = replaceStringField(objectText, statKey, oldValue);
+    changed = true;
+    corrections += 1;
+    console.log(`[GUARD_REJECTED] title=${item.title || previous.title || '-'} field=${statKey} old=${oldValue || '-'} new=${newValue || '-'} reason=new_less_than_existing`);
+  }
+
+  if (changed) {
+    nextSource = nextSource.slice(0, found.objectStart) + objectText + nextSource.slice(found.objectEnd + 1);
+  }
+}
+
+if (corrections > 0) fs.writeFileSync(SITE_DATA_PATH, nextSource, 'utf8');
+console.log(`[GUARD] Creations non-decreasing stat guard complete: ${corrections} correction(s).`);
