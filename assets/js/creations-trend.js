@@ -153,6 +153,7 @@
       `${points[points.length - 1].x.toFixed(2)},${(height - padBottom).toFixed(2)}`
     ].join(" ");
 
+    const linePoints = pointLine(points);
     const gridRows = [0, 1, 2, 3, 4].map((step) => {
       const y = padTop + (chartH / 4) * step;
       const label = Math.round(yMax * (1 - step / 4));
@@ -185,7 +186,8 @@
           </defs>
           ${gridRows}
           <polygon class="nexus-chart-area" points="${areaPoints}" fill="url(#creationsArea)"></polygon>
-          <polyline class="nexus-chart-line" points="${pointLine(points)}"></polyline>
+          <polyline class="nexus-chart-line nexus-chart-line-glow" points="${linePoints}" fill="none" stroke="rgba(116, 217, 255, 0.35)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"></polyline>
+          <polyline class="nexus-chart-line" points="${linePoints}" fill="none" stroke="rgba(116, 217, 255, 0.98)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>
           ${dots}
           ${labels}
         </svg>
