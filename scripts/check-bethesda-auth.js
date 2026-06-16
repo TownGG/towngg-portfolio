@@ -11,7 +11,9 @@ const STORAGE_PATH = path.join(AUTH_DIR, 'bethesda-storage.json');
 const HEADED_MODE = process.argv.includes('--headed');
 const HEADLESS = !HEADED_MODE && process.env.HEADLESS !== 'false';
 const TIMEOUT_MS = Number(process.env.CC_TIMEOUT_MS || 45000);
+const COOKIE_WARNING_HOURS = Number(process.env.CC_COOKIE_WARNING_HOURS || 6);
 const CREATIONS_HOME = 'https://creations.bethesda.net/en/starfield/all?author_displayname=TownGG';
+const TRACKED_COOKIES = ['bnet-session', 'bnet-username', 'attunement:refresh.prod'];
 
 async function fileExists(filePath) {
   try {
@@ -41,6 +43,100 @@ async function closeContext(context) {
 
 function yn(value) {
   return value ? 'yes' : 'no';
+}
+
+function padBase64Url(value) {
+  const raw = String(value || '').replace(/-/g, '+').replace(/_/g, '/');
+  return raw.padEnd(raw.length + ((4 - (raw.length % 4)) % 4), '=');
+}
+
+function jwtExpires(cookieValue) {
+  try {
+    const payload = String(cookieValue || '').split('.')[1];
+    if (!payload) return null;
+    const json = Buffer.from(padBase64Url(payload), 'base64').toString('utf8');
+    const parsed = JSON.parse(json);
+    const exp = Number(parsed.exp);
+    return Number.isFinite(exp) && exp > 0 ? exp : null;
+  } catch {
+    return null;
+  }
+}
+
+function formatShanghaiTime(epochSeconds) {
+  if (!epochSeconds) return '-';
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Shanghai',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(new Date(epochSeconds * 1000)).map((part) => [part.type, part.value])
+  );
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute} UTC+8`;
+}
+
+function remainingLabel(epochSeconds) {
+  if (!epochSeconds) return 'unknown';
+  const remainingSeconds = Math.floor(epochSeconds - Date.now() / 1000);
+  if (remainingSeconds <= 0) return 'expired';
+  const totalMinutes = Math.floor(remainingSeconds / 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours}h ${minutes}m`;
+}
+
+async function cookieExpiryInfos() {
+  if (!(await fileExists(STORAGE_PATH))) return [];
+  try {
+    const storage = JSON.parse(await fs.readFile(STORAGE_PATH, 'utf8'));
+    const cookies = Array.isArray(storage.cookies) ? storage.cookies : [];
+    return TRACKED_COOKIES.map((name) => {
+      const cookie = cookies.find((item) => item.name === name);
+      if (!cookie) return { name, found: false, expires: null, source: '-' };
+      const cookieExpires = Number(cookie.expires);
+      const jwtExp = jwtExpires(cookie.value);
+      const expires = cookieExpires > 0 ? cookieExpires : jwtExp;
+      const source = cookieExpires > 0 ? 'cookie-expires' : (jwtExp ? 'jwt-exp' : 'session-or-unknown');
+      const remainingSeconds = expires ? Math.floor(expires - Date.now() / 1000) : null;
+      return { name, found: true, expires, source, remainingSeconds };
+    });
+  } catch {
+    return [];
+  }
+}
+
+function printCookieExpiry(infos) {
+  if (!infos.length) {
+    console.log('[AUTH_COOKIE] skipped: no bethesda-storage.json or cookies could be read.');
+    return;
+  }
+
+  const expiring = infos.filter((item) => item.found && item.expires);
+  infos.forEach((item) => {
+    console.log(`[AUTH_COOKIE] name=${item.name}, found=${yn(item.found)}, source=${item.source || '-'}, expiresAt=${formatShanghaiTime(item.expires)}, remaining=${remainingLabel(item.expires)}`);
+  });
+
+  if (!expiring.length) {
+    console.log('[AUTH_COOKIE_SUMMARY] nearest=unknown, remaining=unknown, warning=yes');
+    console.log('[AUTH_COOKIE_WARNING] No readable auth cookie expiry found. Please verify Bethesda login state.');
+    return;
+  }
+
+  expiring.sort((a, b) => a.expires - b.expires);
+  const nearest = expiring[0];
+  const warningSeconds = COOKIE_WARNING_HOURS * 60 * 60;
+  const expired = nearest.remainingSeconds !== null && nearest.remainingSeconds <= 0;
+  const soon = nearest.remainingSeconds !== null && nearest.remainingSeconds > 0 && nearest.remainingSeconds <= warningSeconds;
+  console.log(`[AUTH_COOKIE_SUMMARY] nearest=${nearest.name}, expiresAt=${formatShanghaiTime(nearest.expires)}, remaining=${remainingLabel(nearest.expires)}, warning=${yn(expired || soon)}, warningThreshold=${COOKIE_WARNING_HOURS}h`);
+  if (expired) {
+    console.log(`[AUTH_COOKIE_WARNING] ${nearest.name} has expired. Refresh BETHESDA_STORAGE_STATE before syncing.`);
+  } else if (soon) {
+    console.log(`[AUTH_COOKIE_WARNING] ${nearest.name} will expire in ${remainingLabel(nearest.expires)}. Refresh BETHESDA_STORAGE_STATE soon.`);
+  }
 }
 
 async function firstCreationUrl() {
@@ -89,6 +185,8 @@ async function readAuthSignals(page) {
 function authLine(prefix, signals, url) {
   return `[${prefix}] status=${signals.status}, signInVisible=${yn(signals.signInVisible)}, signOutVisible=${yn(signals.signOutVisible)}, accountHint=${yn(signals.accountHint)}, allPlatformsLabel=${yn(signals.allPlatformsLabel)}, downloadsLabel=${yn(signals.downloadsLabel)}, libraryHint=${yn(signals.libraryHint)}, url=${url}`;
 }
+
+printCookieExpiry(await cookieExpiryInfos());
 
 const context = await openContext();
 const page = context.pages()[0] || await context.newPage();
