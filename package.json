@@ -7,8 +7,8 @@
     "cc:login": "node scripts/sync-creations.js --login",
     "cc:discover": "node scripts/discover-creations.js",
     "cc:discover:headed": "node scripts/discover-creations.js --headed",
-    "cc:sync": "node scripts/sync-creations.js",
-    "cc:sync:headed": "node scripts/sync-creations.js --headed",
+    "cc:sync": "node scripts/check-bethesda-auth.js && node scripts/sync-creations.js && node scripts/print-creations-stats.js",
+    "cc:sync:headed": "node scripts/check-bethesda-auth.js --headed && node scripts/sync-creations.js --headed && node scripts/print-creations-stats.js",
     "cc:debug": "node scripts/debug-creations.js --headed"
   },
   "devDependencies": {
