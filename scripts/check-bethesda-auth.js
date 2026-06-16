@@ -139,6 +139,17 @@ function printCookieExpiry(infos) {
   }
 }
 
+function cookieAuthHealth(infos) {
+  if (!infos.length) return { ok: false, reason: 'no_cookie_info' };
+  const readable = infos.filter((item) => item.found && item.expires);
+  if (!readable.length) return { ok: false, reason: 'no_readable_cookie_expiry' };
+
+  const expired = readable.find((item) => item.remainingSeconds !== null && item.remainingSeconds <= 0);
+  if (expired) return { ok: false, reason: `${expired.name}_expired` };
+
+  return { ok: true, reason: 'cookies_not_expired' };
+}
+
 async function firstCreationUrl() {
   try {
     const source = await fs.readFile(SITE_DATA_PATH, 'utf8');
@@ -186,7 +197,10 @@ function authLine(prefix, signals, url) {
   return `[${prefix}] status=${signals.status}, signInVisible=${yn(signals.signInVisible)}, signOutVisible=${yn(signals.signOutVisible)}, accountHint=${yn(signals.accountHint)}, allPlatformsLabel=${yn(signals.allPlatformsLabel)}, downloadsLabel=${yn(signals.downloadsLabel)}, libraryHint=${yn(signals.libraryHint)}, url=${url}`;
 }
 
-printCookieExpiry(await cookieExpiryInfos());
+const cookieInfos = await cookieExpiryInfos();
+printCookieExpiry(cookieInfos);
+const cookieHealth = cookieAuthHealth(cookieInfos);
+console.log(`[AUTH_COOKIE_FINAL] valid=${yn(cookieHealth.ok)}, reason=${cookieHealth.reason}`);
 
 const context = await openContext();
 const page = context.pages()[0] || await context.newPage();
@@ -210,10 +224,12 @@ try {
     console.log('[AUTH_STATUS_DETAIL] skipped: no Bethesda Creation detail URL found in site-data.js');
   }
 
-  const confirmed = homeSignals?.status === 'logged-in-likely' || detailSignals?.status === 'logged-in-likely';
+  const pageConfirmed = homeSignals?.status === 'logged-in-likely' || detailSignals?.status === 'logged-in-likely';
+  const confirmed = cookieHealth.ok && pageConfirmed;
   console.log(`[AUTH_STATUS_FINAL] confirmed=${yn(confirmed)}`);
   if (!confirmed) {
-    console.error('[AUTH_STATUS_FINAL] Bethesda login is not confirmed. Stop sync to avoid writing public/partial stats.');
+    if (!cookieHealth.ok) console.error(`[AUTH_STATUS_FINAL] Cookie validation failed: ${cookieHealth.reason}. Stop sync before opening data capture.`);
+    else console.error('[AUTH_STATUS_FINAL] Bethesda login is not confirmed. Stop sync to avoid writing public/partial stats.');
     process.exitCode = 1;
   }
 } finally {
