@@ -99,6 +99,20 @@
       links: [
         { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17461" }
       ]
+    },
+    {
+      title: "CPF-UC Vanguard Power Fist MK2",
+      category: "Nexus Mods / Auto Synced",
+      group: "Weapon",
+      image: "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781618537-305738080.png",
+      alt: "CPF-UC Vanguard Power Fist MK2 Nexus Mods cover image",
+      description: "Automatically synced from Nexus Mods.",
+      tags: ["Nexus", "Auto Synced", "Starfield"],
+      downloads: "2",
+      endorsements: "0",
+      links: [
+        { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17479" }
+      ]
     }
   ],
   creations: [
