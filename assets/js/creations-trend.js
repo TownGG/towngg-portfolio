@@ -5,7 +5,6 @@
 
   const numberFormatter = new Intl.NumberFormat("en-US");
   const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.04.41-preview";
-  let cachedRows = [];
   let cachedModDailyRows = [];
   let isRendering = false;
   let rerenderTimer = 0;
@@ -58,41 +57,17 @@
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   }
 
-  function snapshotsGroupedByDay(rows) {
+  function buildDailySeries(rows) {
     const groups = new Map();
     rows.forEach((row) => {
       if (!row.date) return;
-      const total = toNumber(row.total_downloads);
-      const timestamp = String(row.timestamp || "");
-      const current = groups.get(row.date) || { date: row.date, first: row, last: row, firstTotal: total, lastTotal: total };
-      if (!current.first || timestamp < String(current.first.timestamp || "")) {
-        current.first = row;
-        current.firstTotal = total;
-      }
-      if (!current.last || timestamp > String(current.last.timestamp || "")) {
-        current.last = row;
-        current.lastTotal = total;
-      }
+      const current = groups.get(row.date) || { date: row.date, value: 0 };
+      current.value += toNumber(row.daily_downloads);
       groups.set(row.date, current);
     });
-    return [...groups.values()].sort((a, b) => String(a.date).localeCompare(String(b.date)));
-  }
-
-  function buildDailySeries(rows) {
-    const groups = snapshotsGroupedByDay(rows);
-    if (!groups.length) return [];
-    return groups.map((group, index) => {
-      const current = group.lastTotal;
-      const previous = index > 0 ? groups[index - 1].lastTotal : group.firstTotal;
-      return { date: group.date, value: Math.max(0, current - previous), total: current };
-    }).slice(-7);
-  }
-
-  function latestModDailyTotal(rows) {
-    if (!rows.length) return null;
-    const latestDate = rows.map((row) => row.date).filter(Boolean).sort().at(-1);
-    if (!latestDate) return null;
-    return rows.filter((row) => row.date === latestDate).reduce((sum, row) => sum + toNumber(row.daily_downloads), 0);
+    return [...groups.values()]
+      .sort((a, b) => String(a.date).localeCompare(String(b.date)))
+      .slice(-7);
   }
 
   function currentCreationTotals() {
@@ -109,8 +84,7 @@
     const target = document.querySelector("[data-creations-summary]");
     if (!target) return;
     const totals = currentCreationTotals();
-    const perModDailyTotal = latestModDailyTotal(cachedModDailyRows);
-    const dailyDownloads = perModDailyTotal ?? data.at(-1)?.value ?? 0;
+    const dailyDownloads = data.at(-1)?.value ?? 0;
 
     target.innerHTML = [
       ["Daily Downloads", dailyDownloads],
@@ -135,7 +109,7 @@
     toolbar.innerHTML = `
       <div>
         <h3>7-Day Creations Downloads Trend</h3>
-        <p class="dashboard-note">Creations release activity based on tracked CC history. Showing actual daily downloads from CSV history. Latest snapshot: ${formatDateLabel(latestDate)}.</p>
+        <p class="dashboard-note">Creations release activity based on tracked per-mod daily downloads. Showing actual daily downloads from creations-mod-daily.csv. Latest snapshot: ${formatDateLabel(latestDate)}.</p>
       </div>
       <span class="telemetry-pill">Daily downloads</span>
     `;
@@ -150,7 +124,7 @@
     renderToolbar(data.at(-1)?.date || "");
 
     if (!data.length) {
-      chartEl.innerHTML = '<p class="section-desc">No Creations history data available yet. It will appear after the next scheduled CC sync.</p>';
+      chartEl.innerHTML = '<p class="section-desc">No Creations daily data available yet. It will appear after the next scheduled CC sync.</p>';
       isRendering = false;
       return;
     }
@@ -223,12 +197,6 @@
     isRendering = false;
   }
 
-  async function loadRows() {
-    const response = await fetch(`./assets/data/creations-history.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" });
-    if (!response.ok) return [];
-    return parseCSV(await response.text());
-  }
-
   async function loadModDailyRows() {
     const response = await fetch(`./assets/data/creations-mod-daily.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" });
     if (!response.ok) return [];
@@ -237,13 +205,12 @@
 
   function scheduleRender() {
     clearTimeout(rerenderTimer);
-    rerenderTimer = setTimeout(() => renderChart(cachedRows), 120);
+    rerenderTimer = setTimeout(() => renderChart(cachedModDailyRows), 120);
   }
 
-  Promise.all([loadRows(), loadModDailyRows]).then(([rows, modDailyRows]) => {
-    cachedRows = rows;
+  loadModDailyRows().then((modDailyRows) => {
     cachedModDailyRows = modDailyRows;
-    renderChart(rows);
+    renderChart(modDailyRows);
   }).catch(() => updateDailySummary([]));
 
   window.addEventListener("focus", scheduleRender);
