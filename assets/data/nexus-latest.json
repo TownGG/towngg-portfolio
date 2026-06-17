@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-17T00:01:04Z",
+  "updatedAt": "2026-06-17T00:31:04Z",
   "mods": [
     {
       "platform": "nexus",
@@ -91,9 +91,9 @@
       "mod_name": "UC VANGUARD POWER FIST MK2",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17479",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
-      "total_downloads": 31,
-      "unique_downloads": 31,
-      "daily_downloads": 0,
+      "total_downloads": 35,
+      "unique_downloads": 35,
+      "daily_downloads": 4,
       "likes": 1,
       "views": 0
     }
