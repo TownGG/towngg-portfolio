@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-17T14:31:15Z",
+  "updatedAt": "2026-06-17T15:01:12Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1312,
+      "total_downloads": 1313,
       "unique_downloads": 649,
-      "daily_downloads": 10,
+      "daily_downloads": 11,
       "likes": 27,
       "views": 0
     },
@@ -79,21 +79,21 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 165,
-      "unique_downloads": 157,
-      "daily_downloads": 11,
+      "total_downloads": 166,
+      "unique_downloads": 158,
+      "daily_downloads": 12,
       "likes": 7,
       "views": 0
     },
     {
       "platform": "nexus",
       "mod_id": "17479",
-      "mod_name": "UC VANGUARD POWER FIST MK2",
+      "mod_name": "CPF-UC VANGUARD POWER FIST MK2",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17479",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621810-1400361021.png",
-      "total_downloads": 48,
-      "unique_downloads": 46,
-      "daily_downloads": 17,
+      "total_downloads": 49,
+      "unique_downloads": 47,
+      "daily_downloads": 18,
       "likes": 2,
       "views": 0
     },
@@ -103,8 +103,8 @@
       "mod_name": "CPF-STARBORN POWER FIST UNITY",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
-      "total_downloads": 4,
-      "unique_downloads": 4,
+      "total_downloads": 8,
+      "unique_downloads": 8,
       "daily_downloads": 0,
       "likes": 0,
       "views": 0
