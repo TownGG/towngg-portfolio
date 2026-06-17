@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-17T12:31:09Z",
+  "updatedAt": "2026-06-17T13:01:14Z",
   "mods": [
     {
       "platform": "nexus",
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2067,
-      "unique_downloads": 1587,
-      "daily_downloads": 19,
+      "total_downloads": 2068,
+      "unique_downloads": 1588,
+      "daily_downloads": 20,
       "likes": 91,
       "views": 0
     },
@@ -91,10 +91,22 @@
       "mod_name": "UC VANGUARD POWER FIST MK2",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17479",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621810-1400361021.png",
-      "total_downloads": 44,
-      "unique_downloads": 43,
-      "daily_downloads": 13,
+      "total_downloads": 46,
+      "unique_downloads": 44,
+      "daily_downloads": 15,
       "likes": 2,
+      "views": 0
+    },
+    {
+      "platform": "nexus",
+      "mod_id": "17489",
+      "mod_name": "Nexus Mod 17489",
+      "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
+      "image_url": "",
+      "total_downloads": 0,
+      "unique_downloads": 0,
+      "daily_downloads": 0,
+      "likes": 0,
       "views": 0
     }
   ]
