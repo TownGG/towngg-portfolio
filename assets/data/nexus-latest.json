@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-17T20:31:16Z",
+  "updatedAt": "2026-06-17T20:57:54Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 419,
-      "unique_downloads": 321,
-      "daily_downloads": 6,
+      "total_downloads": 421,
+      "unique_downloads": 322,
+      "daily_downloads": 8,
       "likes": 23,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2078,
-      "unique_downloads": 1595,
-      "daily_downloads": 30,
+      "total_downloads": 2079,
+      "unique_downloads": 1596,
+      "daily_downloads": 31,
       "likes": 91,
       "views": 0
     },
@@ -91,10 +91,10 @@
       "mod_name": "CPF-UC VANGUARD POWER FIST MK2",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17479",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621810-1400361021.png",
-      "total_downloads": 57,
-      "unique_downloads": 53,
-      "daily_downloads": 26,
-      "likes": 2,
+      "total_downloads": 58,
+      "unique_downloads": 54,
+      "daily_downloads": 27,
+      "likes": 3,
       "views": 0
     },
     {
@@ -103,10 +103,10 @@
       "mod_name": "CPF-STARBORN POWER FIST UNITY",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
-      "total_downloads": 34,
-      "unique_downloads": 33,
+      "total_downloads": 35,
+      "unique_downloads": 34,
       "daily_downloads": 0,
-      "likes": 0,
+      "likes": 1,
       "views": 0
     }
   ]
