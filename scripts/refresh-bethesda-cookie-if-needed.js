@@ -180,6 +180,10 @@ function runGhCommand(args, options = {}) {
   });
 }
 
+function runGhSecretSetFromStorage() {
+  return runCommand(`gh secret set ${SECRET_NAME} --repo ${REPO} < "${STORAGE_PATH}"`, [], { shell: true });
+}
+
 async function backupStorage(readResult) {
   if (!readResult.readable) {
     console.log(`${PREFIX} No readable storage backup was created.`);
@@ -246,7 +250,7 @@ async function ensureGhReady() {
 async function uploadSecret() {
   if (!(await ensureGhReady())) return 1;
   console.log(`${PREFIX} Uploading refreshed storage to GitHub Secret ${SECRET_NAME}.`);
-  return runGhCommand(['secret', 'set', SECRET_NAME, '--repo', REPO, '--body-file', STORAGE_PATH]);
+  return runGhSecretSetFromStorage();
 }
 
 async function confirmUpload() {
@@ -262,7 +266,7 @@ async function rollbackSecret() {
   if (!restored) return;
 
   if (await ensureGhReady()) {
-    const uploadCode = await runGhCommand(['secret', 'set', SECRET_NAME, '--repo', REPO, '--body-file', STORAGE_PATH]);
+    const uploadCode = await runGhSecretSetFromStorage();
     if (uploadCode === 0) {
       console.log(`${PREFIX} Rolled back GitHub Secret ${SECRET_NAME} to the backup storage.`);
     } else {
