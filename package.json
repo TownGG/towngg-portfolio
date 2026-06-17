@@ -9,7 +9,8 @@
     "cc:discover:headed": "node scripts/discover-creations.js --headed",
     "cc:sync": "node scripts/sync-creations.js && node scripts/guard-creations-stats.js && node scripts/print-creations-stats.js",
     "cc:sync:headed": "node scripts/sync-creations.js --headed && node scripts/guard-creations-stats.js && node scripts/print-creations-stats.js",
-    "cc:debug": "node scripts/debug-creations.js --headed"
+    "cc:debug": "node scripts/debug-creations.js --headed",
+    "cc:secret:auto": "node scripts/refresh-bethesda-cookie-if-needed.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.53.0"
