@@ -23,8 +23,24 @@
     return String(url || "").includes("staticdelivery.nexusmods.com");
   }
 
+  function isAutoSyncedMod(mod) {
+    const tags = Array.isArray(mod.tags) ? mod.tags : [];
+    return /^Nexus Mod \d+$/i.test(String(mod.title || ""))
+      || mod.category === "Nexus Mods / Auto Synced"
+      || tags.some((tag) => String(tag).toLowerCase() === "auto synced");
+  }
+
+  function isLocalFallbackImage(url) {
+    const value = String(url || "");
+    return value.startsWith("./assets/images/mods/") || value.startsWith("assets/images/mods/");
+  }
+
   function latestImageFromRow(row) {
     return row?.image_url || row?.picture_url || row?.image || "";
+  }
+
+  function latestNameFromRow(row) {
+    return row?.mod_name || row?.name || "";
   }
 
   function getSiteMods() {
@@ -37,8 +53,14 @@
       const latest = byId.get(nexusIdFromMod(mod));
       if (!latest) return;
 
+      const autoSynced = isAutoSyncedMod(mod);
+      const latestName = latestNameFromRow(latest);
       const latestImage = latestImageFromRow(latest);
-      if (latestImage && isNexusImage(mod.image) && mod.image !== latestImage) {
+      if (autoSynced && latestName && mod.title !== latestName) {
+        mod.title = latestName;
+        mod.alt = `${latestName} Nexus Mods cover image`;
+      }
+      if (latestImage && (isNexusImage(mod.image) || (autoSynced && isLocalFallbackImage(mod.image))) && mod.image !== latestImage) {
         mod.image = latestImage;
       }
 
