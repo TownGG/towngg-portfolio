@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-16T23:31:05Z",
+  "updatedAt": "2026-06-17T00:01:04Z",
   "mods": [
     {
       "platform": "nexus",
@@ -9,7 +9,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
       "total_downloads": 384,
       "unique_downloads": 345,
-      "daily_downloads": 5,
+      "daily_downloads": 0,
       "likes": 23,
       "views": 0
     },
@@ -21,7 +21,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
       "total_downloads": 1302,
       "unique_downloads": 641,
-      "daily_downloads": 17,
+      "daily_downloads": 0,
       "likes": 27,
       "views": 0
     },
@@ -33,7 +33,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
       "total_downloads": 344,
       "unique_downloads": 309,
-      "daily_downloads": 7,
+      "daily_downloads": 0,
       "likes": 16,
       "views": 0
     },
@@ -45,7 +45,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
       "total_downloads": 277,
       "unique_downloads": 200,
-      "daily_downloads": 13,
+      "daily_downloads": 0,
       "likes": 7,
       "views": 0
     },
@@ -57,7 +57,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
       "total_downloads": 413,
       "unique_downloads": 315,
-      "daily_downloads": 9,
+      "daily_downloads": 0,
       "likes": 22,
       "views": 0
     },
@@ -69,7 +69,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
       "total_downloads": 2048,
       "unique_downloads": 1571,
-      "daily_downloads": 53,
+      "daily_downloads": 0,
       "likes": 89,
       "views": 0
     },
@@ -81,7 +81,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
       "total_downloads": 154,
       "unique_downloads": 146,
-      "daily_downloads": 31,
+      "daily_downloads": 0,
       "likes": 7,
       "views": 0
     },
@@ -94,7 +94,7 @@
       "total_downloads": 31,
       "unique_downloads": 31,
       "daily_downloads": 0,
-      "likes": 0,
+      "likes": 1,
       "views": 0
     }
   ]
