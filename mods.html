@@ -233,6 +233,13 @@
   </script>
   <script src="./assets/js/main.js?v=2.04.38"></script>
   <script>
+    dataUrl = window.dataUrl = function(path) {
+      const version = localStorage.getItem("townggSiteVersion") || Date.now();
+      const separator = path.includes("?") ? "&" : "?";
+      return `${path}${separator}v=${encodeURIComponent(version)}&t=${Date.now()}`;
+    };
+  </script>
+  <script>
     (() => {
       const defaultPlatform = "creations";
 
