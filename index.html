@@ -51,6 +51,7 @@
             <a class="button primary" href="./mods.html">View Mods</a>
             <a class="button" href="./gallery.html">Explore Gallery</a>
             <a class="button" href="./message-board.html">Leave a Message</a>
+            <a class="button" href="https://ko-fi.com/towngg" target="_blank" rel="noopener">Donate</a>
           </div>
           <div class="metrics">
             <div class="metric">
@@ -172,6 +173,13 @@
 
   <script src="./assets/js/version-sync.js?v=2.04.38"></script>
   <script src="./assets/js/site-data.js?v=2.04.38"></script>
+  <script>
+    window.siteData.socials = (window.siteData.socials || []).map((link) =>
+      link.label === "Donate / Support"
+        ? { ...link, url: "https://ko-fi.com/towngg" }
+        : link
+    );
+  </script>
   <script src="./assets/js/home-featured-mod.js?v=2.04.47"></script>
   <script src="./assets/js/main.js?v=2.04.38"></script>
   <script src="./assets/js/home-metrics-init.js?v=2.04.38"></script>
