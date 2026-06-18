@@ -8,16 +8,16 @@
     "externalMessageId": "",
     "commentThreadId": "",
     "originalContent": "You have mad style",
-    "translatedContent": "",
-    "aiSummary": "",
-    "sentiment": "neutral",
-    "category": "general",
-    "replyDraft": "",
-    "replyStatus": "new",
+    "translatedContent": "You have mad style",
+    "aiSummary": "Compliment on the mod's style.",
+    "sentiment": "positive",
+    "category": "praise",
+    "replyDraft": "Thank you! We put a lot of effort into making it look good. Glad you like it!",
+    "replyStatus": "drafted",
     "repliedAt": "",
     "platformReplyId": "",
     "platformReplyUrl": "",
     "createdAt": "2026-06-18T14:16:50.457Z",
-    "updatedAt": "2026-06-18T14:16:50.457Z"
+    "updatedAt": "2026-06-18T14:16:55.904Z"
   }
 ]
