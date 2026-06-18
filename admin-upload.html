@@ -15,8 +15,9 @@
   <link rel="stylesheet" href="./assets/css/mobile-interaction.css?v=2.04.38">
   <link rel="stylesheet" href="./assets/css/admin-upload.css?v=2.04.38">
   <link rel="stylesheet" href="./assets/css/admin-upload-status.css?v=2.04.38">
-  <link rel="stylesheet" href="./assets/css/admin-upload-modules.css?v=2.04.38">
+  <link rel="stylesheet" href="./assets/css/admin-upload-modules.css?v=2.05.00">
   <link rel="stylesheet" href="./assets/css/admin-gallery-manager.css?v=2.04.38">
+  <link rel="stylesheet" href="./assets/css/admin-community-ops.css?v=2.05.00">
   <link rel="stylesheet" href="./assets/css/admin-nav.css?v=2.04.38">
 </head>
 <body class="admin-upload-page is-locked" data-page="admin-upload">
@@ -69,7 +70,7 @@
       <div>
         <div class="eyebrow">Hidden Admin Terminal</div>
         <h1>Gallery<br><span>Control Center</span></h1>
-        <p class="admin-subtitle">Upload new gallery images or manage existing gallery assets through separate admin modules.</p>
+        <p class="admin-subtitle">Upload gallery assets, manage images, and handle Reddit / Nexus community replies through separate admin modules.</p>
       </div>
       <div class="admin-hero-actions">
         <button class="button" type="button" data-lock-admin>Lock Admin</button>
@@ -79,10 +80,12 @@
     <section class="admin-module-switcher">
       <input class="admin-module-radio" type="radio" name="admin-module" id="admin-module-upload" checked>
       <input class="admin-module-radio" type="radio" name="admin-module" id="admin-module-manage">
+      <input class="admin-module-radio" type="radio" name="admin-module" id="admin-module-community">
 
       <div class="admin-module-tabs" role="tablist" aria-label="Admin modules">
         <label class="admin-module-tab" for="admin-module-upload" role="tab">Upload Images</label>
         <label class="admin-module-tab" for="admin-module-manage" role="tab">Image Management</label>
+        <label class="admin-module-tab" for="admin-module-community" role="tab">Community Ops</label>
       </div>
 
       <div class="admin-module-content">
@@ -221,6 +224,133 @@
             </div>
           </section>
         </div>
+
+        <div class="admin-module-panel admin-module-community">
+          <section class="admin-card panel community-ops-panel" data-community-ops>
+            <div class="community-ops-toolbar">
+              <div class="community-ops-title">
+                <div class="eyebrow">TownGG Social Inbox</div>
+                <h2>Community Ops</h2>
+                <p>Manage Reddit and Nexus Mods feedback. Reddit can send through API after confirmation; Nexus falls back to copy-and-open when API access is unavailable.</p>
+              </div>
+              <div class="community-ops-actions">
+                <button class="button" type="button" data-community-new>New Message</button>
+                <button class="button primary" type="button" data-community-refresh>Load Messages</button>
+              </div>
+            </div>
+
+            <div class="community-kpi-grid">
+              <div class="community-kpi"><span>Total</span><strong data-community-kpi-total>0</strong></div>
+              <div class="community-kpi"><span>Pending</span><strong data-community-kpi-pending>0</strong></div>
+              <div class="community-kpi"><span>Reddit</span><strong data-community-kpi-reddit>0</strong></div>
+              <div class="community-kpi"><span>Nexus</span><strong data-community-kpi-nexus>0</strong></div>
+            </div>
+
+            <div class="community-filter-grid">
+              <label class="admin-field">
+                <span>Platform</span>
+                <select data-community-filter-platform>
+                  <option value="all">All</option>
+                  <option value="reddit">Reddit</option>
+                  <option value="nexus">Nexus Mods</option>
+                </select>
+              </label>
+              <label class="admin-field">
+                <span>Status</span>
+                <select data-community-filter-status>
+                  <option value="all">All</option>
+                  <option value="new">New</option>
+                  <option value="drafted">Drafted</option>
+                  <option value="sent">Sent</option>
+                  <option value="copied">Copied</option>
+                  <option value="replied">Replied</option>
+                  <option value="ignored">Ignored</option>
+                </select>
+              </label>
+              <label class="admin-field">
+                <span>Category</span>
+                <select data-community-filter-category>
+                  <option value="all">All</option>
+                  <option value="praise">Praise</option>
+                  <option value="bug_report">Bug Report</option>
+                  <option value="feature_request">Feature Request</option>
+                  <option value="install_question">Install Question</option>
+                  <option value="ai_criticism">AI Criticism</option>
+                  <option value="lore_discussion">Lore Discussion</option>
+                  <option value="general">General</option>
+                </select>
+              </label>
+              <label class="admin-field">
+                <span>Search</span>
+                <input type="search" placeholder="Mod, author, content" data-community-filter-search>
+              </label>
+            </div>
+
+            <div class="community-ops-layout">
+              <section class="community-inbox">
+                <div class="community-inbox-list" data-community-inbox>
+                  <div class="empty-state">Messages are not loaded yet.</div>
+                </div>
+              </section>
+
+              <section class="community-detail" data-community-detail>
+                <div class="community-detail-empty">
+                  <div>
+                    <div class="eyebrow">Community Ops</div>
+                    <h2>Select a message</h2>
+                    <p>Load or add a Reddit / Nexus message, then generate a safe English reply draft.</p>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <form class="community-editor" data-community-form>
+              <div class="community-editor-header">
+                <div class="eyebrow">Manual Import</div>
+                <h2>Add Reddit / Nexus Message</h2>
+                <p>Paste the source comment and URL. For Reddit one-click replies, use a full comment thing ID such as t1_xxxxx.</p>
+              </div>
+              <input type="hidden" name="id">
+              <div class="community-editor-grid">
+                <label class="admin-field">
+                  <span>Platform</span>
+                  <select name="platform">
+                    <option value="reddit">Reddit</option>
+                    <option value="nexus">Nexus Mods</option>
+                  </select>
+                </label>
+                <label class="admin-field">
+                  <span>Mod Name</span>
+                  <input type="text" name="modName" placeholder="Cassilia's Power Fist">
+                </label>
+                <label class="admin-field">
+                  <span>Author</span>
+                  <input type="text" name="authorName" placeholder="Player name">
+                </label>
+                <label class="admin-field">
+                  <span>Source URL</span>
+                  <input type="url" name="sourceUrl" placeholder="https://www.reddit.com/... or https://www.nexusmods.com/...">
+                </label>
+                <label class="admin-field">
+                  <span>External Message ID</span>
+                  <input type="text" name="externalMessageId" placeholder="Reddit t1_xxxxx / Nexus replyToId">
+                </label>
+                <label class="admin-field">
+                  <span>Nexus Thread ID</span>
+                  <input type="text" name="commentThreadId" placeholder="Optional Nexus commentThreadId">
+                </label>
+                <label class="admin-field is-wide">
+                  <span>Original Content</span>
+                  <textarea name="originalContent" placeholder="Paste the player comment here"></textarea>
+                </label>
+              </div>
+              <div class="community-editor-actions">
+                <button class="button primary" type="submit">Save Message</button>
+                <span class="community-status-line" data-community-status>Ready.</span>
+              </div>
+            </form>
+          </section>
+        </div>
       </div>
     </section>
   </main>
@@ -229,5 +359,6 @@
   <script src="./assets/js/main.js?v=2.04.38"></script>
   <script src="./assets/js/admin-upload.js?v=2.04.45"></script>
   <script src="./assets/js/admin-gallery-manager.js?v=2.04.38"></script>
+  <script src="./assets/js/admin-community-ops.js?v=2.05.00"></script>
 </body>
 </html>
