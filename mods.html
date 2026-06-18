@@ -53,7 +53,7 @@
 
     <section class="section mod-platforms">
       <div class="container">
-        <div class="platform-panel is-active" data-platform-panel="nexus" data-nexus-dashboard>
+        <div class="platform-panel" data-platform-panel="nexus" data-nexus-dashboard>
           <div class="section-header">
             <div>
               <div class="eyebrow">Nexus Telemetry</div>
@@ -84,8 +84,8 @@
           <div class="mods-control-bar">
             <div class="mods-platform-control">
               <div class="platform-tabs" role="tablist" aria-label="Mod platform">
-                <button class="platform-tab is-active" type="button" role="tab" aria-selected="true" data-platform-tab="nexus">Nexus Mods</button>
-                <button class="platform-tab" type="button" role="tab" aria-selected="false" data-platform-tab="creations">Creations</button>
+                <button class="platform-tab is-active" type="button" role="tab" aria-selected="true" data-platform-tab="creations">Creations</button>
+                <button class="platform-tab" type="button" role="tab" aria-selected="false" data-platform-tab="nexus">Nexus Mods</button>
               </div>
             </div>
 
@@ -131,7 +131,7 @@
           </div>
         </div>
 
-        <div class="platform-panel" data-platform-panel="creations">
+        <div class="platform-panel is-active" data-platform-panel="creations">
           <div class="section-header">
             <div>
               <div class="eyebrow">Bethesda Creations</div>
@@ -153,8 +153,8 @@
           <div class="mods-control-bar">
             <div class="mods-platform-control">
               <div class="platform-tabs" role="tablist" aria-label="Mod platform">
-                <button class="platform-tab is-active" type="button" role="tab" aria-selected="true" data-platform-tab="nexus">Nexus Mods</button>
-                <button class="platform-tab" type="button" role="tab" aria-selected="false" data-platform-tab="creations">Creations</button>
+                <button class="platform-tab is-active" type="button" role="tab" aria-selected="true" data-platform-tab="creations">Creations</button>
+                <button class="platform-tab" type="button" role="tab" aria-selected="false" data-platform-tab="nexus">Nexus Mods</button>
               </div>
             </div>
 
@@ -224,12 +224,46 @@
   <footer>
     TownGG MOD Portfolio<br>
     Find more releases through Nexus Mods and Starfield Creations.
-    <span class="site-version" data-site-version>Version v2.04.58-preview</span>
+    <span class="site-version" data-site-version>Version v2.04.69-preview</span>
   </footer>
 
   <script src="./assets/js/version-sync.js?v=2.04.38"></script>
   <script src="./assets/js/site-data.js?v=2.04.38"></script>
   <script src="./assets/js/main.js?v=2.04.38"></script>
+  <script>
+    (() => {
+      const defaultPlatform = "creations";
+
+      function syncPlatformTabs(platform = defaultPlatform) {
+        document.querySelectorAll("[data-platform-tab]").forEach((tab) => {
+          const isActive = tab.dataset.platformTab === platform;
+          tab.classList.toggle("is-active", isActive);
+          tab.setAttribute("aria-selected", String(isActive));
+        });
+
+        document.querySelectorAll("[data-platform-panel]").forEach((panel) => {
+          panel.classList.toggle("is-active", panel.dataset.platformPanel === platform);
+        });
+      }
+
+      const initialize = () => {
+        const activePanel = document.querySelector("[data-platform-panel].is-active");
+        syncPlatformTabs(activePanel?.dataset.platformPanel || defaultPlatform);
+      };
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initialize);
+      } else {
+        initialize();
+      }
+
+      document.addEventListener("click", (event) => {
+        const tab = event.target.closest("[data-platform-tab]");
+        if (!tab) return;
+        window.setTimeout(() => syncPlatformTabs(tab.dataset.platformTab || defaultPlatform), 0);
+      });
+    })();
+  </script>
   <script src="./assets/js/creations-source-label.js?v=2.04.57"></script>
   <script src="./assets/js/nexus-latest.js?v=2.04.38"></script>
   <script src="./assets/js/nexus-trend-fix.js?v=2.04.38"></script>
