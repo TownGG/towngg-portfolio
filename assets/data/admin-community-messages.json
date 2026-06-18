@@ -19,26 +19,5 @@
     "platformReplyUrl": "",
     "createdAt": "2026-06-18T12:00:32.598Z",
     "updatedAt": "2026-06-18T12:00:42.890Z"
-  },
-  {
-    "id": "msg_1781776558872_ci7wgp",
-    "platform": "reddit",
-    "modName": "CPF-STARBORN POWER FIST UNITY",
-    "authorName": "Test Player",
-    "sourceUrl": "https://www.nexusmods.com/starfield/mods/17489?tab=posts",
-    "externalMessageId": "",
-    "commentThreadId": "",
-    "originalContent": "111111111111111111111111",
-    "translatedContent": "111111111111111111111111",
-    "aiSummary": "User posted a string of ones.",
-    "sentiment": "neutral",
-    "category": "general",
-    "replyDraft": "Hi there, it looks like your message might have been a test. Could you please clarify what you'd like to share or ask about the mod? Happy to help!",
-    "replyStatus": "drafted",
-    "repliedAt": "",
-    "platformReplyId": "",
-    "platformReplyUrl": "",
-    "createdAt": "2026-06-18T09:55:58.872Z",
-    "updatedAt": "2026-06-18T12:00:03.706Z"
   }
 ]
