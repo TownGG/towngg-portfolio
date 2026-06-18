@@ -8,16 +8,16 @@
     "externalMessageId": "",
     "commentThreadId": "",
     "originalContent": "111111111111111111111111",
-    "translatedContent": "",
-    "aiSummary": "",
+    "translatedContent": "Fallback translation not available. Add OPENAI_API_KEY to enable full Chinese translation.",
+    "aiSummary": "Detected as general. Suggested safe reply generated without making hard promises.\n\nAI API fallback used: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
     "sentiment": "neutral",
     "category": "general",
-    "replyDraft": "",
-    "replyStatus": "new",
+    "replyDraft": "Thanks for the feedback! I really appreciate you checking it out. I’ll keep this in mind while improving future versions.",
+    "replyStatus": "drafted",
     "repliedAt": "",
     "platformReplyId": "",
     "platformReplyUrl": "",
     "createdAt": "2026-06-18T09:55:58.872Z",
-    "updatedAt": "2026-06-18T09:55:58.872Z"
+    "updatedAt": "2026-06-18T09:57:05.044Z"
   }
 ]
