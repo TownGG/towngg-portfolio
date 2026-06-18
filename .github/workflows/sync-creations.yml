@@ -133,6 +133,29 @@ jobs:
           const creations = Array.isArray(context.window.siteData?.creations) ? context.window.siteData.creations : [];
           const number = (value) => Number(String(value || '0').replace(/[^0-9.-]/g, '')) || 0;
           const normalize = (value) => String(value || '').trim().toLowerCase();
+          const creationUrl = (item) => item?.links?.find((link) => /creations\.bethesda\.net/i.test(link.url))?.url || '';
+          const keyFromUrl = (url) => {
+            const raw = String(url || '');
+            const uuid = raw.match(/\/details\/([0-9a-f-]{36})(?:\/|$)/i)?.[1];
+            return uuid ? uuid.toLowerCase() : raw.split('?')[0].split('#')[0].replace(/\/$/, '').toLowerCase();
+          };
+          const creationKey = (item) => String(
+            item.creation_key
+              || item.creationKey
+              || item.creationId
+              || item.contentId
+              || item.content_id
+              || keyFromUrl(creationUrl(item))
+              || normalize(item.title)
+          ).trim().toLowerCase();
+          const rowKey = (item) => String(
+            item.creation_key
+              || item.creationKey
+              || item.creationId
+              || item.contentId
+              || item.content_id
+              || normalize(item.title)
+          ).trim().toLowerCase();
           const csvCell = (value) => {
             const text = String(value ?? '');
             return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
@@ -195,40 +218,50 @@ jobs:
           })];
           fs.writeFileSync(historyFile, `${lines.join('\n')}\n`);
 
-          const modHeader = 'date,title,downloads,daily_downloads,last_updated';
+          const modHeader = 'date,creation_key,title,downloads,daily_downloads,last_updated';
           let modRows = [];
           if (fs.existsSync(modDailyFile)) {
             modRows = parseCSV(fs.readFileSync(modDailyFile, 'utf8'));
           }
+          const latestByKey = new Map();
           const latestByTitle = new Map();
           modRows.forEach((item) => {
-            const key = normalize(item.title);
-            if (!key) return;
-            const current = latestByTitle.get(key);
+            const key = rowKey(item);
+            const titleKey = normalize(item.title);
             const currentOrder = `${item.date || ''} ${item.last_updated || ''}`;
-            const previousOrder = current ? `${current.date || ''} ${current.last_updated || ''}` : '';
-            if (!current || currentOrder > previousOrder) latestByTitle.set(key, item);
+            const remember = (map, mapKey) => {
+              if (!mapKey) return;
+              const current = map.get(mapKey);
+              const previousOrder = current ? `${current.date || ''} ${current.last_updated || ''}` : '';
+              if (!current || currentOrder > previousOrder) map.set(mapKey, item);
+            };
+            remember(latestByKey, key);
+            remember(latestByTitle, titleKey);
           });
 
           const currentKeys = new Set();
           const todayRows = creations.map((item) => {
             const title = String(item.title || '').trim();
-            const key = normalize(title);
+            const key = creationKey(item);
+            const titleKey = normalize(title);
             const downloads = number(item.downloads);
-            const previous = latestByTitle.get(key);
+            const previous = latestByKey.get(key) || latestByTitle.get(titleKey);
             const previousDownloads = previous ? number(previous.downloads) : downloads;
             const previousDaily = previous && previous.date === date ? number(previous.daily_downloads) : 0;
             const daily = previousDaily + Math.max(0, downloads - previousDownloads);
             currentKeys.add(`${date}::${key}`);
-            return { date, title, downloads, daily_downloads: daily, last_updated: stamp };
+            currentKeys.add(`${date}::${titleKey}`);
+            return { date, creation_key: key, title, downloads, daily_downloads: daily, last_updated: stamp };
           });
 
           const keptModRows = modRows.filter((item) => {
-            const key = `${item.date || ''}::${normalize(item.title)}`;
-            return item.date >= cutoff && !currentKeys.has(key);
+            const key = rowKey(item);
+            const titleKey = normalize(item.title);
+            return item.date >= cutoff && !currentKeys.has(`${item.date || ''}::${key}`) && !currentKeys.has(`${item.date || ''}::${titleKey}`);
           });
           const modLines = [modHeader, ...keptModRows.concat(todayRows).map((item) => [
             item.date,
+            csvCell(rowKey(item)),
             csvCell(item.title),
             number(item.downloads),
             number(item.daily_downloads),
