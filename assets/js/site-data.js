@@ -1,4 +1,4 @@
-﻿window.siteData = {
+window.siteData = {
   mods: [
     {
       title: "THE TERMINUS",
@@ -191,8 +191,6 @@
     { label: "X / Twitter", url: "https://x.com/TownGG_MOD" },
     { label: "YouTube", url: "https://www.youtube.com/@TownGG-MOD" },
     { label: "Bilibili", url: "https://space.bilibili.com/12967314?spm_id_from=333.1007.0.0" },
-    { label: "Donate / Support", url: "https://ifdian.net/a/townggmod" }
+    { label: "Donate / Support", url: "https://ko-fi.com/towngg" }
   ]
 };
-
-
