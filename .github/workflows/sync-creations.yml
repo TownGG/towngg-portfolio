@@ -13,6 +13,8 @@ concurrency:
 jobs:
   sync-creations:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.53.0-noble
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,7 +28,7 @@ jobs:
         run: npm install
 
       - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
 
       - name: Restore Bethesda login state
         env:
