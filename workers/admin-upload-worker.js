@@ -513,12 +513,57 @@ function normalizeCommunityMessage(message) {
   };
 }
 
-async function generateCommunityDraft(env, message) {
-  const fallback = fallbackDraft(message);
-  if (!env.OPENAI_API_KEY) return fallback;
+function getAiProviderConfig(env) {
+  const provider = String(env.AI_PROVIDER || "").trim().toLowerCase();
+  const shouldUseDeepSeek = provider === "deepseek" || (!!env.DEEPSEEK_API_KEY && provider !== "openai");
+
+  if (shouldUseDeepSeek) {
+    const baseUrl = String(env.DEEPSEEK_BASE_URL || "https://api.deepseek.com").replace(/\/+$/, "");
+    return {
+      provider: "DeepSeek",
+      apiKey: env.DEEPSEEK_API_KEY || "",
+      endpoint: `${baseUrl}/chat/completions`,
+      model: env.DEEPSEEK_MODEL || "deepseek-v4-flash",
+      temperature: Number(env.DEEPSEEK_TEMPERATURE || 0.7)
+    };
+  }
+
+  return {
+    provider: "OpenAI",
+    apiKey: env.OPENAI_API_KEY || "",
+    endpoint: "https://api.openai.com/v1/chat/completions",
+    model: env.OPENAI_MODEL || "gpt-4o-mini",
+    temperature: Number(env.OPENAI_TEMPERATURE || 0.55)
+  };
+}
+
+function parseAiDraftJson(raw) {
+  const cleaned = String(raw || "")
+    .trim()
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/```$/i, "")
+    .trim();
 
   try {
-    const system = "You are a friendly Starfield mod author assistant for TownGG Mod Studio. Draft safe, natural English replies. Never promise exact dates or guaranteed features. Keep replies concise.";
+    return JSON.parse(cleaned);
+  } catch (error) {
+    const start = cleaned.indexOf("{");
+    const end = cleaned.lastIndexOf("}");
+    if (start !== -1 && end !== -1 && end > start) {
+      return JSON.parse(cleaned.slice(start, end + 1));
+    }
+    throw error;
+  }
+}
+
+async function generateCommunityDraft(env, message) {
+  const fallback = fallbackDraft(message);
+  const aiConfig = getAiProviderConfig(env);
+  if (!aiConfig.apiKey) return fallback;
+
+  try {
+    const system = "You are a friendly Starfield mod author assistant for TownGG Mod Studio. Draft safe, natural English replies. Never promise exact dates or guaranteed features. Keep replies concise. Return only valid JSON.";
     const user = [
       `Platform: ${message.platform}`,
       `Mod: ${message.modName || "Unknown"}`,
@@ -527,27 +572,31 @@ async function generateCommunityDraft(env, message) {
       "Return JSON with keys: translation, summary, sentiment, category, reply. Categories: praise, bug_report, feature_request, install_question, ai_criticism, lore_discussion, general."
     ].join("\n");
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch(aiConfig.endpoint, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${env.OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${aiConfig.apiKey}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: env.OPENAI_MODEL || "gpt-4o-mini",
+        model: aiConfig.model,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: system },
           { role: "user", content: user }
         ],
-        temperature: 0.55
+        temperature: aiConfig.temperature
       })
     });
 
     const data = await response.json().catch(() => null);
-    if (!response.ok) throw new Error(data?.error?.message || `OpenAI API failed with HTTP ${response.status}.`);
+    if (!response.ok) {
+      throw new Error(data?.error?.message || `${aiConfig.provider} API failed with HTTP ${response.status}.`);
+    }
+
     const raw = data?.choices?.[0]?.message?.content || "";
-    const parsed = JSON.parse(raw);
+    const parsed = parseAiDraftJson(raw);
+
     return {
       translation: String(parsed.translation || fallback.translation || ""),
       summary: String(parsed.summary || fallback.summary || ""),
@@ -558,7 +607,7 @@ async function generateCommunityDraft(env, message) {
   } catch (error) {
     return {
       ...fallback,
-      summary: `${fallback.summary}\n\nAI API fallback used: ${error.message}`
+      summary: `${fallback.summary}\n\n${aiConfig.provider} API fallback used: ${error.message}`
     };
   }
 }
