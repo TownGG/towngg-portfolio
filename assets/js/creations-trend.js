@@ -57,15 +57,27 @@
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   }
 
+  function latestSnapshotRows(rows) {
+    const latestUpdatedAt = rows
+      .map((row) => row.last_updated)
+      .filter(Boolean)
+      .sort()
+      .at(-1);
+    return latestUpdatedAt ? rows.filter((row) => row.last_updated === latestUpdatedAt) : rows;
+  }
+
   function buildDailySeries(rows) {
     const groups = new Map();
     rows.forEach((row) => {
       if (!row.date) return;
-      const current = groups.get(row.date) || { date: row.date, value: 0 };
-      current.value += toNumber(row.daily_downloads);
+      const current = groups.get(row.date) || [];
+      current.push(row);
       groups.set(row.date, current);
     });
-    return [...groups.values()]
+    return [...groups.entries()].map(([date, dateRows]) => ({
+      date,
+      value: latestSnapshotRows(dateRows).reduce((sum, row) => sum + toNumber(row.daily_downloads), 0)
+    }))
       .sort((a, b) => String(a.date).localeCompare(String(b.date)))
       .slice(-7);
   }
@@ -109,7 +121,7 @@
     toolbar.innerHTML = `
       <div>
         <h3>7-Day Creations Downloads Trend</h3>
-        <p class="dashboard-note">Creations release activity based on tracked per-mod daily downloads. Showing actual daily downloads from creations-mod-daily.csv. Latest snapshot: ${formatDateLabel(latestDate)}.</p>
+        <p class="dashboard-note">Creations release activity based on tracked per-mod daily downloads. Showing the latest daily snapshot from creations-mod-daily.csv. Latest snapshot: ${formatDateLabel(latestDate)}.</p>
       </div>
       <span class="telemetry-pill">Daily downloads</span>
     `;
