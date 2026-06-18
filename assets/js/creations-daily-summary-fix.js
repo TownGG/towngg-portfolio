@@ -46,22 +46,30 @@
     return rows.map((items) => Object.fromEntries(headers.map((header, index) => [header, items[index] || ""])));
   }
 
+  function snapshotTotal(rows) {
+    return rows.reduce((sum, row) => sum + toNumber(row.daily_downloads), 0);
+  }
+
   function latestSnapshotRows(rows, date) {
     const dateRows = rows.filter((row) => row.date === date);
-    const latestUpdatedAt = dateRows
-      .map((row) => row.last_updated)
-      .filter(Boolean)
-      .sort()
-      .at(-1);
-    return latestUpdatedAt ? dateRows.filter((row) => row.last_updated === latestUpdatedAt) : dateRows;
+    const groups = new Map();
+    dateRows.forEach((row) => {
+      const key = row.last_updated || "";
+      const current = groups.get(key) || [];
+      current.push(row);
+      groups.set(key, current);
+    });
+
+    const snapshots = [...groups.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+    const latestNonzero = [...snapshots].reverse().find(([, snapshotRows]) => snapshotTotal(snapshotRows) > 0);
+    return latestNonzero?.[1] || snapshots.at(-1)?.[1] || dateRows;
   }
 
   function latestDailyTotal(rows) {
     if (!rows.length) return 0;
     const latestDate = rows.map((row) => row.date).filter(Boolean).sort().at(-1);
     if (!latestDate) return 0;
-    return latestSnapshotRows(rows, latestDate)
-      .reduce((sum, row) => sum + toNumber(row.daily_downloads), 0);
+    return snapshotTotal(latestSnapshotRows(rows, latestDate));
   }
 
   function totals() {
