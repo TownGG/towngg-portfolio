@@ -46,12 +46,21 @@
     return rows.map((items) => Object.fromEntries(headers.map((header, index) => [header, items[index] || ""])));
   }
 
+  function latestSnapshotRows(rows, date) {
+    const dateRows = rows.filter((row) => row.date === date);
+    const latestUpdatedAt = dateRows
+      .map((row) => row.last_updated)
+      .filter(Boolean)
+      .sort()
+      .at(-1);
+    return latestUpdatedAt ? dateRows.filter((row) => row.last_updated === latestUpdatedAt) : dateRows;
+  }
+
   function latestDailyTotal(rows) {
     if (!rows.length) return 0;
     const latestDate = rows.map((row) => row.date).filter(Boolean).sort().at(-1);
     if (!latestDate) return 0;
-    return rows
-      .filter((row) => row.date === latestDate)
+    return latestSnapshotRows(rows, latestDate)
       .reduce((sum, row) => sum + toNumber(row.daily_downloads), 0);
   }
 
