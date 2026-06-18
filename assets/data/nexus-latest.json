@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-18T19:01:08Z",
+  "updatedAt": "2026-06-18T19:31:08Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1325,
-      "unique_downloads": 658,
-      "daily_downloads": 8,
+      "total_downloads": 1326,
+      "unique_downloads": 659,
+      "daily_downloads": 9,
       "likes": 27,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 228,
-      "unique_downloads": 215,
-      "daily_downloads": 36,
+      "total_downloads": 229,
+      "unique_downloads": 216,
+      "daily_downloads": 37,
       "likes": 7,
       "views": 0
     },
@@ -103,9 +103,9 @@
       "mod_name": "CPF-STARBORN POWER FIST UNITY",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
-      "total_downloads": 72,
-      "unique_downloads": 71,
-      "daily_downloads": 27,
+      "total_downloads": 74,
+      "unique_downloads": 73,
+      "daily_downloads": 29,
       "likes": 2,
       "views": 0
     }
