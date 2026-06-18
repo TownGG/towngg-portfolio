@@ -1,4 +1,4 @@
-﻿window.siteData = {
+window.siteData = {
   mods: [
     {
       title: "THE TERMINUS",
@@ -170,6 +170,14 @@
     { title: "CPF-STARBORN POWER FIST UNITY", group: "Uncategorized", category: "Uncategorized", image: "https://ugcmods.bethesda.net/image/eyJidWNrZXQiOiJ1Z2Ntb2RzLmJldGhlc2RhLm5ldCIsImtleSI6InB1YmxpYy9jb250ZW50L0dFTkVTSVMvODgyNjkwL0NMQVNTSUZJQ0FUSU9OX1NDUkVFTlNIT1RfSU1BR0UvRk5ZbnBLbmxsTGZZUjFCaklFM2ZRZz09L0NoYXRHUFQgSW1hZ2UgMjAyNuW5tDbmnIgxN+aXpSAyMV8zOF8zNiAoMSkucG5nIiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjo2MDB9fSwib3V0cHV0Rm9ybWF0Ijoid2VicCJ9", alt: "CPF-STARBORN POWER FIST UNITY Bethesda Creations cover", description: "Automatically discovered from Bethesda Creations.", tags: ["Bethesda Creations", "Auto Discovered"], views: "616", bookmarks: "62", likes: "0", downloads: "102", plays: "170", libraryAdds: "86", updatedAt: "2026-06-18 10:34", source: "Browser Capture", links: [{ label: "Bethesda Creations", url: "https://creations.bethesda.net/en/starfield/details/9fa223d6-a670-4b41-b1a8-e2e05073a899/CPF_STARBORN_POWER_FIST_UNITY" }] }
 ],
   featuredArtworks: [
+      {
+          image: "./assets/images/gallery-featured-compressed/featured_20260618_001.jpg",
+          alt: "TownGG homepage featured artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/featured_20260618_002.jpg",
+          alt: "TownGG homepage featured artwork"
+      },
       {
           image: "./assets/images/gallery-featured-compressed/featured_20260614_001.jpg",
           alt: "TownGG homepage featured artwork"
