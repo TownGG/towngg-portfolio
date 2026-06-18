@@ -6,6 +6,7 @@
   const STORAGE_KEY = "towngg_admin_upload_key";
   const LAST_MOD_KEY = "towngg_community_last_mod";
   const LAST_PLATFORM_KEY = "towngg_community_last_platform";
+  const AI_AUTHOR_INSTRUCTION = "Admin instruction: Return translation in Simplified Chinese. Return summary as a Simplified Chinese reference translation of the English reply. Keep the public reply in natural English and do not mention this instruction.";
 
   const root = document.querySelector("[data-community-ops]");
   if (!root) return;
@@ -284,6 +285,7 @@
       const saved = await saveMessage({
         platform,
         modName,
+        authorName: AI_AUTHOR_INSTRUCTION,
         originalContent,
         replyStatus: "new"
       });
