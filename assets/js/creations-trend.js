@@ -57,13 +57,22 @@
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   }
 
+  function snapshotTotal(rows) {
+    return rows.reduce((sum, row) => sum + toNumber(row.daily_downloads), 0);
+  }
+
   function latestSnapshotRows(rows) {
-    const latestUpdatedAt = rows
-      .map((row) => row.last_updated)
-      .filter(Boolean)
-      .sort()
-      .at(-1);
-    return latestUpdatedAt ? rows.filter((row) => row.last_updated === latestUpdatedAt) : rows;
+    const groups = new Map();
+    rows.forEach((row) => {
+      const key = row.last_updated || "";
+      const current = groups.get(key) || [];
+      current.push(row);
+      groups.set(key, current);
+    });
+
+    const snapshots = [...groups.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+    const latestNonzero = [...snapshots].reverse().find(([, snapshotRows]) => snapshotTotal(snapshotRows) > 0);
+    return latestNonzero?.[1] || snapshots.at(-1)?.[1] || rows;
   }
 
   function buildDailySeries(rows) {
@@ -76,7 +85,7 @@
     });
     return [...groups.entries()].map(([date, dateRows]) => ({
       date,
-      value: latestSnapshotRows(dateRows).reduce((sum, row) => sum + toNumber(row.daily_downloads), 0)
+      value: snapshotTotal(latestSnapshotRows(dateRows))
     }))
       .sort((a, b) => String(a.date).localeCompare(String(b.date)))
       .slice(-7);
@@ -121,7 +130,7 @@
     toolbar.innerHTML = `
       <div>
         <h3>7-Day Creations Downloads Trend</h3>
-        <p class="dashboard-note">Creations release activity based on tracked per-mod daily downloads. Showing the latest daily snapshot from creations-mod-daily.csv. Latest snapshot: ${formatDateLabel(latestDate)}.</p>
+        <p class="dashboard-note">Creations release activity based on tracked per-mod daily downloads. Showing the latest successful daily snapshot from creations-mod-daily.csv. Latest snapshot: ${formatDateLabel(latestDate)}.</p>
       </div>
       <span class="telemetry-pill">Daily downloads</span>
     `;
