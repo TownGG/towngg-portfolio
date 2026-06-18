@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-18T02:31:12Z",
+  "updatedAt": "2026-06-18T03:01:10Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 202,
-      "unique_downloads": 191,
-      "daily_downloads": 10,
+      "total_downloads": 203,
+      "unique_downloads": 192,
+      "daily_downloads": 11,
       "likes": 7,
       "views": 0
     },
@@ -103,10 +103,10 @@
       "mod_name": "CPF-STARBORN POWER FIST UNITY",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
-      "total_downloads": 59,
-      "unique_downloads": 58,
-      "daily_downloads": 14,
-      "likes": 1,
+      "total_downloads": 60,
+      "unique_downloads": 59,
+      "daily_downloads": 15,
+      "likes": 2,
       "views": 0
     }
   ]
