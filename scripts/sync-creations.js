@@ -59,6 +59,10 @@ function stableCreationKey(creation) {
     || normalize(creation?.title);
 }
 
+function isRemovedStatus(status) {
+  return status === 404 || status === 410;
+}
+
 function shouldSyncCreation(creation) {
   return Boolean(getCreationUrl(creation));
 }
@@ -446,7 +450,11 @@ async function scrapeCreation(page, creation) {
   const url = getCreationUrl(creation);
   if (!url) return { ok: false, error: 'missing_url' };
 
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: TIMEOUT_MS });
+  const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: TIMEOUT_MS });
+  const status = response?.status?.();
+  if (isRemovedStatus(status)) {
+    return { ok: true, removed: true, status, title: creation.title, stats: {}, coverImage: null };
+  }
   await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   await page.waitForTimeout(SLOW_MS);
 
@@ -516,6 +524,19 @@ async function sync() {
       if (!result.ok) {
         failed += 1;
         console.log(`kept old data (${result.error})`);
+        continue;
+      }
+
+      if (result.removed) {
+        const merged = {
+          ...creation,
+          image: '',
+          updatedAt: today,
+          source: 'Removed from Creations'
+        };
+        nextSource = replaceCreationObjectByKey(nextSource, creation, renderCreationObject(merged));
+        success += 1;
+        console.log(`removed from Creations (HTTP ${result.status}), hidden on site`);
         continue;
       }
 
