@@ -1,6 +1,7 @@
 (() => {
   const numberFormatter = new Intl.NumberFormat('en-US');
-  const storedVersion = localStorage.getItem('townggSiteVersion') || 'v2.04.60-preview';
+  const storedVersion = localStorage.getItem('townggSiteVersion') || 'v2.04.61-preview';
+  const expectedHeaders = ['creation', 'daily', 'likes', 'views', 'downloads', 'plays', 'library adds'];
   let dailyRowsPromise = null;
 
   function toNumber(value) {
@@ -144,10 +145,22 @@
     return numberFormatter.format(toNumber(value));
   }
 
+  function hasExpectedDetailsLayout(table, body) {
+    const headers = [...(table.querySelectorAll('thead th') || [])].map((header) => normalize(header.textContent));
+    const columnsReady = expectedHeaders.every((header, index) => headers[index] === header);
+    const rowsReady = [...body.querySelectorAll('tr')].every((row) => row.children.length === expectedHeaders.length);
+    return columnsReady && rowsReady;
+  }
+
   async function renderDetailsColumns() {
     const table = document.querySelector('[data-creations-table]')?.closest('table');
     const body = document.querySelector('[data-creations-table]');
     if (!table || !body || !body.children.length) return;
+
+    if (table.dataset.creationsDetailsReady === 'true' && hasExpectedDetailsLayout(table, body)) {
+      table.dataset.creationsDailyReady = 'true';
+      return;
+    }
 
     const headerRow = table.querySelector('thead tr');
     if (headerRow) {
