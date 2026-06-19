@@ -7,11 +7,12 @@
       ready: (table) => table.dataset.creationsDailyReady === 'true',
       columns: new Map([
         ['creation', 'text'],
+        ['daily', 'number'],
         ['likes', 'number'],
+        ['views', 'number'],
         ['downloads', 'number'],
         ['plays', 'number'],
-        ['library adds', 'number'],
-        ['daily', 'number']
+        ['library adds', 'number']
       ])
     },
     {
