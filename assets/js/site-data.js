@@ -127,6 +127,20 @@ window.siteData = {
       links: [
         { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17489" }
       ]
+    },
+    {
+      title: "CPF-STARBORN  POWER FIST OMEGA",
+      category: "Nexus Mods / Auto Synced",
+      group: "Weapon",
+      image: "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842990-409599450.png",
+      alt: "CPF-STARBORN  POWER FIST OMEGA Nexus Mods cover image",
+      description: "Automatically synced from Nexus Mods.",
+      tags: ["Nexus", "Auto Synced", "Starfield"],
+      downloads: "0",
+      endorsements: "0",
+      links: [
+        { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17500" }
+      ]
     }
   ],
   creations: [
