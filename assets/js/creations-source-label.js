@@ -1,6 +1,6 @@
 (() => {
   const numberFormatter = new Intl.NumberFormat('en-US');
-  const storedVersion = localStorage.getItem('townggSiteVersion') || 'v2.04.42-preview';
+  const storedVersion = localStorage.getItem('townggSiteVersion') || 'v2.04.60-preview';
   let dailyRowsPromise = null;
 
   function toNumber(value) {
@@ -103,45 +103,87 @@
     return dailyRowsPromise;
   }
 
-  function latestDailyByKey(rows) {
-    const latest = new Map();
+  function snapshotTotal(rows) {
+    return rows.reduce((sum, row) => sum + toNumber(row.daily_downloads), 0);
+  }
+
+  function latestSnapshotRows(rows) {
+    const groups = new Map();
     rows.forEach((row) => {
+      const key = row.last_updated || '';
+      const current = groups.get(key) || [];
+      current.push(row);
+      groups.set(key, current);
+    });
+
+    const snapshots = [...groups.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+    const latestNonzero = [...snapshots].reverse().find(([, snapshotRows]) => snapshotTotal(snapshotRows) > 0);
+    return latestNonzero?.[1] || snapshots.at(-1)?.[1] || rows;
+  }
+
+  function latestDailyByKey(rows) {
+    if (!rows.length) return new Map();
+    const latestDate = rows.map((row) => row.date).filter(Boolean).sort().at(-1);
+    const latestRows = latestSnapshotRows(rows.filter((row) => row.date === latestDate));
+    const latest = new Map();
+    latestRows.forEach((row) => {
       const key = creationKeyFromRow(row);
       if (!key) return;
-      const current = latest.get(key);
-      const order = `${row.date || ''} ${row.last_updated || ''}`;
-      const currentOrder = current ? `${current.date || ''} ${current.last_updated || ''}` : '';
-      if (!current || order > currentOrder) latest.set(key, row);
+      latest.set(key, row);
     });
     return latest;
   }
 
-  async function addDailyColumns() {
+  function confirmedCreations() {
+    return (window.siteData?.creations || []).filter((item) =>
+      ['likes', 'downloads', 'views', 'plays', 'libraryAdds'].some((key) => toNumber(item[key]) > 0)
+    );
+  }
+
+  function formatMetric(value) {
+    return numberFormatter.format(toNumber(value));
+  }
+
+  async function renderDetailsColumns() {
     const table = document.querySelector('[data-creations-table]')?.closest('table');
     const body = document.querySelector('[data-creations-table]');
-    if (!table || !body || !body.children.length || table.dataset.creationsDailyReady === 'true') return;
+    if (!table || !body || !body.children.length) return;
 
-    const dailyMap = latestDailyByKey(await loadDailyRows());
     const headerRow = table.querySelector('thead tr');
     if (headerRow) {
-      headerRow.insertAdjacentHTML('beforeend', '<th>Daily</th>');
+      headerRow.innerHTML = [
+        '<th>Creation</th>',
+        '<th>Daily</th>',
+        '<th>Likes</th>',
+        '<th>Views</th>',
+        '<th>Downloads</th>',
+        '<th>Plays</th>',
+        '<th>Library Adds</th>'
+      ].join('');
     }
 
-    const confirmed = (window.siteData?.creations || []).filter((item) =>
-      ['likes', 'downloads', 'plays', 'libraryAdds'].some((key) => toNumber(item[key]) > 0)
-    );
+    const dailyMap = latestDailyByKey(await loadDailyRows());
+    const items = confirmedCreations();
 
     [...body.querySelectorAll('tr')].forEach((row, index) => {
-      const item = confirmed[index] || {};
+      const item = items[index] || {};
       const daily = dailyMap.get(creationKeyFromItem(item)) || dailyMap.get(normalize(item.title));
       const dailyValue = daily ? toNumber(daily.daily_downloads) : 0;
-      row.insertAdjacentHTML(
-        'beforeend',
-        `<td>${numberFormatter.format(dailyValue)}</td>`
-      );
+      const creationCell = row.children[0]?.innerHTML || item.title || '';
+
+      row.innerHTML = [
+        `<td>${creationCell}</td>`,
+        `<td>${numberFormatter.format(dailyValue)}</td>`,
+        `<td>${formatMetric(item.likes)}</td>`,
+        `<td>${formatMetric(item.views)}</td>`,
+        `<td>${formatMetric(item.downloads)}</td>`,
+        `<td>${formatMetric(item.plays)}</td>`,
+        `<td>${formatMetric(item.libraryAdds)}</td>`
+      ].join('');
     });
 
     table.dataset.creationsDailyReady = 'true';
+    table.dataset.creationsDetailsReady = 'true';
   }
 
   function parseTimestamp(value) {
@@ -165,14 +207,13 @@
 
     const latest = latestUpdatedAt();
     if (!latest) return;
-
     target.classList.add('is-fresh');
     target.textContent = `Updated ${latest}`;
     target.title = 'Latest Bethesda Creations browser capture timestamp.';
   }
 
   async function installCreationsMeta() {
-    await addDailyColumns();
+    await renderDetailsColumns();
     updateCreationsTimestamp();
   }
 
@@ -185,5 +226,6 @@
     };
     window.setTimeout(start, 300);
     window.setTimeout(installCreationsMeta, 1200);
+    window.setTimeout(installCreationsMeta, 2200);
   });
 })();
