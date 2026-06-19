@@ -141,6 +141,20 @@ window.siteData = {
       links: [
         { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17500" }
       ]
+    },
+    {
+      title: "CPF-CRIMSON FLEET POWER FIST HELLHOUND",
+      category: "Nexus Mods / Auto Synced",
+      group: "Weapon",
+      image: "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
+      alt: "CPF-CRIMSON FLEET POWER FIST HELLHOUND Nexus Mods cover image",
+      description: "Automatically synced from Nexus Mods.",
+      tags: ["Nexus", "Auto Synced", "Starfield"],
+      downloads: "0",
+      endorsements: "0",
+      links: [
+        { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17501" }
+      ]
     }
   ],
   creations: [
