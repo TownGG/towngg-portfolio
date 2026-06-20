@@ -1,4 +1,4 @@
-﻿/* TownGG Portfolio v2.05
+/* TownGG Portfolio v2.05
    Cloudflare Worker backend for the hidden Admin System.
 
    Required Cloudflare Worker environment variables:
