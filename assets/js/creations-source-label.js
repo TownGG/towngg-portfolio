@@ -1,8 +1,52 @@
 (() => {
-  const numberFormatter = new Intl.NumberFormat('en-US');
   const storedVersion = localStorage.getItem('townggSiteVersion') || 'v2.04.61-preview';
   const expectedHeaders = ['creation', 'daily', 'likes', 'views', 'downloads', 'plays', 'library adds'];
   let dailyRowsPromise = null;
+  const translations = {
+    'zh-CN': {
+      Creation: 'Creation',
+      Daily: '每日',
+      Likes: '点赞',
+      Views: '浏览',
+      Downloads: '下载',
+      Plays: '游玩',
+      'Library Adds': '加入库',
+      Updated: '更新于 {time}',
+      'Latest Bethesda Creations browser capture timestamp.': '最新 Bethesda Creations 浏览器抓取时间。'
+    },
+    ja: {
+      Creation: 'Creation',
+      Daily: '日別',
+      Likes: 'いいね',
+      Views: '閲覧',
+      Downloads: 'ダウンロード',
+      Plays: 'プレイ',
+      'Library Adds': 'ライブラリ追加',
+      Updated: '更新 {time}',
+      'Latest Bethesda Creations browser capture timestamp.': '最新のBethesda Creationsブラウザ取得時刻。'
+    }
+  };
+
+  function lang() {
+    const value = localStorage.getItem('townggSiteLang');
+    return value === 'zh-CN' || value === 'ja' ? value : 'en';
+  }
+
+  function locale() {
+    return lang() === 'zh-CN' ? 'zh-CN' : lang() === 'ja' ? 'ja-JP' : 'en-US';
+  }
+
+  function t(key, replacements = {}) {
+    let value = translations[lang()]?.[key] || key;
+    Object.entries(replacements).forEach(([name, replacement]) => {
+      value = value.replace(`{${name}}`, replacement);
+    });
+    return value;
+  }
+
+  function formatNumber(value) {
+    return new Intl.NumberFormat(locale()).format(toNumber(value));
+  }
 
   function toNumber(value) {
     return Number(String(value || '0').replace(/[^0-9.-]/g, '')) || 0;
@@ -141,10 +185,6 @@
     );
   }
 
-  function formatMetric(value) {
-    return numberFormatter.format(toNumber(value));
-  }
-
   function hasExpectedDetailsLayout(table, body) {
     const headerCount = table.querySelectorAll('thead th').length;
     const columnsReady = headerCount === expectedHeaders.length;
@@ -165,13 +205,13 @@
     const headerRow = table.querySelector('thead tr');
     if (headerRow) {
       headerRow.innerHTML = [
-        '<th>Creation</th>',
-        '<th>Daily</th>',
-        '<th>Likes</th>',
-        '<th>Views</th>',
-        '<th>Downloads</th>',
-        '<th>Plays</th>',
-        '<th>Library Adds</th>'
+        `<th>${t('Creation')}</th>`,
+        `<th>${t('Daily')}</th>`,
+        `<th>${t('Likes')}</th>`,
+        `<th>${t('Views')}</th>`,
+        `<th>${t('Downloads')}</th>`,
+        `<th>${t('Plays')}</th>`,
+        `<th>${t('Library Adds')}</th>`
       ].join('');
     }
 
@@ -186,12 +226,12 @@
 
       row.innerHTML = [
         `<td>${creationCell}</td>`,
-        `<td>${numberFormatter.format(dailyValue)}</td>`,
-        `<td>${formatMetric(item.likes)}</td>`,
-        `<td>${formatMetric(item.views)}</td>`,
-        `<td>${formatMetric(item.downloads)}</td>`,
-        `<td>${formatMetric(item.plays)}</td>`,
-        `<td>${formatMetric(item.libraryAdds)}</td>`
+        `<td>${formatNumber(dailyValue)}</td>`,
+        `<td>${formatNumber(item.likes)}</td>`,
+        `<td>${formatNumber(item.views)}</td>`,
+        `<td>${formatNumber(item.downloads)}</td>`,
+        `<td>${formatNumber(item.plays)}</td>`,
+        `<td>${formatNumber(item.libraryAdds)}</td>`
       ].join('');
     });
 
@@ -221,8 +261,8 @@
     const latest = latestUpdatedAt();
     if (!latest) return;
     target.classList.add('is-fresh');
-    target.textContent = `Updated ${latest}`;
-    target.title = 'Latest Bethesda Creations browser capture timestamp.';
+    target.textContent = t('Updated', { time: latest });
+    target.title = t('Latest Bethesda Creations browser capture timestamp.');
   }
 
   async function installCreationsMeta() {
@@ -237,6 +277,17 @@
       if (body) observer.observe(body, { childList: true });
       installCreationsMeta();
     };
+    document.addEventListener('click', (event) => {
+      if (event.target.closest('.language-option[data-lang]')) {
+        window.setTimeout(() => {
+          document.querySelectorAll('.creations-details-table').forEach((table) => {
+            delete table.dataset.creationsDetailsReady;
+            delete table.dataset.creationsDailyReady;
+          });
+          installCreationsMeta();
+        }, 90);
+      }
+    });
     window.setTimeout(start, 300);
     window.setTimeout(installCreationsMeta, 1200);
     window.setTimeout(installCreationsMeta, 2200);
