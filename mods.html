@@ -10,10 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./assets/css/styles.css?v=2.04.38">
+  <link rel="stylesheet" href="./assets/css/language-switcher.css?v=2.05.00">
   <link rel="stylesheet" href="./assets/css/data-system.css?v=2.04.38">
   <link rel="stylesheet" href="./assets/css/mobile-interaction.css?v=2.04.38">
   <link rel="stylesheet" href="./assets/css/nexus-sync-status.css?v=2.04.38">
-  <link rel="stylesheet" href="./assets/css/mods-alignment-fix.css?v=2.04.39">
+  <link rel="stylesheet" href="./assets/css/mods-alignment-fix.css?v=2.05.00">
   <link rel="stylesheet" href="./assets/css/mod-list-sort.css?v=2.04.56">
 </head>
 <body>
@@ -33,6 +34,16 @@
         <a href="./message-board.html">Message Board</a>
         <a href="./about.html">About</a>
       </nav>
+      <div class="language-switcher">
+        <button class="language-button" type="button" aria-haspopup="true" aria-expanded="false">
+          <span aria-hidden="true">🌐</span><span class="language-button-label">English</span><span aria-hidden="true">▾</span>
+        </button>
+        <div class="language-menu" role="menu">
+          <button class="language-option" type="button" data-lang="en" role="menuitem">✓ English</button>
+          <button class="language-option" type="button" data-lang="zh-CN" role="menuitem">简体中文</button>
+          <button class="language-option" type="button" data-lang="ja" role="menuitem">日本語</button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -235,6 +246,7 @@
   </script>
   <script src="./assets/js/main.js?v=2.04.38"></script>
   <script src="./assets/js/i18n.js?v=2.04.84"></script>
+  <script src="./assets/js/language-switcher-static.js?v=2.05.00"></script>
   <script>
     dataUrl = window.dataUrl = function(path) {
       const version = localStorage.getItem("townggSiteVersion") || Date.now();
