@@ -1,6 +1,15 @@
 /* TownGG Portfolio v2.04.39
    Mods page alignment and platform tab state fixes. */
 
+body:not(.header-ready) .site-header {
+  opacity: 0;
+}
+
+body.header-ready .site-header {
+  opacity: 1;
+  transition: opacity .08s ease;
+}
+
 .mod-platforms .container,
 .mod-platforms .platform-panel,
 .mod-platforms .dashboard-summary,
