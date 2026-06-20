@@ -1,27 +1,104 @@
-/* Message Board Moderation Add-on for workers/admin-upload-worker.js
+/* TownGG Portfolio - Standalone Message Board Moderation Worker
 
-   Add these two POST routes to the existing Admin Worker:
+   Deploy this file as a separate Cloudflare Worker if you do not want to merge it into workers/admin-upload-worker.js.
+
+   Bind the Worker to these exact routes:
    - /api/admin/message-board-list
    - /api/admin/message-board-delete
 
-   Required token permission:
-   - GITHUB_TOKEN must have GitHub Discussions read/write access for TownGG/towngg-portfolio.
+   Required environment variables:
+   - GITHUB_TOKEN: GitHub token with Discussions read/write access to TownGG/towngg-portfolio
+   - ADMIN_UPLOAD_SECRET: the same admin key used by admin-upload.html
 
-   Integration notes:
-   1. In fetch(), add:
-      const isMessageBoardList = url.pathname.endsWith("/api/admin/message-board-list");
-      const isMessageBoardDelete = url.pathname.endsWith("/api/admin/message-board-delete");
-      const isMessageBoardRoute = isMessageBoardList || isMessageBoardDelete;
-   2. Include isMessageBoardRoute in the allowed route check.
-   3. Before other payload-based routes:
-      if (isMessageBoardList) return jsonResponse({ success: true, ...(await listMessageBoardComments(config, env)) });
-   4. After payload is parsed:
-      if (isMessageBoardDelete) return jsonResponse({ success: true, ...(await deleteMessageBoardComment(config, env, payload)) });
-   5. Paste the functions below anywhere below getConfig().
+   Optional environment variables:
+   - GITHUB_OWNER: default TownGG
+   - GITHUB_REPO: default towngg-portfolio
+   - MESSAGE_BOARD_DISCUSSION_NUMBER: recommended; the GitHub Discussion number used by the message board
 */
 
+const DEFAULT_OWNER = "TownGG";
+const DEFAULT_REPO = "towngg-portfolio";
 const MESSAGE_BOARD_DISCUSSION_TERM = "/message-board.html";
 const MESSAGE_BOARD_DISCUSSION_TITLE_RE = /message[-\s]?board/i;
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, X-Admin-Key",
+  "Access-Control-Max-Age": "86400"
+};
+
+export default {
+  async fetch(request, env) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: corsHeaders });
+    }
+
+    const url = new URL(request.url);
+    const isList = url.pathname.endsWith("/api/admin/message-board-list");
+    const isDelete = url.pathname.endsWith("/api/admin/message-board-delete");
+
+    if (request.method !== "POST" || (!isList && !isDelete)) {
+      return jsonResponse({ success: false, error: "Not found" }, 404);
+    }
+
+    try {
+      assertEnv(env);
+      authorize(request, env);
+      const config = getConfig(env);
+
+      if (isList) {
+        const result = await listMessageBoardComments(config, env);
+        return jsonResponse({ success: true, ...result });
+      }
+
+      const payload = await request.json().catch(() => ({}));
+      const result = await deleteMessageBoardComment(config, payload);
+      return jsonResponse({ success: true, ...result });
+    } catch (error) {
+      return jsonResponse({ success: false, error: error.message || "Request failed" }, error.status || 500);
+    }
+  }
+};
+
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data, null, 2), {
+    status,
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store"
+    }
+  });
+}
+
+function assertEnv(env) {
+  const required = ["GITHUB_TOKEN", "ADMIN_UPLOAD_SECRET"];
+  for (const key of required) {
+    if (!env[key]) {
+      const error = new Error(`Missing Worker environment variable: ${key}`);
+      error.status = 500;
+      throw error;
+    }
+  }
+}
+
+function authorize(request, env) {
+  const received = request.headers.get("X-Admin-Key") || "";
+  if (!received || received !== env.ADMIN_UPLOAD_SECRET) {
+    const error = new Error("Unauthorized");
+    error.status = 401;
+    throw error;
+  }
+}
+
+function getConfig(env) {
+  return {
+    token: env.GITHUB_TOKEN,
+    owner: env.GITHUB_OWNER || DEFAULT_OWNER,
+    repo: env.GITHUB_REPO || DEFAULT_REPO
+  };
+}
 
 async function githubGraphQL(config, query, variables = {}) {
   const response = await fetch("https://api.github.com/graphql", {
@@ -157,7 +234,7 @@ async function listMessageBoardComments(config, env) {
   };
 }
 
-async function deleteMessageBoardComment(config, env, payload) {
+async function deleteMessageBoardComment(config, payload) {
   const id = String(payload?.id || "").trim();
   if (!id) {
     const error = new Error("Comment id is required.");
