@@ -12,6 +12,11 @@
     return "en";
   }
 
+  function syncHtmlLanguage(lang) {
+    document.documentElement.lang = lang;
+    document.documentElement.dataset.siteLang = lang;
+  }
+
   function updateSwitcher(lang) {
     const label = document.querySelector(".language-button-label");
     if (label) label.textContent = labels[lang] || labels.en;
@@ -24,6 +29,7 @@
   function setLanguage(lang) {
     const next = supported.includes(lang) ? lang : "en";
     localStorage.setItem(LANG_KEY, next);
+    syncHtmlLanguage(next);
     updateSwitcher(next);
     if (window.TownGGI18n?.setLanguage) window.TownGGI18n.setLanguage(next);
   }
