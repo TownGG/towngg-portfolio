@@ -1,7 +1,49 @@
 (() => {
-  const formatter = new Intl.NumberFormat("en-US");
   const LATEST_REFRESH_MS = 5 * 60 * 1000;
   const STALE_AFTER_MS = 90 * 60 * 1000;
+  const translations = {
+    "zh-CN": {
+      "Unique Downloads": "唯一下载",
+      "Daily Downloads": "每日下载",
+      "Total Downloads": "总下载",
+      Endorsements: "点赞",
+      Updated: "更新于 {time}",
+      "Nexus latest snapshot is older than the expected hourly sync window.": "Nexus 最新快照已超过预期的每小时同步窗口。",
+      "Nexus latest snapshot loaded independently from the trend chart.": "Nexus 最新快照已独立于趋势图加载。"
+    },
+    ja: {
+      "Unique Downloads": "ユニークダウンロード",
+      "Daily Downloads": "日別ダウンロード",
+      "Total Downloads": "総ダウンロード",
+      Endorsements: "支持数",
+      Updated: "更新 {time}",
+      "Nexus latest snapshot is older than the expected hourly sync window.": "Nexus最新スナップショットは想定される毎時同期ウィンドウより古くなっています。",
+      "Nexus latest snapshot loaded independently from the trend chart.": "Nexus最新スナップショットはトレンドチャートとは独立して読み込まれました。"
+    }
+  };
+
+  let cachedPayload = null;
+
+  function lang() {
+    const value = localStorage.getItem("townggSiteLang");
+    return value === "zh-CN" || value === "ja" ? value : "en";
+  }
+
+  function locale() {
+    return lang() === "zh-CN" ? "zh-CN" : lang() === "ja" ? "ja-JP" : "en-US";
+  }
+
+  function t(key, replacements = {}) {
+    let value = translations[lang()]?.[key] || key;
+    Object.entries(replacements).forEach(([name, replacement]) => {
+      value = value.replace(`{${name}}`, replacement);
+    });
+    return value;
+  }
+
+  function formatNumber(value) {
+    return new Intl.NumberFormat(locale()).format(number(value));
+  }
 
   function latestSnapshotPath(path) {
     const bucket = Math.floor(Date.now() / LATEST_REFRESH_MS);
@@ -64,9 +106,9 @@
         mod.image = latestImage;
       }
 
-      mod.downloads = formatter.format(number(latest.total_downloads));
-      mod.endorsements = formatter.format(number(latest.likes));
-      mod.uniqueDownloads = formatter.format(number(latest.unique_downloads));
+      mod.downloads = formatNumber(latest.total_downloads);
+      mod.endorsements = formatNumber(latest.likes);
+      mod.uniqueDownloads = formatNumber(latest.unique_downloads);
     });
   }
 
@@ -105,8 +147,8 @@
       ["Endorsements", totals.likes]
     ].map(([label, value]) => `
       <article class="dashboard-stat">
-        <span>${label}</span>
-        <strong>${formatter.format(value)}</strong>
+        <span>${t(label)}</span>
+        <strong>${formatNumber(value)}</strong>
       </article>
     `).join("");
   }
@@ -119,21 +161,22 @@
     target.innerHTML = sorted.map((row) => `
       <tr>
         <td><a href="${row.mod_url}" target="_blank" rel="noopener">${row.mod_name}</a></td>
-        <td>${formatter.format(number(row.daily_downloads))}</td>
-        <td>${formatter.format(number(row.total_downloads))}</td>
-        <td>${formatter.format(number(row.unique_downloads))}</td>
-        <td>${formatter.format(number(row.likes))}</td>
+        <td>${formatNumber(row.daily_downloads)}</td>
+        <td>${formatNumber(row.total_downloads)}</td>
+        <td>${formatNumber(row.unique_downloads)}</td>
+        <td>${formatNumber(row.likes)}</td>
       </tr>
     `).join("");
   }
 
   function formatDateTime(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hour = String(date.getHours()).padStart(2, "0");
-    const minute = String(date.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day} ${hour}:${minute}`;
+    return date.toLocaleString(locale(), {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
   }
 
   function updateTimestamp(updatedAt) {
@@ -146,10 +189,20 @@
     const isStale = age > STALE_AFTER_MS;
     target.classList.toggle("is-stale", isStale);
     target.classList.toggle("is-fresh", !isStale);
-    target.textContent = `Updated ${formatDateTime(date)}`;
+    target.textContent = t("Updated", { time: formatDateTime(date) });
     target.title = isStale
-      ? "Nexus latest snapshot is older than the expected hourly sync window."
-      : "Nexus latest snapshot loaded independently from the trend chart.";
+      ? t("Nexus latest snapshot is older than the expected hourly sync window.")
+      : t("Nexus latest snapshot loaded independently from the trend chart.");
+  }
+
+  function renderNexusLatest(payload) {
+    const latestRows = Array.isArray(payload.mods) ? payload.mods : [];
+    if (!latestRows.length) return;
+    updateSiteData(latestRows);
+    updateCards();
+    updateSummary(latestRows);
+    updateTable(latestRows);
+    updateTimestamp(payload.updatedAt);
   }
 
   async function applyNexusLatest() {
@@ -160,18 +213,19 @@
       const response = await fetch(latestSnapshotPath("./assets/data/nexus-latest.json"), { cache: "no-store" });
       if (!response.ok) return;
       const payload = await response.json();
-      const latestRows = Array.isArray(payload.mods) ? payload.mods : [];
-      if (!latestRows.length) return;
-
-      updateSiteData(latestRows);
-      updateCards();
-      updateSummary(latestRows);
-      updateTable(latestRows);
-      updateTimestamp(payload.updatedAt);
+      cachedPayload = payload;
+      renderNexusLatest(payload);
     } catch (error) {
       console.warn("Nexus latest snapshot could not be applied.", error);
     }
   }
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".language-option[data-lang]")) return;
+    window.setTimeout(() => {
+      if (cachedPayload) renderNexusLatest(cachedPayload);
+    }, 90);
+  });
 
   window.addEventListener("DOMContentLoaded", () => {
     setTimeout(applyNexusLatest, 500);
