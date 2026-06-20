@@ -1,3 +1,4 @@
+html{scrollbar-gutter:stable}body{overflow-y:scroll}
 .nav{display:grid;grid-template-columns:minmax(150px,1fr) auto minmax(150px,1fr)}
 .nav .brand{justify-self:start}
 .nav .nav-links{justify-self:center;min-width:690px}
