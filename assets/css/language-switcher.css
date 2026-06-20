@@ -1,8 +1,8 @@
-html{scrollbar-gutter:stable}body{overflow-y:scroll}
-@media(min-width:981px){.nav{display:grid;grid-template-columns:220px 700px 220px;align-items:center}.nav .brand{justify-self:start;width:220px}.nav .nav-links{justify-self:center;width:700px;min-width:700px;max-width:700px}.language-switcher{justify-self:end;width:220px;display:flex;justify-content:flex-end}.nav .nav-toggle{justify-self:end}}
-.nav .nav-links a{box-sizing:border-box;min-width:86px;text-align:center;justify-content:center;white-space:nowrap}
-.nav .nav-links a:nth-child(4),.nav .nav-links a:nth-child(5){min-width:122px}
-.language-switcher{position:relative}
+.nav{display:grid;grid-template-columns:minmax(150px,1fr) auto minmax(150px,1fr)}
+.nav .brand{justify-self:start}
+.nav .nav-links{justify-self:center}
+.nav .nav-toggle{justify-self:end}
+.language-switcher{position:relative;justify-self:end}
 .language-button{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);color:var(--text);cursor:pointer;font:inherit;font-size:13px;font-weight:800}
 .language-button:hover,.language-switcher.is-open .language-button{border-color:var(--line-blue);background:rgba(125,216,255,.08)}
 .language-menu{position:absolute;top:calc(100% + 10px);right:0;z-index:30;display:grid;min-width:168px;padding:8px;border:1px solid var(--line);border-radius:16px;background:rgba(8,12,18,.94);box-shadow:var(--shadow);backdrop-filter:blur(18px);opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .18s ease,transform .18s ease}
@@ -13,5 +13,5 @@ html{scrollbar-gutter:stable}body{overflow-y:scroll}
 html[data-site-lang="en"] [data-lang-text="en"],html:not([data-site-lang]) [data-lang-text="en"]{display:inline}
 html[data-site-lang="zh-CN"] [data-lang-text="zh-CN"]{display:inline}
 html[data-site-lang="ja"] [data-lang-text="ja"]{display:inline}
-@media(max-width:980px){.nav{display:flex}.language-switcher{margin-left:auto}.nav-toggle{order:4}.nav-links{right:0;min-width:0}.nav .nav-links a{min-width:0}}
+@media(max-width:980px){.nav{display:flex}.language-switcher{margin-left:auto}.nav-toggle{order:4}.nav-links{right:0}}
 @media(max-width:520px){.language-button-label{display:none}.language-button{width:42px;justify-content:center;padding:0}}
