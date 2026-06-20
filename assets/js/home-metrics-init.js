@@ -30,6 +30,41 @@
     return value.length > 170 ? `${value.slice(0, 167)}...` : value;
   }
 
+  function playerVoicesCopy() {
+    const lang = document.documentElement.lang || localStorage.getItem("townggSiteLang") || "en";
+    if (lang === "zh-CN") {
+      return {
+        eyebrow: "精选反馈",
+        title: "玩家之声",
+        desc: "来自 Nexus Mods 与 Reddit 的精选玩家评论。"
+      };
+    }
+    if (lang === "ja") {
+      return {
+        eyebrow: "選ばれたフィードバック",
+        title: "プレイヤーの声",
+        desc: "Nexus Mods と Reddit から選んだプレイヤーコメント。"
+      };
+    }
+    return {
+      eyebrow: "Selected Feedback",
+      title: "Player Voices",
+      desc: "Selected comments from players across Nexus Mods and Reddit."
+    };
+  }
+
+  function updatePlayerVoicesCopy() {
+    const section = document.querySelector("[data-player-voices]");
+    if (!section) return;
+    const copy = playerVoicesCopy();
+    const eyebrow = section.querySelector("[data-player-voices-eyebrow]");
+    const title = section.querySelector("[data-player-voices-title]");
+    const desc = section.querySelector("[data-player-voices-desc]");
+    if (eyebrow) eyebrow.textContent = copy.eyebrow;
+    if (title) title.textContent = copy.title;
+    if (desc) desc.textContent = copy.desc;
+  }
+
   function injectPlayerVoicesStyles() {
     if (document.getElementById("player-voices-style")) return;
     const style = document.createElement("style");
@@ -128,28 +163,18 @@
       }
 
       @keyframes playerVoiceFloat {
-        0% {
-          translate: 0 0;
-        }
-        50% {
-          translate: 8px -12px;
-        }
-        100% {
-          translate: -6px 10px;
-        }
+        0% { translate: 0 0; }
+        50% { translate: 8px -12px; }
+        100% { translate: -6px 10px; }
       }
 
       @media (max-width: 760px) {
-        .player-voices-panel {
-          min-height: auto;
-        }
-
+        .player-voices-panel { min-height: auto; }
         .player-voices-field {
           display: grid;
           gap: 14px;
           min-height: auto;
         }
-
         .player-voice-card {
           position: relative;
           left: auto;
@@ -161,24 +186,33 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .player-voice-card {
-          animation: none;
-        }
+        .player-voice-card { animation: none; }
       }
     `;
     document.head.appendChild(style);
   }
 
   function findCommunityNotesSection() {
+    const boardLink = document.querySelector('a[href="./message-board.html"]');
+    const boardSection = boardLink?.closest("section");
+    if (boardSection) return boardSection;
+
     const titles = [...document.querySelectorAll(".section-title")];
-    const communityTitle = titles.find((title) => title.textContent.trim().toLowerCase() === "community notes");
+    const titleTexts = ["community notes", "社区留言", "コミュニティノート"];
+    const communityTitle = titles.find((title) => titleTexts.includes(title.textContent.trim().toLowerCase()));
     return communityTitle?.closest("section") || null;
+  }
+
+  function findSocialLinksSection() {
+    const socials = document.querySelector("[data-socials]");
+    return socials?.closest("section") || null;
   }
 
   function buildPlayerVoicesSection(items) {
     const section = document.createElement("section");
     section.className = "section tight player-voices-section";
     section.setAttribute("data-player-voices", "");
+    const copy = playerVoicesCopy();
 
     const positions = [
       [4, 8, -2.4, "18s", "-2s"],
@@ -205,9 +239,9 @@
       <div class="container">
         <div class="panel player-voices-panel">
           <div class="player-voices-head">
-            <div class="eyebrow">Selected Feedback</div>
-            <h2 class="section-title">Player Voices</h2>
-            <p class="section-desc">Selected comments from players across Nexus Mods and Reddit.</p>
+            <div class="eyebrow" data-player-voices-eyebrow>${escapeHtml(copy.eyebrow)}</div>
+            <h2 class="section-title" data-player-voices-title>${escapeHtml(copy.title)}</h2>
+            <p class="section-desc" data-player-voices-desc>${escapeHtml(copy.desc)}</p>
           </div>
           <div class="player-voices-field">
             ${cards}
@@ -221,7 +255,10 @@
 
   async function runPlayerVoices() {
     if (document.body?.dataset?.page !== "home") return;
-    if (document.querySelector("[data-player-voices]")) return;
+    if (document.querySelector("[data-player-voices]")) {
+      updatePlayerVoicesCopy();
+      return;
+    }
 
     try {
       const response = await fetch(`${COMMUNITY_DATA_URL}?v=${Date.now()}`, { cache: "no-store" });
@@ -236,16 +273,26 @@
       injectPlayerVoicesStyles();
       const section = buildPlayerVoicesSection(featured);
       const communitySection = findCommunityNotesSection();
+      const socialSection = findSocialLinksSection();
       if (communitySection?.parentNode) {
         communitySection.parentNode.insertBefore(section, communitySection.nextSibling);
+      } else if (socialSection?.parentNode) {
+        socialSection.parentNode.insertBefore(section, socialSection);
       }
     } catch (error) {
       // Hide silently when no featured player comments exist yet.
     }
   }
 
+  function watchLanguageChanges() {
+    const observer = new MutationObserver(() => updatePlayerVoicesCopy());
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+  }
+
   window.addEventListener("DOMContentLoaded", () => {
     window.setTimeout(runHomeMetrics, 900);
     window.setTimeout(runPlayerVoices, 1000);
+    window.setTimeout(runPlayerVoices, 1300);
+    watchLanguageChanges();
   });
 })();
