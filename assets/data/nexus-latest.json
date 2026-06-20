@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-20T00:31:06Z",
+  "updatedAt": "2026-06-20T01:01:03Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1342,
-      "unique_downloads": 669,
-      "daily_downloads": 0,
+      "total_downloads": 1343,
+      "unique_downloads": 670,
+      "daily_downloads": 1,
       "likes": 28,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 270,
-      "unique_downloads": 252,
-      "daily_downloads": 0,
+      "total_downloads": 271,
+      "unique_downloads": 253,
+      "daily_downloads": 1,
       "likes": 8,
       "views": 0
     },
@@ -91,9 +91,9 @@
       "mod_name": "CPF-UC VANGUARD POWER FIST MK2",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17479",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
-      "total_downloads": 96,
-      "unique_downloads": 92,
-      "daily_downloads": 0,
+      "total_downloads": 97,
+      "unique_downloads": 93,
+      "daily_downloads": 1,
       "likes": 4,
       "views": 0
     },
@@ -103,9 +103,9 @@
       "mod_name": "CPF-STARBORN POWER FIST UNITY",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
-      "total_downloads": 108,
-      "unique_downloads": 107,
-      "daily_downloads": 0,
+      "total_downloads": 110,
+      "unique_downloads": 109,
+      "daily_downloads": 2,
       "likes": 5,
       "views": 0
     },
@@ -118,7 +118,7 @@
       "total_downloads": 59,
       "unique_downloads": 59,
       "daily_downloads": 3,
-      "likes": 4,
+      "likes": 5,
       "views": 0
     },
     {
@@ -127,9 +127,9 @@
       "mod_name": "CPF-CRIMSON FLEET POWER FIST HELLHOUND",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17501",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
-      "total_downloads": 36,
-      "unique_downloads": 35,
-      "daily_downloads": 1,
+      "total_downloads": 37,
+      "unique_downloads": 36,
+      "daily_downloads": 2,
       "likes": 2,
       "views": 0
     }
