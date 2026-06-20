@@ -3,11 +3,60 @@
   const toolbar = chartEl?.closest(".dashboard-panel")?.querySelector(".dashboard-toolbar");
   if (!chartEl) return;
 
-  const numberFormatter = new Intl.NumberFormat("en-US");
+  const translations = {
+    "zh-CN": {
+      "Daily Downloads": "每日下载",
+      Likes: "点赞",
+      "Total Downloads": "总下载",
+      Plays: "游玩",
+      "Library Adds": "加入库",
+      "7-Day Creations Downloads Trend": "7 日 Creations 下载趋势",
+      "Creations trend note": "基于每个 Creation 的每日下载记录统计发布活跃度。显示 creations-mod-daily.csv 中最近一次成功抓取的每日快照。最新快照：{date}。",
+      "Daily downloads": "每日下载",
+      "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "暂时没有 Creations 每日数据。下一次定时 CC 同步后会显示。",
+      "Creations daily downloads chart": "Creations 每日下载图表",
+      "daily downloads on": "每日下载，日期"
+    },
+    ja: {
+      "Daily Downloads": "日別ダウンロード",
+      Likes: "いいね",
+      "Total Downloads": "総ダウンロード",
+      Plays: "プレイ",
+      "Library Adds": "ライブラリ追加",
+      "7-Day Creations Downloads Trend": "7日間のCreationsダウンロード推移",
+      "Creations trend note": "各Creationの日別ダウンロード記録をもとに公開状況を表示します。creations-mod-daily.csv の最新成功スナップショットを表示中。最新スナップショット：{date}。",
+      "Daily downloads": "日別ダウンロード",
+      "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "Creationsの日別データはまだありません。次回の定期CC同期後に表示されます。",
+      "Creations daily downloads chart": "Creations日別ダウンロードチャート",
+      "daily downloads on": "日別ダウンロード 日付"
+    }
+  };
+
   const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.04.41-preview";
   let cachedModDailyRows = [];
   let isRendering = false;
   let rerenderTimer = 0;
+
+  function lang() {
+    const value = localStorage.getItem("townggSiteLang");
+    return value === "zh-CN" || value === "ja" ? value : "en";
+  }
+
+  function locale() {
+    return lang() === "zh-CN" ? "zh-CN" : lang() === "ja" ? "ja-JP" : "en-US";
+  }
+
+  function t(key, replacements = {}) {
+    let value = translations[lang()]?.[key] || key;
+    Object.entries(replacements).forEach(([name, replacement]) => {
+      value = value.replace(`{${name}}`, replacement);
+    });
+    return value;
+  }
+
+  function formatNumber(value) {
+    return new Intl.NumberFormat(locale()).format(Number(value || 0));
+  }
 
   function toNumber(value) {
     const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, ""));
@@ -54,7 +103,7 @@
   function formatDateLabel(value) {
     const date = new Date(`${value}T00:00:00`);
     if (Number.isNaN(date.getTime())) return String(value || "").slice(5);
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return date.toLocaleDateString(locale(), { month: "short", day: "numeric" });
   }
 
   function snapshotTotal(rows) {
@@ -115,8 +164,8 @@
       ["Library Adds", totals.libraryAdds]
     ].map(([label, value]) => `
       <article class="dashboard-stat">
-        <span>${label}</span>
-        <strong>${numberFormatter.format(value)}</strong>
+        <span>${t(label)}</span>
+        <strong>${formatNumber(value)}</strong>
       </article>
     `).join("");
   }
@@ -129,10 +178,10 @@
     if (!toolbar) return;
     toolbar.innerHTML = `
       <div>
-        <h3>7-Day Creations Downloads Trend</h3>
-        <p class="dashboard-note">Creations release activity based on tracked per-mod daily downloads. Showing the latest successful daily snapshot from creations-mod-daily.csv. Latest snapshot: ${formatDateLabel(latestDate)}.</p>
+        <h3>${t("7-Day Creations Downloads Trend")}</h3>
+        <p class="dashboard-note">${t("Creations trend note", { date: formatDateLabel(latestDate) })}</p>
       </div>
-      <span class="telemetry-pill">Daily downloads</span>
+      <span class="telemetry-pill">${t("Daily downloads")}</span>
     `;
   }
 
@@ -145,7 +194,7 @@
     renderToolbar(data.at(-1)?.date || "");
 
     if (!data.length) {
-      chartEl.innerHTML = '<p class="section-desc">No Creations daily data available yet. It will appear after the next scheduled CC sync.</p>';
+      chartEl.innerHTML = `<p class="section-desc">${t("No Creations daily data available yet. It will appear after the next scheduled CC sync.")}</p>`;
       isRendering = false;
       return;
     }
@@ -180,7 +229,7 @@
       const label = Math.round(yMax * (1 - step / 4));
       return `
         <line class="telemetry-grid-line" x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" />
-        <text class="nexus-axis-label" x="14" y="${y + 5}">${numberFormatter.format(label)}</text>
+        <text class="nexus-axis-label" x="14" y="${y + 5}">${formatNumber(label)}</text>
       `;
     }).join("");
 
@@ -190,7 +239,7 @@
     }).join("");
 
     const dots = points.map(({ x, y, item }) => `
-      <g class="nexus-point" tabindex="0" aria-label="${numberFormatter.format(item.value)} daily downloads on ${item.date}">
+      <g class="nexus-point" tabindex="0" aria-label="${formatNumber(item.value)} ${t("daily downloads on")} ${formatDateLabel(item.date)}">
         <circle class="telemetry-dot" cx="${x}" cy="${y}" r="5"></circle>
       </g>
     `).join("");
@@ -198,7 +247,7 @@
     chartEl.className = "dashboard-chart nexus-telemetry-chart";
     chartEl.innerHTML = `
       <div class="nexus-trend-canvas">
-        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Creations daily downloads chart" preserveAspectRatio="xMidYMid meet">
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${t("Creations daily downloads chart")}" preserveAspectRatio="xMidYMid meet">
           <defs>
             <linearGradient id="creationsArea" x1="0" x2="0" y1="0" y2="1">
               <stop offset="0%" stop-color="rgba(116, 217, 255, 0.28)" />
@@ -213,7 +262,7 @@
           ${labels}
         </svg>
         ${points.map(({ x, y, item }) => `
-          <span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${numberFormatter.format(item.value)}</span>
+          <span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${formatNumber(item.value)}</span>
         `).join("")}
       </div>
     `;
@@ -236,6 +285,9 @@
     renderChart(modDailyRows);
   }).catch(() => updateDailySummary([]));
 
+  document.addEventListener("click", (event) => {
+    if (event.target.closest(".language-option[data-lang]")) window.setTimeout(scheduleRender, 80);
+  });
   window.addEventListener("focus", scheduleRender);
   window.addEventListener("storage", scheduleRender);
 })();
