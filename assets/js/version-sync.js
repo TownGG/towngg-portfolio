@@ -24,10 +24,7 @@
   let messageBadgeProbeStarted = false;
 
   function normalizeVersion(value) {
-    return String(value || "")
-      .replace(/^v/i, "")
-      .replace(/-preview$/i, "")
-      .trim();
+    return String(value || "").replace(/^v/i, "").replace(/-preview$/i, "").trim();
   }
 
   function currentAssetVersions() {
@@ -86,7 +83,6 @@
       if (nav.querySelector('a[href="./admin-upload.html"]')) return;
       const about = nav.querySelector('a[href="./about.html"]');
       if (!about) return;
-
       const admin = document.createElement("a");
       admin.href = "./admin-upload.html";
       admin.textContent = "Admin";
@@ -95,35 +91,64 @@
     });
   }
 
-  function injectMessageBoardModerationPanel() {
+  function injectMessageBoardAdminTab() {
     if (document.body?.dataset.page !== "admin-upload") return;
-    if (document.querySelector("[data-message-board-moderation]")) return;
+    const switcher = document.querySelector(".admin-module-switcher");
+    const tabs = document.querySelector(".admin-module-tabs");
+    const content = document.querySelector(".admin-module-content");
+    if (!switcher || !tabs || !content) return;
 
-    const shell = document.querySelector("[data-admin-shell]");
-    const hero = shell?.querySelector(".admin-hero");
-    if (!shell || !hero) return;
+    if (!document.getElementById("admin-module-message-board")) {
+      const input = document.createElement("input");
+      input.className = "admin-module-radio";
+      input.type = "radio";
+      input.name = "admin-module";
+      input.id = "admin-module-message-board";
+      const communityInput = document.getElementById("admin-module-community");
+      if (communityInput) communityInput.insertAdjacentElement("afterend", input);
+      else switcher.insertBefore(input, tabs);
+    }
 
-    const panel = document.createElement("section");
-    panel.className = "admin-card panel message-board-moderation-panel";
-    panel.setAttribute("data-message-board-moderation", "true");
-    panel.style.margin = "20px 0";
-    panel.innerHTML = `
-      <div class="admin-card-header">
-        <div>
-          <div class="eyebrow">Message Board</div>
-          <h2>Moderation</h2>
-          <p class="admin-subtitle">Open the GitHub Discussion behind the public message board, then delete or hide spam / bad comments with your repository owner account.</p>
-        </div>
-        <span class="admin-status-pill">Owner action required</span>
-      </div>
-      <div class="admin-actions" style="flex-wrap: wrap;">
-        <a class="button primary" href="${MESSAGE_BOARD_DISCUSSION_SEARCH_URL}" target="_blank" rel="noopener">Open Message Board Discussion</a>
-        <a class="button" href="${MESSAGE_BOARD_DISCUSSIONS_URL}" target="_blank" rel="noopener">All General Discussions</a>
-      </div>
-      <small class="admin-security-note">For safety, deletion is handled inside GitHub instead of this public website, so your GitHub moderation permission is never exposed in frontend code.</small>
-    `;
+    if (!tabs.querySelector('label[for="admin-module-message-board"]')) {
+      const label = document.createElement("label");
+      label.className = "admin-module-tab";
+      label.htmlFor = "admin-module-message-board";
+      label.setAttribute("role", "tab");
+      label.textContent = "Message Board";
+      tabs.appendChild(label);
+    }
 
-    hero.insertAdjacentElement("afterend", panel);
+    if (!content.querySelector(".admin-module-message-board")) {
+      const panel = document.createElement("div");
+      panel.className = "admin-module-panel admin-module-message-board";
+      panel.innerHTML = `
+        <section class="admin-card panel message-board-admin-panel" data-message-board-moderation>
+          <div class="admin-card-header">
+            <div>
+              <div class="eyebrow">Message Board</div>
+              <h2>Message Board Management</h2>
+              <p class="admin-subtitle">Manage public Giscus / GitHub Discussions messages from the admin area.</p>
+            </div>
+            <span class="admin-status-pill">GitHub Discussions</span>
+          </div>
+          <div class="admin-actions" style="flex-wrap: wrap;">
+            <a class="button primary" href="${MESSAGE_BOARD_DISCUSSION_SEARCH_URL}" target="_blank" rel="noopener">Open Message Board Discussion</a>
+            <a class="button" href="${MESSAGE_BOARD_DISCUSSIONS_URL}" target="_blank" rel="noopener">All General Discussions</a>
+          </div>
+          <div class="message-board-admin-list">
+            <article class="message-board-admin-item">
+              <strong>Current safe management mode</strong>
+              <p>Deletion is handled in GitHub Discussions so your GitHub moderation permission is not exposed in frontend code.</p>
+              <div class="admin-actions">
+                <a class="button" href="${MESSAGE_BOARD_DISCUSSION_SEARCH_URL}" target="_blank" rel="noopener">Review / Delete in GitHub</a>
+              </div>
+            </article>
+          </div>
+          <small class="message-board-admin-note">Next upgrade can add an internal comment list and delete buttons through the Cloudflare Worker after the GitHub token has Discussions write permission.</small>
+        </section>
+      `;
+      content.appendChild(panel);
+    }
   }
 
   function isMessageBoardPage() {
@@ -136,14 +161,10 @@
 
   function injectMessageBoardBadgeStyle() {
     if (document.getElementById("message-board-badge-style")) return;
-
     const style = document.createElement("style");
     style.id = "message-board-badge-style";
     style.textContent = `
-      .nav-links a[data-message-board-nav] {
-        position: relative;
-      }
-
+      .nav-links a[data-message-board-nav] { position: relative; }
       .nav-links a[data-message-board-nav].has-unread::after {
         content: "";
         position: absolute;
@@ -193,12 +214,9 @@
   }
 
   function discussionMessageCount(discussion = {}) {
-    const values = [
-      discussion.totalCommentCount,
-      discussion.totalReplyCount,
-      discussion.comments?.totalCount,
-      discussion.replies?.totalCount
-    ].map((value) => Number(value)).filter(Number.isFinite);
+    const values = [discussion.totalCommentCount, discussion.totalReplyCount, discussion.comments?.totalCount, discussion.replies?.totalCount]
+      .map((value) => Number(value))
+      .filter(Number.isFinite);
     return Math.max(0, ...values, 0);
   }
 
@@ -206,37 +224,30 @@
     if (event.origin !== "https://giscus.app") return;
     const giscus = event.data?.giscus;
     if (!giscus?.discussion) return;
-
     const discussion = giscus.discussion;
     if (!isMessageBoardPage() && !isMessageBoardDiscussion(discussion)) return;
-
     const count = discussionMessageCount(discussion);
     const latest = getStoredMessageCount(MESSAGE_BOARD_LATEST_KEY);
     const read = getStoredMessageCount(MESSAGE_BOARD_READ_KEY);
     localStorage.setItem(MESSAGE_BOARD_LATEST_KEY, String(Math.max(latest, count)));
-
     if (isMessageBoardPage()) {
       acknowledgeMessageBoard(count);
       return;
     }
-
     if (!read) {
       localStorage.setItem(MESSAGE_BOARD_READ_KEY, String(count));
       setMessageBoardBadge(false);
       return;
     }
-
     setMessageBoardBadge(count > read);
   }
 
   function startMessageBoardProbe() {
     if (messageBadgeProbeStarted || isMessageBoardPage()) return;
     messageBadgeProbeStarted = true;
-
     const probe = document.createElement("div");
     probe.setAttribute("aria-hidden", "true");
     probe.style.cssText = "position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);pointer-events:none;opacity:0;";
-
     const script = document.createElement("script");
     script.src = "https://giscus.app/client.js";
     script.dataset.repo = "TownGG/towngg-portfolio";
@@ -254,7 +265,6 @@
     script.dataset.loading = "lazy";
     script.crossOrigin = "anonymous";
     script.async = true;
-
     probe.appendChild(script);
     document.body.appendChild(probe);
   }
@@ -273,27 +283,22 @@
 
   async function syncVersion() {
     ensureAdminNavEntry();
-    injectMessageBoardModerationPanel();
+    injectMessageBoardAdminTab();
     setupMessageBoardBadge();
-
     try {
       const response = await fetch(`${VERSION_URL}?t=${Date.now()}`, { cache: "no-store" });
       if (!response.ok) return;
-
       const data = await response.json();
       const version = normalizeVersion(data.version);
       if (!version) return;
-
       const versions = currentAssetVersions();
       const hasOutdatedAsset = versions.some((item) => item !== version);
       const lockKey = `${LOCK_PREFIX}${version}:${location.pathname}`;
       const alreadyReloaded = localStorage.getItem(lockKey) === "1";
-
       localStorage.setItem("townggSiteVersion", data.version || `v${version}-preview`);
       document.querySelectorAll("[data-site-version]").forEach((node) => {
         node.textContent = `Version ${data.version || `v${version}-preview`}`;
       });
-
       if (hasOutdatedAsset && !alreadyReloaded) {
         localStorage.setItem(lockKey, "1");
         reloadOnce(lockKey);
