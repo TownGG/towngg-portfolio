@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./assets/css/styles.css?v=2.04.38">
+  <link rel="stylesheet" href="./assets/css/language-switcher.css?v=2.04.92">
   <link rel="stylesheet" href="./assets/css/data-system.css?v=2.04.38">
   <link rel="stylesheet" href="./assets/css/mobile-interaction.css?v=2.04.38">
   <link rel="stylesheet" href="./assets/css/nexus-sync-status.css?v=2.04.38">
@@ -33,6 +34,16 @@
         <a href="./message-board.html">Message Board</a>
         <a href="./about.html">About</a>
       </nav>
+      <div class="language-switcher">
+        <button class="language-button" type="button" aria-haspopup="true" aria-expanded="false">
+          <span aria-hidden="true">🌐</span><span class="language-button-label">English</span><span aria-hidden="true">▾</span>
+        </button>
+        <div class="language-menu" role="menu">
+          <button class="language-option" type="button" data-lang="en" role="menuitem">✓ English</button>
+          <button class="language-option" type="button" data-lang="zh-CN" role="menuitem">简体中文</button>
+          <button class="language-option" type="button" data-lang="ja" role="menuitem">日本語</button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -62,9 +73,7 @@
             </div>
             <span class="dashboard-date" data-dashboard-updated></span>
           </div>
-
           <div class="dashboard-summary" data-dashboard-summary></div>
-
           <div class="dashboard-panel">
             <div class="dashboard-toolbar">
               <h3>Trend</h3>
@@ -80,7 +89,6 @@
             </div>
             <div class="dashboard-chart" data-dashboard-chart></div>
           </div>
-
           <div class="mods-control-bar">
             <div class="mods-platform-control">
               <div class="platform-tabs" role="tablist" aria-label="Mod platform">
@@ -88,7 +96,6 @@
                 <button class="platform-tab" type="button" role="tab" aria-selected="false" data-platform-tab="nexus">Nexus Mods</button>
               </div>
             </div>
-
             <div class="mods-filter-control filters" data-filter-group="mods" data-filter-target-current>
               <div class="desktop-filter-chips">
                 <button class="button filter is-active" type="button" data-filter="All">All</button>
@@ -107,24 +114,12 @@
               </div>
             </div>
           </div>
-
           <div class="projects" data-all-mods></div>
-
           <div class="dashboard-panel">
-            <div class="dashboard-toolbar">
-              <h3>Nexus Details</h3>
-            </div>
+            <div class="dashboard-toolbar"><h3>Nexus Details</h3></div>
             <div class="dashboard-table-wrap">
               <table class="dashboard-table">
-                <thead>
-                  <tr>
-                    <th>Mod</th>
-                    <th>Daily</th>
-                    <th>Total</th>
-                    <th>Unique</th>
-                    <th>Endorse</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>Mod</th><th>Daily</th><th>Total</th><th>Unique</th><th>Endorse</th></tr></thead>
                 <tbody data-dashboard-table></tbody>
               </table>
             </div>
@@ -140,16 +135,11 @@
             </div>
             <span class="dashboard-date" data-creations-updated></span>
           </div>
-
           <div class="dashboard-summary" data-creations-summary></div>
-
           <div class="dashboard-panel">
-            <div class="dashboard-toolbar">
-              <h3>Trend</h3>
-            </div>
+            <div class="dashboard-toolbar"><h3>Trend</h3></div>
             <div class="dashboard-chart" data-creations-chart></div>
           </div>
-
           <div class="mods-control-bar">
             <div class="mods-platform-control">
               <div class="platform-tabs" role="tablist" aria-label="Mod platform">
@@ -157,7 +147,6 @@
                 <button class="platform-tab" type="button" role="tab" aria-selected="false" data-platform-tab="nexus">Nexus Mods</button>
               </div>
             </div>
-
             <div class="mods-filter-control filters" data-filter-group="mods" data-filter-target-current>
               <div class="desktop-filter-chips">
                 <button class="button filter is-active" type="button" data-filter="All">All</button>
@@ -176,15 +165,10 @@
               </div>
             </div>
           </div>
-
           <div class="projects creations-projects" data-creations-mods></div>
-
           <div class="dashboard-panel">
             <div class="dashboard-toolbar">
-              <div>
-                <h3>Creations Ranking</h3>
-                <p class="dashboard-note">Snapshot from Bethesda Creations stats.</p>
-              </div>
+              <div><h3>Creations Ranking</h3><p class="dashboard-note">Snapshot from Bethesda Creations stats.</p></div>
               <div class="dashboard-controls">
                 <select data-creations-ranking-metric aria-label="Choose Creations ranking">
                   <option value="likes">Likes</option>
@@ -196,24 +180,11 @@
             </div>
             <div data-creations-ranking></div>
           </div>
-
           <div class="dashboard-panel">
-            <div class="dashboard-toolbar">
-              <h3>Creations Details</h3>
-            </div>
+            <div class="dashboard-toolbar"><h3>Creations Details</h3></div>
             <div class="dashboard-table-wrap">
               <table class="dashboard-table creations-details-table">
-                <thead>
-                  <tr>
-                    <th>Creation</th>
-                    <th>Daily</th>
-                    <th>Likes</th>
-                    <th>Views</th>
-                    <th>Downloads</th>
-                    <th>Plays</th>
-                    <th>Library Adds</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>Creation</th><th>Daily</th><th>Likes</th><th>Views</th><th>Downloads</th><th>Plays</th><th>Library Adds</th></tr></thead>
                 <tbody data-creations-table></tbody>
               </table>
             </div>
@@ -230,52 +201,12 @@
   </footer>
 
   <script src="./assets/js/version-sync.js?v=2.04.80"></script>
-  <script>
-    document.write('<script src="./assets/js/site-data.js?v=' + Date.now() + '"><\/script>');
-  </script>
+  <script>document.write('<script src="./assets/js/site-data.js?v=' + Date.now() + '"><\/script>');</script>
   <script src="./assets/js/main.js?v=2.04.38"></script>
   <script src="./assets/js/i18n.js?v=2.04.84"></script>
-  <script>
-    dataUrl = window.dataUrl = function(path) {
-      const version = localStorage.getItem("townggSiteVersion") || Date.now();
-      const separator = path.includes("?") ? "&" : "?";
-      return `${path}${separator}v=${encodeURIComponent(version)}&t=${Date.now()}`;
-    };
-  </script>
-  <script>
-    (() => {
-      const defaultPlatform = "creations";
-
-      function syncPlatformTabs(platform = defaultPlatform) {
-        document.querySelectorAll("[data-platform-tab]").forEach((tab) => {
-          const isActive = tab.dataset.platformTab === platform;
-          tab.classList.toggle("is-active", isActive);
-          tab.setAttribute("aria-selected", String(isActive));
-        });
-
-        document.querySelectorAll("[data-platform-panel]").forEach((panel) => {
-          panel.classList.toggle("is-active", panel.dataset.platformPanel === platform);
-        });
-      }
-
-      const initialize = () => {
-        const activePanel = document.querySelector("[data-platform-panel].is-active");
-        syncPlatformTabs(activePanel?.dataset.platformPanel || defaultPlatform);
-      };
-
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initialize);
-      } else {
-        initialize();
-      }
-
-      document.addEventListener("click", (event) => {
-        const tab = event.target.closest("[data-platform-tab]");
-        if (!tab) return;
-        window.setTimeout(() => syncPlatformTabs(tab.dataset.platformTab || defaultPlatform), 0);
-      });
-    })();
-  </script>
+  <script src="./assets/js/language-switcher-static.js?v=2.04.92"></script>
+  <script>dataUrl = window.dataUrl = function(path) { const version = localStorage.getItem("townggSiteVersion") || Date.now(); const separator = path.includes("?") ? "&" : "?"; return `${path}${separator}v=${encodeURIComponent(version)}&t=${Date.now()}`; };</script>
+  <script>(() => { const defaultPlatform = "creations"; function syncPlatformTabs(platform = defaultPlatform) { document.querySelectorAll("[data-platform-tab]").forEach((tab) => { const isActive = tab.dataset.platformTab === platform; tab.classList.toggle("is-active", isActive); tab.setAttribute("aria-selected", String(isActive)); }); document.querySelectorAll("[data-platform-panel]").forEach((panel) => { panel.classList.toggle("is-active", panel.dataset.platformPanel === platform); }); } const initialize = () => { const activePanel = document.querySelector("[data-platform-panel].is-active"); syncPlatformTabs(activePanel?.dataset.platformPanel || defaultPlatform); }; if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initialize); else initialize(); document.addEventListener("click", (event) => { const tab = event.target.closest("[data-platform-tab]"); if (!tab) return; window.setTimeout(() => syncPlatformTabs(tab.dataset.platformTab || defaultPlatform), 0); }); })();</script>
   <script src="./assets/js/creations-source-label.js?v=2.04.60"></script>
   <script src="./assets/js/nexus-latest.js?v=2.04.38"></script>
   <script src="./assets/js/nexus-trend-fix.js?v=2.04.38"></script>
