@@ -1,8 +1,38 @@
 (() => {
-  const numberFormatter = new Intl.NumberFormat("en-US");
   const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.04.59-preview";
   let latestDailyDownloads = null;
   let isRendering = false;
+  const translations = {
+    "zh-CN": {
+      "Daily Downloads": "每日下载",
+      Likes: "点赞",
+      "Total Downloads": "总下载",
+      "Library Adds": "加入库"
+    },
+    ja: {
+      "Daily Downloads": "日別ダウンロード",
+      Likes: "いいね",
+      "Total Downloads": "総ダウンロード",
+      "Library Adds": "ライブラリ追加"
+    }
+  };
+
+  function lang() {
+    const value = localStorage.getItem("townggSiteLang");
+    return value === "zh-CN" || value === "ja" ? value : "en";
+  }
+
+  function locale() {
+    return lang() === "zh-CN" ? "zh-CN" : lang() === "ja" ? "ja-JP" : "en-US";
+  }
+
+  function t(key) {
+    return translations[lang()]?.[key] || key;
+  }
+
+  function formatNumber(value) {
+    return new Intl.NumberFormat(locale()).format(Number(value || 0));
+  }
 
   function toNumber(value) {
     const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, ""));
@@ -86,17 +116,17 @@
     if (!target || isRendering) return;
     isRendering = true;
 
-    const t = totals();
+    const totalsData = totals();
     const daily = latestDailyDownloads ?? 0;
     target.innerHTML = [
       ["Daily Downloads", daily],
-      ["Likes", t.likes],
-      ["Total Downloads", t.downloads],
-      ["Library Adds", t.libraryAdds]
+      ["Likes", totalsData.likes],
+      ["Total Downloads", totalsData.downloads],
+      ["Library Adds", totalsData.libraryAdds]
     ].map(([label, value]) => `
       <article class="dashboard-stat">
-        <span>${label}</span>
-        <strong>${numberFormatter.format(value)}</strong>
+        <span>${t(label)}</span>
+        <strong>${formatNumber(value)}</strong>
       </article>
     `).join("");
 
@@ -120,7 +150,7 @@
 
     const observer = new MutationObserver(() => {
       const labels = [...target.querySelectorAll(".dashboard-stat span")].map((item) => item.textContent?.trim());
-      if (labels[0] !== "Daily Downloads" || labels.includes("Plays") || labels.length !== 4) {
+      if (labels[0] !== t("Daily Downloads") || labels.includes("Plays") || labels.length !== 4) {
         window.setTimeout(renderSummary, 0);
       }
     });
@@ -133,6 +163,9 @@
     loadDaily();
     window.setTimeout(renderSummary, 250);
     window.setTimeout(renderSummary, 900);
+    document.addEventListener("click", (event) => {
+      if (event.target.closest(".language-option[data-lang]")) window.setTimeout(renderSummary, 90);
+    });
   }
 
   if (document.readyState === "loading") {
