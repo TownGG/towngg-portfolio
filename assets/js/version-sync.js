@@ -7,6 +7,9 @@
   const MESSAGE_BOARD_LATEST_KEY = "townggMessageBoardLatestCount";
   const MESSAGE_BOARD_READ_KEY = "townggMessageBoardReadCount";
   const MESSAGE_BOARD_TERM = "/message-board.html";
+  const ADMIN_KEY_STORAGE = "towngg_admin_upload_key";
+  const MESSAGE_BOARD_LIST_ENDPOINT = "/api/admin/message-board-list";
+  const MESSAGE_BOARD_DELETE_ENDPOINT = "/api/admin/message-board-delete";
   const MESSAGE_BOARD_DISCUSSION_SEARCH_URL = "https://github.com/TownGG/towngg-portfolio/discussions?discussions_q=message-board";
   const MESSAGE_BOARD_DISCUSSIONS_URL = "https://github.com/TownGG/towngg-portfolio/discussions/categories/general";
   const WATCHED_FILES = [
@@ -22,6 +25,7 @@
   let liveChecking = false;
   let reloading = false;
   let messageBadgeProbeStarted = false;
+  let messageBoardAdminReady = false;
 
   function normalizeVersion(value) {
     return String(value || "").replace(/^v/i, "").replace(/-preview$/i, "").trim();
@@ -91,6 +95,101 @@
     });
   }
 
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function getStoredAdminKey() {
+    try {
+      return localStorage.getItem(ADMIN_KEY_STORAGE) || "";
+    } catch {
+      return "";
+    }
+  }
+
+  function setBoardStatus(message, type = "idle") {
+    const target = document.querySelector("[data-message-board-admin-status]");
+    if (!target) return;
+    target.textContent = message;
+    target.dataset.status = type;
+  }
+
+  async function messageBoardAdminRequest(endpoint, body = {}) {
+    const key = getStoredAdminKey();
+    if (!key) throw new Error("Admin key is not loaded. Unlock Admin and choose Remember key first.");
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Admin-Key": key
+      },
+      body: JSON.stringify(body)
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok || !data?.success) {
+      throw new Error(data?.error || `Request failed with HTTP ${response.status}.`);
+    }
+    return data;
+  }
+
+  function renderMessageBoardComments(comments = []) {
+    const list = document.querySelector("[data-message-board-admin-list]");
+    if (!list) return;
+    if (!comments.length) {
+      list.innerHTML = `<div class="empty-state">No message board comments loaded.</div>`;
+      return;
+    }
+    list.innerHTML = comments.map((comment) => `
+      <article class="message-board-admin-item" data-comment-id="${escapeHtml(comment.id)}">
+        <div class="message-board-admin-head">
+          <strong>${escapeHtml(comment.author || "Unknown")}</strong>
+          <span>${escapeHtml(comment.createdAt || "")}</span>
+        </div>
+        <p>${escapeHtml(comment.bodyText || "").slice(0, 700)}</p>
+        <div class="admin-actions" style="flex-wrap: wrap;">
+          ${comment.url ? `<a class="button" href="${escapeHtml(comment.url)}" target="_blank" rel="noopener">Open</a>` : ""}
+          <button class="button danger" type="button" data-delete-message-board-comment="${escapeHtml(comment.id)}">Delete</button>
+        </div>
+      </article>
+    `).join("");
+  }
+
+  async function loadMessageBoardComments() {
+    setBoardStatus("Loading message board comments...");
+    const data = await messageBoardAdminRequest(MESSAGE_BOARD_LIST_ENDPOINT);
+    renderMessageBoardComments(data.comments || []);
+    setBoardStatus(`Loaded ${data.comments?.length || 0} comments.`, "success");
+  }
+
+  async function deleteMessageBoardComment(id) {
+    if (!id) return;
+    if (!confirm("Delete this message board comment? This cannot be undone.")) return;
+    setBoardStatus("Deleting comment...");
+    await messageBoardAdminRequest(MESSAGE_BOARD_DELETE_ENDPOINT, { id });
+    setBoardStatus("Comment deleted. Refreshing list...", "success");
+    await loadMessageBoardComments();
+  }
+
+  function setupMessageBoardAdminEvents() {
+    if (messageBoardAdminReady) return;
+    messageBoardAdminReady = true;
+    document.addEventListener("click", (event) => {
+      const load = event.target.closest("[data-message-board-admin-load]");
+      if (load) {
+        loadMessageBoardComments().catch((error) => setBoardStatus(error.message, "error"));
+        return;
+      }
+      const deleteButton = event.target.closest("[data-delete-message-board-comment]");
+      if (deleteButton) {
+        deleteMessageBoardComment(deleteButton.dataset.deleteMessageBoardComment).catch((error) => setBoardStatus(error.message, "error"));
+      }
+    });
+  }
+
   function injectMessageBoardAdminTab() {
     if (document.body?.dataset.page !== "admin-upload") return;
     const switcher = document.querySelector(".admin-module-switcher");
@@ -127,28 +226,24 @@
             <div>
               <div class="eyebrow">Message Board</div>
               <h2>Message Board Management</h2>
-              <p class="admin-subtitle">Manage public Giscus / GitHub Discussions messages from the admin area.</p>
+              <p class="admin-subtitle">Load public Giscus / GitHub Discussions comments and delete bad comments from this admin page.</p>
             </div>
             <span class="admin-status-pill">GitHub Discussions</span>
           </div>
           <div class="admin-actions" style="flex-wrap: wrap;">
-            <a class="button primary" href="${MESSAGE_BOARD_DISCUSSION_SEARCH_URL}" target="_blank" rel="noopener">Open Message Board Discussion</a>
-            <a class="button" href="${MESSAGE_BOARD_DISCUSSIONS_URL}" target="_blank" rel="noopener">All General Discussions</a>
+            <button class="button primary" type="button" data-message-board-admin-load>Load Comments</button>
+            <a class="button" href="${MESSAGE_BOARD_DISCUSSION_SEARCH_URL}" target="_blank" rel="noopener">Open Discussion</a>
+            <a class="button" href="${MESSAGE_BOARD_DISCUSSIONS_URL}" target="_blank" rel="noopener">All Discussions</a>
           </div>
-          <div class="message-board-admin-list">
-            <article class="message-board-admin-item">
-              <strong>Current safe management mode</strong>
-              <p>Deletion is handled in GitHub Discussions so your GitHub moderation permission is not exposed in frontend code.</p>
-              <div class="admin-actions">
-                <a class="button" href="${MESSAGE_BOARD_DISCUSSION_SEARCH_URL}" target="_blank" rel="noopener">Review / Delete in GitHub</a>
-              </div>
-            </article>
+          <small class="message-board-admin-note" data-message-board-admin-status>Ready. Click Load Comments.</small>
+          <div class="message-board-admin-list" data-message-board-admin-list>
+            <div class="empty-state">Comments are not loaded yet.</div>
           </div>
-          <small class="message-board-admin-note">Next upgrade can add an internal comment list and delete buttons through the Cloudflare Worker after the GitHub token has Discussions write permission.</small>
         </section>
       `;
       content.appendChild(panel);
     }
+    setupMessageBoardAdminEvents();
   }
 
   function isMessageBoardPage() {
