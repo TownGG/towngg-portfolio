@@ -5,28 +5,28 @@
       tableName: 'creations',
       buttonAttr: 'data-creations-table-sort',
       ready: (table) => table.dataset.creationsDailyReady === 'true',
-      columns: new Map([
-        ['creation', 'text'],
-        ['daily', 'number'],
-        ['likes', 'number'],
-        ['views', 'number'],
-        ['downloads', 'number'],
-        ['plays', 'number'],
-        ['library adds', 'number']
-      ])
+      columns: [
+        { key: 'creation', type: 'text' },
+        { key: 'daily', type: 'number' },
+        { key: 'likes', type: 'number' },
+        { key: 'views', type: 'number' },
+        { key: 'downloads', type: 'number' },
+        { key: 'plays', type: 'number' },
+        { key: 'library-adds', type: 'number' }
+      ]
     },
     {
       bodySelector: '[data-dashboard-table]',
       tableName: 'nexus',
       buttonAttr: 'data-nexus-table-sort',
       ready: () => true,
-      columns: new Map([
-        ['mod', 'text'],
-        ['daily', 'number'],
-        ['total', 'number'],
-        ['unique', 'number'],
-        ['endorse', 'number']
-      ])
+      columns: [
+        { key: 'mod', type: 'text' },
+        { key: 'daily', type: 'number' },
+        { key: 'total', type: 'number' },
+        { key: 'unique', type: 'number' },
+        { key: 'endorse', type: 'number' }
+      ]
     }
   ];
 
@@ -48,10 +48,6 @@
       table: body?.closest('table') || null,
       headerRow: body?.closest('table')?.querySelector('thead tr') || null
     };
-  }
-
-  function columnType(config, label) {
-    return config.columns.get(normalize(label)) || '';
   }
 
   function cellValue(row, index, type) {
@@ -106,6 +102,12 @@
     });
   }
 
+  function plainHeaderText(header) {
+    const existingButton = header.querySelector('button');
+    if (existingButton) return existingButton.textContent.trim();
+    return header.textContent.trim();
+  }
+
   function enhanceTable(config) {
     const { body, table, headerRow } = tableElements(config);
     if (!body || !table || !headerRow || !body.children.length) return;
@@ -116,22 +118,27 @@
     table.dataset.sortableTable = config.tableName;
 
     [...headerRow.children].forEach((header, index) => {
-      const label = header.textContent.trim();
-      const type = columnType(config, label);
-      if (!type || header.querySelector(`[${config.buttonAttr}]`)) return;
+      const column = config.columns[index];
+      if (!column?.type) return;
 
-      header.innerHTML = `<button type="button" class="dashboard-table-sort" ${config.buttonAttr}="${normalize(label)}" aria-sort="none">${label}</button>`;
+      const existingButton = header.querySelector(`[${config.buttonAttr}]`);
+      if (existingButton) {
+        existingButton.setAttribute(config.buttonAttr, column.key);
+        return;
+      }
+
+      const label = plainHeaderText(header) || column.key;
+      header.innerHTML = `<button type="button" class="dashboard-table-sort" ${config.buttonAttr}="${column.key}" aria-sort="none">${label}</button>`;
       header.querySelector(`[${config.buttonAttr}]`).addEventListener('click', () => {
-        const key = normalize(label);
-        const defaultDirection = type === 'text' ? 'asc' : 'desc';
-        const nextDirection = state.activeKey === key && state.activeDirection === defaultDirection
+        const defaultDirection = column.type === 'text' ? 'asc' : 'desc';
+        const nextDirection = state.activeKey === column.key && state.activeDirection === defaultDirection
           ? (defaultDirection === 'asc' ? 'desc' : 'asc')
           : defaultDirection;
 
-        state.activeKey = key;
+        state.activeKey = column.key;
         state.activeDirection = nextDirection;
         stateByTable.set(table, state);
-        sortTableBy(config, index, type, nextDirection);
+        sortTableBy(config, index, column.type, nextDirection);
       });
     });
   }
