@@ -12,7 +12,9 @@
       Plays: '游玩',
       'Library Adds': '加入库',
       Updated: '更新于 {time}',
-      'Latest Bethesda Creations browser capture timestamp.': '最新 Bethesda Creations 浏览器抓取时间。'
+      'Latest Bethesda Creations browser capture timestamp.': '最新 Bethesda Creations 浏览器抓取时间。',
+      'Automatically discovered from Bethesda Creations.': '自动从 Bethesda Creations 发现。',
+      'Auto Discovered': '自动发现'
     },
     ja: {
       Creation: 'Creation',
@@ -23,7 +25,9 @@
       Plays: 'プレイ',
       'Library Adds': 'ライブラリ追加',
       Updated: '更新 {time}',
-      'Latest Bethesda Creations browser capture timestamp.': '最新のBethesda Creationsブラウザ取得時刻。'
+      'Latest Bethesda Creations browser capture timestamp.': '最新のBethesda Creationsブラウザ取得時刻。',
+      'Automatically discovered from Bethesda Creations.': 'Bethesda Creations から自動取得。',
+      'Auto Discovered': '自動取得'
     }
   };
 
@@ -46,6 +50,16 @@
 
   function formatNumber(value) {
     return new Intl.NumberFormat(locale()).format(toNumber(value));
+  }
+
+  function localizeAutoDiscoveredCopy() {
+    document.querySelectorAll('.project-card .card-desc, .project-card .tag').forEach((node) => {
+      const original = node.dataset.i18nOriginal || node.textContent.trim();
+      node.dataset.i18nOriginal = original;
+      if (original === 'Automatically discovered from Bethesda Creations.' || original === 'Auto Discovered') {
+        node.textContent = t(original);
+      }
+    });
   }
 
   function toNumber(value) {
@@ -75,7 +89,7 @@
   }
 
   function contentIdFromImage(url) {
-    const raw = String(url || '');
+    const raw = String(value || '');
     const direct = raw.match(/GENESIS\/(\d+)/i);
     if (direct) return direct[1];
 
@@ -266,8 +280,10 @@
   }
 
   async function installCreationsMeta() {
+    localizeAutoDiscoveredCopy();
     await renderDetailsColumns();
     updateCreationsTimestamp();
+    localizeAutoDiscoveredCopy();
   }
 
   window.addEventListener('DOMContentLoaded', () => {
