@@ -89,7 +89,7 @@
   }
 
   function contentIdFromImage(url) {
-    const raw = String(value || '');
+    const raw = String(url || '');
     const direct = raw.match(/GENESIS\/(\d+)/i);
     if (direct) return direct[1];
 
