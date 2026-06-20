@@ -13,5 +13,15 @@
 html[data-site-lang="en"] [data-lang-text="en"],html:not([data-site-lang]) [data-lang-text="en"]{display:inline}
 html[data-site-lang="zh-CN"] [data-lang-text="zh-CN"]{display:inline}
 html[data-site-lang="ja"] [data-lang-text="ja"]{display:inline}
-@media(max-width:980px){.nav{display:flex}.language-switcher{margin-left:auto}.nav-toggle{order:4}.nav-links{right:0}}
-@media(max-width:520px){.language-button-label{display:none}.language-button{width:42px;justify-content:center;padding:0}}
+@media(max-width:980px){
+  .nav{display:flex;align-items:center}
+  .language-switcher{margin-left:auto;justify-self:auto;position:relative}
+  .nav-toggle{order:4}
+  .nav-links{right:0}
+  .site-header .language-switcher .language-button{width:44px;height:44px;min-height:44px;padding:0;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;display:inline-flex;align-items:center;justify-content:center;color:var(--text);gap:0}
+  .site-header .language-switcher .language-button:hover,.site-header .language-switcher.is-open .language-button{border:0!important;background:transparent!important;box-shadow:none!important;color:#8fe7ff}
+  .site-header .language-switcher .language-button>span{display:none!important}
+  .site-header .language-switcher .language-button::before{content:"";display:block;width:22px;height:22px;background:currentColor;-webkit-mask:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3 3 4.5 6 4.5 9S15 18 12 21c-3-3-4.5-6-4.5-9S9 6 12 3z"/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3 3 4.5 6 4.5 9S15 18 12 21c-3-3-4.5-6-4.5-9S9 6 12 3z"/></svg>') center/contain no-repeat}
+  .site-header .language-switcher .language-menu{top:calc(100% + 8px);right:-4px}
+}
+@media(max-width:520px){.site-header .language-switcher .language-button{width:44px;height:44px;min-height:44px;padding:0}}
