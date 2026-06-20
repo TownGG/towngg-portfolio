@@ -9,5 +9,9 @@
 .language-switcher.is-open .language-menu{opacity:1;pointer-events:auto;transform:translateY(0)}
 .language-option{min-height:38px;padding:0 12px;border:1px solid transparent;border-radius:12px;background:transparent;color:#c7d4e3;cursor:pointer;text-align:left;font:inherit;font-size:13px;font-weight:800}
 .language-option:hover,.language-option.is-active{border-color:var(--line-blue);background:rgba(125,216,255,.08);color:var(--text)}
+[data-lang-text]{display:none}
+html[data-site-lang="en"] [data-lang-text="en"],html:not([data-site-lang]) [data-lang-text="en"]{display:inline}
+html[data-site-lang="zh-CN"] [data-lang-text="zh-CN"]{display:inline}
+html[data-site-lang="ja"] [data-lang-text="ja"]{display:inline}
 @media(max-width:980px){.nav{display:flex}.language-switcher{margin-left:auto}.nav-toggle{order:4}.nav-links{right:0}}
 @media(max-width:520px){.language-button-label{display:none}.language-button{width:42px;justify-content:center;padding:0}}
