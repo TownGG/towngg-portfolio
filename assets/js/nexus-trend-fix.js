@@ -4,11 +4,50 @@
   const toolbar = panel?.querySelector(".dashboard-toolbar");
   if (!chartEl) return;
 
-  const numberFormatter = new Intl.NumberFormat("en-US");
+  const translations = {
+    "zh-CN": {
+      "No Nexus history data available yet.": "暂时没有 Nexus 历史数据。",
+      "7-Day Nexus Downloads Trend": "7 日 Nexus 下载趋势",
+      "Nexus trend note": "基于已跟踪的模组历史记录统计 Nexus 发布活跃度。显示 CSV 历史中的真实每日下载。最新快照：{date}。",
+      "Daily downloads": "每日下载",
+      "Accurate Nexus daily downloads trend chart": "Nexus 每日下载趋势图",
+      "daily downloads on": "每日下载，日期"
+    },
+    ja: {
+      "No Nexus history data available yet.": "Nexusの履歴データはまだありません。",
+      "7-Day Nexus Downloads Trend": "7日間のNexusダウンロード推移",
+      "Nexus trend note": "追跡済みMod履歴をもとにNexusの公開状況を表示します。CSV履歴の実際の日別ダウンロードを表示中。最新スナップショット：{date}。",
+      "Daily downloads": "日別ダウンロード",
+      "Accurate Nexus daily downloads trend chart": "Nexus日別ダウンロード推移チャート",
+      "daily downloads on": "日別ダウンロード 日付"
+    }
+  };
+
   const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.03.11-preview";
   let cachedRows = [];
   let isRendering = false;
   let rerenderTimer = 0;
+
+  function lang() {
+    const value = localStorage.getItem("townggSiteLang");
+    return value === "zh-CN" || value === "ja" ? value : "en";
+  }
+
+  function locale() {
+    return lang() === "zh-CN" ? "zh-CN" : lang() === "ja" ? "ja-JP" : "en-US";
+  }
+
+  function t(key, replacements = {}) {
+    let value = translations[lang()]?.[key] || key;
+    Object.entries(replacements).forEach(([name, replacement]) => {
+      value = value.replace(`{${name}}`, replacement);
+    });
+    return value;
+  }
+
+  function formatNumber(value) {
+    return new Intl.NumberFormat(locale()).format(Number(value || 0));
+  }
 
   function dashboardNumber(value) {
     const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, ""));
@@ -54,8 +93,8 @@
 
   function formatDateLabel(value) {
     const date = new Date(`${value}T00:00:00`);
-    if (Number.isNaN(date.getTime())) return value.slice(5);
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    if (Number.isNaN(date.getTime())) return String(value || "").slice(5);
+    return date.toLocaleDateString(locale(), { month: "short", day: "numeric" });
   }
 
   function buildDailySeries(rows) {
@@ -81,7 +120,7 @@
 
     const data = buildDailySeries(rows);
     if (!data.length) {
-      chartEl.innerHTML = '<p class="section-desc">No Nexus history data available yet.</p>';
+      chartEl.innerHTML = `<p class="section-desc">${t("No Nexus history data available yet.")}</p>`;
       isRendering = false;
       return;
     }
@@ -115,20 +154,20 @@
       const label = Math.round(yMax * (1 - step / 4));
       return `
         <line class="telemetry-grid-line" x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" />
-        <text class="nexus-axis-label" x="14" y="${y + 5}">${numberFormatter.format(label)}</text>
+        <text class="nexus-axis-label" x="14" y="${y + 5}">${formatNumber(label)}</text>
       `;
     }).join("");
 
     const labels = points.map(({ x, item }) => `<text class="nexus-date-label" x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`).join("");
     const dots = points.map(({ x, y, item }) => `
-      <g class="nexus-point" tabindex="0" aria-label="${numberFormatter.format(item.value)} daily downloads on ${item.date}">
+      <g class="nexus-point" tabindex="0" aria-label="${formatNumber(item.value)} ${t("daily downloads on")} ${formatDateLabel(item.date)}">
         <circle class="telemetry-dot" cx="${x}" cy="${y}" r="5"></circle>
       </g>
     `).join("");
 
     const latestDate = data.at(-1)?.date || "";
     const total = data.reduce((sum, item) => sum + item.value, 0);
-    const note = `Nexus release activity based on tracked mod history. Showing actual daily downloads from CSV history. Latest snapshot: ${formatDateLabel(latestDate)}.`;
+    const note = t("Nexus trend note", { date: formatDateLabel(latestDate) });
 
     panel?.classList.add("is-nexus-trend-panel");
     toolbar?.classList.add("is-hidden-for-nexus-trend");
@@ -138,13 +177,13 @@
       <div class="nexus-trend-shell" data-trend-renderer="nexus-trend-fix">
         <div class="nexus-trend-header">
           <div>
-            <h3>7-Day Nexus Downloads Trend</h3>
+            <h3>${t("7-Day Nexus Downloads Trend")}</h3>
             <p>${note}</p>
           </div>
-          <span class="telemetry-pill">Daily downloads</span>
+          <span class="telemetry-pill">${t("Daily downloads")}</span>
         </div>
         <div class="nexus-trend-canvas">
-          <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Accurate Nexus daily downloads trend chart" preserveAspectRatio="xMidYMid meet">
+          <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${t("Accurate Nexus daily downloads trend chart")}" preserveAspectRatio="xMidYMid meet">
             ${gridRows}
             <polygon class="telemetry-area" points="${areaPoints}" />
             <polyline class="telemetry-line" points="${pointLine(points)}" />
@@ -152,7 +191,7 @@
             ${labels}
           </svg>
           ${points.map(({ x, y, item }) => `
-            <span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${numberFormatter.format(item.value)}</span>
+            <span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${formatNumber(item.value)}</span>
           `).join("")}
         </div>
       </div>
@@ -195,6 +234,10 @@
       console.warn("Nexus trend fix skipped", error);
     }
   }
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest(".language-option[data-lang]")) window.setTimeout(() => scheduleRender(80), 90);
+  });
 
   init();
 })();
