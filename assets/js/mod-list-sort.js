@@ -5,6 +5,10 @@
   const observerState = new WeakMap();
   const applyingTargets = new WeakSet();
 
+  function revealHeader() {
+    requestAnimationFrame(() => document.body.classList.add("header-ready"));
+  }
+
   function number(value) {
     const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, ""));
     return Number.isFinite(parsed) ? parsed : 0;
@@ -219,6 +223,8 @@
 
   window.addEventListener("DOMContentLoaded", () => {
     setupModListSort();
+    revealHeader();
+    window.setTimeout(revealHeader, 120);
     window.setTimeout(setupModListSort, 700);
     window.setTimeout(setupModListSort, 1600);
     window.setTimeout(applyActivePanelSort, 2400);
