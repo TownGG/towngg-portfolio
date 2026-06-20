@@ -20,6 +20,22 @@
     document.documentElement.dataset.siteLang = lang;
   }
 
+  function ensureLanguageOptions(switcher) {
+    const menu = switcher.querySelector(".language-menu");
+    if (!menu) return;
+    const existing = new Set([...menu.querySelectorAll(".language-option[data-lang]")].map((option) => option.dataset.lang));
+    supported.forEach((code) => {
+      if (existing.has(code)) return;
+      const option = document.createElement("button");
+      option.className = "language-option";
+      option.type = "button";
+      option.dataset.lang = code;
+      option.setAttribute("role", "menuitem");
+      option.textContent = labels[code] || code;
+      menu.appendChild(option);
+    });
+  }
+
   function updateSwitcher(lang) {
     const label = document.querySelector(".language-button-label");
     if (label) label.textContent = labels[lang] || labels.en;
@@ -41,6 +57,7 @@
     const switcher = document.querySelector(".language-switcher");
     if (!switcher || switcher.dataset.staticLanguageReady === "true") return;
     switcher.dataset.staticLanguageReady = "true";
+    ensureLanguageOptions(switcher);
     const button = switcher.querySelector(".language-button");
     button?.addEventListener("click", () => switcher.classList.toggle("is-open"));
     switcher.addEventListener("click", (event) => {
