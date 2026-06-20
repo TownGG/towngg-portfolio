@@ -146,8 +146,8 @@
   }
 
   function hasExpectedDetailsLayout(table, body) {
-    const headers = [...(table.querySelectorAll('thead th') || [])].map((header) => normalize(header.textContent));
-    const columnsReady = expectedHeaders.every((header, index) => headers[index] === header);
+    const headerCount = table.querySelectorAll('thead th').length;
+    const columnsReady = headerCount === expectedHeaders.length;
     const rowsReady = [...body.querySelectorAll('tr')].every((row) => row.children.length === expectedHeaders.length);
     return columnsReady && rowsReady;
   }
