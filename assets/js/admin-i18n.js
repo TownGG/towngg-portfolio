@@ -1,5 +1,6 @@
 (() => {
   const LANG_KEY = "townggSiteLang";
+  let isApplying = false;
 
   const dictionaries = {
     "zh-CN": {
@@ -48,6 +49,7 @@
       "Result": "结果",
       "Upload Status": "上传状态",
       "Ready": "就绪",
+      "Ready.": "就绪。",
       "Select images, then click Upload.": "选择图片后点击上传。",
       "Gallery Manager": "画廊管理",
       "Load existing gallery images, then delete an image together with its JSON record.": "加载现有画廊图片，并可同时删除图片及其 JSON 记录。",
@@ -90,8 +92,7 @@
       "External Message ID": "外部消息 ID",
       "Nexus Thread ID": "Nexus 主题 ID",
       "Original Content": "原始内容",
-      "Save Message": "保存消息",
-      "Ready.": "就绪。"
+      "Save Message": "保存消息"
     },
     ja: {
       "TownGG Secure Terminal": "TownGG セキュア端末",
@@ -139,6 +140,7 @@
       "Result": "結果",
       "Upload Status": "アップロード状態",
       "Ready": "準備完了",
+      "Ready.": "準備完了。",
       "Select images, then click Upload.": "画像を選択してアップロードをクリックしてください。",
       "Gallery Manager": "ギャラリー管理",
       "Load existing gallery images, then delete an image together with its JSON record.": "既存のギャラリー画像を読み込み、画像とJSONレコードをまとめて削除できます。",
@@ -181,80 +183,77 @@
       "External Message ID": "外部メッセージID",
       "Nexus Thread ID": "NexusスレッドID",
       "Original Content": "元の内容",
-      "Save Message": "メッセージ保存",
-      "Ready.": "準備完了。"
+      "Save Message": "メッセージ保存"
     }
   };
 
   const placeholders = {
     "zh-CN": {
       "Enter admin upload key": "输入后台上传密钥",
-      "cassilia / terminus / uc_power_fist": "cassilia / terminus / uc_power_fist",
       "Cassilia UC Power Fist in-game screenshot": "Cassilia UC Power Fist 游戏截图",
       "Mod, author, content": "模组、作者、内容",
-      "Cassilia's Power Fist": "Cassilia's Power Fist",
       "Player name": "玩家名称",
       "https://www.reddit.com/... or https://www.nexusmods.com/...": "https://www.reddit.com/... 或 https://www.nexusmods.com/...",
-      "Reddit t1_xxxxx / Nexus replyToId": "Reddit t1_xxxxx / Nexus replyToId",
       "Optional Nexus commentThreadId": "可选 Nexus commentThreadId",
       "Paste the player comment here": "在这里粘贴玩家评论"
     },
     ja: {
       "Enter admin upload key": "管理アップロードキーを入力",
-      "cassilia / terminus / uc_power_fist": "cassilia / terminus / uc_power_fist",
       "Cassilia UC Power Fist in-game screenshot": "Cassilia UC Power Fist ゲーム内スクリーンショット",
       "Mod, author, content": "Mod、作者、内容",
-      "Cassilia's Power Fist": "Cassilia's Power Fist",
       "Player name": "プレイヤー名",
       "https://www.reddit.com/... or https://www.nexusmods.com/...": "https://www.reddit.com/... または https://www.nexusmods.com/...",
-      "Reddit t1_xxxxx / Nexus replyToId": "Reddit t1_xxxxx / Nexus replyToId",
       "Optional Nexus commentThreadId": "任意の Nexus commentThreadId",
       "Paste the player comment here": "プレイヤーコメントをここに貼り付け"
     }
   };
 
-  function lang() {
+  function currentLang() {
     return localStorage.getItem(LANG_KEY) || document.documentElement.lang || "en";
   }
 
   function shouldSkip(node) {
-    return node.closest(".community-inbox-list, [data-community-detail], .upload-preview-list, .admin-manager-grid")
+    return node.closest(".language-switcher, .community-inbox-list, [data-community-detail], .upload-preview-list, .admin-manager-grid")
       && !node.classList.contains("empty-state");
   }
 
-  function translateNode(node, currentLang) {
-    if (!node || node.nodeType !== 1 || shouldSkip(node)) return;
-    if (node.closest(".language-switcher")) return;
-    if (node.children.length) return;
+  function translateNode(node, lang) {
+    if (!node || node.nodeType !== 1 || shouldSkip(node) || node.children.length) return;
     const raw = node.textContent.trim();
     if (!raw) return;
     if (!node.dataset.adminI18nOriginal) node.dataset.adminI18nOriginal = raw;
     const original = node.dataset.adminI18nOriginal;
-    node.textContent = currentLang === "en" ? original : (dictionaries[currentLang]?.[original] || original);
+    const next = lang === "en" ? original : (dictionaries[lang]?.[original] || original);
+    if (node.textContent !== next) node.textContent = next;
   }
 
-  function translatePlaceholder(node, currentLang) {
+  function translatePlaceholder(node, lang) {
     if (!node.placeholder) return;
     if (!node.dataset.adminI18nPlaceholder) node.dataset.adminI18nPlaceholder = node.placeholder;
     const original = node.dataset.adminI18nPlaceholder;
-    node.placeholder = currentLang === "en" ? original : (placeholders[currentLang]?.[original] || original);
+    const next = lang === "en" ? original : (placeholders[lang]?.[original] || original);
+    if (node.placeholder !== next) node.placeholder = next;
   }
 
   function applyAdminI18n() {
-    const currentLang = lang();
-    document.querySelectorAll(".admin-upload-page a, .admin-upload-page button, .admin-upload-page label span, .admin-upload-page option, .admin-upload-page p, .admin-upload-page h1, .admin-upload-page h2, .admin-upload-page h3, .admin-upload-page div, .admin-upload-page small, .admin-upload-page strong").forEach((node) => translateNode(node, currentLang));
-    document.querySelectorAll(".admin-upload-page input[placeholder], .admin-upload-page textarea[placeholder]").forEach((node) => translatePlaceholder(node, currentLang));
+    if (isApplying) return;
+    isApplying = true;
+    const lang = currentLang();
+    document.querySelectorAll(".admin-upload-page a, .admin-upload-page button, .admin-upload-page label span, .admin-upload-page option, .admin-upload-page p, .admin-upload-page h2, .admin-upload-page h3, .admin-upload-page div.eyebrow, .admin-upload-page div.empty-state, .admin-upload-page small, .admin-upload-page strong, .admin-upload-page span.upload-status-message, .admin-upload-page span.community-status-line, .admin-upload-page span.admin-status-pill").forEach((node) => translateNode(node, lang));
+    document.querySelectorAll(".admin-upload-page input[placeholder], .admin-upload-page textarea[placeholder]").forEach((node) => translatePlaceholder(node, lang));
+    isApplying = false;
   }
 
   function scheduleApply() {
+    if (isApplying) return;
     window.clearTimeout(scheduleApply.timer);
-    scheduleApply.timer = window.setTimeout(applyAdminI18n, 80);
+    scheduleApply.timer = window.setTimeout(applyAdminI18n, 120);
   }
 
   function init() {
     applyAdminI18n();
     document.addEventListener("click", (event) => {
-      if (event.target.closest("[data-lang]")) window.setTimeout(applyAdminI18n, 0);
+      if (event.target.closest("[data-lang]")) window.setTimeout(applyAdminI18n, 20);
     });
     const observer = new MutationObserver(scheduleApply);
     observer.observe(document.body, { childList: true, subtree: true });
