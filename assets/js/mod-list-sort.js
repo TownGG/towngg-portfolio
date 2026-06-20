@@ -4,9 +4,49 @@
   const controlsReady = new WeakSet();
   const observerState = new WeakMap();
   const applyingTargets = new WeakSet();
+  const translations = {
+    "zh-CN": {
+      Sort: "排序",
+      "Sort mod cards": "排序模组卡片",
+      "Latest Time": "最新时间",
+      Downloads: "下载量",
+      Likes: "点赞"
+    },
+    ja: {
+      Sort: "並び替え",
+      "Sort mod cards": "Modカードを並び替え",
+      "Latest Time": "最新順",
+      Downloads: "ダウンロード",
+      Likes: "いいね"
+    }
+  };
+
+  function lang() {
+    const value = localStorage.getItem("townggSiteLang");
+    return value === "zh-CN" || value === "ja" ? value : "en";
+  }
+
+  function t(key) {
+    return translations[lang()]?.[key] || key;
+  }
 
   function revealHeader() {
     requestAnimationFrame(() => document.body.classList.add("header-ready"));
+  }
+
+  function applyLocalizedSortLabels() {
+    document.querySelectorAll(".mods-sort-control").forEach((control) => {
+      const label = control.querySelector(".mods-sort-label");
+      const select = control.querySelector("[data-mod-sort]");
+      if (label) label.textContent = t("Sort");
+      if (select) {
+        select.setAttribute("aria-label", t("Sort mod cards"));
+        const options = select.querySelectorAll("option");
+        if (options[0]) options[0].textContent = t("Latest Time");
+        if (options[1]) options[1].textContent = t("Downloads");
+        if (options[2]) options[2].textContent = t("Likes");
+      }
+    });
   }
 
   function number(value) {
@@ -123,11 +163,11 @@
     const control = document.createElement("div");
     control.className = "mods-sort-control";
     control.innerHTML = `
-      <label class="mods-sort-label" for="${id}">Sort</label>
-      <select class="mods-sort-select" id="${id}" data-mod-sort aria-label="Sort mod cards">
-        <option value="time">Latest Time</option>
-        <option value="downloads">Downloads</option>
-        <option value="likes">Likes</option>
+      <label class="mods-sort-label" for="${id}">${t("Sort")}</label>
+      <select class="mods-sort-select" id="${id}" data-mod-sort aria-label="${t("Sort mod cards")}">
+        <option value="time">${t("Latest Time")}</option>
+        <option value="downloads">${t("Downloads")}</option>
+        <option value="likes">${t("Likes")}</option>
       </select>
     `;
 
@@ -206,6 +246,7 @@
       observePanel(panel);
       applyPanelSort(panel);
     });
+    applyLocalizedSortLabels();
   }
 
   function applyActivePanelSort() {
@@ -215,6 +256,9 @@
   }
 
   document.addEventListener("click", (event) => {
+    const langOption = event.target.closest(".language-option[data-lang]");
+    if (langOption) window.setTimeout(applyLocalizedSortLabels, 80);
+
     const tab = event.target.closest("[data-platform-tab]");
     if (!tab) return;
     requestAnimationFrame(applyActivePanelSort);
