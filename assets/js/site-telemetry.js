@@ -1,224 +1,36 @@
 (() => {
   const TELEMETRY_ENDPOINT = "https://stats.towngg.com/site-telemetry";
-
   const summaryEl = document.querySelector("[data-site-telemetry-summary]");
   const chartEl = document.querySelector("[data-site-telemetry-chart]");
   const noteEl = document.querySelector("[data-site-telemetry-note]");
   const pillEl = document.querySelector(".telemetry-pill");
-
   if (!summaryEl || !chartEl) return;
 
   const translations = {
-    "zh-CN": {
-      "Telemetry temporarily unavailable.": "站点数据暂时不可用。",
-      "No telemetry data available.": "暂无站点数据。",
-      Visits: "访问量",
-      Requests: "请求数",
-      "Bandwidth Served": "带宽用量",
-      "Cache Hit Rate": "缓存命中率",
-      "No individual visitor data, IP addresses, logs or security events are displayed.": "不会展示单个访客数据、IP 地址、日志或安全事件。",
-      Offline: "离线",
-      "Last updated": "最后更新",
-      "Last updated --": "最后更新 --",
-      "Last 24 hours": "最近 24 小时",
-      visits: "访问",
-      "7-day visits trend chart": "7 日访问趋势图"
-    },
-    ja: {
-      "Telemetry temporarily unavailable.": "サイトデータは一時的に利用できません。",
-      "No telemetry data available.": "サイトデータはまだありません。",
-      Visits: "訪問数",
-      Requests: "リクエスト",
-      "Bandwidth Served": "配信帯域",
-      "Cache Hit Rate": "キャッシュ率",
-      "No individual visitor data, IP addresses, logs or security events are displayed.": "個別の訪問者データ、IPアドレス、ログ、セキュリティイベントは表示されません。",
-      Offline: "オフライン",
-      "Last updated": "最終更新",
-      "Last updated --": "最終更新 --",
-      "Last 24 hours": "過去24時間",
-      visits: "訪問",
-      "7-day visits trend chart": "7日間の訪問トレンドチャート"
-    }
+    "zh-CN": { "Telemetry temporarily unavailable.": "站点数据暂时不可用。", "No telemetry data available.": "暂无站点数据。", Visits: "访问量", Requests: "请求数", "Bandwidth Served": "带宽用量", "Cache Hit Rate": "缓存命中率", "No individual visitor data, IP addresses, logs or security events are displayed.": "不会展示单个访客数据、IP 地址、日志或安全事件。", Offline: "离线", "Last updated": "最后更新", "Last updated --": "最后更新 --", "Last 24 hours": "最近 24 小时", visits: "访问", "7-day visits trend chart": "7 日访问趋势图" },
+    "zh-TW": { "Telemetry temporarily unavailable.": "站點資料暫時不可用。", "No telemetry data available.": "暫無站點資料。", Visits: "訪問量", Requests: "請求數", "Bandwidth Served": "頻寬用量", "Cache Hit Rate": "快取命中率", "No individual visitor data, IP addresses, logs or security events are displayed.": "不會展示單個訪客資料、IP 位址、日誌或安全事件。", Offline: "離線", "Last updated": "最後更新", "Last updated --": "最後更新 --", "Last 24 hours": "最近 24 小時", visits: "訪問", "7-day visits trend chart": "7 日訪問趨勢圖" },
+    ja: { "Telemetry temporarily unavailable.": "サイトデータは一時的に利用できません。", "No telemetry data available.": "サイトデータはまだありません。", Visits: "訪問数", Requests: "リクエスト", "Bandwidth Served": "配信帯域", "Cache Hit Rate": "キャッシュ率", "No individual visitor data, IP addresses, logs or security events are displayed.": "個別の訪問者データ、IPアドレス、ログ、セキュリティイベントは表示されません。", Offline: "オフライン", "Last updated": "最終更新", "Last updated --": "最終更新 --", "Last 24 hours": "過去24時間", visits: "訪問", "7-day visits trend chart": "7日間の訪問トレンドチャート" },
+    ko: { "Telemetry temporarily unavailable.": "사이트 데이터를 일시적으로 사용할 수 없습니다.", "No telemetry data available.": "사이트 데이터가 없습니다.", Visits: "방문", Requests: "요청", "Bandwidth Served": "전송 대역폭", "Cache Hit Rate": "캐시 적중률", "No individual visitor data, IP addresses, logs or security events are displayed.": "개별 방문자 데이터, IP 주소, 로그 또는 보안 이벤트는 표시되지 않습니다.", Offline: "오프라인", "Last updated": "마지막 업데이트", "Last updated --": "마지막 업데이트 --", "Last 24 hours": "최근 24시간", visits: "방문", "7-day visits trend chart": "7일 방문 추세 차트" },
+    ru: { "Telemetry temporarily unavailable.": "Данные сайта временно недоступны.", "No telemetry data available.": "Данные сайта пока недоступны.", Visits: "Посещения", Requests: "Запросы", "Bandwidth Served": "Переданный трафик", "Cache Hit Rate": "Попадания в кэш", "No individual visitor data, IP addresses, logs or security events are displayed.": "Индивидуальные данные посетителей, IP-адреса, журналы и события безопасности не отображаются.", Offline: "Офлайн", "Last updated": "Обновлено", "Last updated --": "Обновлено --", "Last 24 hours": "Последние 24 часа", visits: "посещений", "7-day visits trend chart": "График посещений за 7 дней" }
   };
-
   let cachedTelemetry = null;
-
-  function lang() {
-    const value = localStorage.getItem("townggSiteLang");
-    return value === "zh-CN" || value === "ja" ? value : "en";
-  }
-
-  function locale() {
-    return lang() === "zh-CN" ? "zh-CN" : lang() === "ja" ? "ja-JP" : "en-US";
-  }
-
-  function t(key) {
-    return translations[lang()]?.[key] || key;
-  }
-
+  function lang() { const value = localStorage.getItem("townggSiteLang"); return ["zh-CN", "zh-TW", "ja", "ko", "ru"].includes(value) ? value : "en"; }
+  function locale() { return lang() === "zh-CN" ? "zh-CN" : lang() === "zh-TW" ? "zh-TW" : lang() === "ja" ? "ja-JP" : lang() === "ko" ? "ko-KR" : lang() === "ru" ? "ru-RU" : "en-US"; }
+  function t(key) { return translations[lang()]?.[key] || key; }
   const safeErrorMessage = () => t("Telemetry temporarily unavailable.");
-
-  const formatNumber = (value) => {
-    const number = Number(value || 0);
-    if (number >= 1_000_000) return new Intl.NumberFormat(locale(), { notation: "compact", maximumFractionDigits: 2 }).format(number);
-    if (number >= 1_000) return new Intl.NumberFormat(locale(), { notation: "compact", maximumFractionDigits: 2 }).format(number);
-    return new Intl.NumberFormat(locale()).format(number);
-  };
-
-  const formatBytes = (bytes) => {
-    const number = Number(bytes || 0);
-    const units = ["B", "KB", "MB", "GB", "TB"];
-    let value = number;
-    let unitIndex = 0;
-    while (value >= 1000 && unitIndex < units.length - 1) {
-      value /= 1000;
-      unitIndex += 1;
-    }
-    return `${value.toFixed(unitIndex === 0 ? 0 : 2)} ${units[unitIndex]}`;
-  };
-
+  const formatNumber = (value) => { const number = Number(value || 0); if (number >= 1_000) return new Intl.NumberFormat(locale(), { notation: "compact", maximumFractionDigits: 2 }).format(number); return new Intl.NumberFormat(locale()).format(number); };
+  const formatBytes = (bytes) => { const number = Number(bytes || 0); const units = ["B", "KB", "MB", "GB", "TB"]; let value = number; let unitIndex = 0; while (value >= 1000 && unitIndex < units.length - 1) { value /= 1000; unitIndex += 1; } return `${value.toFixed(unitIndex === 0 ? 0 : 2)} ${units[unitIndex]}`; };
   const formatPercent = (value) => `${Number(value || 0).toFixed(2)}%`;
-
-  const formatDate = (value) => {
-    if (!value) return "--";
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return value;
-    return date.toLocaleDateString(locale(), { month: "short", day: "numeric" });
-  };
-
-  const formatUpdatedAt = (value) => {
-    if (!value) return t("Last updated --");
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return `${t("Last updated")} ${value}`;
-    return `${t("Last updated")} ${date.toLocaleString(locale(), { dateStyle: "medium", timeStyle: "short" })}`;
-  };
-
+  const formatDate = (value) => { if (!value) return "--"; const date = new Date(value); if (Number.isNaN(date.getTime())) return value; return date.toLocaleDateString(locale(), { month: "short", day: "numeric" }); };
+  const formatUpdatedAt = (value) => { if (!value) return t("Last updated --"); const date = new Date(value); if (Number.isNaN(date.getTime())) return `${t("Last updated")} ${value}`; return `${t("Last updated")} ${date.toLocaleString(locale(), { dateStyle: "medium", timeStyle: "short" })}`; };
   const localizePeriod = (value) => translations[lang()]?.[value] || value || t("Last 24 hours");
-  const localizePrivacyNote = (value) => value === "No individual visitor data, IP addresses, logs or security events are displayed."
-    ? t(value)
-    : (value || t("No individual visitor data, IP addresses, logs or security events are displayed."));
-
-  const renderSummary = (summary = {}) => {
-    const cards = [
-      ["Visits", formatNumber(summary.visits)],
-      ["Requests", formatNumber(summary.requests)],
-      ["Bandwidth Served", formatBytes(summary.bandwidthBytes)],
-      ["Cache Hit Rate", formatPercent(summary.cacheHitRate)],
-    ];
-
-    summaryEl.innerHTML = cards.map(([label, value]) => `
-      <article class="telemetry-card">
-        <div class="telemetry-value">${value}</div>
-        <div class="telemetry-label">${t(label)}</div>
-      </article>
-    `).join("");
-  };
-
+  const localizePrivacyNote = (value) => value === "No individual visitor data, IP addresses, logs or security events are displayed." ? t(value) : (value || t("No individual visitor data, IP addresses, logs or security events are displayed."));
+  const renderSummary = (summary = {}) => { const cards = [["Visits", formatNumber(summary.visits)], ["Requests", formatNumber(summary.requests)], ["Bandwidth Served", formatBytes(summary.bandwidthBytes)], ["Cache Hit Rate", formatPercent(summary.cacheHitRate)]]; summaryEl.innerHTML = cards.map(([label, value]) => `<article class="telemetry-card"><div class="telemetry-value">${value}</div><div class="telemetry-label">${t(label)}</div></article>`).join(""); };
   const pointLine = (points) => points.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
-
-  const renderChart = (trend = []) => {
-    const data = trend.filter((item) => Number.isFinite(Number(item.visits)));
-    if (!data.length) {
-      chartEl.className = "telemetry-chart telemetry-error";
-      chartEl.textContent = t("No telemetry data available.");
-      return;
-    }
-
-    const width = 920;
-    const height = 260;
-    const padX = 54;
-    const padTop = 26;
-    const padBottom = 44;
-    const chartW = width - padX * 2;
-    const chartH = height - padTop - padBottom;
-    const values = data.map((item) => Number(item.visits));
-    const maxValue = Math.max(...values, 1);
-    const minValue = Math.min(...values, 0);
-    const valueRange = Math.max(maxValue - minValue, 1);
-
-    const points = data.map((item, index) => {
-      const x = padX + (data.length === 1 ? chartW / 2 : (chartW / (data.length - 1)) * index);
-      const y = padTop + chartH - ((Number(item.visits) - minValue) / valueRange) * chartH;
-      return { x, y, item };
-    });
-
-    const areaPoints = [
-      `${points[0].x.toFixed(2)},${(height - padBottom).toFixed(2)}`,
-      pointLine(points),
-      `${points[points.length - 1].x.toFixed(2)},${(height - padBottom).toFixed(2)}`,
-    ].join(" ");
-
-    const gridRows = [0, 1, 2, 3].map((step) => {
-      const y = padTop + (chartH / 3) * step;
-      return `<line class="telemetry-grid-line" x1="${padX}" y1="${y}" x2="${width - padX}" y2="${y}" />`;
-    }).join("");
-
-    const labels = points.map(({ x, item }) => `
-      <text x="${x}" y="${height - 14}" text-anchor="middle">${formatDate(item.date)}</text>
-    `).join("");
-
-    const dots = points.map(({ x, y, item }) => `
-      <circle class="telemetry-dot" cx="${x}" cy="${y}" r="5">
-        <title>${formatDate(item.date)}: ${formatNumber(item.visits)} ${t("visits")}</title>
-      </circle>
-    `).join("");
-
-    chartEl.className = "telemetry-chart";
-    chartEl.innerHTML = `
-      <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${t("7-day visits trend chart")}" preserveAspectRatio="xMidYMid meet">
-        ${gridRows}
-        <polygon class="telemetry-area" points="${areaPoints}" />
-        <polyline class="telemetry-line" points="${pointLine(points)}" />
-        ${dots}
-        ${labels}
-      </svg>
-    `;
-  };
-
-  const renderError = () => {
-    summaryEl.innerHTML = ["Visits", "Requests", "Bandwidth Served", "Cache Hit Rate"].map((label) => `
-      <article class="telemetry-card">
-        <div class="telemetry-value">--</div>
-        <div class="telemetry-label">${t(label)}</div>
-      </article>
-    `).join("");
-    chartEl.className = "telemetry-chart telemetry-error";
-    chartEl.textContent = safeErrorMessage();
-    if (noteEl) noteEl.textContent = t("No individual visitor data, IP addresses, logs or security events are displayed.");
-    if (pillEl) pillEl.textContent = t("Offline");
-  };
-
-  const renderTelemetry = (data) => {
-    cachedTelemetry = data;
-    renderSummary(data.summary);
-    renderChart(data.trend);
-
-    const updated = formatUpdatedAt(data.updatedAt);
-    const period = localizePeriod(data.period || "Last 24 hours");
-    const privacyNote = localizePrivacyNote(data.note);
-    if (noteEl) noteEl.textContent = `${privacyNote} ${period}. ${updated}.`;
-    if (pillEl) pillEl.textContent = period;
-  };
-
-  const loadTelemetry = async () => {
-    try {
-      const response = await fetch(TELEMETRY_ENDPOINT, { headers: { Accept: "application/json" } });
-      if (!response.ok) throw new Error(safeErrorMessage());
-      const data = await response.json();
-      if (data.error) throw new Error(safeErrorMessage());
-      renderTelemetry(data);
-    } catch (error) {
-      renderError();
-    }
-  };
-
-  document.addEventListener("click", (event) => {
-    if (!event.target.closest(".language-option[data-lang]")) return;
-    window.setTimeout(() => {
-      if (cachedTelemetry) renderTelemetry(cachedTelemetry);
-      else renderError();
-    }, 90);
-  });
-
+  const renderChart = (trend = []) => { const data = trend.filter((item) => Number.isFinite(Number(item.visits))); if (!data.length) { chartEl.className = "telemetry-chart telemetry-error"; chartEl.textContent = t("No telemetry data available."); return; } const width = 920; const height = 260; const padX = 54; const padTop = 26; const padBottom = 44; const chartW = width - padX * 2; const chartH = height - padTop - padBottom; const values = data.map((item) => Number(item.visits)); const maxValue = Math.max(...values, 1); const minValue = Math.min(...values, 0); const valueRange = Math.max(maxValue - minValue, 1); const points = data.map((item, index) => { const x = padX + (data.length === 1 ? chartW / 2 : (chartW / (data.length - 1)) * index); const y = padTop + chartH - ((Number(item.visits) - minValue) / valueRange) * chartH; return { x, y, item }; }); const areaPoints = [`${points[0].x.toFixed(2)},${(height - padBottom).toFixed(2)}`, pointLine(points), `${points[points.length - 1].x.toFixed(2)},${(height - padBottom).toFixed(2)}`].join(" "); const gridRows = [0, 1, 2, 3].map((step) => { const y = padTop + (chartH / 3) * step; return `<line class="telemetry-grid-line" x1="${padX}" y1="${y}" x2="${width - padX}" y2="${y}" />`; }).join(""); const labels = points.map(({ x, item }) => `<text x="${x}" y="${height - 14}" text-anchor="middle">${formatDate(item.date)}</text>`).join(""); const dots = points.map(({ x, y, item }) => `<circle class="telemetry-dot" cx="${x}" cy="${y}" r="5"><title>${formatDate(item.date)}: ${formatNumber(item.visits)} ${t("visits")}</title></circle>`).join(""); chartEl.className = "telemetry-chart"; chartEl.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${t("7-day visits trend chart")}" preserveAspectRatio="xMidYMid meet">${gridRows}<polygon class="telemetry-area" points="${areaPoints}" /><polyline class="telemetry-line" points="${pointLine(points)}" />${dots}${labels}</svg>`; };
+  const renderError = () => { summaryEl.innerHTML = ["Visits", "Requests", "Bandwidth Served", "Cache Hit Rate"].map((label) => `<article class="telemetry-card"><div class="telemetry-value">--</div><div class="telemetry-label">${t(label)}</div></article>`).join(""); chartEl.className = "telemetry-chart telemetry-error"; chartEl.textContent = safeErrorMessage(); if (noteEl) noteEl.textContent = t("No individual visitor data, IP addresses, logs or security events are displayed."); if (pillEl) pillEl.textContent = t("Offline"); };
+  const renderTelemetry = (data) => { cachedTelemetry = data; renderSummary(data.summary); renderChart(data.trend); const updated = formatUpdatedAt(data.updatedAt); const period = localizePeriod(data.period || "Last 24 hours"); const privacyNote = localizePrivacyNote(data.note); if (noteEl) noteEl.textContent = `${privacyNote} ${period}. ${updated}.`; if (pillEl) pillEl.textContent = period; };
+  const loadTelemetry = async () => { try { const response = await fetch(TELEMETRY_ENDPOINT, { headers: { Accept: "application/json" } }); if (!response.ok) throw new Error(safeErrorMessage()); const data = await response.json(); if (data.error) throw new Error(safeErrorMessage()); renderTelemetry(data); } catch (error) { renderError(); } };
+  document.addEventListener("click", (event) => { if (!event.target.closest(".language-option[data-lang]")) return; window.setTimeout(() => { if (cachedTelemetry) renderTelemetry(cachedTelemetry); else renderError(); }, 90); });
   loadTelemetry();
 })();
