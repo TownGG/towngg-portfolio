@@ -47,7 +47,8 @@
 
 #admin-module-upload:checked ~ .admin-module-tabs label[for="admin-module-upload"],
 #admin-module-manage:checked ~ .admin-module-tabs label[for="admin-module-manage"],
-#admin-module-community:checked ~ .admin-module-tabs label[for="admin-module-community"] {
+#admin-module-community:checked ~ .admin-module-tabs label[for="admin-module-community"],
+#admin-module-message-board:checked ~ .admin-module-tabs label[for="admin-module-message-board"] {
   color: #eaf8ff;
   border-color: rgba(125, 216, 255, .42);
   background: radial-gradient(circle at top right, rgba(125, 216, 255, .22), transparent 46%), rgba(125, 216, 255, .10);
@@ -60,27 +61,62 @@
 
 #admin-module-upload:checked ~ .admin-module-content .admin-module-upload,
 #admin-module-manage:checked ~ .admin-module-content .admin-module-manage,
-#admin-module-community:checked ~ .admin-module-content .admin-module-community {
+#admin-module-community:checked ~ .admin-module-content .admin-module-community,
+#admin-module-message-board:checked ~ .admin-module-content .admin-module-message-board {
   display: block;
 }
 
 .admin-module-upload > .admin-grid,
 .admin-module-upload > .admin-card,
 .admin-module-manage > .admin-card,
-.admin-module-community > .admin-card {
+.admin-module-community > .admin-card,
+.admin-module-message-board > .admin-card {
   margin-bottom: 24px;
 }
 
 .admin-module-upload > :last-child,
 .admin-module-manage > :last-child,
-.admin-module-community > :last-child {
+.admin-module-community > :last-child,
+.admin-module-message-board > :last-child {
   margin-bottom: 0;
+}
+
+.message-board-admin-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.message-board-admin-item {
+  padding: 16px;
+  border: 1px solid rgba(125, 216, 255, .12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .035);
+}
+
+.message-board-admin-item strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #eaf8ff;
+}
+
+.message-board-admin-item p {
+  margin: 0 0 12px;
+  color: var(--soft);
+  line-height: 1.7;
+}
+
+.message-board-admin-note {
+  display: block;
+  margin-top: 12px;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 @media (max-width: 820px) {
   .admin-module-tabs {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     width: 100%;
     gap: 8px;
     padding: 6px;
