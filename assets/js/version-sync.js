@@ -4,8 +4,12 @@
   const LIVE_RELOAD_LOCK_PREFIX = "townggLiveDataReloaded:";
   const POLL_INTERVAL_MS = 60 * 1000;
   const LIVE_RELOAD_COOLDOWN_MS = 45 * 1000;
+  const MESSAGE_BOARD_LATEST_KEY = "townggMessageBoardLatestCount";
+  const MESSAGE_BOARD_READ_KEY = "townggMessageBoardReadCount";
+  const MESSAGE_BOARD_TERM = "/message-board.html";
   const WATCHED_FILES = [
     "./assets/js/site-data.js",
+    "./assets/js/version-sync.js",
     "./assets/data/site-version.json",
     "./assets/data/creations-history.csv",
     "./assets/data/creations-mod-daily.csv",
@@ -15,6 +19,7 @@
   const liveSignatures = new Map();
   let liveChecking = false;
   let reloading = false;
+  let messageBadgeProbeStarted = false;
 
   function normalizeVersion(value) {
     return String(value || "")
@@ -88,8 +93,154 @@
     });
   }
 
+  function isMessageBoardPage() {
+    return document.body?.dataset.page === "message-board" || location.pathname.endsWith("/message-board.html");
+  }
+
+  function messageBoardLinks() {
+    return [...document.querySelectorAll('.nav-links a[href$="message-board.html"]')];
+  }
+
+  function injectMessageBoardBadgeStyle() {
+    if (document.getElementById("message-board-badge-style")) return;
+
+    const style = document.createElement("style");
+    style.id = "message-board-badge-style";
+    style.textContent = `
+      .nav-links a[data-message-board-nav] {
+        position: relative;
+      }
+
+      .nav-links a[data-message-board-nav].has-unread::after {
+        content: "";
+        position: absolute;
+        top: 7px;
+        right: 7px;
+        width: 8px;
+        height: 8px;
+        border: 2px solid rgba(7, 11, 18, .92);
+        border-radius: 999px;
+        background: #ff3b4f;
+        box-shadow: 0 0 10px rgba(255, 59, 79, .82), 0 0 18px rgba(255, 59, 79, .4);
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function setMessageBoardBadge(isVisible) {
+    messageBoardLinks().forEach((link) => {
+      link.dataset.messageBoardNav = "true";
+      link.classList.toggle("has-unread", Boolean(isVisible));
+      link.setAttribute("aria-label", isVisible ? "Message Board, new messages" : "Message Board");
+    });
+  }
+
+  function getStoredMessageCount(key) {
+    const value = Number(localStorage.getItem(key) || 0);
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function refreshMessageBoardBadge() {
+    const latest = getStoredMessageCount(MESSAGE_BOARD_LATEST_KEY);
+    const read = getStoredMessageCount(MESSAGE_BOARD_READ_KEY);
+    setMessageBoardBadge(!isMessageBoardPage() && latest > read);
+  }
+
+  function acknowledgeMessageBoard(count) {
+    const latest = Math.max(count || 0, getStoredMessageCount(MESSAGE_BOARD_LATEST_KEY));
+    localStorage.setItem(MESSAGE_BOARD_LATEST_KEY, String(latest));
+    localStorage.setItem(MESSAGE_BOARD_READ_KEY, String(latest));
+    setMessageBoardBadge(false);
+  }
+
+  function isMessageBoardDiscussion(discussion = {}) {
+    const title = String(discussion.title || discussion.term || "").toLowerCase();
+    const url = String(discussion.url || "").toLowerCase();
+    return title.includes("message-board") || title.includes("message board") || url.includes("message-board");
+  }
+
+  function discussionMessageCount(discussion = {}) {
+    const values = [
+      discussion.totalCommentCount,
+      discussion.totalReplyCount,
+      discussion.comments?.totalCount,
+      discussion.replies?.totalCount
+    ].map((value) => Number(value)).filter(Number.isFinite);
+    return Math.max(0, ...values, 0);
+  }
+
+  function handleGiscusMetadata(event) {
+    if (event.origin !== "https://giscus.app") return;
+    const giscus = event.data?.giscus;
+    if (!giscus?.discussion) return;
+
+    const discussion = giscus.discussion;
+    if (!isMessageBoardPage() && !isMessageBoardDiscussion(discussion)) return;
+
+    const count = discussionMessageCount(discussion);
+    const latest = getStoredMessageCount(MESSAGE_BOARD_LATEST_KEY);
+    const read = getStoredMessageCount(MESSAGE_BOARD_READ_KEY);
+    localStorage.setItem(MESSAGE_BOARD_LATEST_KEY, String(Math.max(latest, count)));
+
+    if (isMessageBoardPage()) {
+      acknowledgeMessageBoard(count);
+      return;
+    }
+
+    if (!read) {
+      localStorage.setItem(MESSAGE_BOARD_READ_KEY, String(count));
+      setMessageBoardBadge(false);
+      return;
+    }
+
+    setMessageBoardBadge(count > read);
+  }
+
+  function startMessageBoardProbe() {
+    if (messageBadgeProbeStarted || isMessageBoardPage()) return;
+    messageBadgeProbeStarted = true;
+
+    const probe = document.createElement("div");
+    probe.setAttribute("aria-hidden", "true");
+    probe.style.cssText = "position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);pointer-events:none;opacity:0;";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.dataset.repo = "TownGG/towngg-portfolio";
+    script.dataset.repoId = "R_kgDOSgBRWw";
+    script.dataset.category = "General";
+    script.dataset.categoryId = "DIC_kwDOSgBRW84C-1ju";
+    script.dataset.mapping = "specific";
+    script.dataset.term = MESSAGE_BOARD_TERM;
+    script.dataset.strict = "0";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "1";
+    script.dataset.inputPosition = "bottom";
+    script.dataset.theme = "dark";
+    script.dataset.lang = "zh-CN";
+    script.dataset.loading = "lazy";
+    script.crossOrigin = "anonymous";
+    script.async = true;
+
+    probe.appendChild(script);
+    document.body.appendChild(probe);
+  }
+
+  function setupMessageBoardBadge() {
+    injectMessageBoardBadgeStyle();
+    messageBoardLinks().forEach((link) => {
+      link.dataset.messageBoardNav = "true";
+      link.addEventListener("click", () => acknowledgeMessageBoard());
+    });
+    refreshMessageBoardBadge();
+    window.addEventListener("message", handleGiscusMetadata);
+    window.setTimeout(startMessageBoardProbe, 1200);
+    if (isMessageBoardPage()) acknowledgeMessageBoard();
+  }
+
   async function syncVersion() {
     ensureAdminNavEntry();
+    setupMessageBoardBadge();
 
     try {
       const response = await fetch(`${VERSION_URL}?t=${Date.now()}`, { cache: "no-store" });
