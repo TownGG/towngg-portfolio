@@ -1,14 +1,17 @@
 (() => {
   const LANG_KEY = "townggSiteLang";
-  const supported = ["en", "zh-CN", "ja"];
-  const labels = { en: "English", "zh-CN": "简体中文", ja: "日本語" };
+  const supported = ["en", "zh-CN", "zh-TW", "ja", "ko", "ru"];
+  const labels = { en: "English", "zh-CN": "简体中文", "zh-TW": "繁體中文", ja: "日本語", ko: "한국어", ru: "Русский" };
 
   function currentLanguage() {
     const stored = localStorage.getItem(LANG_KEY);
     if (supported.includes(stored)) return stored;
     const browser = (navigator.language || "").toLowerCase();
+    if (browser.startsWith("zh-tw") || browser.startsWith("zh-hk") || browser.startsWith("zh-mo")) return "zh-TW";
     if (browser.startsWith("zh")) return "zh-CN";
     if (browser.startsWith("ja")) return "ja";
+    if (browser.startsWith("ko")) return "ko";
+    if (browser.startsWith("ru")) return "ru";
     return "en";
   }
 
@@ -21,7 +24,7 @@
     const label = document.querySelector(".language-button-label");
     if (label) label.textContent = labels[lang] || labels.en;
     document.querySelectorAll("[data-lang]").forEach((option) => {
-      option.textContent = `${option.dataset.lang === lang ? "✓ " : ""}${labels[option.dataset.lang]}`;
+      option.textContent = `${option.dataset.lang === lang ? "✓ " : ""}${labels[option.dataset.lang] || option.dataset.lang}`;
       option.classList.toggle("is-active", option.dataset.lang === lang);
     });
   }
