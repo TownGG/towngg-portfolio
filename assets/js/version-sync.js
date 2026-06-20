@@ -7,6 +7,8 @@
   const MESSAGE_BOARD_LATEST_KEY = "townggMessageBoardLatestCount";
   const MESSAGE_BOARD_READ_KEY = "townggMessageBoardReadCount";
   const MESSAGE_BOARD_TERM = "/message-board.html";
+  const MESSAGE_BOARD_DISCUSSION_SEARCH_URL = "https://github.com/TownGG/towngg-portfolio/discussions?discussions_q=message-board";
+  const MESSAGE_BOARD_DISCUSSIONS_URL = "https://github.com/TownGG/towngg-portfolio/discussions/categories/general";
   const WATCHED_FILES = [
     "./assets/js/site-data.js",
     "./assets/js/version-sync.js",
@@ -91,6 +93,37 @@
       admin.setAttribute("data-admin-nav", "true");
       about.insertAdjacentElement("afterend", admin);
     });
+  }
+
+  function injectMessageBoardModerationPanel() {
+    if (document.body?.dataset.page !== "admin-upload") return;
+    if (document.querySelector("[data-message-board-moderation]")) return;
+
+    const shell = document.querySelector("[data-admin-shell]");
+    const hero = shell?.querySelector(".admin-hero");
+    if (!shell || !hero) return;
+
+    const panel = document.createElement("section");
+    panel.className = "admin-card panel message-board-moderation-panel";
+    panel.setAttribute("data-message-board-moderation", "true");
+    panel.style.margin = "20px 0";
+    panel.innerHTML = `
+      <div class="admin-card-header">
+        <div>
+          <div class="eyebrow">Message Board</div>
+          <h2>Moderation</h2>
+          <p class="admin-subtitle">Open the GitHub Discussion behind the public message board, then delete or hide spam / bad comments with your repository owner account.</p>
+        </div>
+        <span class="admin-status-pill">Owner action required</span>
+      </div>
+      <div class="admin-actions" style="flex-wrap: wrap;">
+        <a class="button primary" href="${MESSAGE_BOARD_DISCUSSION_SEARCH_URL}" target="_blank" rel="noopener">Open Message Board Discussion</a>
+        <a class="button" href="${MESSAGE_BOARD_DISCUSSIONS_URL}" target="_blank" rel="noopener">All General Discussions</a>
+      </div>
+      <small class="admin-security-note">For safety, deletion is handled inside GitHub instead of this public website, so your GitHub moderation permission is never exposed in frontend code.</small>
+    `;
+
+    hero.insertAdjacentElement("afterend", panel);
   }
 
   function isMessageBoardPage() {
@@ -240,6 +273,7 @@
 
   async function syncVersion() {
     ensureAdminNavEntry();
+    injectMessageBoardModerationPanel();
     setupMessageBoardBadge();
 
     try {
