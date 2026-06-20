@@ -1264,7 +1264,7 @@ async function listMessageBoardComments(config, env) {
           number
           title
           url
-          comments(first: 50, orderBy: { field: UPDATED_AT, direction: DESC }) {
+          comments(first: 50) {
             nodes {
               id
               bodyText
@@ -1308,7 +1308,9 @@ async function listMessageBoardComments(config, env) {
   });
 
   const node = data?.node;
-  const comments = (node?.comments?.nodes || []).flatMap((comment) => flattenDiscussionComment(comment));
+  const comments = (node?.comments?.nodes || [])
+  .flatMap((comment) => flattenDiscussionComment(comment))
+  .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
 
   return {
     discussion: {
