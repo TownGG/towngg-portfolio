@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-22T08:30:17Z",
+  "updatedAt": "2026-06-22T09:00:18Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 371,
-      "unique_downloads": 335,
-      "daily_downloads": 0,
+      "total_downloads": 372,
+      "unique_downloads": 336,
+      "daily_downloads": 1,
       "likes": 17,
       "views": 0
     },
@@ -127,9 +127,9 @@
       "mod_name": "CPF-CRIMSON FLEET POWER FIST HELLHOUND",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17501",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
-      "total_downloads": 66,
-      "unique_downloads": 63,
-      "daily_downloads": 3,
+      "total_downloads": 67,
+      "unique_downloads": 64,
+      "daily_downloads": 4,
       "likes": 2,
       "views": 0
     }
