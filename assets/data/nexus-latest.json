@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-21T23:59:09Z",
+  "updatedAt": "2026-06-22T00:30:15Z",
   "mods": [
     {
       "platform": "nexus",
@@ -9,7 +9,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
       "total_downloads": 405,
       "unique_downloads": 363,
-      "daily_downloads": 4,
+      "daily_downloads": 0,
       "likes": 23,
       "views": 0
     },
@@ -21,7 +21,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
       "total_downloads": 1369,
       "unique_downloads": 691,
-      "daily_downloads": 17,
+      "daily_downloads": 0,
       "likes": 28,
       "views": 0
     },
@@ -33,7 +33,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
       "total_downloads": 371,
       "unique_downloads": 335,
-      "daily_downloads": 7,
+      "daily_downloads": 0,
       "likes": 17,
       "views": 0
     },
@@ -45,7 +45,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
       "total_downloads": 311,
       "unique_downloads": 226,
-      "daily_downloads": 8,
+      "daily_downloads": 0,
       "likes": 7,
       "views": 0
     },
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 452,
-      "unique_downloads": 349,
-      "daily_downloads": 6,
+      "total_downloads": 453,
+      "unique_downloads": 350,
+      "daily_downloads": 1,
       "likes": 24,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2234,
-      "unique_downloads": 1717,
-      "daily_downloads": 43,
+      "total_downloads": 2235,
+      "unique_downloads": 1718,
+      "daily_downloads": 1,
       "likes": 99,
       "views": 0
     },
@@ -81,7 +81,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
       "total_downloads": 328,
       "unique_downloads": 302,
-      "daily_downloads": 35,
+      "daily_downloads": 0,
       "likes": 11,
       "views": 0
     },
@@ -93,7 +93,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
       "total_downloads": 110,
       "unique_downloads": 106,
-      "daily_downloads": 10,
+      "daily_downloads": 0,
       "likes": 5,
       "views": 0
     },
@@ -105,7 +105,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
       "total_downloads": 129,
       "unique_downloads": 128,
-      "daily_downloads": 16,
+      "daily_downloads": 0,
       "likes": 6,
       "views": 0
     },
@@ -117,7 +117,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842553-1785018540.png",
       "total_downloads": 105,
       "unique_downloads": 102,
-      "daily_downloads": 32,
+      "daily_downloads": 0,
       "likes": 5,
       "views": 0
     },
@@ -127,9 +127,9 @@
       "mod_name": "CPF-CRIMSON FLEET POWER FIST HELLHOUND",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17501",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
-      "total_downloads": 63,
-      "unique_downloads": 60,
-      "daily_downloads": 20,
+      "total_downloads": 64,
+      "unique_downloads": 61,
+      "daily_downloads": 1,
       "likes": 2,
       "views": 0
     }
