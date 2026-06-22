@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-22T07:00:18Z",
+  "updatedAt": "2026-06-22T07:30:18Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1373,
-      "unique_downloads": 691,
-      "daily_downloads": 4,
+      "total_downloads": 1370,
+      "unique_downloads": 692,
+      "daily_downloads": 1,
       "likes": 28,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 316,
-      "unique_downloads": 227,
-      "daily_downloads": 5,
+      "total_downloads": 311,
+      "unique_downloads": 226,
+      "daily_downloads": 0,
       "likes": 7,
       "views": 0
     },
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 453,
-      "unique_downloads": 350,
-      "daily_downloads": 1,
+      "total_downloads": 454,
+      "unique_downloads": 351,
+      "daily_downloads": 2,
       "likes": 24,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2245,
-      "unique_downloads": 1724,
-      "daily_downloads": 11,
+      "total_downloads": 2252,
+      "unique_downloads": 1729,
+      "daily_downloads": 18,
       "likes": 99,
       "views": 0
     },
@@ -80,7 +80,7 @@
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
       "total_downloads": 335,
-      "unique_downloads": 306,
+      "unique_downloads": 308,
       "daily_downloads": 7,
       "likes": 11,
       "views": 0
@@ -103,9 +103,9 @@
       "mod_name": "CPF-STARBORN POWER FIST UNITY",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
-      "total_downloads": 133,
-      "unique_downloads": 132,
-      "daily_downloads": 4,
+      "total_downloads": 130,
+      "unique_downloads": 129,
+      "daily_downloads": 1,
       "likes": 6,
       "views": 0
     },
@@ -115,9 +115,9 @@
       "mod_name": "CPF-STARBORN  POWER FIST OMEGA",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17500",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842553-1785018540.png",
-      "total_downloads": 110,
-      "unique_downloads": 105,
-      "daily_downloads": 5,
+      "total_downloads": 109,
+      "unique_downloads": 106,
+      "daily_downloads": 4,
       "likes": 5,
       "views": 0
     },
