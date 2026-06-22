@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-22T03:30:17Z",
+  "updatedAt": "2026-06-22T04:00:16Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1370,
+      "total_downloads": 1371,
       "unique_downloads": 691,
-      "daily_downloads": 1,
+      "daily_downloads": 2,
       "likes": 28,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 312,
-      "unique_downloads": 226,
-      "daily_downloads": 1,
+      "total_downloads": 315,
+      "unique_downloads": 227,
+      "daily_downloads": 4,
       "likes": 7,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2238,
-      "unique_downloads": 1720,
-      "daily_downloads": 4,
+      "total_downloads": 2240,
+      "unique_downloads": 1721,
+      "daily_downloads": 6,
       "likes": 99,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 331,
+      "total_downloads": 333,
       "unique_downloads": 304,
-      "daily_downloads": 3,
+      "daily_downloads": 5,
       "likes": 11,
       "views": 0
     },
@@ -115,9 +115,9 @@
       "mod_name": "CPF-STARBORN  POWER FIST OMEGA",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17500",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842553-1785018540.png",
-      "total_downloads": 108,
+      "total_downloads": 109,
       "unique_downloads": 104,
-      "daily_downloads": 3,
+      "daily_downloads": 4,
       "likes": 5,
       "views": 0
     },
