@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-23T20:00:30Z",
+  "updatedAt": "2026-06-23T20:30:16Z",
   "mods": [
     {
       "platform": "nexus",
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2296,
-      "unique_downloads": 1765,
-      "daily_downloads": 23,
+      "total_downloads": 2298,
+      "unique_downloads": 1766,
+      "daily_downloads": 25,
       "likes": 99,
       "views": 0
     },
@@ -139,9 +139,9 @@
       "mod_name": "CASSILIAs Trainning Dummy",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17521",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17521/17521-1782131371-2132304027.png",
-      "total_downloads": 18,
+      "total_downloads": 19,
       "unique_downloads": 18,
-      "daily_downloads": 6,
+      "daily_downloads": 7,
       "likes": 0,
       "views": 0
     }
