@@ -47,14 +47,11 @@ jobs:
         run: xvfb-run -a npm run cc:discover:headed
 
       - name: Sync Bethesda Creations stats and covers
-        run: xvfb-run -a npm run cc:sync:headed
-
-      - name: Debug Training Dummy stats parse
-        if: always()
-        continue-on-error: true
         env:
           CC_DEBUG_TITLE: cassilia training dummy
-        run: xvfb-run -a node scripts/debug-creation-stats-parse.js --headed
+        run: |
+          xvfb-run -a npm run cc:sync:headed
+          xvfb-run -a node scripts/debug-creation-stats-parse.js --headed
 
       - name: Print captured Creations stats
         if: always()
