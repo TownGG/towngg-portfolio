@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-23T08:00:17Z",
+  "updatedAt": "2026-06-23T08:21:42Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 375,
-      "unique_downloads": 339,
-      "daily_downloads": 1,
+      "total_downloads": 376,
+      "unique_downloads": 340,
+      "daily_downloads": 2,
       "likes": 17,
       "views": 0
     },
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 460,
-      "unique_downloads": 356,
-      "daily_downloads": 3,
+      "total_downloads": 461,
+      "unique_downloads": 357,
+      "daily_downloads": 4,
       "likes": 24,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2283,
-      "unique_downloads": 1752,
-      "daily_downloads": 10,
+      "total_downloads": 2285,
+      "unique_downloads": 1754,
+      "daily_downloads": 12,
       "likes": 99,
       "views": 0
     },
@@ -82,7 +82,7 @@
       "total_downloads": 355,
       "unique_downloads": 323,
       "daily_downloads": 8,
-      "likes": 12,
+      "likes": 13,
       "views": 0
     },
     {
@@ -106,7 +106,7 @@
       "total_downloads": 140,
       "unique_downloads": 139,
       "daily_downloads": 5,
-      "likes": 6,
+      "likes": 7,
       "views": 0
     },
     {
@@ -130,7 +130,7 @@
       "total_downloads": 79,
       "unique_downloads": 75,
       "daily_downloads": 3,
-      "likes": 2,
+      "likes": 3,
       "views": 0
     },
     {
@@ -139,9 +139,9 @@
       "mod_name": "CASSILIAs Trainning Dummy",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17521",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17521/17521-1782131371-2132304027.png",
-      "total_downloads": 13,
-      "unique_downloads": 13,
-      "daily_downloads": 1,
+      "total_downloads": 14,
+      "unique_downloads": 14,
+      "daily_downloads": 2,
       "likes": 0,
       "views": 0
     }
