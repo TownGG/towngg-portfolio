@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-24T23:00:17Z",
+  "updatedAt": "2026-06-24T23:30:16Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 375,
-      "unique_downloads": 341,
-      "daily_downloads": 16,
+      "total_downloads": 377,
+      "unique_downloads": 342,
+      "daily_downloads": 18,
       "likes": 13,
       "views": 0
     },
@@ -91,9 +91,9 @@
       "mod_name": "CPF-UC VANGUARD POWER FIST MK2",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17479",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
-      "total_downloads": 124,
+      "total_downloads": 125,
       "unique_downloads": 120,
-      "daily_downloads": 3,
+      "daily_downloads": 4,
       "likes": 5,
       "views": 0
     },
@@ -139,10 +139,10 @@
       "mod_name": "CASSILIAs Trainning Dummy",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17521",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17521/17521-1782131371-2132304027.png",
-      "total_downloads": 22,
-      "unique_downloads": 21,
-      "daily_downloads": 2,
-      "likes": 0,
+      "total_downloads": 23,
+      "unique_downloads": 22,
+      "daily_downloads": 3,
+      "likes": 1,
       "views": 0
     }
   ]
