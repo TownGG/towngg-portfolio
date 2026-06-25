@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-25T07:00:20Z",
+  "updatedAt": "2026-06-25T07:30:18Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 470,
-      "unique_downloads": 366,
-      "daily_downloads": 1,
+      "total_downloads": 469,
+      "unique_downloads": 365,
+      "daily_downloads": 0,
       "likes": 24,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2346,
-      "unique_downloads": 1808,
-      "daily_downloads": 4,
+      "total_downloads": 2347,
+      "unique_downloads": 1809,
+      "daily_downloads": 5,
       "likes": 101,
       "views": 0
     },
@@ -80,7 +80,7 @@
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
       "total_downloads": 381,
-      "unique_downloads": 345,
+      "unique_downloads": 346,
       "daily_downloads": 4,
       "likes": 13,
       "views": 0
@@ -91,9 +91,9 @@
       "mod_name": "CPF-UC VANGUARD POWER FIST MK2",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17479",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
-      "total_downloads": 125,
-      "unique_downloads": 120,
-      "daily_downloads": 0,
+      "total_downloads": 126,
+      "unique_downloads": 121,
+      "daily_downloads": 1,
       "likes": 5,
       "views": 0
     },
@@ -103,9 +103,9 @@
       "mod_name": "CPF-STARBORN POWER FIST UNITY",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
-      "total_downloads": 154,
-      "unique_downloads": 152,
-      "daily_downloads": 3,
+      "total_downloads": 153,
+      "unique_downloads": 151,
+      "daily_downloads": 2,
       "likes": 7,
       "views": 0
     },
@@ -142,7 +142,7 @@
       "total_downloads": 24,
       "unique_downloads": 23,
       "daily_downloads": 1,
-      "likes": 1,
+      "likes": 2,
       "views": 0
     }
   ]
