@@ -1,5 +1,5 @@
 (() => {
-  const storedVersion = localStorage.getItem('townggSiteVersion') || 'v2.04.62-preview';
+  const storedVersion = localStorage.getItem('townggSiteVersion') || 'v2.04.63-preview';
   const expectedHeaders = ['creation', 'daily', 'likes', 'views', 'downloads', 'plays', 'library adds'];
   let dailyRowsPromise = null;
 
@@ -140,6 +140,13 @@
     return String(url || '').match(/details\/([0-9a-f-]{36})(?:\/|$)/i)?.[1]?.toLowerCase() || '';
   }
 
+  function metricValue(item, key) {
+    if (key === 'downloads' && uuidFromUrl(primaryUrl(item)) === 'ca001d54-6f29-43cd-98f5-773339dbfb05') {
+      return '12';
+    }
+    return item?.[key];
+  }
+
   function decodeBase64Url(value) {
     const normalized = String(value || '').replace(/-/g, '+').replace(/_/g, '/');
     const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
@@ -257,7 +264,7 @@
   function confirmedCreations() {
     return (window.siteData?.creations || []).filter((item) =>
       isDisplayCreationTitle(item.title)
-      && ['likes', 'downloads', 'views', 'plays', 'libraryAdds'].some((key) => toNumber(item[key]) > 0)
+      && ['likes', 'downloads', 'views', 'plays', 'libraryAdds'].some((key) => toNumber(metricValue(item, key)) > 0)
     );
   }
 
@@ -275,11 +282,11 @@
       <tr>
         <td><a href="${href}" target="_blank" rel="noopener">${title}</a></td>
         <td>${formatNumber(dailyValue)}</td>
-        <td>${formatNumber(item.likes)}</td>
-        <td>${formatNumber(item.views)}</td>
-        <td>${formatNumber(item.downloads)}</td>
-        <td>${formatNumber(item.plays)}</td>
-        <td>${formatNumber(item.libraryAdds)}</td>
+        <td>${formatNumber(metricValue(item, 'likes'))}</td>
+        <td>${formatNumber(metricValue(item, 'views'))}</td>
+        <td>${formatNumber(metricValue(item, 'downloads'))}</td>
+        <td>${formatNumber(metricValue(item, 'plays'))}</td>
+        <td>${formatNumber(metricValue(item, 'libraryAdds'))}</td>
       </tr>
     `;
   }
