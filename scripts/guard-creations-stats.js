@@ -4,6 +4,15 @@ import vm from 'node:vm';
 
 const SITE_DATA_PATH = 'assets/js/site-data.js';
 const STAT_KEYS = ['views', 'bookmarks', 'likes', 'downloads', 'plays', 'libraryAdds'];
+const GUARD_SKIP_UUIDS = new Set(['ca001d54-6f29-43cd-98f5-773339dbfb05']);
+const GUARD_SKIP_TITLES = new Set([
+  'cassilias trainning dummy',
+  'cassilias training dummy',
+  'cassilia s trainning dummy',
+  'cassilia s training dummy',
+  'cassilias trainning dummy',
+  'cassilias training dummy'
+]);
 
 function loadSiteData(source) {
   const context = { window: {} };
@@ -29,6 +38,31 @@ function stableKeyFromUrl(url) {
 
 function stableKey(item) {
   return stableKeyFromUrl(getCreationUrl(item)) || String(item?.title || '').trim().toLowerCase();
+}
+
+function normalizeTitle(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[’']/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function uuidFromUrl(url) {
+  return String(url || '').match(/\/details\/([0-9a-f-]{36})(?:\/|$)/i)?.[1]?.toLowerCase() || '';
+}
+
+function shouldSkipGuard(item) {
+  const title = normalizeTitle(item?.title);
+  const uuid = uuidFromUrl(getCreationUrl(item));
+  if (GUARD_SKIP_UUIDS.has(uuid)) return true;
+  if (GUARD_SKIP_TITLES.has(title)) return true;
+  return title.includes('cassilias trainning dummy')
+    || title.includes('cassilias training dummy')
+    || title.includes('cassilia s trainning dummy')
+    || title.includes('cassilia s training dummy');
 }
 
 function findMatchingBrace(source, openIndex) {
@@ -123,11 +157,19 @@ const oldByKey = new Map((oldData.creations || []).map((item) => [stableKey(item
 let corrections = 0;
 let checked = 0;
 let accepted = 0;
+let guardSkipped = 0;
 
 for (const item of newData.creations || []) {
   const key = stableKey(item);
   const previous = oldByKey.get(key);
   if (!previous) continue;
+
+  if (shouldSkipGuard(item) || shouldSkipGuard(previous)) {
+    guardSkipped += 1;
+    console.log(`[GUARD_SKIP] title=${item.title || previous.title || '-'} decision=accept_scraped reason=explicit_skip_for_cassilias_training_dummy`);
+    continue;
+  }
+
   const found = findCreationObject(nextSource, key);
   if (!found) continue;
 
@@ -166,4 +208,4 @@ for (const item of newData.creations || []) {
 }
 
 if (corrections > 0) fs.writeFileSync(SITE_DATA_PATH, nextSource, 'utf8');
-console.log(`[GUARD] Creations non-decreasing stat guard complete: checked=${checked}, accepted=${accepted}, rejected=${corrections}.`);
+console.log(`[GUARD] Creations non-decreasing stat guard complete: checked=${checked}, accepted=${accepted}, rejected=${corrections}, skipped=${guardSkipped}.`);
