@@ -5,8 +5,17 @@
 
   const translations = {
     en: {
+      Creation: 'Creation',
+      Daily: 'Daily',
+      Likes: 'Likes',
+      Views: 'Views',
+      Downloads: 'Downloads',
+      Plays: 'Plays',
+      'Library Adds': 'Library Adds',
       Updated: 'Updated {time}',
-      'Latest Bethesda Creations browser capture timestamp.': 'Latest Bethesda Creations browser capture timestamp.'
+      'Latest Bethesda Creations browser capture timestamp.': 'Latest Bethesda Creations browser capture timestamp.',
+      'Automatically discovered from Bethesda Creations.': 'Automatically discovered from Bethesda Creations.',
+      'Auto Discovered': 'Auto Discovered'
     },
     'zh-CN': {
       Creation: 'Creation',
@@ -141,9 +150,6 @@
   }
 
   function metricValue(item, key) {
-    if (key === 'downloads' && uuidFromUrl(primaryUrl(item)) === 'ca001d54-6f29-43cd-98f5-773339dbfb05') {
-      return '12';
-    }
     return item?.[key];
   }
 
