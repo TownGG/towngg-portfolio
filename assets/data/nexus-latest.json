@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-26T15:30:18Z",
+  "updatedAt": "2026-06-26T16:00:17Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 386,
-      "unique_downloads": 348,
-      "daily_downloads": 2,
+      "total_downloads": 387,
+      "unique_downloads": 349,
+      "daily_downloads": 3,
       "likes": 19,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2468,
+      "total_downloads": 2469,
       "unique_downloads": 1852,
-      "daily_downloads": 35,
+      "daily_downloads": 36,
       "likes": 104,
       "views": 0
     },
@@ -151,8 +151,8 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 56,
-      "unique_downloads": 40,
+      "total_downloads": 62,
+      "unique_downloads": 44,
       "daily_downloads": 0,
       "likes": 3,
       "views": 0
