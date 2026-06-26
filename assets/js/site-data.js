@@ -169,6 +169,20 @@ window.siteData = {
       links: [
         { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17521" }
       ]
+    },
+    {
+      title: "Realistic Helmet 1st Person Vision",
+      category: "Nexus Mods / Auto Synced",
+      group: "Gameplay",
+      image: "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
+      alt: "Realistic Helmet 1st Person Vision Nexus Mods cover image",
+      description: "Automatically synced from Nexus Mods.",
+      tags: ["Nexus", "Auto Synced", "Starfield"],
+      downloads: "0",
+      endorsements: "0",
+      links: [
+        { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17575" }
+      ]
     }
   ],
   creations: [
