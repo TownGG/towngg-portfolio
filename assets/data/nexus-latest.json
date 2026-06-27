@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-27T22:30:56Z",
+  "updatedAt": "2026-06-27T22:45:48Z",
   "mods": [
     {
       "platform": "nexus",
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 335,
-      "unique_downloads": 239,
-      "daily_downloads": 6,
+      "total_downloads": 336,
+      "unique_downloads": 240,
+      "daily_downloads": 7,
       "likes": 7,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2539,
+      "total_downloads": 2540,
       "unique_downloads": 1883,
-      "daily_downloads": 48,
+      "daily_downloads": 49,
       "likes": 105,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 403,
-      "unique_downloads": 361,
-      "daily_downloads": 11,
+      "total_downloads": 404,
+      "unique_downloads": 362,
+      "daily_downloads": 12,
       "likes": 13,
       "views": 0
     },
@@ -151,10 +151,10 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 223,
-      "unique_downloads": 143,
-      "daily_downloads": 95,
-      "likes": 5,
+      "total_downloads": 225,
+      "unique_downloads": 145,
+      "daily_downloads": 97,
+      "likes": 6,
       "views": 0
     }
   ]
