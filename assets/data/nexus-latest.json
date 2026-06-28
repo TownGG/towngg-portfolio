@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-28T09:30:53Z",
+  "updatedAt": "2026-06-28T09:48:32Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 397,
+      "total_downloads": 398,
       "unique_downloads": 359,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 19,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 262,
-      "unique_downloads": 165,
-      "daily_downloads": 37,
+      "total_downloads": 264,
+      "unique_downloads": 167,
+      "daily_downloads": 39,
       "likes": 7,
       "views": 0
     }
