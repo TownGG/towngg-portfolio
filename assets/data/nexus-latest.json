@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-28T03:30:54Z",
+  "updatedAt": "2026-06-28T04:00:54Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 490,
-      "unique_downloads": 384,
-      "daily_downloads": 0,
+      "total_downloads": 491,
+      "unique_downloads": 385,
+      "daily_downloads": 1,
       "likes": 24,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 405,
-      "unique_downloads": 362,
-      "daily_downloads": 1,
+      "total_downloads": 406,
+      "unique_downloads": 363,
+      "daily_downloads": 2,
       "likes": 13,
       "views": 0
     },
@@ -103,9 +103,9 @@
       "mod_name": "CPF-STARBORN POWER FIST UNITY",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
-      "total_downloads": 160,
-      "unique_downloads": 156,
-      "daily_downloads": 0,
+      "total_downloads": 161,
+      "unique_downloads": 157,
+      "daily_downloads": 1,
       "likes": 7,
       "views": 0
     },
@@ -115,9 +115,9 @@
       "mod_name": "CPF-STARBORN  POWER FIST OMEGA",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17500",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842553-1785018540.png",
-      "total_downloads": 150,
+      "total_downloads": 151,
       "unique_downloads": 135,
-      "daily_downloads": 1,
+      "daily_downloads": 2,
       "likes": 5,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 237,
-      "unique_downloads": 151,
-      "daily_downloads": 12,
+      "total_downloads": 239,
+      "unique_downloads": 152,
+      "daily_downloads": 14,
       "likes": 6,
       "views": 0
     }
