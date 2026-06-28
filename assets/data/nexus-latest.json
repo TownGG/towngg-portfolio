@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-28T14:30:54Z",
+  "updatedAt": "2026-06-28T15:00:54Z",
   "mods": [
     {
       "platform": "nexus",
@@ -22,7 +22,7 @@
       "total_downloads": 1424,
       "unique_downloads": 723,
       "daily_downloads": 2,
-      "likes": 29,
+      "likes": 30,
       "views": 0
     },
     {
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 284,
-      "unique_downloads": 176,
-      "daily_downloads": 59,
+      "total_downloads": 286,
+      "unique_downloads": 177,
+      "daily_downloads": 61,
       "likes": 7,
       "views": 0
     }
