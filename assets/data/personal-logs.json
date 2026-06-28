@@ -1,5 +1,14 @@
 [
   {
+    "id": "new-home-new-chapter",
+    "category": "Life",
+    "title": "A New Home, A New Chapter",
+    "date": "2026.06.28",
+    "excerpt": "The move is finally complete, and my parents have moved in with me. Mod updates will gradually resume soon.",
+    "cover": "./assets/images/logs/moving-home-20260620.svg",
+    "content": "Just a small life update.\n\nThe move is finally complete.\n\nI have also brought my parents over to live with me. Their income is not high, so living together helps us reduce some daily living costs and makes things easier for the family.\n\nBecause of the move and settling everything in, mod development slowed down a bit these days.\n\nNow that the new place is coming together, I will gradually start returning to mod updates. New projects are still on the way, including future Power Fist releases and more Cassilia Universe content.\n\nThank you for waiting and supporting my work. Please look forward to the next mods."
+  },
+  {
     "id": "moving-days-short-break",
     "category": "Life",
     "title": "Moving Days, A Short Break From Modding",
