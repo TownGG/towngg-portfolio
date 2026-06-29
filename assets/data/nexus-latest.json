@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-29T09:00:56Z",
+  "updatedAt": "2026-06-29T09:30:54Z",
   "mods": [
     {
       "platform": "nexus",
@@ -7,9 +7,9 @@
       "mod_name": "TGGs Sexy Black Lingerie",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17070",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
-      "total_downloads": 428,
-      "unique_downloads": 383,
-      "daily_downloads": 2,
+      "total_downloads": 429,
+      "unique_downloads": 384,
+      "daily_downloads": 3,
       "likes": 25,
       "views": 0
     },
@@ -154,7 +154,7 @@
       "total_downloads": 344,
       "unique_downloads": 203,
       "daily_downloads": 37,
-      "likes": 7,
+      "likes": 8,
       "views": 0
     }
   ]
