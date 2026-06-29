@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-29T12:30:54Z",
+  "updatedAt": "2026-06-29T13:00:54Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 499,
-      "unique_downloads": 389,
-      "daily_downloads": 2,
+      "total_downloads": 500,
+      "unique_downloads": 390,
+      "daily_downloads": 3,
       "likes": 24,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2614,
+      "total_downloads": 2615,
       "unique_downloads": 1916,
-      "daily_downloads": 16,
+      "daily_downloads": 17,
       "likes": 108,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 356,
+      "total_downloads": 357,
       "unique_downloads": 210,
-      "daily_downloads": 49,
+      "daily_downloads": 50,
       "likes": 8,
       "views": 0
     }
