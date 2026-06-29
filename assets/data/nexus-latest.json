@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-29T01:00:55Z",
+  "updatedAt": "2026-06-29T01:30:53Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1428,
-      "unique_downloads": 725,
-      "daily_downloads": 1,
+      "total_downloads": 1429,
+      "unique_downloads": 726,
+      "daily_downloads": 2,
       "likes": 30,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 341,
-      "unique_downloads": 243,
-      "daily_downloads": 1,
+      "total_downloads": 342,
+      "unique_downloads": 244,
+      "daily_downloads": 2,
       "likes": 7,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2599,
-      "unique_downloads": 1909,
-      "daily_downloads": 1,
+      "total_downloads": 2600,
+      "unique_downloads": 1910,
+      "daily_downloads": 2,
       "likes": 107,
       "views": 0
     },
@@ -139,9 +139,9 @@
       "mod_name": "CASSILIAs Trainning Dummy",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17521",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17521/17521-1782131371-2132304027.png",
-      "total_downloads": 25,
-      "unique_downloads": 23,
-      "daily_downloads": 0,
+      "total_downloads": 26,
+      "unique_downloads": 24,
+      "daily_downloads": 1,
       "likes": 2,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 311,
-      "unique_downloads": 187,
-      "daily_downloads": 4,
+      "total_downloads": 314,
+      "unique_downloads": 188,
+      "daily_downloads": 7,
       "likes": 7,
       "views": 0
     }
