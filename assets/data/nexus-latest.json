@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-30T12:30:55Z",
+  "updatedAt": "2026-06-30T13:00:55Z",
   "mods": [
     {
       "platform": "nexus",
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 344,
+      "total_downloads": 345,
       "unique_downloads": 246,
-      "daily_downloads": 1,
+      "daily_downloads": 2,
       "likes": 9,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 427,
-      "unique_downloads": 250,
-      "daily_downloads": 48,
+      "total_downloads": 429,
+      "unique_downloads": 251,
+      "daily_downloads": 50,
       "likes": 10,
       "views": 0
     }
