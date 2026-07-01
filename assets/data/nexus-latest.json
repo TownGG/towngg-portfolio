@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-01T13:00:56Z",
+  "updatedAt": "2026-07-01T13:27:15Z",
   "mods": [
     {
       "platform": "nexus",
@@ -139,9 +139,9 @@
       "mod_name": "CASSILIAs Trainning Dummy",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17521",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17521/17521-1782131371-2132304027.png",
-      "total_downloads": 26,
-      "unique_downloads": 24,
-      "daily_downloads": 0,
+      "total_downloads": 27,
+      "unique_downloads": 25,
+      "daily_downloads": 1,
       "likes": 2,
       "views": 0
     },
