@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-02T05:00:28Z",
+  "updatedAt": "2026-07-02T05:30:28Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 439,
+      "total_downloads": 440,
       "unique_downloads": 390,
-      "daily_downloads": 2,
+      "daily_downloads": 3,
       "likes": 16,
       "views": 0
     },
@@ -91,9 +91,9 @@
       "mod_name": "CPF-UC VANGUARD POWER FIST MK2",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17479",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
-      "total_downloads": 144,
+      "total_downloads": 145,
       "unique_downloads": 136,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 5,
       "views": 0
     },
@@ -127,9 +127,9 @@
       "mod_name": "CPF-CRIMSON FLEET POWER FIST HELLHOUND",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17501",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
-      "total_downloads": 103,
+      "total_downloads": 104,
       "unique_downloads": 98,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 4,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 566,
-      "unique_downloads": 331,
-      "daily_downloads": 18,
+      "total_downloads": 568,
+      "unique_downloads": 332,
+      "daily_downloads": 20,
       "likes": 11,
       "views": 0
     }
