@@ -2,6 +2,15 @@ name: Sync Bethesda Creations
 
 on:
   workflow_dispatch:
+    inputs:
+      debug:
+        description: "Capture Bethesda debug pages"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 permissions:
   contents: write
@@ -22,8 +31,24 @@ jobs:
         with:
           node-version: 24
 
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Cache Playwright Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
       - name: Install dependencies
-        run: npm install
+        run: npm install --prefer-offline --no-audit --no-fund
 
       - name: Install Playwright Chromium
         run: npx playwright install chromium
@@ -49,9 +74,14 @@ jobs:
       - name: Sync Bethesda Creations stats and covers
         env:
           CC_DEBUG_TITLE: cassilia training dummy
-        run: |
-          xvfb-run -a npm run cc:sync:headed
-          xvfb-run -a node scripts/debug-creation-stats-parse.js --headed
+        run: xvfb-run -a npm run cc:sync:headed
+
+      - name: Debug one Creation stats parse
+        if: ${{ always() && (failure() || inputs.debug == 'true') }}
+        continue-on-error: true
+        env:
+          CC_DEBUG_TITLE: cassilia training dummy
+        run: xvfb-run -a node scripts/debug-creation-stats-parse.js --headed
 
       - name: Print captured Creations stats
         if: always()
@@ -81,12 +111,12 @@ jobs:
           NODE
 
       - name: Capture Bethesda debug pages
-        if: always()
+        if: ${{ always() && (failure() || inputs.debug == 'true') }}
         continue-on-error: true
         run: node scripts/debug-creations-cloud.js
 
       - name: Upload Bethesda debug artifact
-        if: always()
+        if: ${{ always() && (failure() || inputs.debug == 'true') }}
         uses: actions/upload-artifact@v4
         with:
           name: bethesda-creations-debug
