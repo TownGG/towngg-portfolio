@@ -13,7 +13,6 @@ const HEADED_MODE = process.argv.includes('--headed');
 const HEADLESS = !LOGIN_MODE && !HEADED_MODE && process.env.HEADLESS !== 'false';
 const SLOW_MS = Number(process.env.CC_SLOW_MS || 1200);
 const TIMEOUT_MS = Number(process.env.CC_TIMEOUT_MS || 45000);
-const NETWORK_IDLE_TIMEOUT_MS = Number(process.env.CC_NETWORK_IDLE_TIMEOUT_MS || 8000);
 const CREATIONS_HOME = 'https://creations.bethesda.net/en/starfield/all?author_displayname=TownGG';
 
 const numberFormat = new Intl.NumberFormat('en-US');
@@ -207,18 +206,6 @@ async function closeContext(context) {
   const browser = context.__browser;
   await context.close();
   if (browser) await browser.close();
-}
-
-async function waitForNetworkIdle(page, label) {
-  const startedAt = Date.now();
-  await page.waitForLoadState('networkidle', { timeout: NETWORK_IDLE_TIMEOUT_MS }).catch((error) => {
-    console.log(`[networkidle] ${label} skipped after ${formatDuration(Date.now() - startedAt)} (${error.message})`);
-  });
-}
-
-function formatDuration(ms) {
-  if (!Number.isFinite(ms)) return '-';
-  return `${(ms / 1000).toFixed(1)}s`;
 }
 
 function decodeHtmlEntities(value) {
@@ -442,7 +429,7 @@ async function selectPlatformAny(page) {
       .sort((a, b) => b.getBoundingClientRect().top - a.getBoundingClientRect().top);
     candidates[0]?.click();
   }).catch(() => {});
-  await waitForNetworkIdle(page, 'platform filter');
+  await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   await page.waitForTimeout(900);
 }
 
@@ -468,7 +455,7 @@ async function scrapeCreation(page, creation) {
   if (isRemovedStatus(status)) {
     return { ok: true, removed: true, status, title: creation.title, stats: {}, coverImage: null };
   }
-  await waitForNetworkIdle(page, 'detail page');
+  await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   await page.waitForTimeout(SLOW_MS);
 
   const debugLikes = parseNumberValue(creation.likes) > LIKE_DEBUG_THRESHOLD;
@@ -531,14 +518,12 @@ async function sync() {
       continue;
     }
 
-    const startedAt = Date.now();
     process.stdout.write(`Syncing ${creation.title}... `);
     try {
       const result = await scrapeCreation(page, creation);
-      const elapsed = formatDuration(Date.now() - startedAt);
       if (!result.ok) {
         failed += 1;
-        console.log(`kept old data (${result.error}) in ${elapsed}`);
+        console.log(`kept old data (${result.error})`);
         continue;
       }
 
@@ -551,7 +536,7 @@ async function sync() {
         };
         nextSource = replaceCreationObjectByKey(nextSource, creation, renderCreationObject(merged));
         success += 1;
-        console.log(`removed from Creations (HTTP ${result.status}), hidden on site in ${elapsed}`);
+        console.log(`removed from Creations (HTTP ${result.status}), hidden on site`);
         continue;
       }
 
@@ -566,10 +551,10 @@ async function sync() {
       };
       nextSource = replaceCreationObjectByKey(nextSource, creation, renderCreationObject(merged));
       success += 1;
-      console.log(`${statsLine(result.stats, result.coverImage, result.title, creation.title)}, duration=${elapsed}`);
+      console.log(statsLine(result.stats, result.coverImage, result.title, creation.title));
     } catch (error) {
       failed += 1;
-      console.log(`kept old data (${error.message}) in ${formatDuration(Date.now() - startedAt)}`);
+      console.log(`kept old data (${error.message})`);
     }
   }
 
