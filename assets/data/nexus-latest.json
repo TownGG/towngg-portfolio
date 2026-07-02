@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-02T20:00:29Z",
+  "updatedAt": "2026-07-02T20:30:25Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1440,
-      "unique_downloads": 734,
-      "daily_downloads": 1,
+      "total_downloads": 1441,
+      "unique_downloads": 735,
+      "daily_downloads": 2,
       "likes": 31,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 350,
-      "unique_downloads": 249,
-      "daily_downloads": 2,
+      "total_downloads": 351,
+      "unique_downloads": 250,
+      "daily_downloads": 3,
       "likes": 9,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2709,
-      "unique_downloads": 1965,
-      "daily_downloads": 23,
+      "total_downloads": 2710,
+      "unique_downloads": 1966,
+      "daily_downloads": 24,
       "likes": 115,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 615,
-      "unique_downloads": 357,
-      "daily_downloads": 67,
+      "total_downloads": 616,
+      "unique_downloads": 358,
+      "daily_downloads": 68,
       "likes": 12,
       "views": 0
     }
