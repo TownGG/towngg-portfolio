@@ -65,9 +65,6 @@ jobs:
             echo "No Bethesda storage state secret found. Public data only."
           fi
 
-      - name: Check Bethesda login state
-        run: xvfb-run -a node scripts/check-bethesda-auth.js --headed
-
       - name: Discover Bethesda Creations list
         run: xvfb-run -a npm run cc:discover:headed
 
