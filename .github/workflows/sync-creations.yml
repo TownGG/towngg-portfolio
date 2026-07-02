@@ -74,7 +74,6 @@ jobs:
       - name: Sync Bethesda Creations stats and covers
         env:
           CC_DEBUG_TITLE: cassilia training dummy
-          CC_NETWORK_IDLE_TIMEOUT_MS: 45000
         run: xvfb-run -a npm run cc:sync:headed
 
       - name: Debug one Creation stats parse
