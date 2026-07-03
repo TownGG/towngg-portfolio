@@ -3,11 +3,11 @@
   let downloadMetric = { label: "Daily Downloads", value: null };
   let isRendering = false;
   const translations = {
-    "zh-CN": { "Daily Downloads": "每日下载", "Yesterday Downloads": "昨日下载", Likes: "点赞", "Total Downloads": "总下载", "Library Adds": "加入库" },
-    "zh-TW": { "Daily Downloads": "每日下載", "Yesterday Downloads": "昨日下載", Likes: "按讚", "Total Downloads": "總下載", "Library Adds": "加入庫" },
-    ja: { "Daily Downloads": "日別ダウンロード", "Yesterday Downloads": "昨日のダウンロード", Likes: "いいね", "Total Downloads": "総ダウンロード", "Library Adds": "ライブラリ追加" },
-    ko: { "Daily Downloads": "일일 다운로드", "Yesterday Downloads": "어제 다운로드", Likes: "좋아요", "Total Downloads": "총 다운로드", "Library Adds": "라이브러리 추가" },
-    ru: { "Daily Downloads": "Ежедневные загрузки", "Yesterday Downloads": "Загрузки вчера", Likes: "Лайки", "Total Downloads": "Всего загрузок", "Library Adds": "Добавления в библиотеку" }
+    "zh-CN": { "Daily Downloads": "今日下载", "Yesterday Downloads": "昨日下载", Likes: "点赞", "Total Downloads": "总下载", "Library Adds": "加入库" },
+    "zh-TW": { "Daily Downloads": "今日下載", "Yesterday Downloads": "昨日下載", Likes: "按讚", "Total Downloads": "總下載", "Library Adds": "加入庫" },
+    ja: { "Daily Downloads": "今日のダウンロード", "Yesterday Downloads": "昨日のダウンロード", Likes: "いいね", "Total Downloads": "総ダウンロード", "Library Adds": "ライブラリ追加" },
+    ko: { "Daily Downloads": "오늘 다운로드", "Yesterday Downloads": "어제 다운로드", Likes: "좋아요", "Total Downloads": "총 다운로드", "Library Adds": "라이브러리 추가" },
+    ru: { "Daily Downloads": "Загрузки сегодня", "Yesterday Downloads": "Загрузки вчера", Likes: "Лайки", "Total Downloads": "Всего загрузок", "Library Adds": "Добавления в библиотеку" }
   };
 
   function lang() {
@@ -23,6 +23,15 @@
   function formatNumber(value) { return new Intl.NumberFormat(locale()).format(Number(value || 0)); }
   function formatMetric(value) { return value === null || value === undefined ? "—" : formatNumber(value); }
   function toNumber(value) { const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, "")); return Number.isFinite(parsed) ? parsed : 0; }
+  function todayKey() {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(new Date()).map((part) => [part.type, part.value]));
+    return `${parts.year}-${parts.month}-${parts.day}`;
+  }
 
   function parseCSV(text) {
     const rows = [];
@@ -73,9 +82,10 @@
   function resolveDownloadMetric(rows) {
     const series = dailySeries(rows);
     if (!series.length) return { label: "Daily Downloads", value: null };
-    const today = series.at(-1);
-    if (today && today.value > 0) return { label: "Daily Downloads", value: today.value };
-    const previous = [...series].slice(0, -1).reverse().find((item) => item.value > 0);
+    const today = todayKey();
+    const todayItem = series.find((item) => item.date === today);
+    if (todayItem && todayItem.value > 0) return { label: "Daily Downloads", value: todayItem.value };
+    const previous = [...series].filter((item) => item.date < today && item.value > 0).reverse()[0];
     if (previous) return { label: "Yesterday Downloads", value: previous.value };
     return { label: "Daily Downloads", value: null };
   }
