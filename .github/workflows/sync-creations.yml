@@ -141,6 +141,7 @@ jobs:
           const siteFile = 'assets/js/site-data.js';
           const historyFile = 'assets/data/creations-history.csv';
           const modDailyFile = 'assets/data/creations-mod-daily.csv';
+          const siteVersionFile = 'assets/data/site-version.json';
           const parts = Object.fromEntries(
             new Intl.DateTimeFormat('en-CA', {
               timeZone: 'Asia/Shanghai',
@@ -153,6 +154,7 @@ jobs:
             }).formatToParts(new Date()).map((part) => [part.type, part.value])
           );
           const stamp = `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
+          const versionStamp = `${parts.year}${parts.month}${parts.day}${parts.hour}${parts.minute}`;
           const date = stamp.slice(0, 10);
           let source = fs.readFileSync(siteFile, 'utf8');
           source = source.replace(/updatedAt: "\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2})?"/g, `updatedAt: "${stamp}"`);
@@ -267,21 +269,30 @@ jobs:
           ].join(','))];
           fs.writeFileSync(modDailyFile, `${modLines.join('\n')}\n`);
 
+          const siteVersion = {
+            version: `v2.05.${versionStamp}-preview`,
+            label: `v2.05.${versionStamp} Preview`,
+            status: 'preview',
+            updatedAt: new Date().toISOString()
+          };
+          fs.writeFileSync(siteVersionFile, `${JSON.stringify(siteVersion, null, 2)}\n`);
+
           console.log(`Creations sync timestamp stamped: ${stamp}`);
           console.log(`Creations history snapshot recorded: ${row}`);
           console.log(`Creations per-mod daily downloads updated: ${todayRows.length} rows.`);
+          console.log(`Site data version bumped: ${siteVersion.version}`);
           NODE
 
       - name: Commit and push changes
         run: |
-          if git diff --quiet -- assets/js/site-data.js assets/data/creations-history.csv assets/data/creations-mod-daily.csv; then
+          if git diff --quiet -- assets/js/site-data.js assets/data/creations-history.csv assets/data/creations-mod-daily.csv assets/data/site-version.json; then
             echo "No Creations changes to commit."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/js/site-data.js assets/data/creations-history.csv assets/data/creations-mod-daily.csv
+          git add assets/js/site-data.js assets/data/creations-history.csv assets/data/creations-mod-daily.csv assets/data/site-version.json
           git commit -m "Update Creations stats and covers"
           git pull --rebase origin main
           git push
