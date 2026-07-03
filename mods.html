@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./assets/css/styles.css?v=2.04.38">
   <link rel="stylesheet" href="./assets/css/language-switcher.css?v=2.05.14">
-  <link rel="stylesheet" href="./assets/css/data-system.css?v=2.04.38">
+  <link rel="stylesheet" href="./assets/css/data-system.css?v=2.05.20260703-loading">
   <link rel="stylesheet" href="./assets/css/mobile-interaction.css?v=2.04.38">
   <link rel="stylesheet" href="./assets/css/nexus-sync-status.css?v=2.04.38">
   <link rel="stylesheet" href="./assets/css/mods-alignment-fix.css?v=2.05.01">
@@ -294,6 +294,7 @@
     (() => {
       const freshScriptNames = [
         "creations-source-label.js",
+        "creations-details-repair.js",
         "nexus-latest.js",
         "nexus-trend-fix.js",
         "creations-trend.js",
@@ -304,6 +305,7 @@
       ];
       freshScriptNames.forEach((name) => {
         const script = document.createElement("script");
+        script.async = false;
         script.src = `./assets/js/${name}?v=${Date.now()}`;
         document.body.appendChild(script);
       });
