@@ -126,14 +126,13 @@ jobs:
         run: |
           if git diff --quiet -- assets/js/site-data.js; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No Creations data changes detected after sync. Timestamp and history will not be updated."
+            echo "No numeric Creations changes detected after sync. Fresh timestamp and site version will still be published."
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "Creations data changed. Timestamp and history will be updated."
+            echo "Creations data changed. Fresh timestamp, history and site version will be published."
           fi
 
       - name: Stamp Creations sync time and history
-        if: steps.cc_changes.outputs.changed == 'true'
         run: |
           node <<'NODE'
           const fs = require('fs');
@@ -296,3 +295,14 @@ jobs:
           git commit -m "Update Creations stats and covers"
           git pull --rebase origin main
           git push
+
+      - name: Trigger external site deploy hook
+        env:
+          CLOUDFLARE_PAGES_DEPLOY_HOOK: ${{ secrets.CLOUDFLARE_PAGES_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$CLOUDFLARE_PAGES_DEPLOY_HOOK" ]; then
+            echo "Triggering Cloudflare Pages deploy hook."
+            curl -fsSL -X POST "$CLOUDFLARE_PAGES_DEPLOY_HOOK"
+          else
+            echo "No CLOUDFLARE_PAGES_DEPLOY_HOOK secret configured. Data was committed, but external hosting may need its own deploy trigger."
+          fi
