@@ -1,5 +1,5 @@
 (() => {
-  const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.04.59-preview";
+  const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.05.202607031000-preview";
   let latestDailyDownloads = null;
   let isRendering = false;
   const translations = {
@@ -21,6 +21,7 @@
 
   function t(key) { return translations[lang()]?.[key] || key; }
   function formatNumber(value) { return new Intl.NumberFormat(locale()).format(Number(value || 0)); }
+  function formatMetric(value) { return value === null || value === undefined ? "—" : formatNumber(value); }
   function toNumber(value) { const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, "")); return Number.isFinite(parsed) ? parsed : 0; }
 
   function parseCSV(text) {
@@ -52,9 +53,9 @@
     return latestNonzero?.[1] || snapshots.at(-1)?.[1] || dateRows;
   }
   function latestDailyTotal(rows) {
-    if (!rows.length) return 0;
+    if (!rows.length) return null;
     const latestDate = rows.map((row) => row.date).filter(Boolean).sort().at(-1);
-    if (!latestDate) return 0;
+    if (!latestDate) return null;
     return snapshotTotal(latestSnapshotRows(rows, latestDate));
   }
   function totals() {
@@ -71,18 +72,17 @@
     if (!target || isRendering) return;
     isRendering = true;
     const totalsData = totals();
-    const daily = latestDailyDownloads ?? 0;
     target.innerHTML = [
-      ["Daily Downloads", daily], ["Likes", totalsData.likes], ["Total Downloads", totalsData.downloads], ["Library Adds", totalsData.libraryAdds]
-    ].map(([label, value]) => `<article class="dashboard-stat"><span>${t(label)}</span><strong>${formatNumber(value)}</strong></article>`).join("");
+      ["Daily Downloads", latestDailyDownloads], ["Likes", totalsData.likes], ["Total Downloads", totalsData.downloads], ["Library Adds", totalsData.libraryAdds]
+    ].map(([label, value]) => `<article class="dashboard-stat"><span>${t(label)}</span><strong>${formatMetric(value)}</strong></article>`).join("");
     isRendering = false;
   }
 
   async function loadDaily() {
     try {
       const response = await fetch(`./assets/data/creations-mod-daily.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" });
-      if (response.ok) latestDailyDownloads = latestDailyTotal(parseCSV(await response.text()));
-    } catch (error) { console.warn("Creations daily summary fallback used", error); latestDailyDownloads = 0; }
+      latestDailyDownloads = response.ok ? latestDailyTotal(parseCSV(await response.text())) : null;
+    } catch (error) { console.warn("Creations daily summary fallback used", error); latestDailyDownloads = null; }
     renderSummary();
   }
 
