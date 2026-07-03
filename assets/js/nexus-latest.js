@@ -32,6 +32,8 @@
   function updateTimestamp(updatedAt) { const target = document.querySelector("[data-dashboard-updated]"); if (!target || !updatedAt) return; const date = new Date(String(updatedAt).replace(" ", "T")); if (Number.isNaN(date.getTime())) return; const age = Date.now() - date.getTime(); const isStale = age > STALE_AFTER_MS; target.classList.toggle("is-stale", isStale); target.classList.toggle("is-fresh", !isStale); target.textContent = t("Updated", { time: formatDateTime(date) }); target.title = isStale ? t("Nexus latest snapshot is older than the expected hourly sync window.") : t("Nexus latest snapshot loaded independently from the trend chart."); }
   function renderNexusLatest(payload) { const latestRows = Array.isArray(payload.mods) ? payload.mods : []; if (!latestRows.length) return; updateSiteData(latestRows); updateCards(); updateSummary(latestRows); updateTable(latestRows); updateTimestamp(payload.updatedAt); }
   async function applyNexusLatest() { const dashboard = document.querySelector("[data-nexus-dashboard]"); if (!dashboard) return; try { const response = await fetch(latestSnapshotPath("./assets/data/nexus-latest.json"), { cache: "no-store" }); if (!response.ok) return; const payload = await response.json(); cachedPayload = payload; renderNexusLatest(payload); } catch (error) { console.warn("Nexus latest snapshot could not be applied.", error); } }
-  document.addEventListener("click", (event) => { if (!event.target.closest(".language-option[data-lang]")) return; window.setTimeout(() => { if (cachedPayload) renderNexusLatest(cachedPayload); }, 90); });
-  window.addEventListener("DOMContentLoaded", () => { setTimeout(applyNexusLatest, 500); });
+  function bootNexusLatest() { setTimeout(applyNexusLatest, 100); setTimeout(applyNexusLatest, 800); }
+  document.addEventListener("click", (event) => { if (!event.target.closest(".language-option[data-lang]")) return; window.setTimeout(() => { if (cachedPayload) renderNexusLatest(cachedPayload); else applyNexusLatest(); }, 90); });
+  if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", bootNexusLatest);
+  else bootNexusLatest();
 })();
