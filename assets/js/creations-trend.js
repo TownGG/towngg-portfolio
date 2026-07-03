@@ -4,11 +4,11 @@
   if (!chartEl) return;
 
   const translations = {
-    "zh-CN": { "Daily Downloads": "每日下载", "Yesterday Downloads": "昨日下载", Likes: "点赞", "Total Downloads": "总下载", Plays: "游玩", "Library Adds": "加入库", "7-Day Creations Downloads Trend": "7 日 Creations 下载趋势", "Creations trend note": "基于每个 Creation 的每日下载记录统计发布活跃度。最新快照：{date}。", "Daily downloads": "每日下载", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "暂时没有 Creations 每日数据。下一次定时 CC 同步后会显示。", "Creations daily downloads chart": "Creations 每日下载图表" },
-    "zh-TW": { "Daily Downloads": "每日下載", "Yesterday Downloads": "昨日下載", Likes: "按讚", "Total Downloads": "總下載", Plays: "遊玩", "Library Adds": "加入庫", "7-Day Creations Downloads Trend": "7 日 Creations 下載趨勢", "Creations trend note": "基於每個 Creation 的每日下載記錄統計發佈活躍度。最新快照：{date}。", "Daily downloads": "每日下載", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "暫時沒有 Creations 每日資料。下一次定時 CC 同步後會顯示。", "Creations daily downloads chart": "Creations 每日下載圖表" },
-    ja: { "Daily Downloads": "日別ダウンロード", "Yesterday Downloads": "昨日のダウンロード", Likes: "いいね", "Total Downloads": "総ダウンロード", Plays: "プレイ", "Library Adds": "ライブラリ追加", "7-Day Creations Downloads Trend": "7日間のCreationsダウンロード推移", "Creations trend note": "各Creationの日別ダウンロード記録をもとに表示します。最新スナップショット：{date}。", "Daily downloads": "日別ダウンロード", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "Creationsの日別データはまだありません。次回の同期後に表示されます。", "Creations daily downloads chart": "Creations日別ダウンロードチャート" },
-    ko: { "Daily Downloads": "일일 다운로드", "Yesterday Downloads": "어제 다운로드", Likes: "좋아요", "Total Downloads": "총 다운로드", Plays: "플레이", "Library Adds": "라이브러리 추가", "7-Day Creations Downloads Trend": "7일 Creations 다운로드 추세", "Creations trend note": "각 Creation의 일일 다운로드 기록을 표시합니다. 최신 스냅샷: {date}.", "Daily downloads": "일일 다운로드", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "Creations 일일 데이터가 아직 없습니다. 다음 동기화 후 표시됩니다.", "Creations daily downloads chart": "Creations 일일 다운로드 차트" },
-    ru: { "Daily Downloads": "Ежедневные загрузки", "Yesterday Downloads": "Загрузки вчера", Likes: "Лайки", "Total Downloads": "Всего загрузок", Plays: "Запуски", "Library Adds": "Добавления в библиотеку", "7-Day Creations Downloads Trend": "Тренд загрузок Creations за 7 дней", "Creations trend note": "Активность релизов на основе ежедневных загрузок. Последний снимок: {date}.", "Daily downloads": "Ежедневные загрузки", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "Ежедневные данные Creations пока недоступны. Они появятся после следующей синхронизации.", "Creations daily downloads chart": "График ежедневных загрузок Creations" }
+    "zh-CN": { "Daily Downloads": "今日下载", "Yesterday Downloads": "昨日下载", Likes: "点赞", "Total Downloads": "总下载", Plays: "游玩", "Library Adds": "加入库", "7-Day Creations Downloads Trend": "前 7 日 Creations 下载趋势", "Creations trend note": "不统计今日数据，展示截至昨日的前 7 日下载趋势。最后日期：{date}。", "Daily downloads": "每日下载", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "暂时没有可展示的前 7 日 Creations 每日数据。", "Creations daily downloads chart": "Creations 每日下载图表" },
+    "zh-TW": { "Daily Downloads": "今日下載", "Yesterday Downloads": "昨日下載", Likes: "按讚", "Total Downloads": "總下載", Plays: "遊玩", "Library Adds": "加入庫", "7-Day Creations Downloads Trend": "前 7 日 Creations 下載趨勢", "Creations trend note": "不統計今日資料，顯示截至昨日的前 7 日下載趨勢。最後日期：{date}。", "Daily downloads": "每日下載", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "暫時沒有可顯示的前 7 日 Creations 每日資料。", "Creations daily downloads chart": "Creations 每日下載圖表" },
+    ja: { "Daily Downloads": "今日のダウンロード", "Yesterday Downloads": "昨日のダウンロード", Likes: "いいね", "Total Downloads": "総ダウンロード", Plays: "プレイ", "Library Adds": "ライブラリ追加", "7-Day Creations Downloads Trend": "過去7日間のCreationsダウンロード推移", "Creations trend note": "今日のデータは含めず、昨日までの過去7日間を表示します。最終日：{date}。", "Daily downloads": "日別ダウンロード", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "表示できる過去7日間のCreations日別データがありません。", "Creations daily downloads chart": "Creations日別ダウンロードチャート" },
+    ko: { "Daily Downloads": "오늘 다운로드", "Yesterday Downloads": "어제 다운로드", Likes: "좋아요", "Total Downloads": "총 다운로드", Plays: "플레이", "Library Adds": "라이브러리 추가", "7-Day Creations Downloads Trend": "이전 7일 Creations 다운로드 추세", "Creations trend note": "오늘 데이터는 제외하고 어제까지의 이전 7일 다운로드 추세를 표시합니다. 마지막 날짜: {date}.", "Daily downloads": "일일 다운로드", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "표시할 이전 7일 Creations 일일 데이터가 없습니다.", "Creations daily downloads chart": "Creations 일일 다운로드 차트" },
+    ru: { "Daily Downloads": "Загрузки сегодня", "Yesterday Downloads": "Загрузки вчера", Likes: "Лайки", "Total Downloads": "Всего загрузок", Plays: "Запуски", "Library Adds": "Добавления в библиотеку", "7-Day Creations Downloads Trend": "Тренд загрузок Creations за предыдущие 7 дней", "Creations trend note": "Сегодняшние данные не учитываются; показаны предыдущие 7 дней до вчера. Последняя дата: {date}.", "Daily downloads": "Ежедневные загрузки", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "Нет данных Creations за предыдущие 7 дней для отображения.", "Creations daily downloads chart": "График ежедневных загрузок Creations" }
   };
 
   const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.05.202607031000-preview";
@@ -22,6 +22,15 @@
   function formatNumber(value) { return new Intl.NumberFormat(locale()).format(Number(value || 0)); }
   function formatMetric(value) { return value === null || value === undefined ? "—" : formatNumber(value); }
   function formatDateLabel(value) { const date = new Date(`${value}T00:00:00`); if (Number.isNaN(date.getTime())) return String(value || "").slice(5); return date.toLocaleDateString(locale(), { month: "short", day: "numeric" }); }
+  function todayKey() {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(new Date()).map((part) => [part.type, part.value]));
+    return `${parts.year}-${parts.month}-${parts.day}`;
+  }
 
   function parseCSV(text) {
     const rows = [];
@@ -50,16 +59,21 @@
     const latestNonzero = [...snapshots].reverse().find(([, snapshotRows]) => snapshotTotal(snapshotRows) > 0);
     return latestNonzero?.[1] || snapshots.at(-1)?.[1] || rows;
   }
-  function buildDailySeries(rows) {
+  function allDailySeries(rows) {
     const groups = new Map();
     rows.forEach((row) => { if (!row.date) return; const current = groups.get(row.date) || []; current.push(row); groups.set(row.date, current); });
-    return [...groups.entries()].map(([date, dateRows]) => ({ date, value: snapshotTotal(latestSnapshotRows(dateRows)) })).sort((a, b) => String(a.date).localeCompare(String(b.date))).slice(-7);
+    return [...groups.entries()].map(([date, dateRows]) => ({ date, value: snapshotTotal(latestSnapshotRows(dateRows)) })).sort((a, b) => String(a.date).localeCompare(String(b.date)));
   }
-  function resolveDownloadMetric(data) {
-    if (!data?.length) return { label: "Daily Downloads", value: null };
-    const latest = data.at(-1);
-    if (latest?.value > 0) return { label: "Daily Downloads", value: latest.value };
-    const previous = [...data].slice(0, -1).reverse().find((item) => item.value > 0);
+  function previousSevenDaySeries(rows) {
+    const today = todayKey();
+    return allDailySeries(rows).filter((item) => item.date < today).slice(-7);
+  }
+  function resolveDownloadMetric(series) {
+    if (!series?.length) return { label: "Daily Downloads", value: null };
+    const today = todayKey();
+    const todayItem = series.find((item) => item.date === today);
+    if (todayItem && todayItem.value > 0) return { label: "Daily Downloads", value: todayItem.value };
+    const previous = [...series].filter((item) => item.date < today && item.value > 0).reverse()[0];
     if (previous) return { label: "Yesterday Downloads", value: previous.value };
     return { label: "Daily Downloads", value: null };
   }
@@ -73,11 +87,11 @@
     }, { likes: 0, downloads: 0, plays: 0, libraryAdds: 0 });
   }
 
-  function updateDailySummary(data) {
+  function updateDailySummary(series) {
     const target = document.querySelector("[data-creations-summary]");
     if (!target) return;
     const totals = currentCreationTotals();
-    const metric = resolveDownloadMetric(data);
+    const metric = resolveDownloadMetric(series);
     target.innerHTML = [[metric.label, metric.value], ["Likes", totals.likes], ["Total Downloads", totals.downloads], ["Plays", totals.plays], ["Library Adds", totals.libraryAdds]].map(([label, value]) => `<article class="dashboard-stat"><span>${t(label)}</span><strong>${formatMetric(value)}</strong></article>`).join("");
   }
 
@@ -87,10 +101,11 @@
   }
 
   function renderChart(rows) {
-    const data = buildDailySeries(rows || []);
-    updateDailySummary(data);
-    renderToolbar(data.at(-1)?.date || "");
-    if (!data.length) {
+    const allData = allDailySeries(rows || []);
+    const chartData = previousSevenDaySeries(rows || []);
+    updateDailySummary(allData);
+    renderToolbar(chartData.at(-1)?.date || "");
+    if (!chartData.length) {
       chartEl.innerHTML = `<p class="section-desc">${t("No Creations daily data available yet. It will appear after the next scheduled CC sync.")}</p>`;
       return;
     }
@@ -99,16 +114,16 @@
     const pad = { left: 64, right: 38, top: 24, bottom: 44 };
     const chartW = width - pad.left - pad.right;
     const chartH = height - pad.top - pad.bottom;
-    const maxValue = Math.max(...data.map((item) => Number(item.value)), 1);
+    const maxValue = Math.max(...chartData.map((item) => Number(item.value)), 1);
     const yMax = Math.max(4, Math.ceil(maxValue / 4) * 4);
-    const points = data.map((item, index) => ({
-      x: pad.left + (chartW / Math.max(1, data.length - 1)) * index,
+    const points = chartData.map((item, index) => ({
+      x: pad.left + (chartW / Math.max(1, chartData.length - 1)) * index,
       y: pad.top + chartH - (Number(item.value) / yMax) * chartH,
       item
     }));
     const linePoints = points.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
-    const labels = data.map((item, index) => {
-      const x = pad.left + (chartW / Math.max(1, data.length - 1)) * index;
+    const labels = chartData.map((item, index) => {
+      const x = pad.left + (chartW / Math.max(1, chartData.length - 1)) * index;
       return `<text class="nexus-date-label" x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`;
     }).join("");
     const dots = points.map(({ x, y, item }) => `<g class="nexus-point" tabindex="0"><circle class="telemetry-dot" cx="${x}" cy="${y}" r="5"><title>${formatNumber(item.value)} ${formatDateLabel(item.date)}</title></circle></g>`).join("");
