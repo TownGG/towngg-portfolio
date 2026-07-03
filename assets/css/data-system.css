@@ -320,6 +320,118 @@ footer .site-version {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 0 18px rgba(132, 160, 190, .07);
 }
 
+@keyframes towngg-skeleton-shimmer {
+  0% { background-position: -260px 0; }
+  100% { background-position: 260px 0; }
+}
+
+.loading-value:empty,
+.dashboard-date:empty {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  color: transparent !important;
+  background:
+    linear-gradient(90deg, rgba(125, 216, 255, .10) 0%, rgba(125, 216, 255, .28) 42%, rgba(232, 249, 255, .72) 50%, rgba(125, 216, 255, .26) 58%, rgba(125, 216, 255, .10) 100%),
+    rgba(125, 216, 255, .09);
+  background-size: 260px 100%, 100% 100%;
+  box-shadow: 0 0 18px rgba(125, 216, 255, .12), inset 0 1px 0 rgba(255, 255, 255, .08);
+  animation: towngg-skeleton-shimmer 1.45s ease-in-out infinite;
+}
+
+.metric-number.loading-value:empty {
+  width: min(126px, 56%);
+  height: clamp(36px, 4vw, 52px);
+  border-radius: 12px;
+}
+
+.dashboard-date:empty {
+  width: 178px;
+  height: 18px;
+  border-radius: 999px;
+}
+
+.dashboard-summary:empty,
+[data-site-telemetry-summary]:empty,
+[data-creations-summary]:empty {
+  min-height: 112px;
+  border-radius: 20px;
+  background:
+    linear-gradient(90deg, rgba(125, 216, 255, .10) 0%, rgba(125, 216, 255, .20) 42%, rgba(232, 249, 255, .58) 50%, rgba(125, 216, 255, .20) 58%, rgba(125, 216, 255, .10) 100%) 0 22px / 260px 34px no-repeat,
+    linear-gradient(90deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .025)) 0 0 / 100% 100%,
+    rgba(8, 12, 18, .36);
+  animation: towngg-skeleton-shimmer 1.45s ease-in-out infinite;
+}
+
+.dashboard-chart:empty,
+.telemetry-chart:empty,
+[data-site-telemetry-chart]:empty {
+  position: relative;
+  min-height: 260px;
+  border-radius: 20px;
+  background:
+    linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px),
+    rgba(3, 7, 12, .38);
+  background-size: 34px 34px;
+}
+
+.dashboard-chart:empty::before,
+.telemetry-chart:empty::before,
+[data-site-telemetry-chart]:empty::before {
+  content: "";
+  position: absolute;
+  left: 42px;
+  right: 42px;
+  bottom: 48px;
+  height: 52%;
+  border-radius: 18px 18px 6px 6px;
+  background:
+    linear-gradient(90deg, rgba(125, 216, 255, .08), rgba(125, 216, 255, .22), rgba(232, 249, 255, .55), rgba(125, 216, 255, .22), rgba(125, 216, 255, .08)),
+    linear-gradient(180deg, rgba(125, 216, 255, .18), rgba(125, 216, 255, .04));
+  background-size: 260px 100%, 100% 100%;
+  animation: towngg-skeleton-shimmer 1.45s ease-in-out infinite;
+  opacity: .82;
+}
+
+.dashboard-chart:empty::after,
+.telemetry-chart:empty::after,
+[data-site-telemetry-chart]:empty::after {
+  content: "";
+  position: absolute;
+  left: 42px;
+  right: 42px;
+  top: 42px;
+  height: 5px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(125, 216, 255, .10), rgba(125, 216, 255, .34), rgba(232, 249, 255, .78), rgba(125, 216, 255, .24), rgba(125, 216, 255, .10));
+  background-size: 260px 100%;
+  animation: towngg-skeleton-shimmer 1.45s ease-in-out infinite;
+  box-shadow: 0 0 18px rgba(125, 216, 255, .16);
+}
+
+[data-featured-video]:empty,
+[data-featured-mod]:empty,
+[data-latest-notes]:empty,
+[data-home-mods]:empty,
+[data-home-gallery]:empty,
+[data-all-gallery]:empty,
+[data-all-mods]:empty,
+[data-creations-mods]:empty,
+[data-notes-list]:empty,
+[data-note-detail]:empty,
+[data-socials]:empty {
+  min-height: 132px;
+  border: 1px solid rgba(125, 216, 255, .12);
+  border-radius: 22px;
+  background:
+    linear-gradient(90deg, rgba(125, 216, 255, .08), rgba(125, 216, 255, .22), rgba(232, 249, 255, .56), rgba(125, 216, 255, .20), rgba(125, 216, 255, .08)) 28px 32px / 260px 26px no-repeat,
+    linear-gradient(90deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .025)) 28px 76px / 46% 14px no-repeat,
+    rgba(8, 12, 18, .32);
+  animation: towngg-skeleton-shimmer 1.45s ease-in-out infinite;
+}
+
 @media (max-width: 700px) {
   .metric,
   .dashboard-stat,
@@ -343,5 +455,9 @@ footer .site-version {
   .nexus-telemetry-chart svg {
     width: 620px;
     max-width: none;
+  }
+
+  .metric-number.loading-value:empty {
+    width: 108px;
   }
 }
