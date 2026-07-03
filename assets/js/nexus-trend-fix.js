@@ -6,48 +6,48 @@
 
   const translations = {
     "zh-CN": {
-      "No Nexus history data available yet.": "暂时没有 Nexus 历史数据。",
-      "7-Day Nexus Downloads Trend": "7 日 Nexus 下载趋势",
-      "Nexus trend note": "基于已跟踪的模组历史记录统计 Nexus 发布活跃度。显示 CSV 历史中的真实每日下载。最新快照：{date}。",
+      "No Nexus history data available yet.": "暂时没有可展示的前 7 日 Nexus 历史数据。",
+      "7-Day Nexus Downloads Trend": "前 7 日 Nexus 下载趋势",
+      "Nexus trend note": "不统计今日数据，展示截至昨日的前 7 日 Nexus 下载趋势。最后日期：{date}。",
       "Daily downloads": "每日下载",
       "Accurate Nexus daily downloads trend chart": "Nexus 每日下载趋势图",
       "daily downloads on": "每日下载，日期"
     },
     "zh-TW": {
-      "No Nexus history data available yet.": "暫時沒有 Nexus 歷史資料。",
-      "7-Day Nexus Downloads Trend": "7 日 Nexus 下載趨勢",
-      "Nexus trend note": "基於已追蹤的模組歷史記錄統計 Nexus 發佈活躍度。顯示 CSV 歷史中的實際每日下載。最新快照：{date}。",
+      "No Nexus history data available yet.": "暫時沒有可顯示的前 7 日 Nexus 歷史資料。",
+      "7-Day Nexus Downloads Trend": "前 7 日 Nexus 下載趨勢",
+      "Nexus trend note": "不統計今日資料，顯示截至昨日的前 7 日 Nexus 下載趨勢。最後日期：{date}。",
       "Daily downloads": "每日下載",
       "Accurate Nexus daily downloads trend chart": "Nexus 每日下載趨勢圖",
       "daily downloads on": "每日下載，日期"
     },
     ja: {
-      "No Nexus history data available yet.": "Nexusの履歴データはまだありません。",
-      "7-Day Nexus Downloads Trend": "7日間のNexusダウンロード推移",
-      "Nexus trend note": "追跡済みMod履歴をもとにNexusの公開状況を表示します。CSV履歴の実際の日別ダウンロードを表示中。最新スナップショット：{date}。",
+      "No Nexus history data available yet.": "表示できる過去7日間のNexus履歴データがありません。",
+      "7-Day Nexus Downloads Trend": "過去7日間のNexusダウンロード推移",
+      "Nexus trend note": "今日のデータは含めず、昨日までの過去7日間のNexusダウンロード推移を表示します。最終日：{date}。",
       "Daily downloads": "日別ダウンロード",
       "Accurate Nexus daily downloads trend chart": "Nexus日別ダウンロード推移チャート",
       "daily downloads on": "日別ダウンロード 日付"
     },
     ko: {
-      "No Nexus history data available yet.": "Nexus 기록 데이터가 아직 없습니다.",
-      "7-Day Nexus Downloads Trend": "7일 Nexus 다운로드 추세",
-      "Nexus trend note": "추적된 모드 기록을 기반으로 Nexus 릴리스 활동을 표시합니다. CSV 기록의 실제 일일 다운로드를 표시합니다. 최신 스냅샷: {date}.",
+      "No Nexus history data available yet.": "표시할 이전 7일 Nexus 기록 데이터가 없습니다.",
+      "7-Day Nexus Downloads Trend": "이전 7일 Nexus 다운로드 추세",
+      "Nexus trend note": "오늘 데이터는 제외하고 어제까지의 이전 7일 Nexus 다운로드 추세를 표시합니다. 마지막 날짜: {date}.",
       "Daily downloads": "일일 다운로드",
       "Accurate Nexus daily downloads trend chart": "Nexus 일일 다운로드 추세 차트",
       "daily downloads on": "일일 다운로드, 날짜"
     },
     ru: {
-      "No Nexus history data available yet.": "История Nexus пока недоступна.",
-      "7-Day Nexus Downloads Trend": "Тренд загрузок Nexus за 7 дней",
-      "Nexus trend note": "Активность релизов Nexus на основе отслеживаемой истории модов. Показаны фактические ежедневные загрузки из CSV. Последний снимок: {date}.",
+      "No Nexus history data available yet.": "Нет данных Nexus за предыдущие 7 дней для отображения.",
+      "7-Day Nexus Downloads Trend": "Тренд загрузок Nexus за предыдущие 7 дней",
+      "Nexus trend note": "Сегодняшние данные не учитываются; показаны предыдущие 7 дней Nexus до вчера. Последняя дата: {date}.",
       "Daily downloads": "Ежедневные загрузки",
       "Accurate Nexus daily downloads trend chart": "График ежедневных загрузок Nexus",
       "daily downloads on": "ежедневных загрузок, дата"
     }
   };
 
-  const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.03.11-preview";
+  const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.05.202607031000-preview";
   let cachedRows = [];
   let isRendering = false;
   let rerenderTimer = 0;
@@ -76,6 +76,16 @@
   function dashboardNumber(value) {
     const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, ""));
     return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function todayKey() {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(new Date()).map((part) => [part.type, part.value]));
+    return `${parts.year}-${parts.month}-${parts.day}`;
   }
 
   function parseCSV(text) {
@@ -109,9 +119,10 @@
   }
 
   function buildDailySeries(rows) {
+    const today = todayKey();
     const values = new Map();
     rows.forEach((row) => {
-      if (!row.date) return;
+      if (!row.date || row.date >= today) return;
       values.set(row.date, (values.get(row.date) || 0) + dashboardNumber(row.daily_downloads));
     });
     return [...values.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-7).map(([date, value]) => ({ date, value }));
