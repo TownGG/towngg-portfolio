@@ -1,18 +1,20 @@
 (() => {
   const chartEl = document.querySelector("[data-creations-chart]");
-  const toolbar = chartEl?.closest(".dashboard-panel")?.querySelector(".dashboard-toolbar");
+  const panel = chartEl?.closest(".dashboard-panel");
+  const toolbar = panel?.querySelector(".dashboard-toolbar");
   if (!chartEl) return;
 
   const translations = {
-    "zh-CN": { "Daily Downloads": "今日下载", "Yesterday Downloads": "昨日下载", Likes: "点赞", "Total Downloads": "总下载", Plays: "游玩", "Library Adds": "加入库", "7-Day Creations Downloads Trend": "前 7 日 Creations 下载趋势", "Creations trend note": "不统计今日数据，展示截至昨日的前 7 日下载趋势。最后日期：{date}。", "Daily downloads": "每日下载", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "暂时没有可展示的前 7 日 Creations 每日数据。", "Creations daily downloads chart": "Creations 每日下载图表" },
-    "zh-TW": { "Daily Downloads": "今日下載", "Yesterday Downloads": "昨日下載", Likes: "按讚", "Total Downloads": "總下載", Plays: "遊玩", "Library Adds": "加入庫", "7-Day Creations Downloads Trend": "前 7 日 Creations 下載趨勢", "Creations trend note": "不統計今日資料，顯示截至昨日的前 7 日下載趨勢。最後日期：{date}。", "Daily downloads": "每日下載", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "暫時沒有可顯示的前 7 日 Creations 每日資料。", "Creations daily downloads chart": "Creations 每日下載圖表" },
-    ja: { "Daily Downloads": "今日のダウンロード", "Yesterday Downloads": "昨日のダウンロード", Likes: "いいね", "Total Downloads": "総ダウンロード", Plays: "プレイ", "Library Adds": "ライブラリ追加", "7-Day Creations Downloads Trend": "過去7日間のCreationsダウンロード推移", "Creations trend note": "今日のデータは含めず、昨日までの過去7日間を表示します。最終日：{date}。", "Daily downloads": "日別ダウンロード", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "表示できる過去7日間のCreations日別データがありません。", "Creations daily downloads chart": "Creations日別ダウンロードチャート" },
-    ko: { "Daily Downloads": "오늘 다운로드", "Yesterday Downloads": "어제 다운로드", Likes: "좋아요", "Total Downloads": "총 다운로드", Plays: "플레이", "Library Adds": "라이브러리 추가", "7-Day Creations Downloads Trend": "이전 7일 Creations 다운로드 추세", "Creations trend note": "오늘 데이터는 제외하고 어제까지의 이전 7일 다운로드 추세를 표시합니다. 마지막 날짜: {date}.", "Daily downloads": "일일 다운로드", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "표시할 이전 7일 Creations 일일 데이터가 없습니다.", "Creations daily downloads chart": "Creations 일일 다운로드 차트" },
-    ru: { "Daily Downloads": "Загрузки сегодня", "Yesterday Downloads": "Загрузки вчера", Likes: "Лайки", "Total Downloads": "Всего загрузок", Plays: "Запуски", "Library Adds": "Добавления в библиотеку", "7-Day Creations Downloads Trend": "Тренд загрузок Creations за предыдущие 7 дней", "Creations trend note": "Сегодняшние данные не учитываются; показаны предыдущие 7 дней до вчера. Последняя дата: {date}.", "Daily downloads": "Ежедневные загрузки", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "Нет данных Creations за предыдущие 7 дней для отображения.", "Creations daily downloads chart": "График ежедневных загрузок Creations" }
+    "zh-CN": { "Daily Downloads": "今日下载", "Yesterday Downloads": "昨日下载", Likes: "点赞", "Total Downloads": "总下载", "Library Adds": "加入库", "7-Day Creations Downloads Trend": "前 7 日 Creations 下载趋势", "Creations trend note": "不统计今日数据，展示截至昨日的前 7 日下载趋势。最后日期：{date}。", "Daily downloads": "每日下载", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "暂时没有可展示的前 7 日 Creations 每日数据。", "Creations daily downloads chart": "Creations 每日下载图表", "daily downloads on": "每日下载，日期" },
+    "zh-TW": { "Daily Downloads": "今日下載", "Yesterday Downloads": "昨日下載", Likes: "按讚", "Total Downloads": "總下載", "Library Adds": "加入庫", "7-Day Creations Downloads Trend": "前 7 日 Creations 下載趨勢", "Creations trend note": "不統計今日資料，顯示截至昨日的前 7 日下載趨勢。最後日期：{date}。", "Daily downloads": "每日下載", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "暫時沒有可顯示的前 7 日 Creations 每日資料。", "Creations daily downloads chart": "Creations 每日下載圖表", "daily downloads on": "每日下載，日期" },
+    ja: { "Daily Downloads": "今日のダウンロード", "Yesterday Downloads": "昨日のダウンロード", Likes: "いいね", "Total Downloads": "総ダウンロード", "Library Adds": "ライブラリ追加", "7-Day Creations Downloads Trend": "過去7日間のCreationsダウンロード推移", "Creations trend note": "今日のデータは含めず、昨日までの過去7日間を表示します。最終日：{date}。", "Daily downloads": "日別ダウンロード", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "表示できる過去7日間のCreations日別データがありません。", "Creations daily downloads chart": "Creations日別ダウンロードチャート", "daily downloads on": "日別ダウンロード 日付" },
+    ko: { "Daily Downloads": "오늘 다운로드", "Yesterday Downloads": "어제 다운로드", Likes: "좋아요", "Total Downloads": "총 다운로드", "Library Adds": "라이브러리 추가", "7-Day Creations Downloads Trend": "이전 7일 Creations 다운로드 추세", "Creations trend note": "오늘 데이터는 제외하고 어제까지의 이전 7일 다운로드 추세를 표시합니다. 마지막 날짜: {date}.", "Daily downloads": "일일 다운로드", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "표시할 이전 7일 Creations 일일 데이터가 없습니다.", "Creations daily downloads chart": "Creations 일일 다운로드 차트", "daily downloads on": "일일 다운로드, 날짜" },
+    ru: { "Daily Downloads": "Загрузки сегодня", "Yesterday Downloads": "Загрузки вчера", Likes: "Лайки", "Total Downloads": "Всего загрузок", "Library Adds": "Добавления в библиотеку", "7-Day Creations Downloads Trend": "Тренд загрузок Creations за предыдущие 7 дней", "Creations trend note": "Сегодняшние данные не учитываются; показаны предыдущие 7 дней до вчера. Последняя дата: {date}.", "Daily downloads": "Ежедневные загрузки", "No Creations daily data available yet. It will appear after the next scheduled CC sync.": "Нет данных Creations за предыдущие 7 дней для отображения.", "Creations daily downloads chart": "График ежедневных загрузок Creations", "daily downloads on": "ежедневных загрузок, дата" }
   };
 
   const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.05.202607031000-preview";
   let cachedModDailyRows = null;
+  let isRendering = false;
   let rerenderTimer = 0;
 
   function lang() { const value = localStorage.getItem("townggSiteLang"); return ["zh-CN", "zh-TW", "ja", "ko", "ru"].includes(value) ? value : "en"; }
@@ -23,12 +25,7 @@
   function formatMetric(value) { return value === null || value === undefined ? "—" : formatNumber(value); }
   function formatDateLabel(value) { const date = new Date(`${value}T00:00:00`); if (Number.isNaN(date.getTime())) return String(value || "").slice(5); return date.toLocaleDateString(locale(), { month: "short", day: "numeric" }); }
   function todayKey() {
-    const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Asia/Shanghai",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
-    }).formatToParts(new Date()).map((part) => [part.type, part.value]));
+    const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date()).map((part) => [part.type, part.value]));
     return `${parts.year}-${parts.month}-${parts.day}`;
   }
 
@@ -81,54 +78,71 @@
     return (window.siteData?.creations || []).reduce((sum, item) => {
       sum.likes += toNumber(item.likes);
       sum.downloads += toNumber(item.downloads);
-      sum.plays += toNumber(item.plays);
       sum.libraryAdds += toNumber(item.libraryAdds);
       return sum;
-    }, { likes: 0, downloads: 0, plays: 0, libraryAdds: 0 });
+    }, { likes: 0, downloads: 0, libraryAdds: 0 });
   }
+  function pointLine(points) { return points.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" "); }
 
   function updateDailySummary(series) {
     const target = document.querySelector("[data-creations-summary]");
     if (!target) return;
     const totals = currentCreationTotals();
     const metric = resolveDownloadMetric(series);
-    target.innerHTML = [[metric.label, metric.value], ["Likes", totals.likes], ["Total Downloads", totals.downloads], ["Plays", totals.plays], ["Library Adds", totals.libraryAdds]].map(([label, value]) => `<article class="dashboard-stat"><span>${t(label)}</span><strong>${formatMetric(value)}</strong></article>`).join("");
-  }
-
-  function renderToolbar(latestDate) {
-    if (!toolbar) return;
-    toolbar.innerHTML = `<div><h3>${t("7-Day Creations Downloads Trend")}</h3><p class="dashboard-note">${t("Creations trend note", { date: latestDate ? formatDateLabel(latestDate) : "—" })}</p></div><span class="telemetry-pill">${t("Daily downloads")}</span>`;
+    target.innerHTML = [[metric.label, metric.value], ["Likes", totals.likes], ["Total Downloads", totals.downloads], ["Library Adds", totals.libraryAdds]].map(([label, value]) => `<article class="dashboard-stat"><span>${t(label)}</span><strong>${formatMetric(value)}</strong></article>`).join("");
   }
 
   function renderChart(rows) {
+    if (isRendering) return;
+    isRendering = true;
     const allData = allDailySeries(rows || []);
     const chartData = previousSevenDaySeries(rows || []);
     updateDailySummary(allData);
-    renderToolbar(chartData.at(-1)?.date || "");
     if (!chartData.length) {
       chartEl.innerHTML = `<p class="section-desc">${t("No Creations daily data available yet. It will appear after the next scheduled CC sync.")}</p>`;
+      isRendering = false;
       return;
     }
+
     const width = 920;
     const height = 260;
-    const pad = { left: 64, right: 38, top: 24, bottom: 44 };
-    const chartW = width - pad.left - pad.right;
-    const chartH = height - pad.top - pad.bottom;
-    const maxValue = Math.max(...chartData.map((item) => Number(item.value)), 1);
+    const padLeft = 64;
+    const padRight = 38;
+    const padTop = 24;
+    const padBottom = 44;
+    const chartW = width - padLeft - padRight;
+    const chartH = height - padTop - padBottom;
+    const values = chartData.map((item) => Number(item.value));
+    const maxValue = Math.max(...values, 1);
     const yMax = Math.max(4, Math.ceil(maxValue / 4) * 4);
-    const points = chartData.map((item, index) => ({
-      x: pad.left + (chartW / Math.max(1, chartData.length - 1)) * index,
-      y: pad.top + chartH - (Number(item.value) / yMax) * chartH,
-      item
-    }));
-    const linePoints = points.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
-    const labels = chartData.map((item, index) => {
-      const x = pad.left + (chartW / Math.max(1, chartData.length - 1)) * index;
-      return `<text class="nexus-date-label" x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`;
+    const points = chartData.map((item, index) => {
+      const x = padLeft + (chartW / Math.max(1, chartData.length - 1)) * index;
+      const y = padTop + chartH - (Number(item.value) / yMax) * chartH;
+      return { x, y, item };
+    });
+    const areaPoints = [`${points[0].x.toFixed(2)},${(height - padBottom).toFixed(2)}`, pointLine(points), `${points[points.length - 1].x.toFixed(2)},${(height - padBottom).toFixed(2)}`].join(" ");
+    const gridRows = [0, 1, 2, 3, 4].map((step) => {
+      const y = padTop + (chartH / 4) * step;
+      const label = Math.round(yMax * (1 - step / 4));
+      return `<line class="telemetry-grid-line" x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" /><text class="nexus-axis-label" x="14" y="${y + 5}">${formatNumber(label)}</text>`;
     }).join("");
-    const dots = points.map(({ x, y, item }) => `<g class="nexus-point" tabindex="0"><circle class="telemetry-dot" cx="${x}" cy="${y}" r="5"><title>${formatNumber(item.value)} ${formatDateLabel(item.date)}</title></circle></g>`).join("");
+    const labels = points.map(({ x, item }) => `<text class="nexus-date-label" x="${x}" y="${height - 14}" text-anchor="middle">${formatDateLabel(item.date)}</text>`).join("");
+    const dots = points.map(({ x, y, item }) => `<g class="nexus-point" tabindex="0" aria-label="${formatNumber(item.value)} ${t("daily downloads on")} ${formatDateLabel(item.date)}"><circle class="telemetry-dot" cx="${x}" cy="${y}" r="5"></circle></g>`).join("");
+    const latestDate = chartData.at(-1)?.date || "";
+    const note = t("Creations trend note", { date: formatDateLabel(latestDate) });
+
+    panel?.classList.add("is-nexus-trend-panel");
+    toolbar?.classList.add("is-hidden-for-nexus-trend");
     chartEl.className = "dashboard-chart nexus-telemetry-chart";
-    chartEl.innerHTML = `<div class="nexus-trend-canvas"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${t("Creations daily downloads chart")}" preserveAspectRatio="xMidYMid meet"><polyline class="nexus-chart-line nexus-chart-line-glow" points="${linePoints}" fill="none" stroke="rgba(116, 217, 255, 0.35)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"></polyline><polyline class="nexus-chart-line" points="${linePoints}" fill="none" stroke="rgba(116, 217, 255, 0.98)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>${dots}${labels}</svg>${points.map(({ x, y, item }) => `<span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${formatNumber(item.value)}</span>`).join("")}</div>`;
+    chartEl.dataset.trendRenderer = "creations-trend";
+    chartEl.innerHTML = `<div class="nexus-trend-shell" data-trend-renderer="creations-trend"><div class="nexus-trend-header"><div><h3>${t("7-Day Creations Downloads Trend")}</h3><p>${note}</p></div><span class="telemetry-pill">${t("Daily downloads")}</span></div><div class="nexus-trend-canvas"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${t("Creations daily downloads chart")}" preserveAspectRatio="xMidYMid meet">${gridRows}<polygon class="telemetry-area" points="${areaPoints}" /><polyline class="telemetry-line" points="${pointLine(points)}" />${dots}${labels}</svg>${points.map(({ x, y, item }) => `<span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${formatNumber(item.value)}</span>`).join("")}</div></div>`;
+    isRendering = false;
+  }
+
+  function scheduleRender(delay = 80) {
+    if (!cachedModDailyRows?.length) return;
+    window.clearTimeout(rerenderTimer);
+    rerenderTimer = window.setTimeout(() => renderChart(cachedModDailyRows), delay);
   }
 
   async function loadModDailyRows() {
@@ -137,9 +151,12 @@
     const rows = parseCSV(await response.text());
     return rows.length ? rows : null;
   }
-  function scheduleRender() { clearTimeout(rerenderTimer); rerenderTimer = setTimeout(() => renderChart(cachedModDailyRows), 120); }
-  loadModDailyRows().then((modDailyRows) => { cachedModDailyRows = modDailyRows; renderChart(modDailyRows); }).catch(() => updateDailySummary(null));
-  document.addEventListener("click", (event) => { if (event.target.closest(".language-option[data-lang]")) window.setTimeout(scheduleRender, 80); });
-  window.addEventListener("focus", scheduleRender);
-  window.addEventListener("storage", scheduleRender);
+
+  loadModDailyRows().then((modDailyRows) => {
+    cachedModDailyRows = modDailyRows;
+    renderChart(modDailyRows);
+  }).catch(() => updateDailySummary(null));
+  document.addEventListener("click", (event) => { if (event.target.closest(".language-option[data-lang]")) window.setTimeout(() => scheduleRender(80), 90); });
+  window.addEventListener("focus", () => scheduleRender(80));
+  window.addEventListener("storage", () => scheduleRender(80));
 })();
