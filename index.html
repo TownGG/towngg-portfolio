@@ -168,11 +168,13 @@
   <footer>
     TownGG MOD Portfolio<br>
     Bethesda-style immersive systems / NASA-punk industrial design / Starfield gameplay expansion
-    <span class="site-version" data-site-version>Version v2.04.38-preview</span>
+    <span class="site-version" data-site-version>Version v2.05.202607031000-preview</span>
   </footer>
 
-  <script src="./assets/js/version-sync.js?v=2.04.38"></script>
-  <script src="./assets/js/site-data.js?v=2.04.38"></script>
+  <script src="./assets/js/version-sync.js?v=2.05.202607031000"></script>
+  <script>
+    document.write('<script src="./assets/js/site-data.js?v=' + Date.now() + '"><\/script>');
+  </script>
   <script>
     window.siteData.socials = (window.siteData.socials || []).map((link) =>
       link.label === "Donate / Support"
