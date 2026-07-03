@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-03T13:30:26Z",
+  "updatedAt": "2026-07-03T14:00:25Z",
   "mods": [
     {
       "platform": "nexus",
@@ -151,18 +151,18 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 669,
-      "unique_downloads": 386,
-      "daily_downloads": 40,
+      "total_downloads": 672,
+      "unique_downloads": 388,
+      "daily_downloads": 43,
       "likes": 13,
       "views": 0
     },
     {
       "platform": "nexus",
       "mod_id": "17625",
-      "mod_name": "Nexus Mod 17625",
+      "mod_name": "TGG Texture Forge - Starfield DDS Converter",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17625",
-      "image_url": "",
+      "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
       "total_downloads": 0,
       "unique_downloads": 0,
       "daily_downloads": 0,
