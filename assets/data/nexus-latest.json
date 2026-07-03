@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-03T11:30:26Z",
+  "updatedAt": "2026-07-03T12:00:25Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1444,
+      "total_downloads": 1445,
       "unique_downloads": 738,
-      "daily_downloads": 2,
+      "daily_downloads": 3,
       "likes": 31,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 665,
-      "unique_downloads": 384,
-      "daily_downloads": 36,
+      "total_downloads": 669,
+      "unique_downloads": 386,
+      "daily_downloads": 40,
       "likes": 13,
       "views": 0
     },
