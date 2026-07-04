@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-04T16:30:55Z",
+  "updatedAt": "2026-07-04T16:43:53Z",
   "mods": [
     {
       "platform": "nexus",
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 353,
-      "unique_downloads": 252,
-      "daily_downloads": 1,
+      "total_downloads": 354,
+      "unique_downloads": 253,
+      "daily_downloads": 2,
       "likes": 9,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 700,
-      "unique_downloads": 405,
-      "daily_downloads": 23,
+      "total_downloads": 701,
+      "unique_downloads": 406,
+      "daily_downloads": 24,
       "likes": 13,
       "views": 0
     },
@@ -163,9 +163,9 @@
       "mod_name": "TGG Texture Forge - Starfield DDS Converter",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17625",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
-      "total_downloads": 26,
-      "unique_downloads": 24,
-      "daily_downloads": 5,
+      "total_downloads": 28,
+      "unique_downloads": 25,
+      "daily_downloads": 7,
       "likes": 3,
       "views": 0
     },
