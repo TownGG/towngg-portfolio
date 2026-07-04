@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-04T16:43:53Z",
+  "updatedAt": "2026-07-04T17:00:55Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1447,
-      "unique_downloads": 740,
-      "daily_downloads": 1,
+      "total_downloads": 1448,
+      "unique_downloads": 741,
+      "daily_downloads": 2,
       "likes": 31,
       "views": 0
     },
@@ -139,9 +139,9 @@
       "mod_name": "CASSILIAs Trainning Dummy",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17521",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17521/17521-1782131371-2132304027.png",
-      "total_downloads": 27,
-      "unique_downloads": 25,
-      "daily_downloads": 0,
+      "total_downloads": 28,
+      "unique_downloads": 26,
+      "daily_downloads": 1,
       "likes": 2,
       "views": 0
     },
