@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-04T06:00:25Z",
+  "updatedAt": "2026-07-04T06:30:28Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 453,
-      "unique_downloads": 400,
-      "daily_downloads": 4,
+      "total_downloads": 454,
+      "unique_downloads": 401,
+      "daily_downloads": 5,
       "likes": 16,
       "views": 0
     },
@@ -139,9 +139,9 @@
       "mod_name": "CASSILIAs Trainning Dummy",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17521",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17521/17521-1782131371-2132304027.png",
-      "total_downloads": 27,
-      "unique_downloads": 25,
-      "daily_downloads": 0,
+      "total_downloads": 28,
+      "unique_downloads": 26,
+      "daily_downloads": 1,
       "likes": 2,
       "views": 0
     },
