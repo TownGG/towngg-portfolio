@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-04T00:30:24Z",
+  "updatedAt": "2026-07-04T01:00:26Z",
   "mods": [
     {
       "platform": "nexus",
@@ -165,6 +165,18 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
       "total_downloads": 21,
       "unique_downloads": 21,
+      "daily_downloads": 0,
+      "likes": 0,
+      "views": 0
+    },
+    {
+      "platform": "nexus",
+      "mod_id": "17632",
+      "mod_name": "CPF-RYUJIN DEATH CLAW",
+      "mod_url": "https://www.nexusmods.com/starfield/mods/17632",
+      "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
+      "total_downloads": 0,
+      "unique_downloads": 0,
       "daily_downloads": 0,
       "likes": 0,
       "views": 0

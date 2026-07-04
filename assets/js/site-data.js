@@ -197,6 +197,20 @@ window.siteData = {
       links: [
         { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17625" }
       ]
+    },
+    {
+      title: "CPF-RYUJIN DEATH CLAW",
+      category: "Nexus Mods / Auto Synced",
+      group: "Gameplay",
+      image: "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
+      alt: "CPF-RYUJIN DEATH CLAW Nexus Mods cover image",
+      description: "Automatically synced from Nexus Mods.",
+      tags: ["Nexus", "Auto Synced", "Starfield"],
+      downloads: "0",
+      endorsements: "0",
+      links: [
+        { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17632" }
+      ]
     }
   ],
   creations: [
