@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-04T01:00:26Z",
+  "updatedAt": "2026-07-04T01:30:26Z",
   "mods": [
     {
       "platform": "nexus",
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 352,
-      "unique_downloads": 251,
-      "daily_downloads": 0,
+      "total_downloads": 353,
+      "unique_downloads": 252,
+      "daily_downloads": 1,
       "likes": 9,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2740,
-      "unique_downloads": 1985,
-      "daily_downloads": 1,
+      "total_downloads": 2742,
+      "unique_downloads": 1986,
+      "daily_downloads": 3,
       "likes": 117,
       "views": 0
     },
@@ -163,10 +163,10 @@
       "mod_name": "TGG Texture Forge - Starfield DDS Converter",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17625",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
-      "total_downloads": 21,
-      "unique_downloads": 21,
-      "daily_downloads": 0,
-      "likes": 0,
+      "total_downloads": 23,
+      "unique_downloads": 22,
+      "daily_downloads": 2,
+      "likes": 2,
       "views": 0
     },
     {
@@ -175,8 +175,8 @@
       "mod_name": "CPF-RYUJIN DEATH CLAW",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17632",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
-      "total_downloads": 0,
-      "unique_downloads": 0,
+      "total_downloads": 2,
+      "unique_downloads": 2,
       "daily_downloads": 0,
       "likes": 0,
       "views": 0
