@@ -55,9 +55,10 @@
     const raw = String(url || "");
     const direct = raw.match(/GENESIS\/(\d+)/i);
     if (direct) return direct[1];
+
     const encoded = decodeURIComponent(raw.split("/image/")[1]?.split(/[?#]/)[0] || "");
     const decoded = decodeBase64Url(encoded);
-    const match = decoded.match(/GENESIS\?\/(\d+)/i);
+    const match = decoded.match(/GENESIS\/(\d+)/i) || decoded.match(/GENESIS\?\/(\d+)/i);
     return match?.[1] || "";
   }
 
@@ -87,7 +88,11 @@
     const explicit = item.publishedAt || item.releaseDate || item.createdAt || item.date;
     const explicitDate = parseDateValue(explicit);
     if (explicitDate) return explicitDate;
-    if (platform === "creations") return number(bethesdaContentId(item)) || -index;
+
+    if (platform === "creations") {
+      return number(bethesdaContentId(item)) || -index;
+    }
+
     return number(nexusIdFromUrl(primaryUrl(item)) || item.mod_id) || -index;
   }
 
