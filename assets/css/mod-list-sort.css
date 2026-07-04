@@ -1,5 +1,5 @@
 /* TownGG Portfolio v2.05
-   Mods page list sorting, date filtering and table sorting controls. */
+   Mods page list sorting and table sorting controls. */
 
 .mod-platforms .mods-list-controls {
   display: inline-flex;
@@ -9,8 +9,7 @@
   min-width: 0;
 }
 
-.mod-platforms .mods-sort-control,
-.mod-platforms .mods-date-control {
+.mod-platforms .mods-sort-control {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -69,7 +68,7 @@
 }
 
 .mod-platforms .mods-control-bar {
-  grid-template-columns: minmax(260px, auto) minmax(330px, max-content) 1fr;
+  grid-template-columns: minmax(260px, auto) minmax(170px, max-content) 1fr;
   gap: 18px;
 }
 
@@ -159,8 +158,7 @@
     margin-top: 2px;
   }
 
-  .mod-platforms .mods-sort-control,
-  .mod-platforms .mods-date-control {
+  .mod-platforms .mods-sort-control {
     flex: 1 1 0;
   }
 
@@ -178,15 +176,13 @@
     align-items: stretch;
   }
 
-  .mod-platforms .mods-sort-control,
-  .mod-platforms .mods-date-control {
+  .mod-platforms .mods-sort-control {
     width: 100%;
   }
 }
 
 @media (max-width: 420px) {
-  .mod-platforms .mods-sort-control,
-  .mod-platforms .mods-date-control {
+  .mod-platforms .mods-sort-control {
     gap: 8px;
   }
 
