@@ -39,7 +39,7 @@
   function updateSwitcher(lang) {
     const label = document.querySelector(".language-button-label");
     if (label) label.textContent = labels[lang] || labels.en;
-    document.querySelectorAll("[data-lang]").forEach((option) => {
+    document.querySelectorAll(".language-option[data-lang]").forEach((option) => {
       option.textContent = `${option.dataset.lang === lang ? "✓ " : ""}${labels[option.dataset.lang] || option.dataset.lang}`;
       option.classList.toggle("is-active", option.dataset.lang === lang);
     });
@@ -53,29 +53,47 @@
     if (window.TownGGI18n?.setLanguage) window.TownGGI18n.setLanguage(next);
   }
 
+  function bindDropdown(switcher) {
+    if (switcher.dataset.staticLanguageReady === "true") return;
+    switcher.dataset.staticLanguageReady = "true";
+    const button = switcher.querySelector(".language-button");
+
+    button?.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const open = !switcher.classList.contains("is-open");
+      switcher.classList.toggle("is-open", open);
+      button.setAttribute("aria-expanded", String(open));
+    }, true);
+
+    button?.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }, true);
+
+    switcher.addEventListener("click", (event) => {
+      const option = event.target.closest(".language-option[data-lang]");
+      if (!option) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      setLanguage(option.dataset.lang);
+      switcher.classList.remove("is-open");
+      button?.setAttribute("aria-expanded", "false");
+    }, true);
+
+    document.addEventListener("pointerdown", (event) => {
+      if (switcher.contains(event.target)) return;
+      switcher.classList.remove("is-open");
+      button?.setAttribute("aria-expanded", "false");
+    });
+  }
+
   function init() {
     const switcher = document.querySelector(".language-switcher");
     if (!switcher) return;
-
     ensureLanguageOptions(switcher);
     updateSwitcher(currentLanguage());
-
-    if (switcher.dataset.preloadReady === "true") return;
-    if (switcher.dataset.staticLanguageReady === "true") return;
-    switcher.dataset.staticLanguageReady = "true";
-
-    const button = switcher.querySelector(".language-button");
-    button?.addEventListener("click", () => switcher.classList.toggle("is-open"));
-    switcher.addEventListener("click", (event) => {
-      const option = event.target.closest("[data-lang]");
-      if (!option) return;
-      setLanguage(option.dataset.lang);
-      switcher.classList.remove("is-open");
-    });
-    document.addEventListener("click", (event) => {
-      if (!switcher.contains(event.target)) switcher.classList.remove("is-open");
-    });
-    setLanguage(currentLanguage());
+    bindDropdown(switcher);
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
