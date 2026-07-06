@@ -61,6 +61,12 @@
         text-transform: none !important;
         text-shadow: 0 0 16px rgba(125, 216, 255, .18) !important;
       }
+      .language-switcher.is-open .language-menu,
+      .language-switcher:focus-within .language-menu {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        transform: translateY(0) !important;
+      }
 
       @media (max-width: 700px) {
         .telemetry-pill.telemetry-pill-heading {
@@ -116,14 +122,23 @@
     switcher.dataset.clickGuardReady = "true";
     ensureFullLanguageOptions();
     updateLanguageUI(lang());
+    const button = switcher.querySelector(".language-button");
 
-    document.addEventListener("click", (event) => {
-      const button = event.target.closest(".language-button");
-      if (!button || !switcher.contains(button)) return;
+    document.addEventListener("pointerdown", (event) => {
+      const trigger = event.target.closest(".language-button");
+      if (!trigger || !switcher.contains(trigger)) return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      const open = switcher.classList.toggle("is-open");
-      button.setAttribute("aria-expanded", String(open));
+      const open = !switcher.classList.contains("is-open");
+      switcher.classList.toggle("is-open", open);
+      trigger.setAttribute("aria-expanded", String(open));
+    }, true);
+
+    document.addEventListener("click", (event) => {
+      const trigger = event.target.closest(".language-button");
+      if (!trigger || !switcher.contains(trigger)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
     }, true);
 
     document.addEventListener("click", (event) => {
@@ -136,9 +151,15 @@
       updateLanguageUI(next);
       if (window.TownGGI18n?.setLanguage) window.TownGGI18n.setLanguage(next);
       switcher.classList.remove("is-open");
-      switcher.querySelector(".language-button")?.setAttribute("aria-expanded", "false");
+      button?.setAttribute("aria-expanded", "false");
       window.setTimeout(polishPills, 120);
     }, true);
+
+    document.addEventListener("pointerdown", (event) => {
+      if (switcher.contains(event.target)) return;
+      switcher.classList.remove("is-open");
+      button?.setAttribute("aria-expanded", "false");
+    });
   }
 
   function boot() {
