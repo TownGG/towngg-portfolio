@@ -32,6 +32,29 @@
     document.head.appendChild(style);
   }
 
+  function ensureHeaderControls() {
+    document.querySelectorAll(".nav-links").forEach((links) => {
+      if (!links.querySelector('a[href="./admin-upload.html"]')) {
+        const about = links.querySelector('a[href="./about.html"]');
+        if (about) {
+          const item = document.createElement("a");
+          item.href = "./admin-upload.html";
+          item.textContent = "Admin";
+          item.setAttribute("data-admin-nav", "true");
+          about.insertAdjacentElement("afterend", item);
+        }
+      }
+    });
+
+    const navEl = document.querySelector(".nav");
+    if (navEl && !navEl.querySelector(".language-switcher")) {
+      const switcher = document.createElement("div");
+      switcher.className = "language-switcher";
+      switcher.innerHTML = `<button class="language-button" type="button" aria-haspopup="true" aria-expanded="false"><span aria-hidden="true">🌐</span><span class="language-button-label">English</span><span aria-hidden="true">▾</span></button><div class="language-menu" role="menu">${supported.map((code) => `<button class="language-option" type="button" data-lang="${code}" role="menuitem"></button>`).join("")}</div>`;
+      navEl.appendChild(switcher);
+    }
+  }
+
   function syncHeaderLanguage(lang) {
     document.documentElement.lang = lang;
     document.documentElement.dataset.siteLang = lang;
@@ -39,7 +62,7 @@
     document.querySelectorAll(".site-header .nav-links a").forEach((link) => {
       const original = link.dataset.i18nOriginal || link.textContent.trim();
       link.dataset.i18nOriginal = original;
-      if (dictionary?.[original]) link.textContent = dictionary[original];
+      link.textContent = dictionary?.[original] || original;
     });
     const label = document.querySelector(".language-button-label");
     if (label) label.textContent = labels[lang] || labels.en;
@@ -50,6 +73,29 @@
     });
   }
 
+  function bindSwitcher() {
+    const switcher = document.querySelector(".language-switcher");
+    if (!switcher || switcher.dataset.preloadReady === "true") return;
+    switcher.dataset.preloadReady = "true";
+    const button = switcher.querySelector(".language-button");
+    button?.addEventListener("click", () => {
+      const open = switcher.classList.toggle("is-open");
+      button.setAttribute("aria-expanded", String(open));
+    });
+    switcher.addEventListener("click", (event) => {
+      const option = event.target.closest("[data-lang]");
+      if (!option) return;
+      const next = supported.includes(option.dataset.lang) ? option.dataset.lang : "en";
+      localStorage.setItem(LANG_KEY, next);
+      syncHeaderLanguage(next);
+      if (window.TownGGI18n?.setLanguage) window.TownGGI18n.setLanguage(next);
+      switcher.classList.remove("is-open");
+      button?.setAttribute("aria-expanded", "false");
+    });
+  }
+
   injectStableStyle();
+  ensureHeaderControls();
   syncHeaderLanguage(preferredLanguage());
+  bindSwitcher();
 })();
