@@ -10,6 +10,7 @@
       "7-Day Nexus Downloads Trend": "前 7 日 Nexus 下载趋势",
       "Nexus trend note": "不统计今日数据，展示截至昨日的前 7 日 Nexus 下载趋势。最后日期：{date}。",
       "Daily downloads": "每日下载",
+      "7-Day Avg Downloads": "近7日日均下载",
       "Accurate Nexus daily downloads trend chart": "Nexus 每日下载趋势图",
       "daily downloads on": "每日下载，日期"
     },
@@ -18,6 +19,7 @@
       "7-Day Nexus Downloads Trend": "前 7 日 Nexus 下載趨勢",
       "Nexus trend note": "不統計今日資料，顯示截至昨日的前 7 日 Nexus 下載趨勢。最後日期：{date}。",
       "Daily downloads": "每日下載",
+      "7-Day Avg Downloads": "近7日日均下載",
       "Accurate Nexus daily downloads trend chart": "Nexus 每日下載趨勢圖",
       "daily downloads on": "每日下載，日期"
     },
@@ -26,6 +28,7 @@
       "7-Day Nexus Downloads Trend": "過去7日間のNexusダウンロード推移",
       "Nexus trend note": "今日のデータは含めず、昨日までの過去7日間のNexusダウンロード推移を表示します。最終日：{date}。",
       "Daily downloads": "日別ダウンロード",
+      "7-Day Avg Downloads": "過去7日平均ダウンロード",
       "Accurate Nexus daily downloads trend chart": "Nexus日別ダウンロード推移チャート",
       "daily downloads on": "日別ダウンロード 日付"
     },
@@ -34,6 +37,7 @@
       "7-Day Nexus Downloads Trend": "이전 7일 Nexus 다운로드 추세",
       "Nexus trend note": "오늘 데이터는 제외하고 어제까지의 이전 7일 Nexus 다운로드 추세를 표시합니다. 마지막 날짜: {date}.",
       "Daily downloads": "일일 다운로드",
+      "7-Day Avg Downloads": "최근 7일 일평균 다운로드",
       "Accurate Nexus daily downloads trend chart": "Nexus 일일 다운로드 추세 차트",
       "daily downloads on": "일일 다운로드, 날짜"
     },
@@ -42,8 +46,12 @@
       "7-Day Nexus Downloads Trend": "Тренд загрузок Nexus за предыдущие 7 дней",
       "Nexus trend note": "Сегодняшние данные не учитываются; показаны предыдущие 7 дней Nexus до вчера. Последняя дата: {date}.",
       "Daily downloads": "Ежедневные загрузки",
+      "7-Day Avg Downloads": "Среднее за 7 дней",
       "Accurate Nexus daily downloads trend chart": "График ежедневных загрузок Nexus",
       "daily downloads on": "ежедневных загрузок, дата"
+    },
+    en: {
+      "7-Day Avg Downloads": "7-Day Avg Downloads"
     }
   };
 
@@ -62,7 +70,7 @@
   }
 
   function t(key, replacements = {}) {
-    let value = translations[lang()]?.[key] || key;
+    let value = translations[lang()]?.[key] || translations.en?.[key] || key;
     Object.entries(replacements).forEach(([name, replacement]) => {
       value = value.replace(`{${name}}`, replacement);
     });
@@ -86,6 +94,36 @@
       day: "2-digit"
     }).formatToParts(new Date()).map((part) => [part.type, part.value]));
     return `${parts.year}-${parts.month}-${parts.day}`;
+  }
+
+  function installTrendPillHeadingStyles() {
+    if (document.getElementById("trend-pill-heading-style")) return;
+    const style = document.createElement("style");
+    style.id = "trend-pill-heading-style";
+    style.textContent = `
+      .nexus-trend-header h3,
+      .telemetry-pill.telemetry-pill-heading {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 30px;
+        line-height: 1;
+        margin: 0;
+      }
+      .telemetry-pill.telemetry-pill-heading {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: #e9f8ff;
+        box-shadow: none;
+        font-weight: 700;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   function parseCSV(text) {
@@ -129,9 +167,12 @@
   }
 
   function trendAverageLabel(series) {
-    if (!series?.length) return "近7日日均下载：—";
+    const label = t("7-Day Avg Downloads");
+    const separator = ["zh-CN", "zh-TW", "ja"].includes(lang()) ? "：" : ": ";
+    if (!series?.length) return `${label}${separator}—`;
     const total = series.reduce((sum, item) => sum + Number(item.value || 0), 0);
-    return `近7日日均下载：${formatNumber(Math.round(total / Math.max(series.length, 1)))}`;
+    const avg = Math.round(total / Math.max(series.length, 1));
+    return `${label}${separator}${formatNumber(avg)}`;
   }
 
   function pointLine(points) {
@@ -180,7 +221,7 @@
     toolbar?.classList.add("is-hidden-for-nexus-trend");
     chartEl.className = "dashboard-chart nexus-telemetry-chart";
     chartEl.dataset.trendRenderer = "nexus-trend-fix";
-    chartEl.innerHTML = `<div class="nexus-trend-shell" data-trend-renderer="nexus-trend-fix"><div class="nexus-trend-header"><div><h3>${t("7-Day Nexus Downloads Trend")}</h3><p>${note}</p></div><span class="telemetry-pill">${trendAverageLabel(data)}</span></div><div class="nexus-trend-canvas"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${t("Accurate Nexus daily downloads trend chart")}" preserveAspectRatio="xMidYMid meet">${gridRows}<polygon class="telemetry-area" points="${areaPoints}" /><polyline class="telemetry-line" points="${pointLine(points)}" />${dots}${labels}</svg>${points.map(({ x, y, item }) => `<span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${formatNumber(item.value)}</span>`).join("")}</div></div>`;
+    chartEl.innerHTML = `<div class="nexus-trend-shell" data-trend-renderer="nexus-trend-fix"><div class="nexus-trend-header"><div><h3>${t("7-Day Nexus Downloads Trend")}</h3><p>${note}</p></div><span class="telemetry-pill telemetry-pill-heading">${trendAverageLabel(data)}</span></div><div class="nexus-trend-canvas"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${t("Accurate Nexus daily downloads trend chart")}" preserveAspectRatio="xMidYMid meet">${gridRows}<polygon class="telemetry-area" points="${areaPoints}" /><polyline class="telemetry-line" points="${pointLine(points)}" />${dots}${labels}</svg>${points.map(({ x, y, item }) => `<span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${formatNumber(item.value)}</span>`).join("")}</div></div>`;
     chartEl.dataset.trendTotal = String(total);
     chartEl.dataset.trendLatestDate = latestDate;
     isRendering = false;
@@ -203,6 +244,7 @@
 
   async function init() {
     try {
+      installTrendPillHeadingStyles();
       installLegacyChartGuard();
       const response = await fetch(`./assets/data/nexus-history.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" });
       if (!response.ok) throw new Error("Nexus history could not be loaded.");
