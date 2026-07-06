@@ -55,9 +55,15 @@
 
   function init() {
     const switcher = document.querySelector(".language-switcher");
-    if (!switcher || switcher.dataset.staticLanguageReady === "true") return;
-    switcher.dataset.staticLanguageReady = "true";
+    if (!switcher) return;
+
     ensureLanguageOptions(switcher);
+    updateSwitcher(currentLanguage());
+
+    if (switcher.dataset.preloadReady === "true") return;
+    if (switcher.dataset.staticLanguageReady === "true") return;
+    switcher.dataset.staticLanguageReady = "true";
+
     const button = switcher.querySelector(".language-button");
     button?.addEventListener("click", () => switcher.classList.toggle("is-open"));
     switcher.addEventListener("click", (event) => {
