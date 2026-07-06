@@ -3,10 +3,13 @@
 
   const STYLE_ID = "trend-average-pill-polish";
   const PILL_SELECTOR = ".telemetry-pill.telemetry-pill-heading";
+  const LANG_KEY = "townggSiteLang";
+  const SUPPORTED_LANGS = ["en", "zh-CN", "zh-TW", "ja", "ko", "ru"];
+  const LANG_LABELS = { en: "English", "zh-CN": "简体中文", "zh-TW": "繁體中文", ja: "日本語", ko: "한국어", ru: "Русский" };
 
   function lang() {
-    const value = localStorage.getItem("townggSiteLang");
-    return ["zh-CN", "zh-TW", "ja", "ko", "ru"].includes(value) ? value : "en";
+    const value = localStorage.getItem(LANG_KEY);
+    return SUPPORTED_LANGS.includes(value) ? value : "en";
   }
 
   function labelText() {
@@ -80,8 +83,67 @@
     });
   }
 
+  function ensureFullLanguageOptions() {
+    const menu = document.querySelector(".language-switcher .language-menu");
+    if (!menu) return;
+    const existing = new Set([...menu.querySelectorAll(".language-option[data-lang]")].map((option) => option.dataset.lang));
+    SUPPORTED_LANGS.forEach((code) => {
+      if (existing.has(code)) return;
+      const option = document.createElement("button");
+      option.className = "language-option";
+      option.type = "button";
+      option.dataset.lang = code;
+      option.setAttribute("role", "menuitem");
+      option.textContent = LANG_LABELS[code] || code;
+      menu.appendChild(option);
+    });
+  }
+
+  function updateLanguageUI(next) {
+    document.documentElement.lang = next;
+    document.documentElement.dataset.siteLang = next;
+    const label = document.querySelector(".language-button-label");
+    if (label) label.textContent = LANG_LABELS[next] || LANG_LABELS.en;
+    document.querySelectorAll(".language-option[data-lang]").forEach((option) => {
+      option.textContent = `${option.dataset.lang === next ? "✓ " : ""}${LANG_LABELS[option.dataset.lang] || option.dataset.lang}`;
+      option.classList.toggle("is-active", option.dataset.lang === next);
+    });
+  }
+
+  function setupLanguageSwitcherGuard() {
+    const switcher = document.querySelector(".language-switcher");
+    if (!switcher || switcher.dataset.clickGuardReady === "true") return;
+    switcher.dataset.clickGuardReady = "true";
+    ensureFullLanguageOptions();
+    updateLanguageUI(lang());
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest(".language-button");
+      if (!button || !switcher.contains(button)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const open = switcher.classList.toggle("is-open");
+      button.setAttribute("aria-expanded", String(open));
+    }, true);
+
+    document.addEventListener("click", (event) => {
+      const option = event.target.closest(".language-option[data-lang]");
+      if (!option || !switcher.contains(option)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const next = SUPPORTED_LANGS.includes(option.dataset.lang) ? option.dataset.lang : "en";
+      localStorage.setItem(LANG_KEY, next);
+      updateLanguageUI(next);
+      if (window.TownGGI18n?.setLanguage) window.TownGGI18n.setLanguage(next);
+      switcher.classList.remove("is-open");
+      switcher.querySelector(".language-button")?.setAttribute("aria-expanded", "false");
+      window.setTimeout(polishPills, 120);
+    }, true);
+  }
+
   function boot() {
     polishPills();
+    setupLanguageSwitcherGuard();
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
@@ -91,7 +153,10 @@
       polishPills();
     });
     observer.observe(document.body, { childList: true, subtree: true });
-    [120, 520, 1500, 2600].forEach((delay) => window.setTimeout(polishPills, delay));
+    [120, 520, 1500, 2600].forEach((delay) => window.setTimeout(() => {
+      polishPills();
+      setupLanguageSwitcherGuard();
+    }, delay));
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
