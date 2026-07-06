@@ -83,6 +83,11 @@
       return sum;
     }, { likes: 0, downloads: 0, libraryAdds: 0 });
   }
+  function trendAverageLabel(series) {
+    if (!series?.length) return "近7日日均下载：—";
+    const total = series.reduce((sum, item) => sum + Number(item.value || 0), 0);
+    return `近7日日均下载：${formatNumber(Math.round(total / Math.max(series.length, 1)))}`;
+  }
   function pointLine(points) { return points.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" "); }
 
   function parseTimestamp(value) {
@@ -170,7 +175,7 @@
     toolbar?.classList.add("is-hidden-for-nexus-trend");
     chartEl.className = "dashboard-chart nexus-telemetry-chart";
     chartEl.dataset.trendRenderer = "creations-trend";
-    chartEl.innerHTML = `<div class="nexus-trend-shell" data-trend-renderer="creations-trend"><div class="nexus-trend-header"><div><h3>${t("7-Day Creations Downloads Trend")}</h3><p>${note}</p></div><span class="telemetry-pill">${t("Daily downloads")}</span></div><div class="nexus-trend-canvas"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${t("Creations daily downloads chart")}" preserveAspectRatio="xMidYMid meet">${gridRows}<polygon class="telemetry-area" points="${areaPoints}" /><polyline class="telemetry-line" points="${pointLine(points)}" />${dots}${labels}</svg>${points.map(({ x, y, item }) => `<span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${formatNumber(item.value)}</span>`).join("")}</div></div>`;
+    chartEl.innerHTML = `<div class="nexus-trend-shell" data-trend-renderer="creations-trend"><div class="nexus-trend-header"><div><h3>${t("7-Day Creations Downloads Trend")}</h3><p>${note}</p></div><span class="telemetry-pill">${trendAverageLabel(chartData)}</span></div><div class="nexus-trend-canvas"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${t("Creations daily downloads chart")}" preserveAspectRatio="xMidYMid meet">${gridRows}<polygon class="telemetry-area" points="${areaPoints}" /><polyline class="telemetry-line" points="${pointLine(points)}" />${dots}${labels}</svg>${points.map(({ x, y, item }) => `<span class="nexus-html-tooltip" style="left:${(x / width) * 100}%; top:${(y / height) * 100}%">${formatNumber(item.value)}</span>`).join("")}</div></div>`;
     isRendering = false;
   }
 
