@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-06T21:00:56Z",
+  "updatedAt": "2026-07-06T21:30:56Z",
   "mods": [
     {
       "platform": "nexus",
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 362,
-      "unique_downloads": 257,
-      "daily_downloads": 1,
+      "total_downloads": 363,
+      "unique_downloads": 258,
+      "daily_downloads": 2,
       "likes": 9,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2812,
-      "unique_downloads": 2034,
-      "daily_downloads": 18,
+      "total_downloads": 2816,
+      "unique_downloads": 2038,
+      "daily_downloads": 22,
       "likes": 122,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 491,
-      "unique_downloads": 433,
-      "daily_downloads": 7,
+      "total_downloads": 492,
+      "unique_downloads": 434,
+      "daily_downloads": 8,
       "likes": 17,
       "views": 0
     },
@@ -175,9 +175,9 @@
       "mod_name": "CPF-RYUJIN DEATH CLAW",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17632",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
-      "total_downloads": 81,
-      "unique_downloads": 73,
-      "daily_downloads": 11,
+      "total_downloads": 82,
+      "unique_downloads": 74,
+      "daily_downloads": 12,
       "likes": 2,
       "views": 0
     }
