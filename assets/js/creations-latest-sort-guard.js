@@ -3,23 +3,28 @@
 
   const STYLE_ID = "trend-average-pill-polish";
   const PILL_SELECTOR = ".telemetry-pill.telemetry-pill-heading";
-  const SUMMARY_SELECTOR = "[data-creations-summary]";
+  const CREATIONS_SUMMARY_SELECTOR = "[data-creations-summary]";
+  const NEXUS_SUMMARY_SELECTOR = "[data-dashboard-summary]";
   const DAILY_CSV_URL = "./assets/data/creations-mod-daily.csv";
+  const NEXUS_HISTORY_URL = "./assets/data/nexus-history.csv";
   const LANG_KEY = "townggSiteLang";
   const SUPPORTED_LANGS = ["en", "zh-CN", "zh-TW", "ja", "ko", "ru"];
   const LANG_LABELS = { en: "English", "zh-CN": "简体中文", "zh-TW": "繁體中文", ja: "日本語", ko: "한국어", ru: "Русский" };
   const STAT_TRANSLATIONS = {
-    en: { "Yesterday Downloads": "Yesterday Downloads", Likes: "Likes", "Total Downloads": "Total Downloads", "Library Adds": "Library Adds" },
-    "zh-CN": { "Yesterday Downloads": "昨日下载", Likes: "点赞", "Total Downloads": "总下载", "Library Adds": "加入库" },
-    "zh-TW": { "Yesterday Downloads": "昨日下載", Likes: "按讚", "Total Downloads": "總下載", "Library Adds": "加入庫" },
-    ja: { "Yesterday Downloads": "昨日のダウンロード", Likes: "いいね", "Total Downloads": "総ダウンロード", "Library Adds": "ライブラリ追加" },
-    ko: { "Yesterday Downloads": "어제 다운로드", Likes: "좋아요", "Total Downloads": "총 다운로드", "Library Adds": "라이브러리 추가" },
-    ru: { "Yesterday Downloads": "Загрузки вчера", Likes: "Лайки", "Total Downloads": "Всего загрузок", "Library Adds": "Добавления в библиотеку" }
+    en: { "Yesterday Downloads": "Yesterday Downloads", "Unique Downloads": "Unique Downloads", Likes: "Likes", "Total Downloads": "Total Downloads", "Library Adds": "Library Adds", Endorsements: "Endorsements" },
+    "zh-CN": { "Yesterday Downloads": "昨日下载", "Unique Downloads": "唯一下载", Likes: "点赞", "Total Downloads": "总下载", "Library Adds": "加入库", Endorsements: "点赞" },
+    "zh-TW": { "Yesterday Downloads": "昨日下載", "Unique Downloads": "唯一下載", Likes: "按讚", "Total Downloads": "總下載", "Library Adds": "加入庫", Endorsements: "按讚" },
+    ja: { "Yesterday Downloads": "昨日のダウンロード", "Unique Downloads": "ユニークダウンロード", Likes: "いいね", "Total Downloads": "総ダウンロード", "Library Adds": "ライブラリ追加", Endorsements: "支持数" },
+    ko: { "Yesterday Downloads": "어제 다운로드", "Unique Downloads": "고유 다운로드", Likes: "좋아요", "Total Downloads": "총 다운로드", "Library Adds": "라이브러리 추가", Endorsements: "추천" },
+    ru: { "Yesterday Downloads": "Загрузки вчера", "Unique Downloads": "Уникальные загрузки", Likes: "Лайки", "Total Downloads": "Всего загрузок", "Library Adds": "Добавления в библиотеку", Endorsements: "Лайки" }
   };
 
   let cachedDailyRows = null;
-  let summaryRendering = false;
+  let cachedNexusRows = null;
+  let creationsSummaryRendering = false;
+  let nexusSummaryRendering = false;
   let summaryFetchPromise = null;
+  let nexusFetchPromise = null;
 
   function lang() {
     const value = localStorage.getItem(LANG_KEY);
@@ -153,6 +158,26 @@
     }, { likes: 0, downloads: 0, libraryAdds: 0 });
   }
 
+  function latestNexusRows(rows) {
+    const latest = new Map();
+    rows.forEach((row) => {
+      const key = row.mod_id || row.mod_name || "";
+      if (!key) return;
+      const current = latest.get(key);
+      if (!current || String(row.date || "").localeCompare(String(current.date || "")) > 0) latest.set(key, row);
+    });
+    return [...latest.values()].sort((a, b) => toNumber(b.total_downloads) - toNumber(a.total_downloads));
+  }
+
+  function currentNexusTotals(rows) {
+    return latestNexusRows(rows || []).reduce((sum, row) => {
+      sum.unique += toNumber(row.unique_downloads);
+      sum.total += toNumber(row.total_downloads);
+      sum.likes += toNumber(row.likes);
+      return sum;
+    }, { unique: 0, total: 0, likes: 0 });
+  }
+
   async function loadDailyRows() {
     if (cachedDailyRows) return cachedDailyRows;
     if (!summaryFetchPromise) {
@@ -172,9 +197,28 @@
     return summaryFetchPromise;
   }
 
+  async function loadNexusRows() {
+    if (cachedNexusRows) return cachedNexusRows;
+    if (!nexusFetchPromise) {
+      nexusFetchPromise = fetch(`${NEXUS_HISTORY_URL}?t=${Date.now()}`, { cache: "no-store" })
+        .then((response) => response.ok ? response.text() : "")
+        .then((text) => {
+          cachedNexusRows = text ? parseCSV(text) : [];
+          return cachedNexusRows;
+        })
+        .catch((error) => {
+          console.warn("Nexus yesterday summary fallback used", error);
+          cachedNexusRows = [];
+          return cachedNexusRows;
+        })
+        .finally(() => { nexusFetchPromise = null; });
+    }
+    return nexusFetchPromise;
+  }
+
   function renderYesterdaySummary(rows = cachedDailyRows || []) {
-    const target = document.querySelector(SUMMARY_SELECTOR);
-    if (!target || summaryRendering) return;
+    const target = document.querySelector(CREATIONS_SUMMARY_SELECTOR);
+    if (!target || creationsSummaryRendering) return;
     const totals = currentCreationTotals();
     const metric = completedDownloadMetric(rows);
     const nextHtml = [
@@ -184,15 +228,38 @@
       ["Library Adds", totals.libraryAdds]
     ].map(([label, value]) => `<article class="dashboard-stat"><span>${tStat(label)}</span><strong>${formatMetric(value)}</strong></article>`).join("");
     if (target.innerHTML === nextHtml) return;
-    summaryRendering = true;
+    creationsSummaryRendering = true;
     target.innerHTML = nextHtml;
-    summaryRendering = false;
+    creationsSummaryRendering = false;
+  }
+
+  function renderNexusYesterdaySummary(rows = cachedNexusRows || []) {
+    const target = document.querySelector(NEXUS_SUMMARY_SELECTOR);
+    if (!target || nexusSummaryRendering) return;
+    const totals = currentNexusTotals(rows);
+    const metric = completedDownloadMetric(rows);
+    const nextHtml = [
+      ["Unique Downloads", totals.unique],
+      [metric.label, metric.value],
+      ["Total Downloads", totals.total],
+      ["Endorsements", totals.likes]
+    ].map(([label, value]) => `<article class="dashboard-stat"><span>${tStat(label)}</span><strong>${formatMetric(value)}</strong></article>`).join("");
+    if (target.innerHTML === nextHtml) return;
+    nexusSummaryRendering = true;
+    target.innerHTML = nextHtml;
+    nexusSummaryRendering = false;
   }
 
   function ensureYesterdaySummary() {
-    const target = document.querySelector(SUMMARY_SELECTOR);
+    const target = document.querySelector(CREATIONS_SUMMARY_SELECTOR);
     if (!target) return;
     loadDailyRows().then(renderYesterdaySummary);
+  }
+
+  function ensureNexusYesterdaySummary() {
+    const target = document.querySelector(NEXUS_SUMMARY_SELECTOR);
+    if (!target) return;
+    loadNexusRows().then(renderNexusYesterdaySummary);
   }
 
   function installStyles() {
@@ -317,6 +384,7 @@
       button?.setAttribute("aria-expanded", "false");
       window.setTimeout(polishPills, 120);
       window.setTimeout(ensureYesterdaySummary, 120);
+      window.setTimeout(ensureNexusYesterdaySummary, 120);
     }, true);
 
     document.addEventListener("pointerdown", (event) => {
@@ -329,6 +397,7 @@
   function boot() {
     polishPills();
     ensureYesterdaySummary();
+    ensureNexusYesterdaySummary();
     setupLanguageSwitcherGuard();
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
@@ -338,14 +407,16 @@
       });
       polishPills();
       ensureYesterdaySummary();
+      ensureNexusYesterdaySummary();
     });
     observer.observe(document.body, { childList: true, subtree: true });
-    [120, 520, 1500, 2600].forEach((delay) => window.setTimeout(() => {
+    [120, 520, 900, 1500, 2600].forEach((delay) => window.setTimeout(() => {
       polishPills();
       ensureYesterdaySummary();
+      ensureNexusYesterdaySummary();
       setupLanguageSwitcherGuard();
     }, delay));
-    window.addEventListener("focus", () => { cachedDailyRows = null; ensureYesterdaySummary(); });
+    window.addEventListener("focus", () => { cachedDailyRows = null; cachedNexusRows = null; ensureYesterdaySummary(); ensureNexusYesterdaySummary(); });
     window.addEventListener("towngg:creations-live-refreshed", () => { cachedDailyRows = null; ensureYesterdaySummary(); });
   }
 
@@ -356,6 +427,7 @@
     if (event.target.closest(".language-option[data-lang]")) {
       window.setTimeout(polishPills, 120);
       window.setTimeout(ensureYesterdaySummary, 120);
+      window.setTimeout(ensureNexusYesterdaySummary, 120);
     }
   });
 })();
