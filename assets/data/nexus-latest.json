@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-08T11:58:41Z",
+  "updatedAt": "2026-07-08T12:30:54Z",
   "mods": [
     {
       "platform": "nexus",
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2851,
+      "total_downloads": 2852,
       "unique_downloads": 2059,
-      "daily_downloads": 9,
+      "daily_downloads": 10,
       "likes": 124,
       "views": 0
     },
@@ -163,9 +163,9 @@
       "mod_name": "TGG Texture Forge - Starfield DDS Converter",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17625",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
-      "total_downloads": 54,
-      "unique_downloads": 42,
-      "daily_downloads": 0,
+      "total_downloads": 55,
+      "unique_downloads": 43,
+      "daily_downloads": 1,
       "likes": 5,
       "views": 0
     },
