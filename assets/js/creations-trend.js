@@ -97,13 +97,9 @@
     return allDailySeries(rows).filter((item) => item.date < today).slice(-7);
   }
   function resolveDownloadMetric(series) {
-    if (!series?.length) return { label: "Daily Downloads", value: null };
     const today = todayKey();
-    const todayItem = series.find((item) => item.date === today);
-    if (todayItem && todayItem.value > 0) return { label: "Daily Downloads", value: todayItem.value };
-    const previous = [...series].filter((item) => item.date < today && item.value > 0).reverse()[0];
-    if (previous) return { label: "Yesterday Downloads", value: previous.value };
-    return { label: "Daily Downloads", value: null };
+    const previous = [...(series || [])].filter((item) => item.date < today && item.value > 0).reverse()[0];
+    return { label: "Yesterday Downloads", value: previous?.value ?? null };
   }
   function currentCreationTotals() {
     return (window.siteData?.creations || []).reduce((sum, item) => {
