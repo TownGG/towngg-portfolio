@@ -3,13 +3,40 @@
 
   const STYLE_ID = "trend-average-pill-polish";
   const PILL_SELECTOR = ".telemetry-pill.telemetry-pill-heading";
+  const SUMMARY_SELECTOR = "[data-creations-summary]";
+  const DAILY_CSV_URL = "./assets/data/creations-mod-daily.csv";
   const LANG_KEY = "townggSiteLang";
   const SUPPORTED_LANGS = ["en", "zh-CN", "zh-TW", "ja", "ko", "ru"];
   const LANG_LABELS = { en: "English", "zh-CN": "简体中文", "zh-TW": "繁體中文", ja: "日本語", ko: "한국어", ru: "Русский" };
+  const STAT_TRANSLATIONS = {
+    en: { "Yesterday Downloads": "Yesterday Downloads", Likes: "Likes", "Total Downloads": "Total Downloads", "Library Adds": "Library Adds" },
+    "zh-CN": { "Yesterday Downloads": "昨日下载", Likes: "点赞", "Total Downloads": "总下载", "Library Adds": "加入库" },
+    "zh-TW": { "Yesterday Downloads": "昨日下載", Likes: "按讚", "Total Downloads": "總下載", "Library Adds": "加入庫" },
+    ja: { "Yesterday Downloads": "昨日のダウンロード", Likes: "いいね", "Total Downloads": "総ダウンロード", "Library Adds": "ライブラリ追加" },
+    ko: { "Yesterday Downloads": "어제 다운로드", Likes: "좋아요", "Total Downloads": "총 다운로드", "Library Adds": "라이브러리 추가" },
+    ru: { "Yesterday Downloads": "Загрузки вчера", Likes: "Лайки", "Total Downloads": "Всего загрузок", "Library Adds": "Добавления в библиотеку" }
+  };
+
+  let cachedDailyRows = null;
+  let summaryRendering = false;
+  let summaryFetchPromise = null;
 
   function lang() {
     const value = localStorage.getItem(LANG_KEY);
     return SUPPORTED_LANGS.includes(value) ? value : "en";
+  }
+
+  function locale() {
+    return lang() === "zh-CN" ? "zh-CN"
+      : lang() === "zh-TW" ? "zh-TW"
+        : lang() === "ja" ? "ja-JP"
+          : lang() === "ko" ? "ko-KR"
+            : lang() === "ru" ? "ru-RU"
+              : "en-US";
+  }
+
+  function tStat(key) {
+    return STAT_TRANSLATIONS[lang()]?.[key] || STAT_TRANSLATIONS.en[key] || key;
   }
 
   function labelText() {
@@ -30,6 +57,142 @@
   function extractValue(text) {
     const matches = String(text || "").match(/\d[\d,.]*/g);
     return matches?.at(-1) || "—";
+  }
+
+  function toNumber(value) {
+    const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, ""));
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function formatNumber(value) {
+    return new Intl.NumberFormat(locale()).format(Number(value || 0));
+  }
+
+  function formatMetric(value) {
+    return value === null || value === undefined ? "—" : formatNumber(value);
+  }
+
+  function todayKey() {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(new Date()).map((part) => [part.type, part.value]));
+    return `${parts.year}-${parts.month}-${parts.day}`;
+  }
+
+  function parseCSV(text) {
+    const rows = [];
+    let cell = "";
+    let row = [];
+    let quoted = false;
+    for (let index = 0; index < text.length; index += 1) {
+      const char = text[index];
+      const next = text[index + 1];
+      if (char === '"' && quoted && next === '"') { cell += '"'; index += 1; }
+      else if (char === '"') quoted = !quoted;
+      else if (char === "," && !quoted) { row.push(cell); cell = ""; }
+      else if ((char === "\n" || char === "\r") && !quoted) {
+        if (char === "\r" && next === "\n") index += 1;
+        row.push(cell);
+        if (row.some((item) => item.trim())) rows.push(row);
+        row = [];
+        cell = "";
+      } else cell += char;
+    }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    const headers = rows.shift() || [];
+    return rows.map((items) => Object.fromEntries(headers.map((header, index) => [header, items[index] || ""])));
+  }
+
+  function snapshotTotal(rows) {
+    return rows.reduce((sum, row) => sum + toNumber(row.daily_downloads), 0);
+  }
+
+  function latestSnapshotRows(rows) {
+    const groups = new Map();
+    rows.forEach((row) => {
+      const key = row.last_updated || "";
+      const current = groups.get(key) || [];
+      current.push(row);
+      groups.set(key, current);
+    });
+    const snapshots = [...groups.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+    const latestNonzero = [...snapshots].reverse().find(([, snapshotRows]) => snapshotTotal(snapshotRows) > 0);
+    return latestNonzero?.[1] || snapshots.at(-1)?.[1] || rows;
+  }
+
+  function dailySeries(rows) {
+    const groups = new Map();
+    rows.forEach((row) => {
+      if (!row.date) return;
+      const current = groups.get(row.date) || [];
+      current.push(row);
+      groups.set(row.date, current);
+    });
+    return [...groups.entries()]
+      .map(([date, dateRows]) => ({ date, value: snapshotTotal(latestSnapshotRows(dateRows)) }))
+      .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  }
+
+  function completedDownloadMetric(rows) {
+    const today = todayKey();
+    const previous = dailySeries(rows || [])
+      .filter((item) => item.date < today && item.value > 0)
+      .reverse()[0];
+    return { label: "Yesterday Downloads", value: previous?.value ?? null };
+  }
+
+  function currentCreationTotals() {
+    return (window.siteData?.creations || []).reduce((sum, item) => {
+      sum.likes += toNumber(item.likes);
+      sum.downloads += toNumber(item.downloads);
+      sum.libraryAdds += toNumber(item.libraryAdds);
+      return sum;
+    }, { likes: 0, downloads: 0, libraryAdds: 0 });
+  }
+
+  async function loadDailyRows() {
+    if (cachedDailyRows) return cachedDailyRows;
+    if (!summaryFetchPromise) {
+      summaryFetchPromise = fetch(`${DAILY_CSV_URL}?t=${Date.now()}`, { cache: "no-store" })
+        .then((response) => response.ok ? response.text() : "")
+        .then((text) => {
+          cachedDailyRows = text ? parseCSV(text) : [];
+          return cachedDailyRows;
+        })
+        .catch((error) => {
+          console.warn("Creations yesterday summary fallback used", error);
+          cachedDailyRows = [];
+          return cachedDailyRows;
+        })
+        .finally(() => { summaryFetchPromise = null; });
+    }
+    return summaryFetchPromise;
+  }
+
+  function renderYesterdaySummary(rows = cachedDailyRows || []) {
+    const target = document.querySelector(SUMMARY_SELECTOR);
+    if (!target || summaryRendering) return;
+    const totals = currentCreationTotals();
+    const metric = completedDownloadMetric(rows);
+    const nextHtml = [
+      [metric.label, metric.value],
+      ["Likes", totals.likes],
+      ["Total Downloads", totals.downloads],
+      ["Library Adds", totals.libraryAdds]
+    ].map(([label, value]) => `<article class="dashboard-stat"><span>${tStat(label)}</span><strong>${formatMetric(value)}</strong></article>`).join("");
+    if (target.innerHTML === nextHtml) return;
+    summaryRendering = true;
+    target.innerHTML = nextHtml;
+    summaryRendering = false;
+  }
+
+  function ensureYesterdaySummary() {
+    const target = document.querySelector(SUMMARY_SELECTOR);
+    if (!target) return;
+    loadDailyRows().then(renderYesterdaySummary);
   }
 
   function installStyles() {
@@ -153,6 +316,7 @@
       switcher.classList.remove("is-open");
       button?.setAttribute("aria-expanded", "false");
       window.setTimeout(polishPills, 120);
+      window.setTimeout(ensureYesterdaySummary, 120);
     }, true);
 
     document.addEventListener("pointerdown", (event) => {
@@ -164,6 +328,7 @@
 
   function boot() {
     polishPills();
+    ensureYesterdaySummary();
     setupLanguageSwitcherGuard();
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
@@ -172,18 +337,25 @@
         });
       });
       polishPills();
+      ensureYesterdaySummary();
     });
     observer.observe(document.body, { childList: true, subtree: true });
     [120, 520, 1500, 2600].forEach((delay) => window.setTimeout(() => {
       polishPills();
+      ensureYesterdaySummary();
       setupLanguageSwitcherGuard();
     }, delay));
+    window.addEventListener("focus", () => { cachedDailyRows = null; ensureYesterdaySummary(); });
+    window.addEventListener("towngg:creations-live-refreshed", () => { cachedDailyRows = null; ensureYesterdaySummary(); });
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 
   document.addEventListener("click", (event) => {
-    if (event.target.closest(".language-option[data-lang]")) window.setTimeout(polishPills, 120);
+    if (event.target.closest(".language-option[data-lang]")) {
+      window.setTimeout(polishPills, 120);
+      window.setTimeout(ensureYesterdaySummary, 120);
+    }
   });
 })();
