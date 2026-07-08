@@ -160,12 +160,11 @@
   }
 
   function downloadMetric() {
-    const series = dailySeries();
     const today = todayKey();
-    const todayItem = series.find((item) => item.date === today);
-    if (todayItem && todayItem.value > 0) return { label: 'Daily Downloads', value: todayItem.value };
-    const previous = [...series].filter((item) => item.date < today && item.value > 0).reverse()[0];
-    return previous ? { label: 'Yesterday Downloads', value: previous.value } : { label: 'Daily Downloads', value: null };
+    const previous = dailySeries()
+      .filter((item) => item.date < today && item.value > 0)
+      .reverse()[0];
+    return { label: 'Yesterday Downloads', value: previous?.value ?? null };
   }
 
   function updateTimestamp() {
