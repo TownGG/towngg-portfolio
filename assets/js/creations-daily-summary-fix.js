@@ -1,6 +1,6 @@
 (() => {
   const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.05.202607031000-preview";
-  let downloadMetric = { label: "Daily Downloads", value: null };
+  let downloadMetric = { label: "Yesterday Downloads", value: null };
   let isRendering = false;
   const translations = {
     "zh-CN": { "Daily Downloads": "今日下载", "Yesterday Downloads": "昨日下载", Likes: "点赞", "Total Downloads": "总下载", "Library Adds": "加入库" },
@@ -80,14 +80,11 @@
   }
 
   function resolveDownloadMetric(rows) {
-    const series = dailySeries(rows);
-    if (!series.length) return { label: "Daily Downloads", value: null };
     const today = todayKey();
-    const todayItem = series.find((item) => item.date === today);
-    if (todayItem && todayItem.value > 0) return { label: "Daily Downloads", value: todayItem.value };
-    const previous = [...series].filter((item) => item.date < today && item.value > 0).reverse()[0];
-    if (previous) return { label: "Yesterday Downloads", value: previous.value };
-    return { label: "Daily Downloads", value: null };
+    const previous = dailySeries(rows)
+      .filter((item) => item.date < today && item.value > 0)
+      .reverse()[0];
+    return { label: "Yesterday Downloads", value: previous?.value ?? null };
   }
 
   function totals() {
@@ -113,10 +110,10 @@
   async function loadDaily() {
     try {
       const response = await fetch(`./assets/data/creations-mod-daily.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" });
-      downloadMetric = response.ok ? resolveDownloadMetric(parseCSV(await response.text())) : { label: "Daily Downloads", value: null };
+      downloadMetric = response.ok ? resolveDownloadMetric(parseCSV(await response.text())) : { label: "Yesterday Downloads", value: null };
     } catch (error) {
       console.warn("Creations daily summary fallback used", error);
-      downloadMetric = { label: "Daily Downloads", value: null };
+      downloadMetric = { label: "Yesterday Downloads", value: null };
     }
     renderSummary();
   }
