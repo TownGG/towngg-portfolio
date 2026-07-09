@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-08T23:30:57Z",
+  "updatedAt": "2026-07-09T00:00:55Z",
   "mods": [
     {
       "platform": "nexus",
@@ -9,7 +9,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
       "total_downloads": 468,
       "unique_downloads": 418,
-      "daily_downloads": 6,
+      "daily_downloads": 0,
       "likes": 28,
       "views": 0
     },
@@ -21,7 +21,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
       "total_downloads": 1470,
       "unique_downloads": 755,
-      "daily_downloads": 4,
+      "daily_downloads": 0,
       "likes": 31,
       "views": 0
     },
@@ -33,7 +33,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
       "total_downloads": 440,
       "unique_downloads": 393,
-      "daily_downloads": 5,
+      "daily_downloads": 0,
       "likes": 20,
       "views": 0
     },
@@ -45,7 +45,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
       "total_downloads": 366,
       "unique_downloads": 259,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 9,
       "views": 0
     },
@@ -57,7 +57,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
       "total_downloads": 542,
       "unique_downloads": 422,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 26,
       "views": 0
     },
@@ -69,7 +69,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
       "total_downloads": 2862,
       "unique_downloads": 2065,
-      "daily_downloads": 20,
+      "daily_downloads": 0,
       "likes": 124,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 505,
-      "unique_downloads": 445,
-      "daily_downloads": 7,
+      "total_downloads": 506,
+      "unique_downloads": 446,
+      "daily_downloads": 1,
       "likes": 18,
       "views": 0
     },
@@ -91,9 +91,9 @@
       "mod_name": "CPF-UC VANGUARD POWER FIST MK2",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17479",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
-      "total_downloads": 163,
-      "unique_downloads": 150,
-      "daily_downloads": 3,
+      "total_downloads": 164,
+      "unique_downloads": 151,
+      "daily_downloads": 1,
       "likes": 6,
       "views": 0
     },
@@ -105,7 +105,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
       "total_downloads": 200,
       "unique_downloads": 193,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 9,
       "views": 0
     },
@@ -117,7 +117,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842553-1785018540.png",
       "total_downloads": 197,
       "unique_downloads": 174,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 8,
       "views": 0
     },
@@ -129,7 +129,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
       "total_downloads": 124,
       "unique_downloads": 115,
-      "daily_downloads": 4,
+      "daily_downloads": 0,
       "likes": 4,
       "views": 0
     },
@@ -153,7 +153,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
       "total_downloads": 801,
       "unique_downloads": 457,
-      "daily_downloads": 17,
+      "daily_downloads": 0,
       "likes": 15,
       "views": 0
     },
@@ -165,7 +165,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
       "total_downloads": 55,
       "unique_downloads": 43,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 5,
       "views": 0
     },
@@ -177,7 +177,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
       "total_downloads": 90,
       "unique_downloads": 82,
-      "daily_downloads": 5,
+      "daily_downloads": 0,
       "likes": 4,
       "views": 0
     }
