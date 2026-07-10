@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-10T15:30:27Z",
+  "updatedAt": "2026-07-10T16:00:28Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 450,
-      "unique_downloads": 403,
-      "daily_downloads": 3,
+      "total_downloads": 451,
+      "unique_downloads": 404,
+      "daily_downloads": 4,
       "likes": 20,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2900,
+      "total_downloads": 2902,
       "unique_downloads": 2095,
-      "daily_downloads": 7,
+      "daily_downloads": 9,
       "likes": 126,
       "views": 0
     },
