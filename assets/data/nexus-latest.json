@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-09T23:54:05Z",
+  "updatedAt": "2026-07-10T00:00:52Z",
   "mods": [
     {
       "platform": "nexus",
@@ -9,7 +9,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
       "total_downloads": 470,
       "unique_downloads": 420,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 28,
       "views": 0
     },
@@ -21,7 +21,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
       "total_downloads": 1474,
       "unique_downloads": 759,
-      "daily_downloads": 4,
+      "daily_downloads": 0,
       "likes": 31,
       "views": 0
     },
@@ -33,7 +33,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
       "total_downloads": 447,
       "unique_downloads": 400,
-      "daily_downloads": 7,
+      "daily_downloads": 0,
       "likes": 20,
       "views": 0
     },
@@ -45,7 +45,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
       "total_downloads": 369,
       "unique_downloads": 262,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 9,
       "views": 0
     },
@@ -57,7 +57,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
       "total_downloads": 548,
       "unique_downloads": 428,
-      "daily_downloads": 6,
+      "daily_downloads": 0,
       "likes": 28,
       "views": 0
     },
@@ -69,7 +69,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
       "total_downloads": 2893,
       "unique_downloads": 2090,
-      "daily_downloads": 31,
+      "daily_downloads": 0,
       "likes": 126,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 555,
+      "total_downloads": 556,
       "unique_downloads": 456,
-      "daily_downloads": 50,
+      "daily_downloads": 1,
       "likes": 19,
       "views": 0
     },
@@ -93,7 +93,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
       "total_downloads": 166,
       "unique_downloads": 153,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 6,
       "views": 0
     },
@@ -105,7 +105,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
       "total_downloads": 205,
       "unique_downloads": 198,
-      "daily_downloads": 5,
+      "daily_downloads": 0,
       "likes": 9,
       "views": 0
     },
@@ -117,7 +117,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842553-1785018540.png",
       "total_downloads": 201,
       "unique_downloads": 178,
-      "daily_downloads": 4,
+      "daily_downloads": 0,
       "likes": 8,
       "views": 0
     },
@@ -129,7 +129,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
       "total_downloads": 126,
       "unique_downloads": 117,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 4,
       "views": 0
     },
@@ -153,7 +153,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
       "total_downloads": 815,
       "unique_downloads": 464,
-      "daily_downloads": 14,
+      "daily_downloads": 0,
       "likes": 17,
       "views": 0
     },
@@ -177,7 +177,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
       "total_downloads": 96,
       "unique_downloads": 88,
-      "daily_downloads": 6,
+      "daily_downloads": 0,
       "likes": 4,
       "views": 0
     }
