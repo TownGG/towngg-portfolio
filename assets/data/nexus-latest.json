@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-11T08:00:28Z",
+  "updatedAt": "2026-07-11T08:30:27Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1477,
+      "total_downloads": 1478,
       "unique_downloads": 760,
-      "daily_downloads": 2,
+      "daily_downloads": 3,
       "likes": 32,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 371,
+      "total_downloads": 372,
       "unique_downloads": 264,
-      "daily_downloads": 2,
+      "daily_downloads": 3,
       "likes": 10,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 2915,
-      "unique_downloads": 2103,
-      "daily_downloads": 7,
+      "total_downloads": 2916,
+      "unique_downloads": 2104,
+      "daily_downloads": 8,
       "likes": 126,
       "views": 0
     },
