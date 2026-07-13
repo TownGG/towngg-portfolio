@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-13T00:13:33Z",
+  "updatedAt": "2026-07-13T00:30:56Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1488,
+      "total_downloads": 1489,
       "unique_downloads": 766,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 32,
       "views": 0
     },
@@ -175,9 +175,9 @@
       "mod_name": "CPF-RYUJIN DEATH CLAW",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17632",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
-      "total_downloads": 107,
-      "unique_downloads": 99,
-      "daily_downloads": 0,
+      "total_downloads": 108,
+      "unique_downloads": 100,
+      "daily_downloads": 1,
       "likes": 5,
       "views": 0
     }
