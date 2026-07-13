@@ -30,7 +30,32 @@
     }
   ];
 
+  const totalLabels = {
+    en: 'Total',
+    'zh-CN': '合计',
+    'zh-TW': '合計',
+    ja: '合計',
+    ko: '합계',
+    ru: 'Итого'
+  };
+
   const stateByTable = new WeakMap();
+
+  function lang() {
+    const html = document.documentElement.lang;
+    if (totalLabels[html]) return html;
+    const stored = localStorage.getItem('townggSiteLang');
+    return totalLabels[stored] ? stored : 'en';
+  }
+
+  function locale() {
+    return lang() === 'zh-CN' ? 'zh-CN'
+      : lang() === 'zh-TW' ? 'zh-TW'
+        : lang() === 'ja' ? 'ja-JP'
+          : lang() === 'ko' ? 'ko-KR'
+            : lang() === 'ru' ? 'ru-RU'
+              : 'en-US';
+  }
 
   function normalize(value) {
     return String(value || '').trim().toLowerCase();
@@ -39,6 +64,10 @@
   function toNumber(value) {
     const parsed = Number(String(value || '0').replace(/[^0-9.-]/g, ''));
     return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function formatNumber(value) {
+    return new Intl.NumberFormat(locale()).format(toNumber(value));
   }
 
   function tableElements(config) {
@@ -65,12 +94,50 @@
     });
   }
 
+  function ensureTotalRow(config) {
+    const { body, table } = tableElements(config);
+    if (!body || !table || !body.children.length) return;
+
+    const state = stateByTable.get(table) || {};
+    const rows = [...body.querySelectorAll(':scope > tr')];
+    if (!rows.length) return;
+
+    const totals = config.columns.map((column, index) => {
+      if (index === 0 || column.type !== 'number') return null;
+      return rows.reduce((sum, row) => sum + cellValue(row, index, 'number'), 0);
+    });
+
+    let totalBody = table.querySelector(`tbody[data-table-total-for="${config.tableName}"]`);
+    if (!totalBody) {
+      totalBody = document.createElement('tbody');
+      totalBody.dataset.tableTotalFor = config.tableName;
+      totalBody.className = 'dashboard-table-total-body';
+      table.insertBefore(totalBody, body);
+    }
+
+    const cells = config.columns.map((column, index) => {
+      if (index === 0) return `<td><strong>${totalLabels[lang()] || totalLabels.en}</strong></td>`;
+      return `<td><strong>${formatNumber(totals[index])}</strong></td>`;
+    }).join('');
+    const nextHtml = `<tr class="dashboard-table-total-row" data-table-total-row="${config.tableName}">${cells}</tr>`;
+
+    if (totalBody.innerHTML !== nextHtml) {
+      state.isUpdatingTotal = true;
+      stateByTable.set(table, state);
+      totalBody.innerHTML = nextHtml;
+      requestAnimationFrame(() => {
+        state.isUpdatingTotal = false;
+        stateByTable.set(table, state);
+      });
+    }
+  }
+
   function sortTableBy(config, index, type, direction) {
     const { body, headerRow, table } = tableElements(config);
     if (!body || !headerRow || !table) return;
 
     const state = stateByTable.get(table) || {};
-    const rows = [...body.querySelectorAll('tr')];
+    const rows = [...body.querySelectorAll(':scope > tr')];
     const multiplier = direction === 'asc' ? 1 : -1;
     const sorted = rows
       .map((row, originalIndex) => ({ row, originalIndex }))
@@ -96,6 +163,7 @@
     stateByTable.set(table, state);
     body.appendChild(fragment);
     setHeaderState(config, headerRow, index, direction);
+    ensureTotalRow(config);
     requestAnimationFrame(() => {
       state.isSorting = false;
       stateByTable.set(table, state);
@@ -113,7 +181,7 @@
     if (!body || !table || !headerRow || !body.children.length) return;
     if (!config.ready(table)) return;
 
-    const state = stateByTable.get(table) || { activeKey: '', activeDirection: 'desc', isSorting: false };
+    const state = stateByTable.get(table) || { activeKey: '', activeDirection: 'desc', isSorting: false, isUpdatingTotal: false };
     stateByTable.set(table, state);
     table.dataset.sortableTable = config.tableName;
 
@@ -141,6 +209,8 @@
         sortTableBy(config, index, column.type, nextDirection);
       });
     });
+
+    ensureTotalRow(config);
   }
 
   function scheduleEnhance(config, delay = 0) {
@@ -154,7 +224,7 @@
     if (!table.dataset.sortObserverReady) {
       const observer = new MutationObserver(() => {
         const state = stateByTable.get(table);
-        if (state?.isSorting) return;
+        if (state?.isSorting || state?.isUpdatingTotal) return;
         scheduleEnhance(config, 30);
       });
       observer.observe(table, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-creations-daily-ready'] });
@@ -164,7 +234,33 @@
     [0, 300, 900, 1600].forEach((delay) => scheduleEnhance(config, delay));
   }
 
+  function installStyles() {
+    if (document.getElementById('dashboard-table-total-style')) return;
+    const style = document.createElement('style');
+    style.id = 'dashboard-table-total-style';
+    style.textContent = `
+      .dashboard-table-total-body .dashboard-table-total-row {
+        background: linear-gradient(90deg, rgba(255, 61, 82, 0.14), rgba(255, 61, 82, 0.035));
+      }
+      .dashboard-table-total-body .dashboard-table-total-row td {
+        border-top: 1px solid rgba(255, 75, 91, 0.72);
+        border-bottom: 1px solid rgba(255, 75, 91, 0.32);
+        color: #f5f7fb;
+      }
+      .dashboard-table-total-body .dashboard-table-total-row td:first-child {
+        color: #ff5b68;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .dashboard-table-total-body .dashboard-table-total-row strong {
+        font-weight: 800;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   function install() {
+    installStyles();
     TABLES.forEach(installTable);
   }
 
@@ -173,4 +269,9 @@
   } else {
     install();
   }
+
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('.language-option[data-lang]')) return;
+    window.setTimeout(() => TABLES.forEach((config) => enhanceTable(config)), 120);
+  });
 })();
