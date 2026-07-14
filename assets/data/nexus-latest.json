@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-14T14:16:31Z",
+  "updatedAt": "2026-07-14T14:30:15Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1494,
-      "unique_downloads": 769,
-      "daily_downloads": 3,
+      "total_downloads": 1495,
+      "unique_downloads": 770,
+      "daily_downloads": 4,
       "likes": 32,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 375,
-      "unique_downloads": 267,
-      "daily_downloads": 0,
+      "total_downloads": 376,
+      "unique_downloads": 268,
+      "daily_downloads": 1,
       "likes": 10,
       "views": 0
     },
