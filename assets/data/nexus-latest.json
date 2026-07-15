@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-15T13:00:19Z",
+  "updatedAt": "2026-07-15T13:30:18Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 575,
-      "unique_downloads": 451,
-      "daily_downloads": 1,
+      "total_downloads": 576,
+      "unique_downloads": 452,
+      "daily_downloads": 2,
       "likes": 30,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 898,
+      "total_downloads": 900,
       "unique_downloads": 503,
-      "daily_downloads": 3,
+      "daily_downloads": 5,
       "likes": 22,
       "views": 0
     },
