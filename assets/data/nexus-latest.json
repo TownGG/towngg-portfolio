@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-17T11:59:24Z",
+  "updatedAt": "2026-07-17T12:31:05Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 670,
+      "total_downloads": 671,
       "unique_downloads": 501,
-      "daily_downloads": 4,
+      "daily_downloads": 5,
       "likes": 22,
       "views": 0
     },
@@ -175,9 +175,9 @@
       "mod_name": "CPF-RYUJIN DEATH CLAW",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17632",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
-      "total_downloads": 119,
-      "unique_downloads": 110,
-      "daily_downloads": 1,
+      "total_downloads": 120,
+      "unique_downloads": 111,
+      "daily_downloads": 2,
       "likes": 6,
       "views": 0
     }
