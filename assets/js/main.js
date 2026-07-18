@@ -445,6 +445,23 @@ function setupPlatformTabs() {
   const panels = document.querySelectorAll("[data-platform-panel]");
   if (!tabs.length || !panels.length) return;
 
+  function scrollToPlatformStart(panel) {
+    const controlBar = panel?.querySelector(".mods-control-bar");
+    const projectList = panel?.querySelector(".projects");
+    if (!controlBar || !projectList) return;
+
+    const stickyTop = parseFloat(getComputedStyle(controlBar).top) || 0;
+    const listTop = projectList.getBoundingClientRect().top + window.scrollY;
+    const targetTop = listTop - stickyTop - controlBar.offsetHeight - 24;
+    const root = document.documentElement;
+    const previousScrollBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    window.scrollTo(window.scrollX, Math.max(0, targetTop));
+    requestAnimationFrame(() => {
+      root.style.scrollBehavior = previousScrollBehavior;
+    });
+  }
+
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       const platform = tab.dataset.platformTab;
@@ -463,6 +480,8 @@ function setupPlatformTabs() {
         }
       });
       document.querySelectorAll("[data-filter-target-current]").forEach((modsFilter) => applyFilter(modsFilter, "All"));
+      const activePanel = document.querySelector(`[data-platform-panel="${platform}"]`);
+      requestAnimationFrame(() => scrollToPlatformStart(activePanel));
     });
   });
 }
