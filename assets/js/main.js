@@ -176,6 +176,7 @@ function renderNotesPage() {
 
   const notes = sortedCreatorNotes();
   list.innerHTML = notes.map((note) => noteCard(note)).join("");
+  prepareMotionItems(list, ".note-card");
 
   const active = document.querySelector("[data-notes-metric='active']");
   const latest = document.querySelector("[data-notes-metric='latest']");
@@ -199,6 +200,7 @@ function renderNotesTimeline() {
       </div>
     </article>
   `).join("");
+  prepareMotionItems(target, ".timeline-item");
 }
 
 function renderArticleContent(content = "") {
@@ -296,6 +298,7 @@ function renderMods(selector, options = {}) {
   if (options.limit) mods = mods.slice(0, options.limit);
 
   target.innerHTML = mods.map(modCard).join("");
+  if (selector === "[data-all-mods]") prepareMotionItems(target, ".project-card");
 }
 
 
@@ -307,6 +310,7 @@ function renderCreations() {
     .filter((item) => item.image && dashboardNumber(item.downloads) > 0)
     .map(creationCard)
     .join("");
+  prepareMotionItems(target, ".project-card");
 }
 function renderFeaturedMod() {
   const target = document.querySelector("[data-featured-mod]");
@@ -377,6 +381,7 @@ function renderGallery(selector, options = {}) {
   target.querySelectorAll("[data-art-index]").forEach((button) => {
     button.dataset.artSource = source;
   });
+  if (selector === "[data-all-gallery]") prepareMotionItems(target, ".gallery-card");
 }
 
 function setupGalleryTabs() {
@@ -449,7 +454,13 @@ function setupPlatformTabs() {
         item.setAttribute("aria-selected", String(isActive));
       });
       panels.forEach((panel) => {
-        panel.classList.toggle("is-active", panel.dataset.platformPanel === platform);
+        const isActive = panel.dataset.platformPanel === platform;
+        panel.classList.toggle("is-active", isActive);
+        if (isActive && document.documentElement.classList.contains("motion-ready")) {
+          panel.classList.remove("is-panel-entering");
+          void panel.offsetWidth;
+          panel.classList.add("is-panel-entering");
+        }
       });
       document.querySelectorAll("[data-filter-target-current]").forEach((modsFilter) => applyFilter(modsFilter, "All"));
     });
@@ -477,6 +488,11 @@ function applyFilter(group, value) {
   target.querySelectorAll(`[data-${attr}]`).forEach((card) => {
     const isVisible = value === "All" || card.dataset[attr] === value;
     card.style.display = isVisible ? "" : "none";
+    if (isVisible && document.documentElement.classList.contains("motion-ready")) {
+      card.classList.remove("is-filter-entering");
+      void card.offsetWidth;
+      card.classList.add("is-filter-entering");
+    }
   });
 }
 
@@ -548,10 +564,12 @@ function setupGalleryModal() {
     image.src = art.image;
     image.alt = art.alt;
     modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
   });
 
   function closeModal() {
     modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
   }
 
   close.addEventListener("click", closeModal);
@@ -801,7 +819,39 @@ function formatCompactNumber(value) {
 
 function setHomeMetric(name, value) {
   const target = document.querySelector(`[data-home-metric="${name}"]`);
-  if (target) target.textContent = formatCompactNumber(value);
+  if (!target) return;
+
+  const endValue = Math.max(0, dashboardNumber(value));
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion || typeof window.requestAnimationFrame !== "function") {
+    target.textContent = formatCompactNumber(endValue);
+    return;
+  }
+
+  if (target._metricAnimationFrame) {
+    window.cancelAnimationFrame(target._metricAnimationFrame);
+  }
+
+  const startValue = dashboardNumber(target.dataset.metricValue);
+  const startedAt = performance.now();
+  const duration = 900;
+  target.dataset.metricValue = String(endValue);
+
+  const update = (now) => {
+    const progress = Math.min(1, (now - startedAt) / duration);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const currentValue = Math.round(startValue + (endValue - startValue) * eased);
+    target.textContent = formatCompactNumber(currentValue);
+
+    if (progress < 1) {
+      target._metricAnimationFrame = window.requestAnimationFrame(update);
+    } else {
+      target.textContent = formatCompactNumber(endValue);
+      target._metricAnimationFrame = null;
+    }
+  };
+
+  target._metricAnimationFrame = window.requestAnimationFrame(update);
 }
 
 function renderHomeCreationMetric() {
@@ -1078,6 +1128,105 @@ function setupDiscussionEmbed() {
   target.appendChild(script);
 }
 
+let motionRevealObserver = null;
+
+function setupLowRiskMotion() {
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  const revealTargets = document.querySelectorAll([
+    ".section-header",
+    ".featured-video",
+    ".latest-notes",
+    ".featured",
+    "[data-home-mods]",
+    "[data-home-gallery]",
+    ".split",
+    ".home-social-panel",
+    ".dashboard-summary",
+    ".dashboard-panel",
+    ".mods-control-bar",
+    ".gallery-tabs",
+    ".note-filters",
+    ".about-stack > .panel",
+    ".telemetry-chart-panel"
+  ].join(","));
+
+  if (reduceMotion || typeof window.IntersectionObserver !== "function") return;
+
+  revealTargets.forEach((target) => target.classList.add("motion-reveal"));
+
+  motionRevealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-revealed");
+      motionRevealObserver.unobserve(entry.target);
+    });
+  }, {
+    rootMargin: "0px 0px -8%",
+    threshold: .08
+  });
+
+  revealTargets.forEach((target) => motionRevealObserver.observe(target));
+
+  const motionContainers = [
+    [document.querySelector("[data-all-mods]"), ".project-card"],
+    [document.querySelector("[data-creations-mods]"), ".project-card"],
+    [document.querySelector("[data-all-gallery]"), ".gallery-card"],
+    [document.querySelector("[data-notes-list]"), ".note-card"],
+    [document.querySelector("[data-notes-timeline]"), ".timeline-item"],
+    [document.querySelector(".tool-logos"), ".tool-logo"],
+    [document.querySelector(".workflow"), ".workflow-card"],
+    [document.querySelector("[data-site-telemetry-summary]"), ".telemetry-card"]
+  ];
+
+  motionContainers.forEach(([container, selector]) => {
+    if (!container) return;
+    prepareMotionItems(container, selector);
+    const motionObserver = new MutationObserver(() => prepareMotionItems(container, selector));
+    motionObserver.observe(container, { childList: true });
+  });
+}
+
+function prepareMotionItems(container, selector) {
+  if (!container || !document.documentElement.classList.contains("motion-ready")) return;
+  container.querySelectorAll(selector).forEach((item, index) => {
+    item.classList.add("motion-item");
+    item.style.setProperty("--motion-delay", `${Math.min(index, 8) * 55}ms`);
+    motionRevealObserver?.observe(item);
+  });
+}
+
+function setupChartMotion() {
+  if (!document.documentElement.classList.contains("motion-ready")) return;
+
+  const decorate = (chart) => {
+    const svg = chart.querySelector("svg");
+    if (!svg) return;
+    svg.querySelectorAll(".dash-line, .telemetry-line").forEach((line) => {
+      line.setAttribute("pathLength", "1");
+    });
+    chart.classList.remove("motion-chart");
+    void chart.offsetWidth;
+    chart.classList.add("motion-chart");
+  };
+
+  document.querySelectorAll("[data-dashboard-chart], [data-creations-chart], [data-site-telemetry-chart]").forEach((chart) => {
+    decorate(chart);
+    const chartObserver = new MutationObserver(() => decorate(chart));
+    chartObserver.observe(chart, { childList: true });
+  });
+}
+
+function enableSiteMotion() {
+  const supportedPage = document.body.dataset.page === "home"
+    || document.body.dataset.page === "dev-log"
+    || document.body.dataset.page === "about"
+    || document.querySelector("[data-all-mods], [data-all-gallery]");
+  if (!supportedPage) return;
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+  if (typeof window.IntersectionObserver !== "function") return;
+  document.documentElement.classList.add("motion-ready");
+}
+
 async function init() {
   const shouldContinue = await checkSiteVersion();
   if (!shouldContinue) return;
@@ -1107,6 +1256,9 @@ async function init() {
   setupNexusDashboard();
   setupCreationsDashboard();
   setupDiscussionEmbed();
+  setupLowRiskMotion();
+  setupChartMotion();
 }
 
+enableSiteMotion();
 init();

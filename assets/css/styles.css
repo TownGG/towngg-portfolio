@@ -203,6 +203,124 @@ img {
   padding: 140px 0 110px;
 }
 
+/* Progressive motion: content stays visible unless JavaScript opts in. */
+html.motion-ready body[data-page="home"] .hero-tag,
+html.motion-ready body[data-page="home"] .hero-content h1,
+html.motion-ready body[data-page="home"] .hero-sub,
+html.motion-ready body[data-page="home"] .hero-actions,
+html.motion-ready body[data-page="home"] .metric {
+  opacity: 0;
+  animation: homeHeroEnter .72s cubic-bezier(.22, 1, .36, 1) forwards;
+}
+
+html.motion-ready body[data-page="home"] .hero-content h1 { animation-delay: .1s; }
+html.motion-ready body[data-page="home"] .hero-sub { animation-delay: .2s; }
+html.motion-ready body[data-page="home"] .hero-actions { animation-delay: .3s; }
+html.motion-ready body[data-page="home"] .metric:nth-child(1) { animation-delay: .42s; }
+html.motion-ready body[data-page="home"] .metric:nth-child(2) { animation-delay: .49s; }
+html.motion-ready body[data-page="home"] .metric:nth-child(3) { animation-delay: .56s; }
+html.motion-ready body[data-page="home"] .metric:nth-child(4) { animation-delay: .63s; }
+
+html.motion-ready .hero.compact .hero-tag,
+html.motion-ready .hero.compact .hero-content h1,
+html.motion-ready .hero.compact .page-sub,
+html.motion-ready .hero.compact .metric {
+  opacity: 0;
+  animation: homeHeroEnter .68s cubic-bezier(.22, 1, .36, 1) forwards;
+}
+
+html.motion-ready .hero.compact .hero-content h1 { animation-delay: .1s; }
+html.motion-ready .hero.compact .page-sub { animation-delay: .2s; }
+html.motion-ready .hero.compact .metric:nth-child(1) { animation-delay: .34s; }
+html.motion-ready .hero.compact .metric:nth-child(2) { animation-delay: .41s; }
+html.motion-ready .hero.compact .metric:nth-child(3) { animation-delay: .48s; }
+
+html.motion-ready .motion-reveal {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition:
+    opacity .65s ease,
+    transform .65s cubic-bezier(.22, 1, .36, 1);
+}
+
+html.motion-ready .motion-reveal.is-revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+html.motion-ready .motion-item {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity .52s ease var(--motion-delay, 0ms),
+    transform .52s cubic-bezier(.22, 1, .36, 1) var(--motion-delay, 0ms);
+}
+
+html.motion-ready .motion-item.is-revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+html.motion-ready .is-filter-entering {
+  animation: filterItemEnter .3s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+html.motion-ready .is-panel-entering {
+  animation: panelEnter .38s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+html.motion-ready .motion-chart .dash-line,
+html.motion-ready .motion-chart .telemetry-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: chartLineDraw .9s cubic-bezier(.22, 1, .36, 1) forwards;
+}
+
+html.motion-ready .motion-chart .dash-dot,
+html.motion-ready .motion-chart .telemetry-dot,
+html.motion-ready .motion-chart .nexus-html-tooltip {
+  opacity: 0;
+  animation: chartPointEnter .38s ease .58s forwards;
+}
+
+html.motion-ready .motion-chart .telemetry-area {
+  opacity: 0;
+  animation: chartAreaEnter .55s ease .35s forwards;
+}
+
+@keyframes homeHeroEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes filterItemEnter {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes panelEnter {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes chartLineDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes chartPointEnter {
+  to { opacity: 1; }
+}
+
+@keyframes chartAreaEnter {
+  to { opacity: .32; }
+}
+
 .hero-tag,
 .eyebrow {
   display: inline-flex;
@@ -1403,15 +1521,22 @@ body[data-page="message-board"] .message-list {
   position: fixed;
   inset: 0;
   z-index: 50;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
   background: rgba(0, 0, 0, .76);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .24s ease, visibility 0s linear .24s;
 }
 
 .modal.is-open {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
 }
 
 .modal-content {
@@ -1422,6 +1547,16 @@ body[data-page="message-board"] .message-list {
   border-radius: 24px;
   background: #0c121c;
   box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translate3d(0, 18px, 0) scale(.975);
+  transition:
+    opacity .28s ease,
+    transform .32s cubic-bezier(.22, 1, .36, 1);
+}
+
+.modal.is-open .modal-content {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
 }
 
 .modal-content img {
@@ -1687,6 +1822,44 @@ footer {
 
 .neighbor-card strong {
   color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  html.motion-ready body[data-page="home"] .hero-tag,
+  html.motion-ready body[data-page="home"] .hero-content h1,
+  html.motion-ready body[data-page="home"] .hero-sub,
+  html.motion-ready body[data-page="home"] .hero-actions,
+  html.motion-ready body[data-page="home"] .metric,
+  html.motion-ready .hero.compact .hero-tag,
+  html.motion-ready .hero.compact .hero-content h1,
+  html.motion-ready .hero.compact .page-sub,
+  html.motion-ready .hero.compact .metric,
+  html.motion-ready .motion-reveal,
+  html.motion-ready .motion-reveal.is-revealed,
+  html.motion-ready .motion-item,
+  html.motion-ready .motion-item.is-revealed,
+  html.motion-ready .is-filter-entering,
+  html.motion-ready .is-panel-entering,
+  html.motion-ready .motion-chart .dash-line,
+  html.motion-ready .motion-chart .telemetry-line,
+  html.motion-ready .motion-chart .dash-dot,
+  html.motion-ready .motion-chart .telemetry-dot,
+  html.motion-ready .motion-chart .nexus-html-tooltip,
+  html.motion-ready .motion-chart .telemetry-area {
+    opacity: 1;
+    transform: none;
+    animation: none;
+    transition: none;
+  }
+
+  .modal,
+  .modal-content {
+    transition: none;
+  }
 }
 
 @media (max-width: 980px) {
