@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-18T09:00:40Z",
+  "updatedAt": "2026-07-18T09:30:39Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,10 +19,10 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1505,
-      "unique_downloads": 775,
-      "daily_downloads": 1,
-      "likes": 32,
+      "total_downloads": 1506,
+      "unique_downloads": 776,
+      "daily_downloads": 2,
+      "likes": 33,
       "views": 0
     },
     {
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 622,
-      "unique_downloads": 469,
-      "daily_downloads": 2,
+      "total_downloads": 624,
+      "unique_downloads": 470,
+      "daily_downloads": 4,
       "likes": 33,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3044,
-      "unique_downloads": 2194,
-      "daily_downloads": 4,
+      "total_downloads": 3047,
+      "unique_downloads": 2196,
+      "daily_downloads": 7,
       "likes": 134,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 674,
+      "total_downloads": 675,
       "unique_downloads": 503,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 22,
       "views": 0
     },
