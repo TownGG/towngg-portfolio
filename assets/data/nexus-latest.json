@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-17T23:30:39Z",
+  "updatedAt": "2026-07-18T00:00:40Z",
   "mods": [
     {
       "platform": "nexus",
@@ -9,7 +9,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
       "total_downloads": 485,
       "unique_downloads": 433,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 30,
       "views": 0
     },
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1504,
+      "total_downloads": 1505,
       "unique_downloads": 775,
-      "daily_downloads": 5,
+      "daily_downloads": 1,
       "likes": 32,
       "views": 0
     },
@@ -33,7 +33,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
       "total_downloads": 486,
       "unique_downloads": 431,
-      "daily_downloads": 6,
+      "daily_downloads": 0,
       "likes": 22,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 381,
+      "total_downloads": 382,
       "unique_downloads": 272,
-      "daily_downloads": 3,
+      "daily_downloads": 1,
       "likes": 10,
       "views": 0
     },
@@ -57,7 +57,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
       "total_downloads": 620,
       "unique_downloads": 469,
-      "daily_downloads": 37,
+      "daily_downloads": 0,
       "likes": 33,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3040,
-      "unique_downloads": 2191,
-      "daily_downloads": 20,
+      "total_downloads": 3041,
+      "unique_downloads": 2192,
+      "daily_downloads": 1,
       "likes": 133,
       "views": 0
     },
@@ -81,7 +81,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
       "total_downloads": 674,
       "unique_downloads": 503,
-      "daily_downloads": 8,
+      "daily_downloads": 0,
       "likes": 22,
       "views": 0
     },
@@ -93,7 +93,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
       "total_downloads": 179,
       "unique_downloads": 166,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 8,
       "views": 0
     },
@@ -105,7 +105,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
       "total_downloads": 221,
       "unique_downloads": 213,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 10,
       "views": 0
     },
@@ -117,7 +117,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842553-1785018540.png",
       "total_downloads": 218,
       "unique_downloads": 193,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 10,
       "views": 0
     },
@@ -129,7 +129,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
       "total_downloads": 137,
       "unique_downloads": 128,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 5,
       "views": 0
     },
@@ -153,7 +153,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
       "total_downloads": 938,
       "unique_downloads": 523,
-      "daily_downloads": 13,
+      "daily_downloads": 0,
       "likes": 23,
       "views": 0
     },
@@ -177,7 +177,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
       "total_downloads": 123,
       "unique_downloads": 113,
-      "daily_downloads": 5,
+      "daily_downloads": 0,
       "likes": 6,
       "views": 0
     }
