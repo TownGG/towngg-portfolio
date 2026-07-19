@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-18T23:30:38Z",
+  "updatedAt": "2026-07-19T00:00:41Z",
   "mods": [
     {
       "platform": "nexus",
@@ -9,7 +9,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
       "total_downloads": 489,
       "unique_downloads": 435,
-      "daily_downloads": 4,
+      "daily_downloads": 0,
       "likes": 30,
       "views": 0
     },
@@ -21,7 +21,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
       "total_downloads": 1509,
       "unique_downloads": 779,
-      "daily_downloads": 5,
+      "daily_downloads": 0,
       "likes": 33,
       "views": 0
     },
@@ -33,7 +33,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
       "total_downloads": 489,
       "unique_downloads": 433,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 22,
       "views": 0
     },
@@ -45,7 +45,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
       "total_downloads": 384,
       "unique_downloads": 274,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 10,
       "views": 0
     },
@@ -57,7 +57,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
       "total_downloads": 634,
       "unique_downloads": 474,
-      "daily_downloads": 14,
+      "daily_downloads": 0,
       "likes": 33,
       "views": 0
     },
@@ -69,7 +69,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
       "total_downloads": 3060,
       "unique_downloads": 2202,
-      "daily_downloads": 20,
+      "daily_downloads": 0,
       "likes": 135,
       "views": 0
     },
@@ -81,7 +81,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
       "total_downloads": 681,
       "unique_downloads": 507,
-      "daily_downloads": 7,
+      "daily_downloads": 0,
       "likes": 22,
       "views": 0
     },
@@ -93,7 +93,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
       "total_downloads": 180,
       "unique_downloads": 166,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 8,
       "views": 0
     },
@@ -105,7 +105,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
       "total_downloads": 223,
       "unique_downloads": 215,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 10,
       "views": 0
     },
@@ -117,7 +117,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842553-1785018540.png",
       "total_downloads": 220,
       "unique_downloads": 195,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 10,
       "views": 0
     },
@@ -129,7 +129,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
       "total_downloads": 139,
       "unique_downloads": 130,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 5,
       "views": 0
     },
@@ -153,7 +153,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
       "total_downloads": 953,
       "unique_downloads": 532,
-      "daily_downloads": 15,
+      "daily_downloads": 0,
       "likes": 23,
       "views": 0
     },
@@ -165,7 +165,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
       "total_downloads": 58,
       "unique_downloads": 46,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 5,
       "views": 0
     },
@@ -177,7 +177,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
       "total_downloads": 125,
       "unique_downloads": 114,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 6,
       "views": 0
     }
