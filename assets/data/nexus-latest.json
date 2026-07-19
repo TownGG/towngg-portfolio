@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-19T05:30:15Z",
+  "updatedAt": "2026-07-19T06:00:18Z",
   "mods": [
     {
       "platform": "nexus",
@@ -179,6 +179,18 @@
       "unique_downloads": 114,
       "daily_downloads": 0,
       "likes": 6,
+      "views": 0
+    },
+    {
+      "platform": "nexus",
+      "mod_id": "17727",
+      "mod_name": "TGG BA2 Platform Watcher",
+      "mod_url": "https://www.nexusmods.com/starfield/mods/17727",
+      "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17727/17727-1784439369-1623894850.png",
+      "total_downloads": 0,
+      "unique_downloads": 0,
+      "daily_downloads": 0,
+      "likes": 0,
       "views": 0
     }
   ]

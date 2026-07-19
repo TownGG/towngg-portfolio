@@ -211,6 +211,20 @@ window.siteData = {
       links: [
         { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17632" }
       ]
+    },
+    {
+      title: "TGG BA2 Platform Watcher",
+      category: "Nexus Mods / Auto Synced",
+      group: "Gameplay",
+      image: "https://staticdelivery.nexusmods.com/mods/4187/images/17727/17727-1784439369-1623894850.png",
+      alt: "TGG BA2 Platform Watcher Nexus Mods cover image",
+      description: "Automatically synced from Nexus Mods.",
+      tags: ["Nexus", "Auto Synced", "Starfield"],
+      downloads: "0",
+      endorsements: "0",
+      links: [
+        { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17727" }
+      ]
     }
   ],
   creations: [
