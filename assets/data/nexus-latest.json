@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-20T02:00:21Z",
+  "updatedAt": "2026-07-20T02:30:14Z",
   "mods": [
     {
       "platform": "nexus",
@@ -7,9 +7,9 @@
       "mod_name": "TGGs Sexy Black Lingerie",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17070",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
-      "total_downloads": 521,
+      "total_downloads": 522,
       "unique_downloads": 443,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 30,
       "views": 0
     },
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1519,
-      "unique_downloads": 789,
-      "daily_downloads": 2,
+      "total_downloads": 1520,
+      "unique_downloads": 790,
+      "daily_downloads": 3,
       "likes": 33,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 985,
+      "total_downloads": 987,
       "unique_downloads": 549,
-      "daily_downloads": 4,
+      "daily_downloads": 6,
       "likes": 23,
       "views": 0
     },
@@ -187,9 +187,9 @@
       "mod_name": "TGG BA2 Platform Watcher",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17727",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17727/17727-1784439369-1623894850.png",
-      "total_downloads": 9,
-      "unique_downloads": 9,
-      "daily_downloads": 0,
+      "total_downloads": 11,
+      "unique_downloads": 10,
+      "daily_downloads": 2,
       "likes": 0,
       "views": 0
     }
