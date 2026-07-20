@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-20T10:00:21Z",
+  "updatedAt": "2026-07-20T10:30:14Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1524,
+      "total_downloads": 1525,
       "unique_downloads": 792,
-      "daily_downloads": 7,
+      "daily_downloads": 8,
       "likes": 33,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 391,
-      "unique_downloads": 280,
-      "daily_downloads": 1,
+      "total_downloads": 392,
+      "unique_downloads": 281,
+      "daily_downloads": 2,
       "likes": 10,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3099,
-      "unique_downloads": 2228,
-      "daily_downloads": 7,
+      "total_downloads": 3102,
+      "unique_downloads": 2229,
+      "daily_downloads": 10,
       "likes": 137,
       "views": 0
     },
@@ -187,9 +187,9 @@
       "mod_name": "TGG BA2 Platform Watcher",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17727",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17727/17727-1784439369-1623894850.png",
-      "total_downloads": 11,
-      "unique_downloads": 10,
-      "daily_downloads": 2,
+      "total_downloads": 12,
+      "unique_downloads": 11,
+      "daily_downloads": 3,
       "likes": 0,
       "views": 0
     },
@@ -199,8 +199,8 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 10,
-      "unique_downloads": 10,
+      "total_downloads": 21,
+      "unique_downloads": 21,
       "daily_downloads": 0,
       "likes": 0,
       "views": 0
