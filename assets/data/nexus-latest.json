@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-20T15:00:43Z",
+  "updatedAt": "2026-07-20T15:22:12Z",
   "mods": [
     {
       "platform": "nexus",
@@ -7,9 +7,9 @@
       "mod_name": "TGGs Sexy Black Lingerie",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17070",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
-      "total_downloads": 527,
+      "total_downloads": 528,
       "unique_downloads": 445,
-      "daily_downloads": 6,
+      "daily_downloads": 7,
       "likes": 30,
       "views": 0
     },
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 666,
-      "unique_downloads": 482,
-      "daily_downloads": 6,
+      "total_downloads": 667,
+      "unique_downloads": 483,
+      "daily_downloads": 7,
       "likes": 34,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3112,
-      "unique_downloads": 2233,
-      "daily_downloads": 20,
+      "total_downloads": 3113,
+      "unique_downloads": 2234,
+      "daily_downloads": 21,
       "likes": 137,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 705,
+      "total_downloads": 706,
       "unique_downloads": 525,
-      "daily_downloads": 8,
+      "daily_downloads": 9,
       "likes": 23,
       "views": 0
     },
@@ -199,10 +199,10 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 81,
-      "unique_downloads": 76,
+      "total_downloads": 84,
+      "unique_downloads": 79,
       "daily_downloads": 0,
-      "likes": 2,
+      "likes": 3,
       "views": 0
     }
   ]
