@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-21T09:00:42Z",
+  "updatedAt": "2026-07-21T09:30:40Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1535,
+      "total_downloads": 1536,
       "unique_downloads": 801,
-      "daily_downloads": 4,
+      "daily_downloads": 5,
       "likes": 33,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 396,
+      "total_downloads": 397,
       "unique_downloads": 284,
-      "daily_downloads": 1,
+      "daily_downloads": 2,
       "likes": 10,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1009,
-      "unique_downloads": 556,
-      "daily_downloads": 10,
+      "total_downloads": 1010,
+      "unique_downloads": 557,
+      "daily_downloads": 11,
       "likes": 24,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 189,
+      "total_downloads": 190,
       "unique_downloads": 178,
-      "daily_downloads": 28,
+      "daily_downloads": 29,
       "likes": 8,
       "views": 0
     }
