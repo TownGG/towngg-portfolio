@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-21T00:00:40Z",
+  "updatedAt": "2026-07-21T00:30:40Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 712,
+      "total_downloads": 713,
       "unique_downloads": 529,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 23,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 162,
-      "unique_downloads": 152,
-      "daily_downloads": 1,
+      "total_downloads": 166,
+      "unique_downloads": 156,
+      "daily_downloads": 5,
       "likes": 6,
       "views": 0
     }
