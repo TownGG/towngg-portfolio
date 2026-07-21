@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-21T23:00:38Z",
+  "updatedAt": "2026-07-21T23:30:37Z",
   "mods": [
     {
       "platform": "nexus",
@@ -10,7 +10,7 @@
       "total_downloads": 551,
       "unique_downloads": 452,
       "daily_downloads": 13,
-      "likes": 31,
+      "likes": 32,
       "views": 0
     },
     {
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3161,
-      "unique_downloads": 2265,
-      "daily_downloads": 27,
+      "total_downloads": 3165,
+      "unique_downloads": 2268,
+      "daily_downloads": 31,
       "likes": 138,
       "views": 0
     },
@@ -187,9 +187,9 @@
       "mod_name": "TGG BA2 Platform Watcher",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17727",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17727/17727-1784439369-1623894850.png",
-      "total_downloads": 14,
-      "unique_downloads": 12,
-      "daily_downloads": 2,
+      "total_downloads": 15,
+      "unique_downloads": 13,
+      "daily_downloads": 3,
       "likes": 0,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 233,
-      "unique_downloads": 216,
-      "daily_downloads": 72,
+      "total_downloads": 234,
+      "unique_downloads": 217,
+      "daily_downloads": 73,
       "likes": 11,
       "views": 0
     }
