@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-21T23:30:37Z",
+  "updatedAt": "2026-07-21T23:43:03Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 752,
+      "total_downloads": 754,
       "unique_downloads": 536,
-      "daily_downloads": 40,
+      "daily_downloads": 42,
       "likes": 23,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1022,
-      "unique_downloads": 563,
-      "daily_downloads": 23,
+      "total_downloads": 1024,
+      "unique_downloads": 564,
+      "daily_downloads": 25,
       "likes": 24,
       "views": 0
     },
