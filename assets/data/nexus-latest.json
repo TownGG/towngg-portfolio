@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-21T12:00:43Z",
+  "updatedAt": "2026-07-21T12:30:43Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1537,
+      "total_downloads": 1538,
       "unique_downloads": 802,
-      "daily_downloads": 6,
+      "daily_downloads": 7,
       "likes": 33,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 718,
+      "total_downloads": 720,
       "unique_downloads": 533,
-      "daily_downloads": 6,
+      "daily_downloads": 8,
       "likes": 23,
       "views": 0
     },
@@ -187,9 +187,9 @@
       "mod_name": "TGG BA2 Platform Watcher",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17727",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17727/17727-1784439369-1623894850.png",
-      "total_downloads": 12,
-      "unique_downloads": 11,
-      "daily_downloads": 0,
+      "total_downloads": 13,
+      "unique_downloads": 12,
+      "daily_downloads": 1,
       "likes": 0,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 193,
-      "unique_downloads": 181,
-      "daily_downloads": 32,
+      "total_downloads": 194,
+      "unique_downloads": 182,
+      "daily_downloads": 33,
       "likes": 10,
       "views": 0
     }
