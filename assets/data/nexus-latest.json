@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-21T03:00:43Z",
+  "updatedAt": "2026-07-21T03:30:40Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 510,
-      "unique_downloads": 452,
-      "daily_downloads": 1,
+      "total_downloads": 512,
+      "unique_downloads": 453,
+      "daily_downloads": 3,
       "likes": 22,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 180,
-      "unique_downloads": 170,
-      "daily_downloads": 19,
+      "total_downloads": 183,
+      "unique_downloads": 173,
+      "daily_downloads": 22,
       "likes": 7,
       "views": 0
     }
