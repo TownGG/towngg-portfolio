@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-22T14:28:09Z",
+  "updatedAt": "2026-07-22T15:00:43Z",
   "mods": [
     {
       "platform": "nexus",
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1034,
-      "unique_downloads": 568,
-      "daily_downloads": 10,
+      "total_downloads": 1036,
+      "unique_downloads": 569,
+      "daily_downloads": 12,
       "likes": 24,
       "views": 0
     },
@@ -163,9 +163,9 @@
       "mod_name": "TGG Texture Forge - Starfield DDS Converter",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17625",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
-      "total_downloads": 65,
+      "total_downloads": 66,
       "unique_downloads": 50,
-      "daily_downloads": 4,
+      "daily_downloads": 5,
       "likes": 5,
       "views": 0
     },
@@ -199,10 +199,10 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 268,
-      "unique_downloads": 246,
-      "daily_downloads": 34,
-      "likes": 11,
+      "total_downloads": 269,
+      "unique_downloads": 247,
+      "daily_downloads": 35,
+      "likes": 12,
       "views": 0
     }
   ]
