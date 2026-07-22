@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-22T09:00:43Z",
+  "updatedAt": "2026-07-22T09:30:39Z",
   "mods": [
     {
       "platform": "nexus",
@@ -163,9 +163,9 @@
       "mod_name": "TGG Texture Forge - Starfield DDS Converter",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17625",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
-      "total_downloads": 62,
+      "total_downloads": 63,
       "unique_downloads": 50,
-      "daily_downloads": 1,
+      "daily_downloads": 2,
       "likes": 5,
       "views": 0
     },
