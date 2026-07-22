@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-22T13:00:45Z",
+  "updatedAt": "2026-07-22T13:30:41Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,10 +31,10 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 516,
-      "unique_downloads": 457,
-      "daily_downloads": 2,
-      "likes": 22,
+      "total_downloads": 517,
+      "unique_downloads": 458,
+      "daily_downloads": 3,
+      "likes": 23,
       "views": 0
     },
     {
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 767,
+      "total_downloads": 768,
       "unique_downloads": 541,
-      "daily_downloads": 13,
+      "daily_downloads": 14,
       "likes": 23,
       "views": 0
     },
@@ -103,9 +103,9 @@
       "mod_name": "CPF-STARBORN POWER FIST UNITY",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
-      "total_downloads": 236,
+      "total_downloads": 237,
       "unique_downloads": 228,
-      "daily_downloads": 3,
+      "daily_downloads": 4,
       "likes": 11,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 263,
-      "unique_downloads": 243,
-      "daily_downloads": 29,
+      "total_downloads": 265,
+      "unique_downloads": 245,
+      "daily_downloads": 31,
       "likes": 11,
       "views": 0
     }
