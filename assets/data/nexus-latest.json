@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-22T10:30:39Z",
+  "updatedAt": "2026-07-22T11:00:43Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 761,
+      "total_downloads": 763,
       "unique_downloads": 540,
-      "daily_downloads": 7,
+      "daily_downloads": 9,
       "likes": 23,
       "views": 0
     },
@@ -163,9 +163,9 @@
       "mod_name": "TGG Texture Forge - Starfield DDS Converter",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17625",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
-      "total_downloads": 63,
+      "total_downloads": 64,
       "unique_downloads": 50,
-      "daily_downloads": 2,
+      "daily_downloads": 3,
       "likes": 5,
       "views": 0
     },
