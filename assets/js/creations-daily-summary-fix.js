@@ -1,7 +1,5 @@
 (() => {
   const storedVersion = localStorage.getItem("townggSiteVersion") || "v2.05.202607031000-preview";
-  let downloadMetric = { label: "Yesterday Downloads", value: null };
-  let isRendering = false;
   const translations = {
     "zh-CN": { "Daily Downloads": "今日下载", "Yesterday Downloads": "昨日下载", Likes: "点赞", "Total Downloads": "总下载", "Library Adds": "加入库" },
     "zh-TW": { "Daily Downloads": "今日下載", "Yesterday Downloads": "昨日下載", Likes: "按讚", "Total Downloads": "總下載", "Library Adds": "加入庫" },
@@ -10,19 +8,35 @@
     ru: { "Daily Downloads": "Загрузки сегодня", "Yesterday Downloads": "Загрузки вчера", Likes: "Лайки", "Total Downloads": "Всего загрузок", "Library Adds": "Добавления в библиотеку" }
   };
 
+  let downloadMetric = { label: "Yesterday Downloads", value: 0 };
+  let isRendering = false;
+
   function lang() {
     const value = localStorage.getItem("townggSiteLang");
     return ["zh-CN", "zh-TW", "ja", "ko", "ru"].includes(value) ? value : "en";
   }
 
   function locale() {
-    return lang() === "zh-CN" ? "zh-CN" : lang() === "zh-TW" ? "zh-TW" : lang() === "ja" ? "ja-JP" : lang() === "ko" ? "ko-KR" : lang() === "ru" ? "ru-RU" : "en-US";
+    return lang() === "zh-CN" ? "zh-CN"
+      : lang() === "zh-TW" ? "zh-TW"
+        : lang() === "ja" ? "ja-JP"
+          : lang() === "ko" ? "ko-KR"
+            : lang() === "ru" ? "ru-RU"
+              : "en-US";
   }
 
   function t(key) { return translations[lang()]?.[key] || key; }
-  function formatNumber(value) { return new Intl.NumberFormat(locale()).format(Number(value || 0)); }
-  function formatMetric(value) { return value === null || value === undefined ? "—" : formatNumber(value); }
   function toNumber(value) { const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, "")); return Number.isFinite(parsed) ? parsed : 0; }
+  function formatNumber(value) { return new Intl.NumberFormat(locale()).format(toNumber(value)); }
+  function normalize(value) { return String(value || "").trim().toLowerCase(); }
+  function normalizeTitle(value) {
+    return normalize(value)
+      .replace(/[’']/g, "")
+      .replace(/[^a-z0-9\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
   function todayKey() {
     const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
       timeZone: "Asia/Shanghai",
@@ -44,15 +58,23 @@
       if (char === '"' && quoted && next === '"') { cell += '"'; index += 1; }
       else if (char === '"') quoted = !quoted;
       else if (char === "," && !quoted) { row.push(cell); cell = ""; }
-      else if ((char === "\n" || char === "\r") && !quoted) { if (char === "\r" && next === "\n") index += 1; row.push(cell); if (row.some((item) => item.trim())) rows.push(row); row = []; cell = ""; }
-      else cell += char;
+      else if ((char === "\n" || char === "\r") && !quoted) {
+        if (char === "\r" && next === "\n") index += 1;
+        row.push(cell);
+        if (row.some((item) => item.trim())) rows.push(row);
+        row = [];
+        cell = "";
+      } else cell += char;
     }
     if (cell || row.length) { row.push(cell); rows.push(row); }
     const headers = rows.shift() || [];
     return rows.map((items) => Object.fromEntries(headers.map((header, index) => [header, items[index] || ""])));
   }
 
-  function snapshotTotal(rows) { return rows.reduce((sum, row) => sum + toNumber(row.daily_downloads), 0); }
+  function snapshotTotal(rows) {
+    return rows.reduce((sum, row) => sum + toNumber(row.daily_downloads), 0);
+  }
+
   function latestSnapshotRows(rows) {
     const groups = new Map();
     rows.forEach((row) => {
@@ -63,7 +85,7 @@
     });
     const snapshots = [...groups.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])));
     const latestNonzero = [...snapshots].reverse().find(([, snapshotRows]) => snapshotTotal(snapshotRows) > 0);
-    return latestNonzero?.[1] || snapshots.at(-1)?.[1] || rows;
+    return { snapshotAt: latestNonzero?.[0] || snapshots.at(-1)?.[0] || "", rows: latestNonzero?.[1] || snapshots.at(-1)?.[1] || rows };
   }
 
   function dailySeries(rows) {
@@ -75,19 +97,57 @@
       groups.set(row.date, current);
     });
     return [...groups.entries()]
-      .map(([date, dateRows]) => ({ date, value: snapshotTotal(latestSnapshotRows(dateRows)) }))
+      .map(([date, dateRows]) => {
+        const snapshot = latestSnapshotRows(dateRows);
+        return { date, snapshotAt: snapshot.snapshotAt, value: snapshotTotal(snapshot.rows), rows: snapshot.rows };
+      })
       .sort((a, b) => String(a.date).localeCompare(String(b.date)));
   }
 
-  function resolveDownloadMetric(rows) {
-    const today = todayKey();
-    const previous = dailySeries(rows)
-      .filter((item) => item.date < today && item.value > 0)
-      .reverse()[0];
-    return { label: "Yesterday Downloads", value: previous?.value ?? null };
+  function rowStableKey(row) {
+    return normalize(row.creation_key || row.creationKey || row.content_id || row.contentId || row.creation_id || row.creationId || "");
   }
 
-  function totals() {
+  function buildRowMaps(rows) {
+    const byKey = Object.create(null);
+    const byTitle = Object.create(null);
+    rows.forEach((row) => {
+      const key = rowStableKey(row);
+      const title = normalizeTitle(row.title);
+      if (key) byKey[key] = row;
+      if (title) byTitle[title] = row;
+    });
+    return { byKey, byTitle };
+  }
+
+  function createDailyState(rows) {
+    const allSeries = dailySeries(rows);
+    const today = todayKey();
+    const previous = [...allSeries].filter((item) => item.date < today && item.value > 0).reverse()[0];
+    const fallback = [...allSeries].filter((item) => item.value > 0).reverse()[0] || allSeries.at(-1) || null;
+    const selected = previous || fallback || { date: "", snapshotAt: "", value: 0, rows: [] };
+    const maps = buildRowMaps(selected.rows || []);
+    return {
+      ready: true,
+      label: "Yesterday Downloads",
+      latestDate: selected.date || "",
+      snapshotAt: selected.snapshotAt || "",
+      totalDaily: toNumber(selected.value),
+      rows: selected.rows || [],
+      byKey: maps.byKey,
+      byTitle: maps.byTitle,
+      allSeries,
+      previousSevenSeries: allSeries.filter((item) => item.date < today).slice(-7)
+    };
+  }
+
+  function publishDailyState(state) {
+    window.townggCreationsDailyState = state;
+    downloadMetric = { label: state.label || "Yesterday Downloads", value: state.totalDaily || 0 };
+    window.dispatchEvent(new CustomEvent("towngg:creations-daily-ready", { detail: state }));
+  }
+
+  function currentTotals() {
     return (window.siteData?.creations || []).reduce((sum, item) => {
       sum.likes += toNumber(item.likes);
       sum.downloads += toNumber(item.downloads);
@@ -100,20 +160,24 @@
     const target = document.querySelector("[data-creations-summary]");
     if (!target || isRendering) return;
     isRendering = true;
-    const totalsData = totals();
+    const totals = currentTotals();
     target.innerHTML = [
-      [downloadMetric.label, downloadMetric.value], ["Likes", totalsData.likes], ["Total Downloads", totalsData.downloads], ["Library Adds", totalsData.libraryAdds]
-    ].map(([label, value]) => `<article class="dashboard-stat"><span>${t(label)}</span><strong>${formatMetric(value)}</strong></article>`).join("");
+      [downloadMetric.label, downloadMetric.value || 0],
+      ["Likes", totals.likes],
+      ["Total Downloads", totals.downloads],
+      ["Library Adds", totals.libraryAdds]
+    ].map(([label, value]) => `<article class="dashboard-stat"><span>${t(label)}</span><strong>${formatNumber(value)}</strong></article>`).join("");
     isRendering = false;
   }
 
   async function loadDaily() {
     try {
       const response = await fetch(`./assets/data/creations-mod-daily.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" });
-      downloadMetric = response.ok ? resolveDownloadMetric(parseCSV(await response.text())) : { label: "Yesterday Downloads", value: null };
+      const rows = response.ok ? parseCSV(await response.text()) : [];
+      publishDailyState(createDailyState(rows));
     } catch (error) {
       console.warn("Creations daily summary fallback used", error);
-      downloadMetric = { label: "Yesterday Downloads", value: null };
+      publishDailyState(createDailyState([]));
     }
     renderSummary();
   }
@@ -122,6 +186,7 @@
     const target = document.querySelector("[data-creations-summary]");
     if (!target) return;
     const observer = new MutationObserver(() => {
+      if (isRendering) return;
       const labels = [...target.querySelectorAll(".dashboard-stat span")].map((item) => item.textContent?.trim());
       const expectedFirst = t(downloadMetric.label);
       if (labels[0] !== expectedFirst || labels.includes("Plays") || labels.length !== 4) window.setTimeout(renderSummary, 0);
@@ -132,9 +197,11 @@
   function init() {
     keepAlive();
     loadDaily();
-    window.setTimeout(renderSummary, 250);
-    window.setTimeout(renderSummary, 900);
-    document.addEventListener("click", (event) => { if (event.target.closest(".language-option[data-lang]")) window.setTimeout(renderSummary, 90); });
+    document.addEventListener("click", (event) => {
+      if (event.target.closest(".language-option[data-lang]")) window.setTimeout(renderSummary, 90);
+    });
   }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
 })();
