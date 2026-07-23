@@ -94,6 +94,12 @@
     });
   }
 
+  function centralizedDailyTotal(config, column) {
+    if (config.tableName !== 'creations' || column.key !== 'daily') return null;
+    const total = window.townggCreationsDailyState?.totalDaily;
+    return Number.isFinite(Number(total)) ? Number(total) : null;
+  }
+
   function ensureTotalRow(config) {
     const { body, table } = tableElements(config);
     if (!body || !table || !body.children.length) return;
@@ -104,6 +110,8 @@
 
     const totals = config.columns.map((column, index) => {
       if (index === 0 || column.type !== 'number') return null;
+      const centralized = centralizedDailyTotal(config, column);
+      if (centralized !== null) return centralized;
       return rows.reduce((sum, row) => sum + cellValue(row, index, 'number'), 0);
     });
 
@@ -269,6 +277,10 @@
   } else {
     install();
   }
+
+  window.addEventListener('towngg:creations-daily-ready', () => {
+    TABLES.forEach((config) => scheduleEnhance(config, 20));
+  });
 
   document.addEventListener('click', (event) => {
     if (!event.target.closest('.language-option[data-lang]')) return;
