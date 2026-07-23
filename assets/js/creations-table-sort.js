@@ -5,6 +5,7 @@
       tableName: 'creations',
       buttonAttr: 'data-creations-table-sort',
       ready: (table) => table.dataset.creationsDailyReady === 'true',
+      defaultSort: { key: 'daily', direction: 'desc' },
       columns: [
         { key: 'creation', type: 'text' },
         { key: 'daily', type: 'number' },
@@ -20,6 +21,7 @@
       tableName: 'nexus',
       buttonAttr: 'data-nexus-table-sort',
       ready: () => true,
+      defaultSort: { key: 'daily', direction: 'desc' },
       columns: [
         { key: 'mod', type: 'text' },
         { key: 'daily', type: 'number' },
@@ -178,6 +180,20 @@
     });
   }
 
+  function applyDefaultSort(config, table, state) {
+    if (!config.defaultSort || state.defaultSortApplied || state.activeKey) return;
+
+    const index = config.columns.findIndex((column) => column.key === config.defaultSort.key);
+    const column = config.columns[index];
+    if (index < 0 || !column?.type) return;
+
+    state.activeKey = column.key;
+    state.activeDirection = config.defaultSort.direction || (column.type === 'text' ? 'asc' : 'desc');
+    state.defaultSortApplied = true;
+    stateByTable.set(table, state);
+    sortTableBy(config, index, column.type, state.activeDirection);
+  }
+
   function plainHeaderText(header) {
     const existingButton = header.querySelector('button');
     if (existingButton) return existingButton.textContent.trim();
@@ -189,7 +205,13 @@
     if (!body || !table || !headerRow || !body.children.length) return;
     if (!config.ready(table)) return;
 
-    const state = stateByTable.get(table) || { activeKey: '', activeDirection: 'desc', isSorting: false, isUpdatingTotal: false };
+    const state = stateByTable.get(table) || {
+      activeKey: '',
+      activeDirection: 'desc',
+      defaultSortApplied: false,
+      isSorting: false,
+      isUpdatingTotal: false
+    };
     stateByTable.set(table, state);
     table.dataset.sortableTable = config.tableName;
 
@@ -213,12 +235,14 @@
 
         state.activeKey = column.key;
         state.activeDirection = nextDirection;
+        state.defaultSortApplied = true;
         stateByTable.set(table, state);
         sortTableBy(config, index, column.type, nextDirection);
       });
     });
 
     ensureTotalRow(config);
+    applyDefaultSort(config, table, state);
   }
 
   function scheduleEnhance(config, delay = 0) {
