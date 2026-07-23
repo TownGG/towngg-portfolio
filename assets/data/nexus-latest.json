@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-23T21:00:42Z",
+  "updatedAt": "2026-07-23T21:30:00Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 715,
-      "unique_downloads": 511,
-      "daily_downloads": 7,
+      "total_downloads": 716,
+      "unique_downloads": 512,
+      "daily_downloads": 8,
       "likes": 36,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3277,
+      "total_downloads": 3279,
       "unique_downloads": 2291,
-      "daily_downloads": 95,
+      "daily_downloads": 97,
       "likes": 141,
       "views": 0
     },
