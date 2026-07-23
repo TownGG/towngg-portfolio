@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-23T03:30:41Z",
+  "updatedAt": "2026-07-23T04:00:39Z",
   "mods": [
     {
       "platform": "nexus",
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3185,
+      "total_downloads": 3186,
       "unique_downloads": 2283,
-      "daily_downloads": 3,
+      "daily_downloads": 4,
       "likes": 139,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 782,
+      "total_downloads": 783,
       "unique_downloads": 542,
-      "daily_downloads": 5,
+      "daily_downloads": 6,
       "likes": 23,
       "views": 0
     },
@@ -103,9 +103,9 @@
       "mod_name": "CPF-STARBORN POWER FIST UNITY",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
-      "total_downloads": 240,
-      "unique_downloads": 231,
-      "daily_downloads": 0,
+      "total_downloads": 241,
+      "unique_downloads": 232,
+      "daily_downloads": 1,
       "likes": 11,
       "views": 0
     },
