@@ -239,6 +239,20 @@ window.siteData = {
       links: [
         { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17735" }
       ]
+    },
+    {
+      title: "CPF-MANTIS BLADE",
+      category: "Nexus Mods / Auto Synced",
+      group: "Gameplay",
+      image: "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
+      alt: "CPF-MANTIS BLADE Nexus Mods cover image",
+      description: "Automatically synced from Nexus Mods.",
+      tags: ["Nexus", "Auto Synced", "Starfield"],
+      downloads: "1",
+      endorsements: "0",
+      links: [
+        { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17753" }
+      ]
     }
   ],
   creations: [

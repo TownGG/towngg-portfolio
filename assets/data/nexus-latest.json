@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-23T12:30:39Z",
+  "updatedAt": "2026-07-23T13:00:43Z",
   "mods": [
     {
       "platform": "nexus",
@@ -203,6 +203,18 @@
       "unique_downloads": 270,
       "daily_downloads": 11,
       "likes": 14,
+      "views": 0
+    },
+    {
+      "platform": "nexus",
+      "mod_id": "17753",
+      "mod_name": "CPF-MANTIS BLADE",
+      "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
+      "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
+      "total_downloads": 1,
+      "unique_downloads": 1,
+      "daily_downloads": 0,
+      "likes": 0,
       "views": 0
     }
   ]
