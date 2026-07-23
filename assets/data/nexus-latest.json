@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-23T15:30:40Z",
+  "updatedAt": "2026-07-23T16:00:39Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 711,
-      "unique_downloads": 509,
-      "daily_downloads": 3,
+      "total_downloads": 712,
+      "unique_downloads": 510,
+      "daily_downloads": 4,
       "likes": 36,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 799,
-      "unique_downloads": 550,
-      "daily_downloads": 22,
+      "total_downloads": 800,
+      "unique_downloads": 551,
+      "daily_downloads": 23,
       "likes": 23,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 301,
-      "unique_downloads": 274,
-      "daily_downloads": 16,
+      "total_downloads": 302,
+      "unique_downloads": 275,
+      "daily_downloads": 17,
       "likes": 14,
       "views": 0
     },
@@ -211,10 +211,10 @@
       "mod_name": "CPF-MANTIS BLADE",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
-      "total_downloads": 11,
-      "unique_downloads": 11,
+      "total_downloads": 14,
+      "unique_downloads": 13,
       "daily_downloads": 0,
-      "likes": 0,
+      "likes": 1,
       "views": 0
     }
   ]
