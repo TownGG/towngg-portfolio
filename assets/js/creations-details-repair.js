@@ -1,7 +1,6 @@
 (() => {
   const TABLE_SELECTOR = '[data-creations-table]';
-  const VERSION = localStorage.getItem('townggSiteVersion') || 'v2.05.202607031055-preview';
-  const state = { sorting: false, activeKey: '', activeDirection: 'desc', bound: false };
+  const state = { sorting: false, activeKey: '', activeDirection: 'desc', bound: false, pendingTimer: 0 };
 
   const labels = {
     en: ['Creation', 'Daily', 'Likes', 'Views', 'Downloads', 'Plays', 'Library Adds'],
@@ -71,8 +70,16 @@
     return item?.links?.[0]?.url || item?.url || '#';
   }
 
+  function uuidFromUrl(url) {
+    return String(url || '').match(/details\/([0-9a-f-]{36})(?:\/|$)/i)?.[1]?.toLowerCase() || '';
+  }
+
   function metricValue(item, key) {
     return item?.[key];
+  }
+
+  function creationKeyFromItem(item) {
+    return normalize(item?.creationKey || item?.creation_key || item?.creationId || item?.contentId || item?.content_id || uuidFromUrl(primaryUrl(item)) || '');
   }
 
   function isDisplayCreationTitle(value) {
@@ -95,72 +102,19 @@
     );
   }
 
-  function parseCSV(text) {
-    const rows = [];
-    let cell = '';
-    let row = [];
-    let quoted = false;
-    for (let index = 0; index < text.length; index += 1) {
-      const char = text[index];
-      const next = text[index + 1];
-      if (char === '"' && quoted && next === '"') {
-        cell += '"';
-        index += 1;
-      } else if (char === '"') {
-        quoted = !quoted;
-      } else if (char === ',' && !quoted) {
-        row.push(cell);
-        cell = '';
-      } else if ((char === '\n' || char === '\r') && !quoted) {
-        if (char === '\r' && next === '\n') index += 1;
-        row.push(cell);
-        if (row.some((item) => item.trim())) rows.push(row);
-        row = [];
-        cell = '';
-      } else {
-        cell += char;
-      }
-    }
-    if (cell || row.length) {
-      row.push(cell);
-      rows.push(row);
-    }
-    const headers = rows.shift() || [];
-    return rows.map((items) => Object.fromEntries(headers.map((header, index) => [header, items[index] || ''])));
+  function dailyState() {
+    return window.townggCreationsDailyState?.ready ? window.townggCreationsDailyState : null;
   }
 
-  async function loadDailyRows() {
-    const response = await fetch(`./assets/data/creations-mod-daily.csv?v=${encodeURIComponent(VERSION)}&t=${Date.now()}`, { cache: 'no-store' });
-    if (!response.ok) return [];
-    return parseCSV(await response.text());
-  }
-
-  function snapshotTotal(rows) {
-    return rows.reduce((sum, row) => sum + toNumber(row.daily_downloads), 0);
-  }
-
-  function latestSnapshotRows(rows) {
-    const groups = new Map();
-    rows.forEach((row) => {
-      const key = row.last_updated || '';
-      const group = groups.get(key) || [];
-      group.push(row);
-      groups.set(key, group);
-    });
-    const snapshots = [...groups.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])));
-    const latestNonzero = [...snapshots].reverse().find(([, group]) => snapshotTotal(group) > 0);
-    return latestNonzero?.[1] || snapshots.at(-1)?.[1] || rows;
-  }
-
-  function dailyMap(rows) {
-    const map = new Map();
-    const latestDate = rows.map((row) => row.date).filter(Boolean).sort().at(-1);
-    if (!latestDate) return map;
-    latestSnapshotRows(rows.filter((row) => row.date === latestDate)).forEach((row) => {
-      const key = normalizeTitle(row.title);
-      if (key) map.set(key, row);
-    });
-    return map;
+  function dailyForItem(item) {
+    const daily = dailyState();
+    if (!daily) return 0;
+    const byKey = daily.byKey || {};
+    const byTitle = daily.byTitle || {};
+    const key = creationKeyFromItem(item);
+    const title = normalizeTitle(item.title);
+    const row = (key && byKey[key]) || (title && byTitle[title]) || null;
+    return row ? toNumber(row.daily_downloads) : 0;
   }
 
   function hasCompleteTable(table, body, itemsLength) {
@@ -176,13 +130,13 @@
     )).join('');
   }
 
-  function renderRow(item, daily) {
+  function renderRow(item) {
     const title = item.title || '';
     const href = primaryUrl(item);
     return `
       <tr>
         <td><a href="${escapeHtml(href)}" target="_blank" rel="noopener">${escapeHtml(title)}</a></td>
-        <td>${formatNumber(daily)}</td>
+        <td>${formatNumber(dailyForItem(item))}</td>
         <td>${formatNumber(metricValue(item, 'likes'))}</td>
         <td>${formatNumber(metricValue(item, 'views'))}</td>
         <td>${formatNumber(metricValue(item, 'downloads'))}</td>
@@ -192,27 +146,34 @@
     `;
   }
 
-  async function renderDetails(force = false) {
+  function markTotalsDirty(table) {
+    const totalBody = table.querySelector('tbody[data-table-total-for="creations"]');
+    if (totalBody) totalBody.remove();
+    table.dataset.creationsDailyReady = 'true';
+    table.dispatchEvent(new CustomEvent('towngg:creations-details-rendered', { bubbles: true }));
+  }
+
+  function renderDetails(force = false) {
     if (state.sorting) return;
     const body = document.querySelector(TABLE_SELECTOR);
     const table = body?.closest('table');
     const headerRow = table?.querySelector('thead tr');
     if (!body || !table || !headerRow) return;
+    if (!dailyState()) return;
 
     const items = confirmedCreations();
-    if (!force && table.dataset.creationsDetailsRepairReady === 'true' && hasCompleteTable(table, body, items.length)) return;
+    const signature = `${lang()}|${window.townggCreationsDailyState?.latestDate || ''}|${window.townggCreationsDailyState?.snapshotAt || ''}|${items.length}`;
+    if (!force && table.dataset.creationsDetailsRepairSignature === signature && hasCompleteTable(table, body, items.length)) return;
 
-    const daily = dailyMap(await loadDailyRows());
     renderHeaders(headerRow);
-    body.innerHTML = items.map((item) => {
-      const row = daily.get(normalizeTitle(item.title));
-      return renderRow(item, row ? toNumber(row.daily_downloads) : 0);
-    }).join('');
+    body.innerHTML = items.map(renderRow).join('');
 
+    table.dataset.creationsDetailsRepairSignature = signature;
     table.dataset.creationsDailyReady = 'true';
     table.dataset.creationsDetailsReady = 'true';
     table.dataset.creationsDetailsRepairReady = 'true';
     table.dataset.sortableTable = 'creations';
+    markTotalsDirty(table);
   }
 
   function cellValue(row, index, type) {
@@ -241,7 +202,7 @@
       ? (defaultDirection === 'asc' ? 'desc' : 'asc')
       : defaultDirection;
     const multiplier = direction === 'asc' ? 1 : -1;
-    const sorted = [...body.querySelectorAll('tr')]
+    const sorted = [...body.querySelectorAll(':scope > tr')]
       .map((row, originalIndex) => ({ row, originalIndex }))
       .sort((a, b) => {
         const av = cellValue(a.row, index, column.type);
@@ -258,6 +219,7 @@
     state.activeKey = column.key;
     state.activeDirection = direction;
     setHeaderState(headerRow, index, direction);
+    markTotalsDirty(table);
     requestAnimationFrame(() => { state.sorting = false; });
   }
 
@@ -274,14 +236,20 @@
     });
   }
 
+  function scheduleRender(force = false, delay = 80) {
+    window.clearTimeout(state.pendingTimer);
+    state.pendingTimer = window.setTimeout(() => renderDetails(force), delay);
+  }
+
   function boot() {
     bindSort();
-    renderDetails(true);
-    [150, 500, 1200, 2400].forEach((delay) => window.setTimeout(() => renderDetails(), delay));
+    scheduleRender(true, 40);
+    [250, 700, 1400, 2600].forEach((delay) => window.setTimeout(() => renderDetails(), delay));
+    window.addEventListener('towngg:creations-daily-ready', () => scheduleRender(true, 20));
     const body = document.querySelector(TABLE_SELECTOR);
     if (body && !body.dataset.creationsDetailsRepairObserver) {
       const observer = new MutationObserver(() => {
-        if (!state.sorting) window.setTimeout(() => renderDetails(), 80);
+        if (!state.sorting) scheduleRender(false, 80);
       });
       observer.observe(body, { childList: true });
       body.dataset.creationsDetailsRepairObserver = 'true';
@@ -292,8 +260,6 @@
   else boot();
 
   document.addEventListener('click', (event) => {
-    if (event.target.closest('.language-option[data-lang]')) {
-      window.setTimeout(() => renderDetails(true), 120);
-    }
+    if (event.target.closest('.language-option[data-lang]')) scheduleRender(true, 120);
   });
 })();
