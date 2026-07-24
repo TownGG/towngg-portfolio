@@ -8,7 +8,7 @@
     ru: { "Daily Downloads": "Загрузки сегодня", "Yesterday Downloads": "Загрузки вчера", Likes: "Лайки", "Total Downloads": "Всего загрузок", "Library Adds": "Добавления в библиотеку" }
   };
 
-  let downloadMetric = { label: "Yesterday Downloads", value: 0 };
+  let downloadMetric = { label: "Daily Downloads", value: 0 };
   let isRendering = false;
 
   function lang() {
@@ -35,16 +35,6 @@
       .replace(/[^a-z0-9\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]+/g, " ")
       .replace(/\s+/g, " ")
       .trim();
-  }
-
-  function todayKey() {
-    const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Asia/Shanghai",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
-    }).formatToParts(new Date()).map((part) => [part.type, part.value]));
-    return `${parts.year}-${parts.month}-${parts.day}`;
   }
 
   function parseCSV(text) {
@@ -122,14 +112,11 @@
 
   function createDailyState(rows) {
     const allSeries = dailySeries(rows);
-    const today = todayKey();
-    const previous = [...allSeries].filter((item) => item.date < today && item.value > 0).reverse()[0];
-    const fallback = [...allSeries].filter((item) => item.value > 0).reverse()[0] || allSeries.at(-1) || null;
-    const selected = previous || fallback || { date: "", snapshotAt: "", value: 0, rows: [] };
+    const selected = allSeries.at(-1) || { date: "", snapshotAt: "", value: 0, rows: [] };
     const maps = buildRowMaps(selected.rows || []);
     return {
       ready: true,
-      label: "Yesterday Downloads",
+      label: "Daily Downloads",
       latestDate: selected.date || "",
       snapshotAt: selected.snapshotAt || "",
       totalDaily: toNumber(selected.value),
@@ -137,13 +124,13 @@
       byKey: maps.byKey,
       byTitle: maps.byTitle,
       allSeries,
-      previousSevenSeries: allSeries.filter((item) => item.date < today).slice(-7)
+      previousSevenSeries: allSeries.slice(-7)
     };
   }
 
   function publishDailyState(state) {
     window.townggCreationsDailyState = state;
-    downloadMetric = { label: state.label || "Yesterday Downloads", value: state.totalDaily || 0 };
+    downloadMetric = { label: state.label || "Daily Downloads", value: state.totalDaily || 0 };
     window.dispatchEvent(new CustomEvent("towngg:creations-daily-ready", { detail: state }));
   }
 
