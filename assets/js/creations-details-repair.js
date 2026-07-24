@@ -1,6 +1,14 @@
 (() => {
   const TABLE_SELECTOR = '[data-creations-table]';
-  const state = { sorting: false, activeKey: '', activeDirection: 'desc', bound: false, pendingTimer: 0 };
+  const DEFAULT_SORT_KEY = 'downloads';
+  const DEFAULT_SORT_DIRECTION = 'desc';
+  const state = {
+    sorting: false,
+    activeKey: DEFAULT_SORT_KEY,
+    activeDirection: DEFAULT_SORT_DIRECTION,
+    bound: false,
+    pendingTimer: 0
+  };
 
   const labels = {
     en: ['Creation', 'Daily', 'Likes', 'Views', 'Downloads', 'Plays', 'Library Adds'],
@@ -146,34 +154,37 @@
     `;
   }
 
+  function itemSignature(item) {
+    return [
+      creationKeyFromItem(item) || normalizeTitle(item.title),
+      normalizeTitle(item.title),
+      toNumber(metricValue(item, 'likes')),
+      toNumber(metricValue(item, 'views')),
+      toNumber(metricValue(item, 'downloads')),
+      toNumber(metricValue(item, 'plays')),
+      toNumber(metricValue(item, 'libraryAdds')),
+      String(item.updatedAt || ''),
+      dailyForItem(item)
+    ].join(':');
+  }
+
+  function detailsSignature(items) {
+    const daily = dailyState();
+    return [
+      lang(),
+      daily?.latestDate || '',
+      daily?.snapshotAt || '',
+      daily?.totalDaily ?? '',
+      items.length,
+      items.map(itemSignature).join('|')
+    ].join('||');
+  }
+
   function markTotalsDirty(table) {
     const totalBody = table.querySelector('tbody[data-table-total-for="creations"]');
     if (totalBody) totalBody.remove();
     table.dataset.creationsDailyReady = 'true';
     table.dispatchEvent(new CustomEvent('towngg:creations-details-rendered', { bubbles: true }));
-  }
-
-  function renderDetails(force = false) {
-    if (state.sorting) return;
-    const body = document.querySelector(TABLE_SELECTOR);
-    const table = body?.closest('table');
-    const headerRow = table?.querySelector('thead tr');
-    if (!body || !table || !headerRow) return;
-    if (!dailyState()) return;
-
-    const items = confirmedCreations();
-    const signature = `${lang()}|${window.townggCreationsDailyState?.latestDate || ''}|${window.townggCreationsDailyState?.snapshotAt || ''}|${items.length}`;
-    if (!force && table.dataset.creationsDetailsRepairSignature === signature && hasCompleteTable(table, body, items.length)) return;
-
-    renderHeaders(headerRow);
-    body.innerHTML = items.map(renderRow).join('');
-
-    table.dataset.creationsDetailsRepairSignature = signature;
-    table.dataset.creationsDailyReady = 'true';
-    table.dataset.creationsDetailsReady = 'true';
-    table.dataset.creationsDetailsRepairReady = 'true';
-    table.dataset.sortableTable = 'creations';
-    markTotalsDirty(table);
   }
 
   function cellValue(row, index, type) {
@@ -191,16 +202,12 @@
     });
   }
 
-  function sortBy(index, column) {
+  function sortRows(index, column, direction) {
     const body = document.querySelector(TABLE_SELECTOR);
     const table = body?.closest('table');
     const headerRow = table?.querySelector('thead tr');
-    if (!body || !table || !headerRow) return;
+    if (!body || !table || !headerRow || !column) return;
 
-    const defaultDirection = column.type === 'text' ? 'asc' : 'desc';
-    const direction = state.activeKey === column.key && state.activeDirection === defaultDirection
-      ? (defaultDirection === 'asc' ? 'desc' : 'asc')
-      : defaultDirection;
     const multiplier = direction === 'asc' ? 1 : -1;
     const sorted = [...body.querySelectorAll(':scope > tr')]
       .map((row, originalIndex) => ({ row, originalIndex }))
@@ -216,11 +223,55 @@
     const fragment = document.createDocumentFragment();
     sorted.forEach(({ row }) => fragment.appendChild(row));
     body.appendChild(fragment);
-    state.activeKey = column.key;
-    state.activeDirection = direction;
     setHeaderState(headerRow, index, direction);
     markTotalsDirty(table);
     requestAnimationFrame(() => { state.sorting = false; });
+  }
+
+  function applyActiveSort() {
+    const key = state.activeKey || DEFAULT_SORT_KEY;
+    const index = columns.findIndex((column) => column.key === key);
+    const column = columns[index];
+    if (index < 0 || !column) return;
+    sortRows(index, column, state.activeDirection || DEFAULT_SORT_DIRECTION);
+  }
+
+  function renderDetails(force = false) {
+    if (state.sorting) return;
+    const body = document.querySelector(TABLE_SELECTOR);
+    const table = body?.closest('table');
+    const headerRow = table?.querySelector('thead tr');
+    if (!body || !table || !headerRow) return;
+
+    const items = confirmedCreations();
+    const signature = detailsSignature(items);
+    if (!force && table.dataset.creationsDetailsRepairSignature === signature && hasCompleteTable(table, body, items.length)) return;
+
+    renderHeaders(headerRow);
+    body.innerHTML = items.map(renderRow).join('');
+
+    table.dataset.creationsDetailsRepairSignature = signature;
+    table.dataset.creationsDailyReady = 'true';
+    table.dataset.creationsDetailsReady = 'true';
+    table.dataset.creationsDetailsRepairReady = 'true';
+    table.dataset.sortableTable = 'creations';
+    applyActiveSort();
+  }
+
+  function sortBy(index, column) {
+    const body = document.querySelector(TABLE_SELECTOR);
+    const table = body?.closest('table');
+    const headerRow = table?.querySelector('thead tr');
+    if (!body || !table || !headerRow) return;
+
+    const defaultDirection = column.type === 'text' ? 'asc' : 'desc';
+    const direction = state.activeKey === column.key && state.activeDirection === defaultDirection
+      ? (defaultDirection === 'asc' ? 'desc' : 'asc')
+      : defaultDirection;
+
+    state.activeKey = column.key;
+    state.activeDirection = direction;
+    sortRows(index, column, direction);
   }
 
   function bindSort() {
@@ -244,8 +295,9 @@
   function boot() {
     bindSort();
     scheduleRender(true, 40);
-    [250, 700, 1400, 2600].forEach((delay) => window.setTimeout(() => renderDetails(), delay));
+    [250, 700, 1400, 2600].forEach((delay) => window.setTimeout(() => renderDetails(true), delay));
     window.addEventListener('towngg:creations-daily-ready', () => scheduleRender(true, 20));
+    window.addEventListener('focus', () => scheduleRender(true, 80));
     const body = document.querySelector(TABLE_SELECTOR);
     if (body && !body.dataset.creationsDetailsRepairObserver) {
       const observer = new MutationObserver(() => {
