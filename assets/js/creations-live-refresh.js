@@ -3,16 +3,26 @@
   const SITE_DATA_URL = `${RAW_BASE}/assets/js/site-data.js`;
   const DAILY_CSV_URL = `${RAW_BASE}/assets/data/creations-mod-daily.csv`;
   const REFRESH_MS = 2 * 60 * 1000;
-  const state = { data: null, dailyRows: [], activeSortKey: '', activeSortDirection: 'desc' };
+  const state = { data: null, dailyRows: [], activeSortKey: 'daily', activeSortDirection: 'desc' };
 
   const translations = {
-    en: { Updated: 'Updated {time}', 'Daily Downloads': 'Daily Downloads', 'Yesterday Downloads': 'Yesterday Downloads', Likes: 'Likes', 'Total Downloads': 'Total Downloads', 'Library Adds': 'Library Adds' },
-    'zh-CN': { Updated: '更新于 {time}', 'Daily Downloads': '今日下载', 'Yesterday Downloads': '昨日下载', Likes: '点赞', 'Total Downloads': '总下载', 'Library Adds': '加入库' },
-    'zh-TW': { Updated: '更新於 {time}', 'Daily Downloads': '今日下載', 'Yesterday Downloads': '昨日下載', Likes: '按讚', 'Total Downloads': '總下載', 'Library Adds': '加入庫' },
-    ja: { Updated: '更新 {time}', 'Daily Downloads': '今日のダウンロード', 'Yesterday Downloads': '昨日のダウンロード', Likes: 'いいね', 'Total Downloads': '総ダウンロード', 'Library Adds': 'ライブラリ追加' },
-    ko: { Updated: '업데이트 {time}', 'Daily Downloads': '오늘 다운로드', 'Yesterday Downloads': '어제 다운로드', Likes: '좋아요', 'Total Downloads': '총 다운로드', 'Library Adds': '라이브러리 추가' },
-    ru: { Updated: 'Обновлено {time}', 'Daily Downloads': 'Загрузки сегодня', 'Yesterday Downloads': 'Загрузки вчера', Likes: 'Лайки', 'Total Downloads': 'Всего загрузок', 'Library Adds': 'Добавления в библиотеку' }
+    en: { Updated: 'Updated {time}', 'Daily Downloads': 'Daily Downloads', Likes: 'Likes', 'Total Downloads': 'Total Downloads', 'Library Adds': 'Library Adds' },
+    'zh-CN': { Updated: '更新于 {time}', 'Daily Downloads': '今日下载', Likes: '点赞', 'Total Downloads': '总下载', 'Library Adds': '加入库' },
+    'zh-TW': { Updated: '更新於 {time}', 'Daily Downloads': '今日下載', Likes: '按讚', 'Total Downloads': '總下載', 'Library Adds': '加入庫' },
+    ja: { Updated: '更新 {time}', 'Daily Downloads': '今日のダウンロード', Likes: 'いいね', 'Total Downloads': '総ダウンロード', 'Library Adds': 'ライブラリ追加' },
+    ko: { Updated: '업데이트 {time}', 'Daily Downloads': '오늘 다운로드', Likes: '좋아요', 'Total Downloads': '총 다운로드', 'Library Adds': '라이브러리 추가' },
+    ru: { Updated: 'Обновлено {time}', 'Daily Downloads': 'Загрузки сегодня', Likes: 'Лайки', 'Total Downloads': 'Всего загрузок', 'Library Adds': 'Добавления в библиотеку' }
   };
+
+  const tableColumns = [
+    ['Creation', 'creation'],
+    ['Daily', 'daily'],
+    ['Likes', 'likes'],
+    ['Views', 'views'],
+    ['Downloads', 'downloads'],
+    ['Plays', 'plays'],
+    ['Library Adds', 'library-adds']
+  ];
 
   function lang() {
     const html = document.documentElement.lang;
@@ -138,7 +148,7 @@
     });
     const snapshots = [...groups.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])));
     const latestNonzero = [...snapshots].reverse().find(([, group]) => snapshotTotal(group) > 0);
-    return latestNonzero?.[1] || snapshots.at(-1)?.[1] || rows;
+    return { snapshotAt: latestNonzero?.[0] || snapshots.at(-1)?.[0] || '', rows: latestNonzero?.[1] || snapshots.at(-1)?.[1] || rows };
   }
 
   function dailySeries(rows = state.dailyRows) {
@@ -150,7 +160,10 @@
       groups.set(row.date, group);
     });
     return [...groups.entries()]
-      .map(([date, dateRows]) => ({ date, value: snapshotTotal(latestSnapshotRows(dateRows)) }))
+      .map(([date, dateRows]) => {
+        const snapshot = latestSnapshotRows(dateRows);
+        return { date, snapshotAt: snapshot.snapshotAt, value: snapshotTotal(snapshot.rows), rows: snapshot.rows };
+      })
       .sort((a, b) => String(a.date).localeCompare(String(b.date)));
   }
 
@@ -159,12 +172,51 @@
     return `${parts.year}-${parts.month}-${parts.day}`;
   }
 
-  function downloadMetric() {
+  function rowStableKey(row) {
+    return normalize(row.creation_key || row.creationKey || row.content_id || row.contentId || row.creation_id || row.creationId || '');
+  }
+
+  function dailyMaps(rows) {
+    const byKey = Object.create(null);
+    const byTitle = Object.create(null);
+    rows.forEach((row) => {
+      const key = rowStableKey(row);
+      const title = normalizeTitle(row.title);
+      if (key) byKey[key] = row;
+      if (title) byTitle[title] = row;
+    });
+    return { byKey, byTitle };
+  }
+
+  function latestDailyState() {
+    const series = dailySeries();
+    const selected = series.at(-1) || { date: '', snapshotAt: '', value: 0, rows: [] };
     const today = todayKey();
-    const previous = dailySeries()
-      .filter((item) => item.date < today && item.value > 0)
-      .reverse()[0];
-    return { label: 'Yesterday Downloads', value: previous?.value ?? null };
+    const maps = dailyMaps(selected.rows || []);
+    return {
+      ready: true,
+      label: 'Daily Downloads',
+      latestDate: selected.date || '',
+      snapshotAt: selected.snapshotAt || '',
+      totalDaily: toNumber(selected.value),
+      rows: selected.rows || [],
+      byKey: maps.byKey,
+      byTitle: maps.byTitle,
+      allSeries: series,
+      previousSevenSeries: series.filter((item) => item.date < today).slice(-7)
+    };
+  }
+
+  function publishDailyState() {
+    const dailyState = latestDailyState();
+    window.townggCreationsDailyState = dailyState;
+    window.dispatchEvent(new CustomEvent('towngg:creations-daily-ready', { detail: dailyState }));
+    return dailyState;
+  }
+
+  function downloadMetric() {
+    const dailyState = window.townggCreationsDailyState?.ready ? window.townggCreationsDailyState : latestDailyState();
+    return { label: 'Daily Downloads', value: dailyState.totalDaily || 0 };
   }
 
   function updateTimestamp() {
@@ -191,14 +243,13 @@
       ['Likes', totals.likes],
       ['Total Downloads', totals.downloads],
       ['Library Adds', totals.libraryAdds]
-    ].map(([label, value]) => `<article class="dashboard-stat"><span>${t(label)}</span><strong>${value == null ? '—' : formatNumber(value)}</strong></article>`).join('');
+    ].map(([label, value]) => `<article class="dashboard-stat"><span>${t(label)}</span><strong>${formatNumber(value)}</strong></article>`).join('');
   }
 
   function dailyMap() {
     const map = new Map();
-    const latestDate = state.dailyRows.map((row) => row.date).filter(Boolean).sort().at(-1);
-    if (!latestDate) return map;
-    latestSnapshotRows(state.dailyRows.filter((row) => row.date === latestDate)).forEach((row) => {
+    const rows = window.townggCreationsDailyState?.rows || latestDailyState().rows || [];
+    rows.forEach((row) => {
       const key = normalizeTitle(row.title);
       if (key) map.set(key, row);
     });
@@ -227,16 +278,19 @@
     const headerRow = table?.querySelector('thead tr');
     if (!body || !headerRow) return;
     const daily = dailyMap();
-    headerRow.innerHTML = ['Creation', 'Daily', 'Likes', 'Views', 'Downloads', 'Plays', 'Library Adds']
-      .map((label, index) => `<th><button type="button" class="dashboard-table-sort" data-creations-table-sort="${index}" aria-sort="none">${label}</button></th>`).join('');
-    body.innerHTML = confirmedCreations().map((item) => {
-      const row = daily.get(normalizeTitle(item.title));
-      return `<tr><td><a href="${escapeHtml(primaryUrl(item))}" target="_blank" rel="noopener">${escapeHtml(item.title || '')}</a></td><td>${formatNumber(row ? row.daily_downloads : 0)}</td><td>${formatNumber(item.likes)}</td><td>${formatNumber(item.views)}</td><td>${formatNumber(item.downloads)}</td><td>${formatNumber(item.plays)}</td><td>${formatNumber(item.libraryAdds)}</td></tr>`;
-    }).join('');
+    headerRow.innerHTML = tableColumns
+      .map(([label, key]) => `<th><button type="button" class="dashboard-table-sort" data-creations-table-sort="${key}" aria-sort="none">${label}</button></th>`).join('');
+    const items = confirmedCreations()
+      .map((item, index) => ({ item, index, daily: toNumber(daily.get(normalizeTitle(item.title))?.daily_downloads) }))
+      .sort((a, b) => (b.daily - a.daily) || (toNumber(b.item.downloads) - toNumber(a.item.downloads)) || (a.index - b.index));
+    body.innerHTML = items.map(({ item, daily: dailyValue }) => `<tr><td><a href="${escapeHtml(primaryUrl(item))}" target="_blank" rel="noopener">${escapeHtml(item.title || '')}</a></td><td>${formatNumber(dailyValue)}</td><td>${formatNumber(item.likes)}</td><td>${formatNumber(item.views)}</td><td>${formatNumber(item.downloads)}</td><td>${formatNumber(item.plays)}</td><td>${formatNumber(item.libraryAdds)}</td></tr>`).join('');
     if (table) {
+      const totalBody = table.querySelector('tbody[data-table-total-for="creations"]');
+      if (totalBody) totalBody.remove();
       table.dataset.creationsDailyReady = 'true';
       table.dataset.creationsDetailsReady = 'true';
       table.dataset.creationsDetailsRepairReady = 'true';
+      table.dispatchEvent(new CustomEvent('towngg:creations-details-rendered', { bubbles: true }));
     }
   }
 
@@ -258,6 +312,7 @@
   function applyAll() {
     if (!state.data?.creations?.length) return;
     window.siteData = { ...(window.siteData || {}), creations: state.data.creations };
+    publishDailyState();
     updateTimestamp();
     updateSummary();
     updateCards();
