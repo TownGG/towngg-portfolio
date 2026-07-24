@@ -37,6 +37,16 @@
       .trim();
   }
 
+  function todayKey() {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(new Date()).map((part) => [part.type, part.value]));
+    return `${parts.year}-${parts.month}-${parts.day}`;
+  }
+
   function parseCSV(text) {
     const rows = [];
     let cell = "";
@@ -113,6 +123,7 @@
   function createDailyState(rows) {
     const allSeries = dailySeries(rows);
     const selected = allSeries.at(-1) || { date: "", snapshotAt: "", value: 0, rows: [] };
+    const today = todayKey();
     const maps = buildRowMaps(selected.rows || []);
     return {
       ready: true,
@@ -124,7 +135,7 @@
       byKey: maps.byKey,
       byTitle: maps.byTitle,
       allSeries,
-      previousSevenSeries: allSeries.slice(-7)
+      previousSevenSeries: allSeries.filter((item) => item.date < today).slice(-7)
     };
   }
 
