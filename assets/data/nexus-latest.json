@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-24T09:30:38Z",
+  "updatedAt": "2026-07-24T10:00:43Z",
   "mods": [
     {
       "platform": "nexus",
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3310,
+      "total_downloads": 3311,
       "unique_downloads": 2301,
-      "daily_downloads": 19,
+      "daily_downloads": 20,
       "likes": 143,
       "views": 0
     },
@@ -211,9 +211,9 @@
       "mod_name": "CPF-MANTIS BLADE",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
-      "total_downloads": 49,
-      "unique_downloads": 46,
-      "daily_downloads": 11,
+      "total_downloads": 51,
+      "unique_downloads": 48,
+      "daily_downloads": 13,
       "likes": 2,
       "views": 0
     }
