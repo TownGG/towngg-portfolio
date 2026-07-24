@@ -6,45 +6,45 @@
 
   const translations = {
     "zh-CN": {
-      "No Nexus history data available yet.": "暂时没有可展示的 Nexus 历史数据。",
-      "7-Day Nexus Downloads Trend": "近 7 日 Nexus 下载趋势",
-      "Nexus trend note": "展示最近 7 日 Nexus 下载趋势。最后日期：{date}。",
+      "No Nexus history data available yet.": "暂时没有可展示的前 7 日 Nexus 历史数据。",
+      "7-Day Nexus Downloads Trend": "前 7 日 Nexus 下载趋势",
+      "Nexus trend note": "不统计今日数据，展示截至昨日的前 7 日 Nexus 下载趋势。最后日期：{date}。",
       "Daily downloads": "每日下载",
       "7-Day Avg Downloads": "近7日日均下载",
       "Accurate Nexus daily downloads trend chart": "Nexus 每日下载趋势图",
       "daily downloads on": "每日下载，日期"
     },
     "zh-TW": {
-      "No Nexus history data available yet.": "暫時沒有可顯示的 Nexus 歷史資料。",
-      "7-Day Nexus Downloads Trend": "近 7 日 Nexus 下載趨勢",
-      "Nexus trend note": "顯示最近 7 日 Nexus 下載趨勢。最後日期：{date}。",
+      "No Nexus history data available yet.": "暫時沒有可顯示的前 7 日 Nexus 歷史資料。",
+      "7-Day Nexus Downloads Trend": "前 7 日 Nexus 下載趨勢",
+      "Nexus trend note": "不統計今日資料，顯示截至昨日的前 7 日 Nexus 下載趨勢。最後日期：{date}。",
       "Daily downloads": "每日下載",
       "7-Day Avg Downloads": "近7日日均下載",
       "Accurate Nexus daily downloads trend chart": "Nexus 每日下載趨勢圖",
       "daily downloads on": "每日下載，日期"
     },
     ja: {
-      "No Nexus history data available yet.": "表示できるNexus履歴データがありません。",
-      "7-Day Nexus Downloads Trend": "直近7日間のNexusダウンロード推移",
-      "Nexus trend note": "直近7日間のNexusダウンロード推移を表示します。最終日：{date}。",
+      "No Nexus history data available yet.": "表示できる過去7日間のNexus履歴データがありません。",
+      "7-Day Nexus Downloads Trend": "過去7日間のNexusダウンロード推移",
+      "Nexus trend note": "今日のデータは含めず、昨日までの過去7日間のNexusダウンロード推移を表示します。最終日：{date}。",
       "Daily downloads": "日別ダウンロード",
       "7-Day Avg Downloads": "過去7日平均ダウンロード",
       "Accurate Nexus daily downloads trend chart": "Nexus日別ダウンロード推移チャート",
       "daily downloads on": "日別ダウンロード 日付"
     },
     ko: {
-      "No Nexus history data available yet.": "표시할 Nexus 기록 데이터가 없습니다.",
-      "7-Day Nexus Downloads Trend": "최근 7일 Nexus 다운로드 추세",
-      "Nexus trend note": "최근 7일 Nexus 다운로드 추세를 표시합니다. 마지막 날짜: {date}.",
+      "No Nexus history data available yet.": "표시할 이전 7일 Nexus 기록 데이터가 없습니다.",
+      "7-Day Nexus Downloads Trend": "이전 7일 Nexus 다운로드 추세",
+      "Nexus trend note": "오늘 데이터는 제외하고 어제까지의 이전 7일 Nexus 다운로드 추세를 표시합니다. 마지막 날짜: {date}.",
       "Daily downloads": "일일 다운로드",
       "7-Day Avg Downloads": "최근 7일 일평균 다운로드",
       "Accurate Nexus daily downloads trend chart": "Nexus 일일 다운로드 추세 차트",
       "daily downloads on": "일일 다운로드, 날짜"
     },
     ru: {
-      "No Nexus history data available yet.": "Нет данных Nexus для отображения.",
-      "7-Day Nexus Downloads Trend": "Тренд загрузок Nexus за последние 7 дней",
-      "Nexus trend note": "Показаны последние 7 дней загрузок Nexus. Последняя дата: {date}.",
+      "No Nexus history data available yet.": "Нет данных Nexus за предыдущие 7 дней для отображения.",
+      "7-Day Nexus Downloads Trend": "Тренд загрузок Nexus за предыдущие 7 дней",
+      "Nexus trend note": "Сегодняшние данные не учитываются; показаны предыдущие 7 дней Nexus до вчера. Последняя дата: {date}.",
       "Daily downloads": "Ежедневные загрузки",
       "7-Day Avg Downloads": "Среднее за 7 дней",
       "Accurate Nexus daily downloads trend chart": "График ежедневных загрузок Nexus",
@@ -213,9 +213,10 @@
   }
 
   function buildDailySeries(rows) {
+    const today = todayKey();
     const values = new Map();
     rows.forEach((row) => {
-      if (!row.date) return;
+      if (!row.date || row.date >= today) return;
       values.set(row.date, (values.get(row.date) || 0) + dashboardNumber(row.daily_downloads));
     });
     return [...values.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-7).map(([date, value]) => ({ date, value }));
