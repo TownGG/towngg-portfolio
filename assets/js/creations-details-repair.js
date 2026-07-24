@@ -1,6 +1,6 @@
 (() => {
   const TABLE_SELECTOR = '[data-creations-table]';
-  const DEFAULT_SORT_KEY = 'downloads';
+  const DEFAULT_SORT_KEY = 'daily';
   const DEFAULT_SORT_DIRECTION = 'desc';
   const state = {
     sorting: false,
