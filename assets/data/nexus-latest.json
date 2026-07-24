@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-24T00:00:37Z",
+  "updatedAt": "2026-07-24T00:30:37Z",
   "mods": [
     {
       "platform": "nexus",
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3291,
-      "unique_downloads": 2295,
-      "daily_downloads": 0,
+      "total_downloads": 3294,
+      "unique_downloads": 2297,
+      "daily_downloads": 3,
       "likes": 142,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 821,
-      "unique_downloads": 566,
-      "daily_downloads": 0,
+      "total_downloads": 822,
+      "unique_downloads": 567,
+      "daily_downloads": 1,
       "likes": 23,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 310,
-      "unique_downloads": 283,
-      "daily_downloads": 0,
+      "total_downloads": 312,
+      "unique_downloads": 285,
+      "daily_downloads": 2,
       "likes": 14,
       "views": 0
     },
@@ -211,9 +211,9 @@
       "mod_name": "CPF-MANTIS BLADE",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
-      "total_downloads": 38,
-      "unique_downloads": 36,
-      "daily_downloads": 0,
+      "total_downloads": 41,
+      "unique_downloads": 39,
+      "daily_downloads": 3,
       "likes": 1,
       "views": 0
     }
