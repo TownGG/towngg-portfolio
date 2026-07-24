@@ -5,7 +5,7 @@
       tableName: 'creations',
       buttonAttr: 'data-creations-table-sort',
       ready: (table) => table.dataset.creationsDailyReady === 'true',
-      defaultSort: { key: 'daily', direction: 'desc' },
+      defaultSort: { key: 'downloads', direction: 'desc' },
       columns: [
         { key: 'creation', type: 'text' },
         { key: 'daily', type: 'number' },
