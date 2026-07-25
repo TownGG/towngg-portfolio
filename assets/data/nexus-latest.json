@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-25T22:30:20Z",
+  "updatedAt": "2026-07-25T23:00:21Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 539,
+      "total_downloads": 540,
       "unique_downloads": 474,
-      "daily_downloads": 8,
+      "daily_downloads": 9,
       "likes": 23,
       "views": 0
     },
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 742,
-      "unique_downloads": 527,
-      "daily_downloads": 13,
+      "total_downloads": 743,
+      "unique_downloads": 528,
+      "daily_downloads": 14,
       "likes": 36,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1089,
+      "total_downloads": 1091,
       "unique_downloads": 597,
-      "daily_downloads": 14,
+      "daily_downloads": 16,
       "likes": 27,
       "views": 0
     },
