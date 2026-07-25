@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-25T08:00:40Z",
+  "updatedAt": "2026-07-25T08:26:29Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 532,
-      "unique_downloads": 467,
-      "daily_downloads": 1,
+      "total_downloads": 534,
+      "unique_downloads": 469,
+      "daily_downloads": 3,
       "likes": 23,
       "views": 0
     },
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 731,
-      "unique_downloads": 520,
-      "daily_downloads": 2,
+      "total_downloads": 734,
+      "unique_downloads": 523,
+      "daily_downloads": 5,
       "likes": 36,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3381,
-      "unique_downloads": 2320,
-      "daily_downloads": 21,
+      "total_downloads": 3384,
+      "unique_downloads": 2323,
+      "daily_downloads": 24,
       "likes": 143,
       "views": 0
     },
@@ -199,10 +199,10 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 353,
-      "unique_downloads": 324,
-      "daily_downloads": 7,
-      "likes": 16,
+      "total_downloads": 356,
+      "unique_downloads": 327,
+      "daily_downloads": 10,
+      "likes": 17,
       "views": 0
     },
     {
