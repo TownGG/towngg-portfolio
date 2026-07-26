@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-26T08:00:22Z",
+  "updatedAt": "2026-07-26T08:30:20Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 869,
-      "unique_downloads": 590,
-      "daily_downloads": 1,
+      "total_downloads": 870,
+      "unique_downloads": 591,
+      "daily_downloads": 2,
       "likes": 23,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 384,
-      "unique_downloads": 352,
-      "daily_downloads": 16,
+      "total_downloads": 385,
+      "unique_downloads": 353,
+      "daily_downloads": 17,
       "likes": 19,
       "views": 0
     },
@@ -211,9 +211,9 @@
       "mod_name": "CPF-MANTIS BLADE",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
-      "total_downloads": 80,
-      "unique_downloads": 77,
-      "daily_downloads": 3,
+      "total_downloads": 82,
+      "unique_downloads": 79,
+      "daily_downloads": 5,
       "likes": 2,
       "views": 0
     }
