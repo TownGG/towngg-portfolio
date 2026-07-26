@@ -253,6 +253,20 @@ window.siteData = {
       links: [
         { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17753" }
       ]
+    },
+    {
+      title: "Nexus Mod 17777",
+      category: "Nexus Mods / Auto Synced",
+      group: "Gameplay",
+      image: "./assets/images/mods/terminus-nexus-cover.png",
+      alt: "Nexus Mod 17777 Nexus Mods cover image",
+      description: "Automatically synced from Nexus Mods.",
+      tags: ["Nexus", "Auto Synced", "Starfield"],
+      downloads: "0",
+      endorsements: "0",
+      links: [
+        { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17777" }
+      ]
     }
   ],
   creations: [
