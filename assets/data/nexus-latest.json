@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-26T07:27:31Z",
+  "updatedAt": "2026-07-26T07:30:19Z",
   "mods": [
     {
       "platform": "nexus",
@@ -8,7 +8,7 @@
       "mod_url": "https://www.nexusmods.com/starfield/mods/17070",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
       "total_downloads": 580,
-      "unique_downloads": 468,
+      "unique_downloads": 469,
       "daily_downloads": 3,
       "likes": 32,
       "views": 0
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1563,
-      "unique_downloads": 824,
-      "daily_downloads": 2,
+      "total_downloads": 1564,
+      "unique_downloads": 825,
+      "daily_downloads": 3,
       "likes": 35,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3426,
-      "unique_downloads": 2341,
-      "daily_downloads": 13,
+      "total_downloads": 3425,
+      "unique_downloads": 2340,
+      "daily_downloads": 12,
       "likes": 144,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 870,
+      "total_downloads": 868,
       "unique_downloads": 589,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 23,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1099,
-      "unique_downloads": 602,
-      "daily_downloads": 8,
+      "total_downloads": 1097,
+      "unique_downloads": 601,
+      "daily_downloads": 6,
       "likes": 27,
       "views": 0
     },
@@ -175,9 +175,9 @@
       "mod_name": "CPF-RYUJIN DEATH CLAW",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17632",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
-      "total_downloads": 147,
-      "unique_downloads": 135,
-      "daily_downloads": 1,
+      "total_downloads": 146,
+      "unique_downloads": 134,
+      "daily_downloads": 0,
       "likes": 7,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 380,
-      "unique_downloads": 347,
-      "daily_downloads": 12,
+      "total_downloads": 383,
+      "unique_downloads": 351,
+      "daily_downloads": 15,
       "likes": 19,
       "views": 0
     },
@@ -211,9 +211,9 @@
       "mod_name": "CPF-MANTIS BLADE",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
-      "total_downloads": 78,
-      "unique_downloads": 75,
-      "daily_downloads": 1,
+      "total_downloads": 79,
+      "unique_downloads": 76,
+      "daily_downloads": 2,
       "likes": 2,
       "views": 0
     }
