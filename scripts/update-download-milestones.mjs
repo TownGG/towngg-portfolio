@@ -3,6 +3,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const metaPath = path.join(root, "assets/data/personal-logs-meta.json");
+const releaseVersionPath = path.join(root, "assets/data/release-version.json");
 const creationsHistoryPath = path.join(root, "assets/data/creations-history.csv");
 const nexusLatestPath = path.join(root, "assets/data/nexus-latest.json");
 const nexusHistoryPath = path.join(root, "assets/data/nexus-history.csv");
@@ -99,6 +100,16 @@ function currentMonthLabel() {
   return `${now.getUTCFullYear()}.${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
+function releaseTimestamp() {
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(now.getUTCDate()).padStart(2, "0");
+  const hour = String(now.getUTCHours()).padStart(2, "0");
+  const minute = String(now.getUTCMinutes()).padStart(2, "0");
+  return `${year}${month}${day}${hour}${minute}`;
+}
+
 function formatNumber(value) {
   return new Intl.NumberFormat("en-US").format(value);
 }
@@ -124,6 +135,18 @@ function sortTimeline(timeline) {
       return a.index - b.index;
     })
     .map(({ item }) => item);
+}
+
+function publishReleaseVersion() {
+  const timestamp = releaseTimestamp();
+  const version = `v2.06.${timestamp}-preview`;
+  const payload = {
+    version,
+    label: `v2.06.${timestamp} Preview`,
+    status: "preview",
+    updatedAt: new Date().toISOString()
+  };
+  fs.writeFileSync(releaseVersionPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
 }
 
 const meta = readJson(metaPath);
@@ -158,6 +181,7 @@ if (!newMilestones.length) {
 
 meta.timeline = sortTimeline([...newMilestones, ...timeline]);
 fs.writeFileSync(metaPath, `${JSON.stringify(meta, null, 2)}\n`, "utf8");
+publishReleaseVersion();
 console.log(
   `Added ${newMilestones.length} milestone(s). Combined downloads: ${formatNumber(combinedTotal)}.`
 );
