@@ -194,6 +194,15 @@
     sortTableBy(config, index, column.type, state.activeDirection);
   }
 
+  function reapplyActiveSort(config, table, state) {
+    if (!state.activeKey) return false;
+    const index = config.columns.findIndex((column) => column.key === state.activeKey);
+    const column = config.columns[index];
+    if (index < 0 || !column?.type) return false;
+    sortTableBy(config, index, column.type, state.activeDirection || (column.type === 'text' ? 'asc' : 'desc'));
+    return true;
+  }
+
   function plainHeaderText(header) {
     const existingButton = header.querySelector('button');
     if (existingButton) return existingButton.textContent.trim();
@@ -242,7 +251,7 @@
     });
 
     ensureTotalRow(config);
-    applyDefaultSort(config, table, state);
+    if (!reapplyActiveSort(config, table, state)) applyDefaultSort(config, table, state);
   }
 
   function scheduleEnhance(config, delay = 0) {
