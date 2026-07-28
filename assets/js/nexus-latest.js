@@ -11,28 +11,199 @@
   };
 
   let cachedPayload = null;
-  function lang() { const html = document.documentElement.lang; if (["zh-CN", "zh-TW", "ja", "ko", "ru", "en"].includes(html)) return html; const value = localStorage.getItem("townggSiteLang"); return ["zh-CN", "zh-TW", "ja", "ko", "ru"].includes(value) ? value : "en"; }
-  function locale() { return lang() === "zh-CN" ? "zh-CN" : lang() === "zh-TW" ? "zh-TW" : lang() === "ja" ? "ja-JP" : lang() === "ko" ? "ko-KR" : lang() === "ru" ? "ru-RU" : "en-US"; }
-  function t(key, replacements = {}) { let value = translations[lang()]?.[key] || translations.en?.[key] || key; Object.entries(replacements).forEach(([name, replacement]) => { value = value.replace(`{${name}}`, replacement); }); return value; }
-  function number(value) { const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, "")); return Number.isFinite(parsed) ? parsed : 0; }
-  function formatNumber(value) { return new Intl.NumberFormat(locale()).format(number(value)); }
-  function latestSnapshotPath(path) { const bucket = Math.floor(Date.now() / LATEST_REFRESH_MS); return `${path}?latest=${bucket}`; }
-  function nexusIdFromMod(mod) { const link = (mod.links || []).find((item) => String(item.url || "").includes("nexusmods.com")); const match = String(link?.url || "").match(/\/mods\/(\d+)/); return match?.[1] || ""; }
-  function isNexusImage(url) { return String(url || "").includes("staticdelivery.nexusmods.com"); }
-  function isAutoSyncedMod(mod) { const tags = Array.isArray(mod.tags) ? mod.tags : []; return /^Nexus Mod \d+$/i.test(String(mod.title || "")) || mod.category === "Nexus Mods / Auto Synced" || tags.some((tag) => String(tag).toLowerCase() === "auto synced"); }
-  function isLocalFallbackImage(url) { const value = String(url || ""); return value.startsWith("./assets/images/mods/") || value.startsWith("assets/images/mods/"); }
-  function latestImageFromRow(row) { return row?.image_url || row?.picture_url || row?.image || ""; }
-  function latestNameFromRow(row) { return row?.mod_name || row?.name || ""; }
-  function getSiteMods() { return window.siteData?.mods || []; }
-  function updateSiteData(latestRows) { const byId = new Map(latestRows.map((row) => [String(row.mod_id), row])); getSiteMods().forEach((mod) => { const latest = byId.get(nexusIdFromMod(mod)); if (!latest) return; const autoSynced = isAutoSyncedMod(mod); const latestName = latestNameFromRow(latest); const latestImage = latestImageFromRow(latest); if (autoSynced && latestName && mod.title !== latestName) { mod.title = latestName; mod.alt = `${latestName} Nexus Mods cover image`; } if (latestImage && (isNexusImage(mod.image) || (autoSynced && isLocalFallbackImage(mod.image))) && mod.image !== latestImage) mod.image = latestImage; mod.downloads = formatNumber(latest.total_downloads); mod.endorsements = formatNumber(latest.likes); mod.uniqueDownloads = formatNumber(latest.unique_downloads); }); }
-  function updateCards() { if (typeof renderFeaturedMod === "function") renderFeaturedMod(); if (typeof renderMods === "function") { renderMods("[data-home-mods]", { excludeFeatured: true, limit: 3 }); renderMods("[data-all-mods]"); } document.querySelectorAll("[data-filter-target-current]").forEach((modsFilter) => { const activeFilter = modsFilter.querySelector("[data-filter].is-active")?.dataset.filter || "All"; if (typeof applyFilter === "function") applyFilter(modsFilter, activeFilter); }); }
-  function updateTable(latestRows) { const target = document.querySelector("[data-dashboard-table]"); if (!target) return; const sorted = [...latestRows].sort((a, b) => number(b.total_downloads) - number(a.total_downloads)); target.innerHTML = sorted.map((row) => `<tr><td><a href="${row.mod_url}" target="_blank" rel="noopener">${row.mod_name}</a></td><td>${formatNumber(row.daily_downloads)}</td><td>${formatNumber(row.total_downloads)}</td><td>${formatNumber(row.unique_downloads)}</td><td>${formatNumber(row.likes)}</td></tr>`).join(""); }
-  function formatDateTime(date) { if (!(date instanceof Date) || Number.isNaN(date.getTime())) return ""; const year = date.getFullYear(); const month = String(date.getMonth() + 1).padStart(2, "0"); const day = String(date.getDate()).padStart(2, "0"); const hour = String(date.getHours()).padStart(2, "0"); const minute = String(date.getMinutes()).padStart(2, "0"); return `${year}-${month}-${day} ${hour}:${minute}`; }
-  function updateTimestamp(updatedAt) { const target = document.querySelector("[data-dashboard-updated]"); if (!target || !updatedAt) return; const date = new Date(String(updatedAt).replace(" ", "T")); if (Number.isNaN(date.getTime())) return; const age = Date.now() - date.getTime(); const isStale = age > STALE_AFTER_MS; target.classList.toggle("is-stale", isStale); target.classList.toggle("is-fresh", !isStale); target.textContent = t("Updated", { time: formatDateTime(date) }); target.title = isStale ? t("Nexus latest snapshot is older than the expected hourly sync window.") : t("Nexus latest snapshot loaded independently from the trend chart."); }
-  function renderNexusLatest(payload) { const latestRows = Array.isArray(payload.mods) ? payload.mods : []; if (!latestRows.length) return; updateSiteData(latestRows); updateCards(); updateTable(latestRows); updateTimestamp(payload.updatedAt); }
-  async function applyNexusLatest() { const dashboard = document.querySelector("[data-nexus-dashboard]"); if (!dashboard) return; try { const response = await fetch(latestSnapshotPath("./assets/data/nexus-latest.json"), { cache: "no-store" }); if (!response.ok) return; const payload = await response.json(); cachedPayload = payload; renderNexusLatest(payload); } catch (error) { console.warn("Nexus latest snapshot could not be applied.", error); } }
-  function bootNexusLatest() { setTimeout(applyNexusLatest, 100); setTimeout(applyNexusLatest, 800); }
-  document.addEventListener("click", (event) => { if (!event.target.closest(".language-option[data-lang]")) return; window.setTimeout(() => { if (cachedPayload) renderNexusLatest(cachedPayload); else applyNexusLatest(); }, 90); });
+  let applying = false;
+
+  function lang() {
+    const html = document.documentElement.lang;
+    if (["zh-CN", "zh-TW", "ja", "ko", "ru", "en"].includes(html)) return html;
+    const value = localStorage.getItem("townggSiteLang");
+    return ["zh-CN", "zh-TW", "ja", "ko", "ru"].includes(value) ? value : "en";
+  }
+
+  function locale() {
+    return lang() === "zh-CN" ? "zh-CN"
+      : lang() === "zh-TW" ? "zh-TW"
+        : lang() === "ja" ? "ja-JP"
+          : lang() === "ko" ? "ko-KR"
+            : lang() === "ru" ? "ru-RU"
+              : "en-US";
+  }
+
+  function t(key, replacements = {}) {
+    let value = translations[lang()]?.[key] || translations.en?.[key] || key;
+    Object.entries(replacements).forEach(([name, replacement]) => {
+      value = value.replace(`{${name}}`, replacement);
+    });
+    return value;
+  }
+
+  function number(value) {
+    const parsed = Number(String(value || "0").replace(/[^0-9.-]/g, ""));
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function formatNumber(value) {
+    return new Intl.NumberFormat(locale()).format(number(value));
+  }
+
+  function latestSnapshotPath(path) {
+    const bucket = Math.floor(Date.now() / LATEST_REFRESH_MS);
+    return `${path}?latest=${bucket}`;
+  }
+
+  function nexusIdFromMod(mod) {
+    const link = (mod.links || []).find((item) => String(item.url || "").includes("nexusmods.com"));
+    const match = String(link?.url || "").match(/\/mods\/(\d+)/);
+    return match?.[1] || "";
+  }
+
+  function isNexusImage(url) {
+    return String(url || "").includes("staticdelivery.nexusmods.com");
+  }
+
+  function isAutoSyncedMod(mod) {
+    const tags = Array.isArray(mod.tags) ? mod.tags : [];
+    return /^Nexus Mod \d+$/i.test(String(mod.title || ""))
+      || mod.category === "Nexus Mods / Auto Synced"
+      || tags.some((tag) => String(tag).toLowerCase() === "auto synced");
+  }
+
+  function isLocalFallbackImage(url) {
+    const value = String(url || "");
+    return value.startsWith("./assets/images/mods/") || value.startsWith("assets/images/mods/");
+  }
+
+  function latestImageFromRow(row) {
+    return row?.image_url || row?.picture_url || row?.image || "";
+  }
+
+  function latestNameFromRow(row) {
+    return row?.mod_name || row?.name || "";
+  }
+
+  function getSiteMods() {
+    return window.siteData?.mods || [];
+  }
+
+  function updateSiteData(latestRows) {
+    const byId = new Map(latestRows.map((row) => [String(row.mod_id), row]));
+    getSiteMods().forEach((mod) => {
+      const latest = byId.get(nexusIdFromMod(mod));
+      if (!latest) return;
+      const autoSynced = isAutoSyncedMod(mod);
+      const latestName = latestNameFromRow(latest);
+      const latestImage = latestImageFromRow(latest);
+      if (autoSynced && latestName && mod.title !== latestName) {
+        mod.title = latestName;
+        mod.alt = `${latestName} Nexus Mods cover image`;
+      }
+      if (latestImage && (isNexusImage(mod.image) || (autoSynced && isLocalFallbackImage(mod.image))) && mod.image !== latestImage) {
+        mod.image = latestImage;
+      }
+      mod.downloads = formatNumber(latest.total_downloads);
+      mod.endorsements = formatNumber(latest.likes);
+      mod.uniqueDownloads = formatNumber(latest.unique_downloads);
+    });
+  }
+
+  function updateCards() {
+    if (typeof renderFeaturedMod === "function") renderFeaturedMod();
+    if (typeof renderMods === "function") {
+      renderMods("[data-home-mods]", { excludeFeatured: true, limit: 3 });
+      renderMods("[data-all-mods]");
+    }
+    document.querySelectorAll("[data-filter-target-current]").forEach((modsFilter) => {
+      const activeFilter = modsFilter.querySelector("[data-filter].is-active")?.dataset.filter || "All";
+      if (typeof applyFilter === "function") applyFilter(modsFilter, activeFilter);
+    });
+  }
+
+  function updateTable(latestRows) {
+    const target = document.querySelector("[data-dashboard-table]");
+    if (!target) return;
+
+    const defaultRows = [...latestRows].sort((a, b) =>
+      number(b.daily_downloads) - number(a.daily_downloads)
+      || number(b.total_downloads) - number(a.total_downloads)
+      || String(a.mod_name || "").localeCompare(String(b.mod_name || ""))
+    );
+
+    target.innerHTML = defaultRows.map((row) => `
+      <tr>
+        <td><a href="${row.mod_url}" target="_blank" rel="noopener">${row.mod_name}</a></td>
+        <td>${formatNumber(row.daily_downloads)}</td>
+        <td>${formatNumber(row.total_downloads)}</td>
+        <td>${formatNumber(row.unique_downloads)}</td>
+        <td>${formatNumber(row.likes)}</td>
+      </tr>
+    `).join("");
+
+    window.TownGGTableSort?.apply("nexus");
+  }
+
+  function formatDateTime(date) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hour = String(date.getHours()).padStart(2, "0");
+    const minute = String(date.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hour}:${minute}`;
+  }
+
+  function updateTimestamp(updatedAt) {
+    const target = document.querySelector("[data-dashboard-updated]");
+    if (!target || !updatedAt) return;
+    const date = new Date(String(updatedAt).replace(" ", "T"));
+    if (Number.isNaN(date.getTime())) return;
+    const age = Date.now() - date.getTime();
+    const isStale = age > STALE_AFTER_MS;
+    target.classList.toggle("is-stale", isStale);
+    target.classList.toggle("is-fresh", !isStale);
+    target.textContent = t("Updated", { time: formatDateTime(date) });
+    target.title = isStale
+      ? t("Nexus latest snapshot is older than the expected hourly sync window.")
+      : t("Nexus latest snapshot loaded independently from the trend chart.");
+  }
+
+  function renderNexusLatest(payload) {
+    const latestRows = Array.isArray(payload.mods) ? payload.mods : [];
+    if (!latestRows.length) return;
+    updateSiteData(latestRows);
+    updateCards();
+    updateTable(latestRows);
+    updateTimestamp(payload.updatedAt);
+  }
+
+  async function applyNexusLatest() {
+    const dashboard = document.querySelector("[data-nexus-dashboard]");
+    if (!dashboard || applying) return;
+    applying = true;
+    try {
+      const response = await fetch(latestSnapshotPath("./assets/data/nexus-latest.json"), { cache: "no-store" });
+      if (!response.ok) return;
+      const payload = await response.json();
+      cachedPayload = payload;
+      renderNexusLatest(payload);
+    } catch (error) {
+      console.warn("Nexus latest snapshot could not be applied.", error);
+    } finally {
+      applying = false;
+    }
+  }
+
+  function bootNexusLatest() {
+    window.setTimeout(applyNexusLatest, 100);
+  }
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".language-option[data-lang]")) return;
+    window.setTimeout(() => {
+      if (cachedPayload) renderNexusLatest(cachedPayload);
+      else applyNexusLatest();
+    }, 90);
+  });
+
   if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", bootNexusLatest);
   else bootNexusLatest();
 })();
