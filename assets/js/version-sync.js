@@ -1,9 +1,9 @@
 (() => {
-  const VERSION_URL = "./assets/data/site-version.json";
-  const LOCK_PREFIX = "townggVersionSyncReloaded:";
-  const LIVE_RELOAD_LOCK_PREFIX = "townggLiveDataReloaded:";
-  const POLL_INTERVAL_MS = 60 * 1000;
-  const LIVE_RELOAD_COOLDOWN_MS = 45 * 1000;
+  const RELEASE_VERSION_URL = "./assets/data/release-version.json";
+  const SITE_DATA_URL = "./assets/js/site-data.js";
+  const STORED_RELEASE_VERSION_KEY = "townggReleaseVersion";
+  const RELOAD_LOCK_PREFIX = "townggConditionalReload:";
+  const POLL_INTERVAL_MS = 5 * 60 * 1000;
   const MESSAGE_BOARD_LATEST_KEY = "townggMessageBoardLatestCount";
   const MESSAGE_BOARD_READ_KEY = "townggMessageBoardReadCount";
   const MESSAGE_BOARD_TERM = "/message-board.html";
@@ -12,17 +12,10 @@
   const MESSAGE_BOARD_DELETE_ENDPOINT = "/api/admin/message-board-delete";
   const MESSAGE_BOARD_DISCUSSION_SEARCH_URL = "https://github.com/TownGG/towngg-portfolio/discussions?discussions_q=message-board";
   const MESSAGE_BOARD_DISCUSSIONS_URL = "https://github.com/TownGG/towngg-portfolio/discussions/categories/general";
-  const WATCHED_FILES = [
-    "./assets/js/site-data.js",
-    "./assets/js/version-sync.js",
-    "./assets/data/site-version.json",
-    "./assets/data/creations-history.csv",
-    "./assets/data/creations-mod-daily.csv",
-    "./assets/data/nexus-history.csv",
-    "./assets/data/nexus-latest.json"
-  ];
-  const liveSignatures = new Map();
-  let liveChecking = false;
+
+  let knownReleaseVersion = "";
+  let knownCreationIds = creationIdsFromData(window.siteData?.creations || []);
+  let updateChecking = false;
   let reloading = false;
   let messageBadgeProbeStarted = false;
   let messageBoardAdminReady = false;
@@ -31,54 +24,40 @@
     return String(value || "").replace(/^v/i, "").replace(/-preview$/i, "").trim();
   }
 
-  function currentAssetVersions() {
-    return [...document.querySelectorAll('link[href*="?v="], script[src*="?v="]')]
-      .map((element) => element.href || element.src || "")
-      .map((url) => new URL(url, window.location.href).searchParams.get("v"))
-      .filter(Boolean);
-  }
-
-  function hashText(text) {
-    let hash = 2166136261;
-    for (let index = 0; index < text.length; index += 1) {
-      hash ^= text.charCodeAt(index);
-      hash = Math.imul(hash, 16777619);
-    }
-    return (hash >>> 0).toString(16);
-  }
-
   function cacheBustedUrl(path) {
     const separator = path.includes("?") ? "&" : "?";
     return `${path}${separator}t=${Date.now()}`;
   }
 
-  async function fileSignature(path) {
-    const response = await fetch(cacheBustedUrl(path), { cache: "no-store" });
-    if (!response.ok) return null;
-    const text = await response.text();
-    const etag = response.headers.get("etag") || "";
-    const modified = response.headers.get("last-modified") || "";
-    return `${etag}|${modified}|${text.length}|${hashText(text)}`;
+  function creationIdFromUrl(value) {
+    const match = String(value || "").match(/\/details\/([0-9a-f-]{36})(?:\/|$)/i);
+    return match?.[1]?.toLowerCase() || "";
   }
 
-  function reloadOnce(key) {
+  function creationIdsFromData(creations = []) {
+    return new Set(creations
+      .flatMap((creation) => creation?.links || [])
+      .map((link) => creationIdFromUrl(link?.url))
+      .filter(Boolean));
+  }
+
+  function creationIdsFromScript(text) {
+    const ids = new Set();
+    const pattern = /https:\/\/creations\.bethesda\.net\/en\/starfield\/details\/([0-9a-f-]{36})(?:\/|\")/gi;
+    let match;
+    while ((match = pattern.exec(String(text || "")))) {
+      ids.add(match[1].toLowerCase());
+    }
+    return ids;
+  }
+
+  function triggerReload(reason, token) {
     if (reloading) return;
+    const lockKey = `${RELOAD_LOCK_PREFIX}${location.pathname}:${token}`;
+    if (sessionStorage.getItem(lockKey) === "1") return;
     reloading = true;
-    sessionStorage.setItem(key, "1");
-    location.reload();
-  }
-
-  function canLiveReload(lockKey) {
-    const lastReload = Number(sessionStorage.getItem(lockKey) || 0);
-    return !lastReload || Date.now() - lastReload > LIVE_RELOAD_COOLDOWN_MS;
-  }
-
-  function liveReload(reason) {
-    const lockKey = `${LIVE_RELOAD_LOCK_PREFIX}${location.pathname}`;
-    if (reloading || !canLiveReload(lockKey)) return;
-    reloading = true;
-    sessionStorage.setItem(lockKey, String(Date.now()));
-    console.info(`[TownGG] Site data changed: ${reason}. Reloading page.`);
+    sessionStorage.setItem(lockKey, "1");
+    console.info(`[TownGG] ${reason}. Reloading page.`);
     location.reload();
   }
 
@@ -376,64 +355,70 @@
     if (isMessageBoardPage()) acknowledgeMessageBoard();
   }
 
-  async function syncVersion() {
-    ensureAdminNavEntry();
-    injectMessageBoardAdminTab();
-    setupMessageBoardBadge();
-    try {
-      const response = await fetch(`${VERSION_URL}?t=${Date.now()}`, { cache: "no-store" });
-      if (!response.ok) return;
-      const data = await response.json();
-      const version = normalizeVersion(data.version);
-      if (!version) return;
-      const versions = currentAssetVersions();
-      const hasOutdatedAsset = versions.some((item) => item !== version);
-      const lockKey = `${LOCK_PREFIX}${version}:${location.pathname}`;
-      const alreadyReloaded = localStorage.getItem(lockKey) === "1";
-      localStorage.setItem("townggSiteVersion", data.version || `v${version}-preview`);
-      document.querySelectorAll("[data-site-version]").forEach((node) => {
-        node.textContent = `Version ${data.version || `v${version}-preview`}`;
-      });
-      if (hasOutdatedAsset && !alreadyReloaded) {
-        localStorage.setItem(lockKey, "1");
-        reloadOnce(lockKey);
-      }
-    } catch (error) {
-      console.warn("Version sync skipped", error);
-    }
-  }
-
-  async function checkLiveDataChanges() {
-    if (liveChecking || reloading) return;
-    liveChecking = true;
-    try {
-      for (const path of WATCHED_FILES) {
-        const signature = await fileSignature(path);
-        if (!signature) continue;
-        const previous = liveSignatures.get(path);
-        if (previous && previous !== signature) {
-          liveReload(path);
-          return;
-        }
-        liveSignatures.set(path, signature);
-      }
-    } catch (error) {
-      console.warn("Live data refresh skipped", error);
-    } finally {
-      liveChecking = false;
-    }
-  }
-
-  function startLiveDataRefresh() {
-    checkLiveDataChanges();
-    window.setTimeout(checkLiveDataChanges, 30 * 1000);
-    window.setInterval(checkLiveDataChanges, POLL_INTERVAL_MS);
-    window.addEventListener("focus", checkLiveDataChanges);
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) checkLiveDataChanges();
+  function updateVersionLabel(data, version) {
+    const displayVersion = data.version || `v${version}-preview`;
+    localStorage.setItem(STORED_RELEASE_VERSION_KEY, displayVersion);
+    document.querySelectorAll("[data-site-version]").forEach((node) => {
+      node.textContent = `Version ${displayVersion}`;
     });
   }
 
-  syncVersion();
-  startLiveDataRefresh();
+  async function checkReleaseVersion() {
+    const response = await fetch(cacheBustedUrl(RELEASE_VERSION_URL), { cache: "no-store" });
+    if (!response.ok) return;
+    const data = await response.json();
+    const version = normalizeVersion(data.version);
+    if (!version) return;
+
+    const storedVersion = normalizeVersion(localStorage.getItem(STORED_RELEASE_VERSION_KEY));
+    if (!knownReleaseVersion) knownReleaseVersion = storedVersion || version;
+    const changed = knownReleaseVersion !== version;
+    updateVersionLabel(data, version);
+    knownReleaseVersion = version;
+
+    if (changed) triggerReload("A new website release is available", `release:${version}`);
+  }
+
+  async function checkNewCreations() {
+    const response = await fetch(cacheBustedUrl(SITE_DATA_URL), { cache: "no-store" });
+    if (!response.ok) return;
+    const ids = creationIdsFromScript(await response.text());
+    if (!ids.size) return;
+
+    if (!knownCreationIds.size) {
+      knownCreationIds = ids;
+      return;
+    }
+
+    const added = [...ids].filter((id) => !knownCreationIds.has(id));
+    knownCreationIds = ids;
+    if (added.length) triggerReload("New Bethesda Creations mod data was detected", `creations:${added.sort().join(",")}`);
+  }
+
+  async function checkConditionalUpdates() {
+    if (updateChecking || reloading) return;
+    updateChecking = true;
+    try {
+      await checkReleaseVersion();
+      if (!reloading) await checkNewCreations();
+    } catch (error) {
+      console.warn("Conditional update check skipped", error);
+    } finally {
+      updateChecking = false;
+    }
+  }
+
+  function startConditionalRefresh() {
+    checkConditionalUpdates();
+    window.setInterval(checkConditionalUpdates, POLL_INTERVAL_MS);
+    window.addEventListener("focus", checkConditionalUpdates);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) checkConditionalUpdates();
+    });
+  }
+
+  ensureAdminNavEntry();
+  injectMessageBoardAdminTab();
+  setupMessageBoardBadge();
+  startConditionalRefresh();
 })();
