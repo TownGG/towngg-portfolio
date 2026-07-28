@@ -94,8 +94,18 @@
     });
   }
 
+  function loadDownloadsRefresh() {
+    if (document.querySelector('script[data-downloads-refresh="true"]')) return;
+    const script = document.createElement("script");
+    script.src = `./assets/js/downloads-refresh.js?v=2.06.20260728.1-${Date.now()}`;
+    script.async = true;
+    script.dataset.downloadsRefresh = "true";
+    document.head.appendChild(script);
+  }
+
   injectStableStyle();
   ensureHeaderControls();
   syncHeaderLanguage(preferredLanguage());
   bindSwitcher();
+  loadDownloadsRefresh();
 })();
