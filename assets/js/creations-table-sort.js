@@ -72,6 +72,10 @@
     return new Intl.NumberFormat(locale()).format(toNumber(value));
   }
 
+  function configByName(tableName) {
+    return TABLES.find((config) => config.tableName === tableName) || null;
+  }
+
   function tableElements(config) {
     const body = document.querySelector(config.bodySelector);
     return {
@@ -144,10 +148,12 @@
 
   function sortTableBy(config, index, type, direction) {
     const { body, headerRow, table } = tableElements(config);
-    if (!body || !headerRow || !table) return;
+    if (!body || !headerRow || !table) return false;
 
     const state = stateByTable.get(table) || {};
     const rows = [...body.querySelectorAll(':scope > tr')];
+    if (!rows.length) return false;
+
     const multiplier = direction === 'asc' ? 1 : -1;
     const sorted = rows
       .map((row, originalIndex) => ({ row, originalIndex }))
@@ -156,42 +162,47 @@
         const bv = cellValue(b.row, index, type);
         let result = 0;
 
-        if (type === 'text') {
-          result = String(av).localeCompare(String(bv));
-        } else {
-          result = Number(av) - Number(bv);
-        }
+        if (type === 'text') result = String(av).localeCompare(String(bv));
+        else result = Number(av) - Number(bv);
 
         if (result === 0) result = a.originalIndex - b.originalIndex;
         return result * multiplier;
       });
 
-    const fragment = document.createDocumentFragment();
-    sorted.forEach(({ row }) => fragment.appendChild(row));
+    const orderChanged = sorted.some(({ row }, rowIndex) => rows[rowIndex] !== row);
+    if (orderChanged) {
+      const fragment = document.createDocumentFragment();
+      sorted.forEach(({ row }) => fragment.appendChild(row));
+      state.isSorting = true;
+      stateByTable.set(table, state);
+      body.appendChild(fragment);
+    }
 
-    state.isSorting = true;
-    stateByTable.set(table, state);
-    body.appendChild(fragment);
     setHeaderState(config, headerRow, index, direction);
     ensureTotalRow(config);
-    requestAnimationFrame(() => {
-      state.isSorting = false;
-      stateByTable.set(table, state);
-    });
+
+    if (orderChanged) {
+      requestAnimationFrame(() => {
+        state.isSorting = false;
+        stateByTable.set(table, state);
+      });
+    }
+
+    return true;
   }
 
   function applyDefaultSort(config, table, state) {
-    if (!config.defaultSort || state.defaultSortApplied || state.activeKey) return;
+    if (!config.defaultSort || state.defaultSortApplied || state.activeKey) return false;
 
     const index = config.columns.findIndex((column) => column.key === config.defaultSort.key);
     const column = config.columns[index];
-    if (index < 0 || !column?.type) return;
+    if (index < 0 || !column?.type) return false;
 
     state.activeKey = column.key;
     state.activeDirection = config.defaultSort.direction || (column.type === 'text' ? 'asc' : 'desc');
     state.defaultSortApplied = true;
     stateByTable.set(table, state);
-    sortTableBy(config, index, column.type, state.activeDirection);
+    return sortTableBy(config, index, column.type, state.activeDirection);
   }
 
   function reapplyActiveSort(config, table, state) {
@@ -199,8 +210,7 @@
     const index = config.columns.findIndex((column) => column.key === state.activeKey);
     const column = config.columns[index];
     if (index < 0 || !column?.type) return false;
-    sortTableBy(config, index, column.type, state.activeDirection || (column.type === 'text' ? 'asc' : 'desc'));
-    return true;
+    return sortTableBy(config, index, column.type, state.activeDirection || (column.type === 'text' ? 'asc' : 'desc'));
   }
 
   function plainHeaderText(header) {
@@ -250,8 +260,8 @@
       });
     });
 
-    ensureTotalRow(config);
-    if (!reapplyActiveSort(config, table, state)) applyDefaultSort(config, table, state);
+    const sorted = reapplyActiveSort(config, table, state) || applyDefaultSort(config, table, state);
+    if (!sorted) ensureTotalRow(config);
   }
 
   function scheduleEnhance(config, delay = 0) {
@@ -262,17 +272,17 @@
     const { body, table, headerRow } = tableElements(config);
     if (!body || !table || !headerRow) return;
 
-    if (!table.dataset.sortObserverReady) {
+    if (!body.dataset.sortObserverReady) {
       const observer = new MutationObserver(() => {
         const state = stateByTable.get(table);
         if (state?.isSorting || state?.isUpdatingTotal) return;
-        scheduleEnhance(config, 30);
+        scheduleEnhance(config, 0);
       });
-      observer.observe(table, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-creations-daily-ready'] });
-      table.dataset.sortObserverReady = 'true';
+      observer.observe(body, { childList: true });
+      body.dataset.sortObserverReady = 'true';
     }
 
-    [0, 300, 900, 1600].forEach((delay) => scheduleEnhance(config, delay));
+    scheduleEnhance(config, 0);
   }
 
   function installStyles() {
@@ -300,10 +310,21 @@
     document.head.appendChild(style);
   }
 
+  function applyTable(tableName) {
+    const config = configByName(tableName);
+    if (!config) return;
+    enhanceTable(config);
+  }
+
   function install() {
     installStyles();
     TABLES.forEach(installTable);
   }
+
+  window.TownGGTableSort = {
+    apply: applyTable,
+    notify: (tableName) => window.queueMicrotask(() => applyTable(tableName))
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', install);
@@ -312,7 +333,7 @@
   }
 
   window.addEventListener('towngg:creations-daily-ready', () => {
-    TABLES.forEach((config) => scheduleEnhance(config, 20));
+    applyTable('creations');
   });
 
   document.addEventListener('click', (event) => {
