@@ -32,14 +32,14 @@ jobs:
       - name: Commit milestone when changed
         shell: bash
         run: |
-          if git diff --quiet -- assets/data/personal-logs-meta.json; then
+          if git diff --quiet -- assets/data/personal-logs-meta.json assets/data/release-version.json; then
             echo "No new download milestone."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/data/personal-logs-meta.json
+          git add assets/data/personal-logs-meta.json assets/data/release-version.json
           git commit -m "Update download milestones"
           git pull --rebase origin main
           git push origin HEAD:main
