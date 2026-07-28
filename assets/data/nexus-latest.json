@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-28T22:00:34Z",
+  "updatedAt": "2026-07-28T22:30:33Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 900,
-      "unique_downloads": 608,
-      "daily_downloads": 9,
+      "total_downloads": 901,
+      "unique_downloads": 609,
+      "daily_downloads": 10,
       "likes": 24,
       "views": 0
     },
@@ -91,9 +91,9 @@
       "mod_name": "CPF-UC VANGUARD POWER FIST MK2",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17479",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
-      "total_downloads": 199,
-      "unique_downloads": 182,
-      "daily_downloads": 0,
+      "total_downloads": 200,
+      "unique_downloads": 183,
+      "daily_downloads": 1,
       "likes": 9,
       "views": 0
     },
@@ -127,9 +127,9 @@
       "mod_name": "CPF-CRIMSON FLEET POWER FIST HELLHOUND",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17501",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
-      "total_downloads": 157,
-      "unique_downloads": 146,
-      "daily_downloads": 0,
+      "total_downloads": 158,
+      "unique_downloads": 147,
+      "daily_downloads": 1,
       "likes": 7,
       "views": 0
     },
@@ -223,9 +223,9 @@
       "mod_name": "Cassilias Casual Outfit and Glasses",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17777",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
-      "total_downloads": 165,
-      "unique_downloads": 115,
-      "daily_downloads": 69,
+      "total_downloads": 166,
+      "unique_downloads": 116,
+      "daily_downloads": 70,
       "likes": 8,
       "views": 0
     }
