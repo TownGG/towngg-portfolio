@@ -169,6 +169,13 @@
   <script>
     document.write('<script src="./assets/js/site-data.js?v=' + Date.now() + '"><\/script>');
   </script>
+  <script>
+    window.siteData.socials = (window.siteData.socials || []).map((link) =>
+      link.label === "Discord"
+        ? { ...link, url: "https://discord.gg/rYvuKMZzVP" }
+        : link
+    );
+  </script>
   <script src="./assets/js/main.js?v=2.04.38"></script>
   <script src="./assets/js/i18n.js?v=2.05.04"></script>
   <script src="./assets/js/site-telemetry.js?v=2.05.05"></script>
