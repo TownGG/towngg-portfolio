@@ -178,11 +178,15 @@
     document.write('<script src="./assets/js/site-data.js?v=' + Date.now() + '"><\/script>');
   </script>
   <script>
-    window.siteData.socials = (window.siteData.socials || []).map((link) =>
-      link.label === "Donate / Support"
-        ? { ...link, url: "https://ko-fi.com/towngg" }
-        : link
-    );
+    window.siteData.socials = (window.siteData.socials || []).map((link) => {
+      if (link.label === "Discord") {
+        return { ...link, url: "https://discord.gg/rYvuKMZzVP" };
+      }
+      if (link.label === "Donate / Support") {
+        return { ...link, url: "https://ko-fi.com/towngg" };
+      }
+      return link;
+    });
   </script>
   <script src="./assets/js/home-featured-mod.js?v=2.04.47"></script>
   <script src="./assets/js/main.js?v=2.04.38"></script>
