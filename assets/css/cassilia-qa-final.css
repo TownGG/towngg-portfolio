@@ -1,0 +1,26 @@
+/* Final Cassilia Terminus QA corrections. */
+.terminus-battle-strip {
+  position: relative;
+}
+
+.terminus-battle-strip::before {
+  top: 0;
+  left: 0;
+}
+
+.sword-section,
+.terminus-section {
+  overflow: hidden;
+}
+
+.terminus-section .chapter-heading {
+  width: min(1380px, 92%);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (max-width: 620px) {
+  .terminus-section .chapter-heading {
+    width: calc(100% - 28px);
+  }
+}
