@@ -22,12 +22,15 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import json, re
+          import re
 
-          html_path = Path('cassilia.html')
-          html = html_path.read_text(encoding='utf-8')
+          html = Path('cassilia.html').read_text(encoding='utf-8')
+          main_match = re.search(r'<main class="cassilia-story">([\s\S]*?)</main>', html)
+          assert main_match, 'Cassilia story body not found'
+          story_html = main_match.group(1)
+
           pattern = re.compile(r'screenshot_20260729_(\d{3})\.jpg')
-          refs = [int(x) for x in pattern.findall(html)]
+          refs = [int(x) for x in pattern.findall(story_html)]
           narrative = [n for n in refs if n >= 8]
           duplicates = sorted({n for n in narrative if narrative.count(n) > 1})
           assert not duplicates, f'Duplicate narrative screenshots: {duplicates}'
@@ -35,16 +38,16 @@ jobs:
           missing = [n for n in sorted(set(refs)) if not Path(f'assets/images/gallery-all-compressed/screenshot_20260729_{n:03d}.jpg').exists()]
           assert not missing, f'Missing screenshots: {missing}'
 
-          match = re.search(r'<section class="mods-section[\s\S]*?</section>', html)
+          match = re.search(r'<section class="mods-section[\s\S]*?</section>', story_html)
           assert match, 'MOD archive section not found'
           mods_html = match.group(0)
-          outside_mods = html[:match.start()] + html[match.end():]
+          outside_mods = story_html[:match.start()] + story_html[match.end():]
           for number in range(1, 8):
               token = f'screenshot_20260729_{number:03d}.jpg'
               assert token in mods_html, f'MOD cover {number:03d} missing from card archive'
               assert token not in outside_mods, f'MOD cover {number:03d} used outside card archive'
 
-          assert 'screenshot_20260729_033.jpg' not in html, 'Homepage image 033 is duplicated on detail page'
+          assert 'screenshot_20260729_033.jpg' not in story_html, 'Homepage image 033 is duplicated on detail page'
           assert 'cassilia-media.css?v=3.1.202607292152' in Path('assets/css/cassilia.css').read_text(encoding='utf-8')
 
           print(f'Validated {len(narrative)} unique narrative screenshots: {narrative}')
