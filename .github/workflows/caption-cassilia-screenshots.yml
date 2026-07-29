@@ -1,0 +1,84 @@
+name: Caption Cassilia screenshots
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/caption-cassilia-screenshots.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  caption:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install captioning dependencies
+        run: |
+          python -m pip install --quiet pillow transformers sentencepiece safetensors
+          python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Caption screenshots 008-057
+        env:
+          HF_HUB_DISABLE_TELEMETRY: "1"
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import torch
+          from PIL import Image
+          from transformers import BlipProcessor, BlipForConditionalGeneration
+
+          torch.set_num_threads(4)
+          processor = BlipProcessor.from_pretrained('Salesforce/blip-image-captioning-base')
+          model = BlipForConditionalGeneration.from_pretrained('Salesforce/blip-image-captioning-base')
+          model.eval()
+
+          root = Path('assets/images/gallery-all-compressed')
+          results = []
+          for number in range(8, 58):
+              path = root / f'screenshot_20260729_{number:03d}.jpg'
+              if not path.exists():
+                  continue
+              image = Image.open(path).convert('RGB')
+              image.thumbnail((768, 768))
+
+              inputs = processor(images=image, return_tensors='pt')
+              with torch.inference_mode():
+                  output = model.generate(**inputs, max_new_tokens=36, num_beams=4)
+              caption = processor.decode(output[0], skip_special_tokens=True)
+
+              prompt = 'a cinematic science fiction game screenshot showing'
+              inputs2 = processor(images=image, text=prompt, return_tensors='pt')
+              with torch.inference_mode():
+                  output2 = model.generate(**inputs2, max_new_tokens=42, num_beams=4)
+              guided = processor.decode(output2[0], skip_special_tokens=True)
+
+              results.append({
+                  'number': number,
+                  'file': path.name,
+                  'caption': caption,
+                  'guided_caption': guided
+              })
+              print(number, caption, '|', guided, flush=True)
+
+          out = Path('audit/cassilia-screenshot-captions.json')
+          out.parent.mkdir(exist_ok=True)
+          out.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding='utf-8')
+          PY
+
+      - name: Commit screenshot captions
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audit/cassilia-screenshot-captions.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Caption Cassilia screenshots"
+          git push
