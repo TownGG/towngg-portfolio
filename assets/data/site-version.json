@@ -1,6 +1,6 @@
 {
-  "version": "v2.06.202607292008",
-  "label": "v2.06.202607292008 Production",
-  "status": "production",
-  "updatedAt": "2026-07-29T12:08:00.000Z"
+  "version": "v2.06.202607292009-preview",
+  "label": "v2.06.202607292009 Preview",
+  "status": "preview",
+  "updatedAt": "2026-07-29T12:16:32.129Z"
 }
