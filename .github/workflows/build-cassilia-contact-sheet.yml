@@ -1,0 +1,88 @@
+name: Build Cassilia screenshot contact sheet
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-cassilia-contact-sheet.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Pillow
+        run: python -m pip install --quiet pillow
+
+      - name: Build numbered contact sheet PDF
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageDraw, ImageFont, ImageOps
+
+          root = Path('assets/images/gallery-all-compressed')
+          out_dir = Path('audit')
+          out_dir.mkdir(exist_ok=True)
+          files = [root / f'screenshot_20260729_{i:03d}.jpg' for i in range(8, 58)]
+          files = [p for p in files if p.exists()]
+
+          page_w, page_h = 1800, 2400
+          cols, rows = 3, 4
+          margin, gap = 55, 28
+          header_h = 80
+          cell_w = (page_w - margin * 2 - gap * (cols - 1)) // cols
+          cell_h = (page_h - margin * 2 - header_h - gap * (rows - 1)) // rows
+          image_h = cell_h - 58
+
+          try:
+              font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 30)
+              small = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 24)
+          except Exception:
+              font = ImageFont.load_default()
+              small = ImageFont.load_default()
+
+          pages = []
+          for page_index in range((len(files) + cols * rows - 1) // (cols * rows)):
+              page = Image.new('RGB', (page_w, page_h), '#11151b')
+              draw = ImageDraw.Draw(page)
+              start = page_index * cols * rows
+              end = min(start + cols * rows, len(files))
+              draw.text((margin, 22), f'Cassilia screenshots {files[start].stem[-3:]}–{files[end-1].stem[-3:]}', fill='#f0d18a', font=font)
+
+              for local_index, path in enumerate(files[start:end]):
+                  row, col = divmod(local_index, cols)
+                  x = margin + col * (cell_w + gap)
+                  y = margin + header_h + row * (cell_h + gap)
+                  with Image.open(path) as source:
+                      source = source.convert('RGB')
+                      thumb = ImageOps.fit(source, (cell_w, image_h), method=Image.Resampling.LANCZOS)
+                  page.paste(thumb, (x, y))
+                  draw.rectangle((x, y, x + cell_w, y + image_h), outline='#556474', width=2)
+                  label = path.stem.replace('screenshot_20260729_', '')
+                  draw.rectangle((x, y + image_h, x + cell_w, y + cell_h), fill='#1a222c')
+                  draw.text((x + 16, y + image_h + 12), label, fill='white', font=small)
+              pages.append(page)
+
+          pdf_path = out_dir / 'cassilia-screenshots-008-057.pdf'
+          pages[0].save(pdf_path, save_all=True, append_images=pages[1:], resolution=120.0)
+          print(f'Created {pdf_path} with {len(pages)} pages and {len(files)} images')
+          PY
+
+      - name: Commit audit PDF
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audit/cassilia-screenshots-008-057.pdf
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Build Cassilia screenshot audit sheet"
+          git push
