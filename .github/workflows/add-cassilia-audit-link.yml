@@ -1,0 +1,37 @@
+name: Add temporary Cassilia audit link
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/add-cassilia-audit-link.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  add-link:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add hidden audit link
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          text = p.read_text(encoding='utf-8')
+          marker = '<a href="./audit/cassilia-review.html" style="display:none" aria-hidden="true">Cassilia screenshot audit</a>'
+          if marker not in text:
+              text = text.replace('</body>', f'  {marker}\n</body>')
+              p.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit link
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Add temporary Cassilia audit link"
+          git push
