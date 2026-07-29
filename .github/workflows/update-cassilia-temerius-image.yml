@@ -11,7 +11,6 @@ permissions:
 
 jobs:
   update-story:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -27,11 +26,7 @@ jobs:
           path = Path('cassilia.html')
           text = path.read_text(encoding='utf-8')
 
-          text = re.sub(
-              r'cassilia\.css\?v=[^"\']+',
-              'cassilia.css?v=2.5.202607291958',
-              text
-          )
+          text = re.sub(r'cassilia\.css\?v=[^"\']+', 'cassilia.css?v=2.5.202607291958', text)
 
           sword_start = text.index('<section class="sword-section')
           sword_end = text.index('</section>', sword_start)
@@ -45,10 +40,7 @@ jobs:
               1
           )
 
-          strip_pattern = re.compile(
-              r'      <div class="terminus-battle-strip".*?      </div>\n      <div class="battle-line"',
-              re.S
-          )
+          strip_pattern = re.compile(r'      <div class="terminus-battle-strip".*?      </div>\n      <div class="battle-line"', re.S)
           strip = '''      <div class="terminus-battle-strip" aria-label="Battle at the temple screenshot sequence">
         <figure><img src="./assets/images/gallery-all-compressed/screenshot_20260729_019.jpg" alt="Cassilia confronting the player at the temple" loading="lazy"></figure>
         <figure><img src="./assets/images/gallery-all-compressed/screenshot_20260729_020.jpg" alt="Temerius battle near the ancient structure" loading="lazy"></figure>
@@ -60,12 +52,7 @@ jobs:
           if count != 1:
               raise SystemExit('Could not update Terminus battle strip')
 
-          text = re.sub(
-              r'cassilia-polish\.js\?v=[^"\']+',
-              'cassilia-polish.js?v=2.5.202607291958',
-              text
-          )
-
+          text = re.sub(r'cassilia-polish\.js\?v=[^"\']+', 'cassilia-polish.js?v=2.5.202607291958', text)
           path.write_text(text, encoding='utf-8')
           Path('.github/workflows/update-cassilia-temerius-image.yml').unlink()
           PY
