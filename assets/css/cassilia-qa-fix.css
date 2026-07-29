@@ -1,0 +1,233 @@
+/* Cassilia archive QA pass v2.4 — story-appropriate Terminus imagery and no empty cinematic gaps. */
+
+/* The identity chapter should end with its content, not reserve another viewport of empty space. */
+.identity-section {
+  min-height: auto !important;
+  padding-top: clamp(92px, 8vw, 138px) !important;
+  padding-bottom: clamp(104px, 9vw, 150px) !important;
+}
+
+.identity-layout {
+  min-height: 0 !important;
+}
+
+.identity-stage {
+  min-height: clamp(520px, 54vw, 720px) !important;
+}
+
+/* The stolen-sword chapter previously combined 125vh with huge internal padding.
+   Keep the cinematic scale, but make height follow the actual text and artwork. */
+.sword-section {
+  display: block !important;
+  min-height: auto !important;
+  padding: clamp(110px, 11vw, 180px) 0 clamp(96px, 9vw, 150px) !important;
+  background: #080806;
+}
+
+.sword-layout {
+  min-height: 0 !important;
+  padding: 0 !important;
+  align-items: center;
+}
+
+.sword-bg img {
+  object-position: 62% center !important;
+  filter: saturate(.62) contrast(1.12) brightness(.42) !important;
+  transform: scale(1.025) !important;
+}
+
+.sword-bg::after {
+  background:
+    linear-gradient(90deg, rgba(8, 8, 6, .98) 0%, rgba(8, 8, 6, .9) 43%, rgba(8, 8, 6, .24) 74%, rgba(8, 8, 6, .58)),
+    linear-gradient(0deg, #080806 0%, transparent 30%, rgba(8, 8, 6, .72) 100%) !important;
+}
+
+.sword-cutout-layer {
+  display: none !important;
+}
+
+.sword-statement {
+  position: relative !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: min(1380px, 92%) !important;
+  max-width: 1380px !important;
+  margin: clamp(64px, 7vw, 108px) auto 0 !important;
+  padding: clamp(26px, 3vw, 42px) clamp(28px, 4vw, 58px) !important;
+}
+
+/* Avoid a blank chapter if an observer misses the large reveal target. */
+html.motion-ready .sword-section .reveal-block,
+html.motion-ready .terminus-section .reveal-block {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* THE TERMINUS: one strong battle frame, readable story copy, then a real combat sequence. */
+.terminus-section {
+  min-height: auto !important;
+  padding: clamp(100px, 9vw, 150px) 0 clamp(110px, 10vw, 170px) !important;
+}
+
+.terminus-gallery {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.25fr) minmax(360px, .68fr) !important;
+  grid-template-rows: auto auto !important;
+  gap: clamp(18px, 1.6vw, 28px) !important;
+  width: min(1560px, 92%) !important;
+  margin-inline: auto !important;
+}
+
+.terminus-gallery .terminus-main-shot {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  min-height: clamp(560px, 60vw, 860px);
+}
+
+.terminus-gallery .terminus-copy {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(30px, 3vw, 52px) !important;
+}
+
+.terminus-gallery .terminus-secondary-shot {
+  grid-column: 2;
+  grid-row: 2;
+  min-height: clamp(280px, 26vw, 410px);
+}
+
+.terminus-gallery .story-shot img {
+  object-position: center;
+  filter: saturate(.9) contrast(1.06) brightness(.82) !important;
+}
+
+.terminus-battle-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(8px, .8vw, 14px);
+  width: min(1560px, 92%);
+  margin: clamp(32px, 4vw, 60px) auto 0;
+}
+
+.terminus-battle-strip figure {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(236, 230, 217, .1);
+  background: #08090b;
+}
+
+.terminus-battle-strip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(.88) contrast(1.06) brightness(.82);
+  transition: transform .8s ease, filter .35s ease;
+}
+
+.terminus-battle-strip figure:hover img {
+  transform: scale(1.04);
+  filter: saturate(1) contrast(1.08) brightness(.9);
+}
+
+.terminus-battle-strip::before {
+  content: "THE BATTLE AT THE TEMPLE";
+  position: absolute;
+  transform: translateY(-30px);
+  color: rgba(236, 230, 217, .46);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .28em;
+}
+
+.battle-line {
+  position: relative !important;
+  bottom: auto !important;
+  margin-top: clamp(70px, 8vw, 120px);
+  overflow: hidden;
+}
+
+@media (max-width: 980px) {
+  .terminus-gallery {
+    grid-template-columns: 1fr !important;
+  }
+
+  .terminus-gallery .terminus-main-shot,
+  .terminus-gallery .terminus-copy,
+  .terminus-gallery .terminus-secondary-shot {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .terminus-gallery .terminus-main-shot {
+    min-height: 56vw;
+    aspect-ratio: 16 / 10;
+  }
+
+  .terminus-gallery .terminus-secondary-shot {
+    min-height: 44vw;
+    aspect-ratio: 16 / 10;
+  }
+
+  .terminus-battle-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .terminus-battle-strip figure:last-child {
+    grid-column: 1 / -1;
+    aspect-ratio: 16 / 7;
+  }
+}
+
+@media (max-width: 620px) {
+  .identity-stage {
+    min-height: 500px !important;
+  }
+
+  .sword-section {
+    padding-top: 92px !important;
+    padding-bottom: 90px !important;
+  }
+
+  .sword-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .whisper-field {
+    display: none !important;
+  }
+
+  .sword-statement {
+    width: calc(100% - 32px) !important;
+    margin-top: 52px !important;
+  }
+
+  .terminus-gallery,
+  .terminus-battle-strip {
+    width: calc(100% - 28px) !important;
+  }
+
+  .terminus-gallery .terminus-main-shot,
+  .terminus-gallery .terminus-secondary-shot {
+    min-height: 0;
+    aspect-ratio: 16 / 10;
+  }
+
+  .terminus-battle-strip {
+    grid-template-columns: 1fr;
+    margin-top: 54px;
+  }
+
+  .terminus-battle-strip figure,
+  .terminus-battle-strip figure:last-child {
+    grid-column: auto;
+    aspect-ratio: 16 / 10;
+  }
+}
