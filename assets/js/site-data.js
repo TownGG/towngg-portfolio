@@ -319,6 +319,34 @@ window.siteData = {
 ],
   featuredArtworks: [
       {
+          image: "./assets/images/gallery-featured-compressed/featured_20260729_001.jpg",
+          alt: "TownGG homepage featured artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/featured_20260729_002.jpg",
+          alt: "TownGG homepage featured artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/featured_20260729_003.jpg",
+          alt: "TownGG homepage featured artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/featured_20260729_004.jpg",
+          alt: "TownGG homepage featured artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/featured_20260729_005.jpg",
+          alt: "TownGG homepage featured artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/featured_20260729_006.jpg",
+          alt: "TownGG homepage featured artwork"
+      },
+      {
+          image: "./assets/images/gallery-featured-compressed/featured_20260729_007.jpg",
+          alt: "TownGG homepage featured artwork"
+      },
+      {
           image: "./assets/images/gallery-featured-compressed/featured_20260704_001.jpg",
           alt: "TownGG homepage featured artwork"
       },
