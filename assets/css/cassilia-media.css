@@ -1,0 +1,305 @@
+/* Cassilia story media system v3.1
+   Unique screenshots are distributed by chapter; this file only styles media components. */
+
+.identity-photo-stack {
+  position: absolute;
+  inset: 1% 0 2% 16%;
+  z-index: 1;
+}
+
+.identity-photo {
+  position: absolute;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(236, 230, 217, .13);
+  background: #080d13;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, .46);
+}
+
+.identity-photo img,
+.story-inline-photo img,
+.relationship-gallery img,
+.legacy-intro-gallery img,
+.legacy-media-grid img,
+.soul-companion-shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(.88) contrast(1.05) brightness(.86);
+  transition: transform .9s cubic-bezier(.2, .75, .18, 1), filter .45s ease;
+}
+
+.identity-photo-main {
+  inset: 5% 10% 7% 12%;
+}
+
+.identity-photo-main img {
+  object-position: center top;
+}
+
+.identity-photo-a {
+  left: 0;
+  bottom: 0;
+  width: 31%;
+  aspect-ratio: 4 / 5;
+  transform: rotate(-2.5deg);
+}
+
+.identity-photo-b {
+  top: 0;
+  right: 0;
+  width: 29%;
+  aspect-ratio: 4 / 5;
+  transform: rotate(2deg);
+}
+
+.identity-photo-stack:hover .identity-photo-main img,
+.story-inline-photo:hover img,
+.relationship-gallery figure:hover img,
+.legacy-intro-gallery figure:hover img,
+.legacy-media-grid figure:hover img,
+.soul-companion-shot:hover img {
+  transform: scale(1.035);
+  filter: saturate(.96) contrast(1.06) brightness(.92);
+}
+
+.identity-roles {
+  z-index: 4 !important;
+  pointer-events: none;
+}
+
+.story-inline-photo {
+  position: relative;
+  z-index: 2;
+  width: min(1180px, calc(100% - 48px));
+  margin: clamp(46px, 4vw, 68px) auto 0;
+  overflow: hidden;
+  border: 1px solid rgba(236, 230, 217, .12);
+  background: #080806;
+  aspect-ratio: 16 / 7;
+}
+
+.story-inline-photo img {
+  object-position: center 46%;
+}
+
+.story-inline-photo figcaption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 24px clamp(24px, 3vw, 44px);
+  color: rgba(246, 236, 214, .9);
+  font-family: "Rajdhani", sans-serif;
+  font-size: clamp(18px, 1.7vw, 27px);
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: linear-gradient(0deg, rgba(4, 5, 7, .94), rgba(4, 5, 7, 0));
+}
+
+.terminus-battle-strip {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  width: min(1100px, 92%) !important;
+}
+
+.soul-companion-shot {
+  position: absolute;
+  z-index: 4;
+  right: clamp(20px, 4vw, 72px);
+  bottom: clamp(24px, 4vw, 64px);
+  width: clamp(220px, 26vw, 420px);
+  margin: 0;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  border: 1px solid rgba(236, 230, 217, .16);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, .55);
+}
+
+.soul-companion-shot::after {
+  content: "TEMPORARY CONNECTION";
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  color: rgba(255, 255, 255, .7);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .25em;
+}
+
+.relationship-gallery {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(12px, 1.3vw, 20px);
+  width: min(1120px, 86%);
+  margin: clamp(48px, 5vw, 76px) auto 0;
+}
+
+.relationship-gallery figure,
+.legacy-intro-gallery figure,
+.legacy-media-grid figure {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(236, 230, 217, .11);
+  background: #080d13;
+}
+
+.relationship-gallery figure {
+  aspect-ratio: 16 / 9;
+}
+
+.legacy-intro-gallery {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(10px, 1vw, 16px);
+  width: min(1500px, 92%);
+  margin: 0 auto clamp(54px, 5vw, 82px);
+}
+
+.legacy-intro-gallery figure {
+  aspect-ratio: 4 / 5;
+}
+
+.legacy-intro-gallery figure:nth-child(even) {
+  transform: translateY(clamp(18px, 2vw, 30px));
+}
+
+.legacy-media-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.36fr) minmax(150px, .64fr);
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: clamp(8px, .9vw, 14px);
+  min-height: clamp(460px, 44vw, 680px);
+}
+
+.legacy-media-grid .legacy-media-main {
+  grid-column: 1;
+  grid-row: 1 / -1;
+}
+
+.legacy-media-grid figure:not(.legacy-media-main) {
+  grid-column: 2;
+}
+
+.legacy-media-grid img {
+  object-position: center;
+}
+
+.mantis-media-grid {
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+}
+
+.mantis-media-grid .legacy-media-main {
+  grid-row: 1 / -1;
+}
+
+.legacy-media-grid::after,
+.legacy-intro-gallery::after,
+.relationship-gallery::after {
+  content: "";
+  pointer-events: none;
+}
+
+@media (max-width: 1100px) {
+  .legacy-intro-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .legacy-intro-gallery figure {
+    aspect-ratio: 16 / 11;
+  }
+
+  .legacy-intro-gallery figure:nth-child(even) {
+    transform: none;
+  }
+
+  .soul-companion-shot {
+    opacity: .72;
+  }
+}
+
+@media (max-width: 720px) {
+  .identity-stage {
+    min-height: 520px !important;
+  }
+
+  .identity-photo-stack {
+    inset: 0 -6% 0 4%;
+  }
+
+  .identity-photo-main {
+    inset: 7% 7% 8% 10%;
+  }
+
+  .identity-photo-a {
+    width: 34%;
+  }
+
+  .identity-photo-b {
+    width: 32%;
+  }
+
+  .story-inline-photo {
+    width: calc(100% - 28px);
+    aspect-ratio: 16 / 10;
+  }
+
+  .story-inline-photo figcaption {
+    padding: 20px;
+    font-size: 17px;
+  }
+
+  .soul-companion-shot {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: calc(100% - 28px);
+    margin: 34px auto 0;
+    opacity: 1;
+  }
+
+  .relationship-gallery {
+    grid-template-columns: 1fr;
+    width: calc(100% - 28px);
+  }
+
+  .legacy-intro-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: calc(100% - 28px);
+  }
+
+  .legacy-intro-gallery figure {
+    aspect-ratio: 4 / 5;
+  }
+
+  .legacy-media-grid,
+  .mantis-media-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto;
+    min-height: 0;
+    gap: 8px;
+  }
+
+  .legacy-media-grid .legacy-media-main,
+  .mantis-media-grid .legacy-media-main {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    aspect-ratio: 16 / 10;
+  }
+
+  .legacy-media-grid figure:not(.legacy-media-main),
+  .mantis-media-grid figure:not(.legacy-media-main) {
+    grid-column: auto;
+    grid-row: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .terminus-battle-strip {
+    grid-template-columns: 1fr !important;
+  }
+}
