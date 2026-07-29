@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-29T01:00:38Z",
+  "updatedAt": "2026-07-29T01:13:07Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 902,
-      "unique_downloads": 610,
-      "daily_downloads": 0,
+      "total_downloads": 904,
+      "unique_downloads": 612,
+      "daily_downloads": 2,
       "likes": 24,
       "views": 0
     },
@@ -211,9 +211,9 @@
       "mod_name": "CPF-MANTIS BLADE",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
-      "total_downloads": 100,
-      "unique_downloads": 95,
-      "daily_downloads": 0,
+      "total_downloads": 101,
+      "unique_downloads": 96,
+      "daily_downloads": 1,
       "likes": 2,
       "views": 0
     },
