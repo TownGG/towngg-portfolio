@@ -1,94 +1,104 @@
-.cassilia-home-feature {
+.cassilia-home-stage {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(330px, .65fr);
-  min-height: 430px;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
   padding: 0;
-  overflow: hidden;
-  border-color: var(--line);
-  background: rgba(7, 11, 18, .88);
-  color: inherit;
-  text-decoration: none;
-  box-shadow: var(--shadow);
-  transition: transform .32s cubic-bezier(.22, 1, .36, 1), border-color .32s ease, box-shadow .32s ease;
-}
-
-.cassilia-home-feature:hover {
-  transform: translateY(-4px);
-  border-color: var(--line-blue);
-  box-shadow: 0 30px 88px rgba(0, 0, 0, .42);
-}
-
-.cassilia-home-feature-media {
-  position: relative;
-  min-width: 0;
   overflow: hidden;
   background: #05080d;
 }
 
-.cassilia-home-feature-media::after {
-  content: "";
+.cassilia-home-feature {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  min-height: clamp(560px, 72vh, 820px);
+  overflow: hidden;
+  color: #f4f6fb;
+  text-decoration: none;
+  isolation: isolate;
+}
+
+.cassilia-home-feature-media,
+.cassilia-home-feature-shade {
   position: absolute;
   inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, transparent 58%, rgba(7, 11, 18, .34) 82%, rgba(7, 11, 18, .86) 100%),
-    linear-gradient(0deg, rgba(7, 11, 18, .2), transparent 42%);
 }
 
 .cassilia-home-feature-media img {
   width: 100%;
   height: 100%;
-  min-height: 430px;
   object-fit: cover;
   object-position: center;
-  filter: brightness(.82) saturate(.86) contrast(1.04);
-  transition: transform .8s cubic-bezier(.22, 1, .36, 1), filter .32s ease;
+  filter: brightness(.72) saturate(.86) contrast(1.06);
+  transform: scale(1.015);
+  transition: transform 1.4s cubic-bezier(.2, .75, .18, 1), filter .5s ease;
 }
 
-.cassilia-home-feature:hover .cassilia-home-feature-media img {
-  transform: scale(1.018);
-  filter: brightness(.9) saturate(.92) contrast(1.04);
+.cassilia-home-feature-shade {
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(4, 7, 12, .96) 0%, rgba(4, 7, 12, .8) 28%, rgba(4, 7, 12, .2) 62%, rgba(4, 7, 12, .38) 100%),
+    linear-gradient(0deg, rgba(4, 7, 12, .92) 0%, transparent 48%);
+}
+
+.cassilia-home-feature::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-top: 1px solid rgba(125, 216, 255, .15);
+  border-bottom: 1px solid rgba(125, 216, 255, .12);
+  background:
+    linear-gradient(90deg, transparent 0 49.92%, rgba(125, 216, 255, .07) 50%, transparent 50.08%) center / 100% 100%,
+    linear-gradient(0deg, transparent 0 49.92%, rgba(125, 216, 255, .045) 50%, transparent 50.08%) center / 100% 100%;
 }
 
 .cassilia-home-feature-copy {
   position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 52px 48px;
-  border-left: 1px solid var(--line);
-  background:
-    radial-gradient(circle at 100% 0, rgba(125, 216, 255, .09), transparent 42%),
-    linear-gradient(145deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .012));
-}
-
-.cassilia-home-feature-copy::before {
-  content: "";
-  width: 56px;
-  height: 1px;
-  margin-bottom: 24px;
-  background: var(--blue);
-  box-shadow: 0 0 16px rgba(125, 216, 255, .34);
+  z-index: 3;
+  width: min(760px, calc(100% - 48px));
+  margin-left: clamp(24px, 7vw, 130px);
+  padding: 0 0 clamp(62px, 9vh, 110px);
 }
 
 .cassilia-home-feature-copy .eyebrow {
-  margin-bottom: 12px;
+  margin-bottom: 18px;
+  color: #8fdcff;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .28em;
+  text-transform: uppercase;
 }
 
 .cassilia-home-feature-copy .section-title {
-  margin: 0 0 18px;
+  max-width: 760px;
+  margin: 0;
   font-family: "Rajdhani", sans-serif;
-  font-size: clamp(44px, 4.5vw, 70px);
-  line-height: .92;
-  letter-spacing: -.035em;
+  font-size: clamp(78px, 10.8vw, 190px);
+  font-weight: 700;
+  letter-spacing: -.06em;
+  line-height: .72;
+  text-transform: uppercase;
+  text-shadow: 0 20px 70px rgba(0, 0, 0, .58);
+}
+
+.cassilia-home-feature-copy .section-title span {
+  display: block;
+  margin-bottom: 12px;
+  color: rgba(244, 246, 251, .66);
+  font-size: .18em;
+  letter-spacing: .34em;
 }
 
 .cassilia-home-feature-copy .section-desc {
-  max-width: 430px;
-  margin-bottom: 30px;
+  max-width: 610px;
+  margin: 34px 0 30px;
+  color: rgba(230, 237, 248, .82);
+  font-size: clamp(17px, 1.25vw, 21px);
   line-height: 1.75;
 }
 
@@ -96,46 +106,61 @@
   pointer-events: none;
 }
 
-@media (max-width: 1040px) {
-  .cassilia-home-feature {
-    grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr);
-    min-height: 380px;
-  }
+.cassilia-home-feature:hover .cassilia-home-feature-media img {
+  transform: scale(1.045);
+  filter: brightness(.79) saturate(.92) contrast(1.07);
+}
 
-  .cassilia-home-feature-media img {
-    min-height: 380px;
-  }
+.cassilia-home-feature:hover .button.primary {
+  border-color: #b9eaff;
+  box-shadow: 0 0 28px rgba(125, 216, 255, .16);
+}
 
-  .cassilia-home-feature-copy {
-    padding: 42px 36px;
-  }
+.cassilia-home-feature-mark {
+  position: absolute;
+  right: clamp(20px, 4vw, 74px);
+  bottom: 34px;
+  z-index: 3;
+  color: rgba(230, 237, 248, .42);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .3em;
+  text-transform: uppercase;
 }
 
 @media (max-width: 780px) {
   .cassilia-home-feature {
-    grid-template-columns: 1fr;
-    min-height: 0;
-  }
-
-  .cassilia-home-feature-media {
-    aspect-ratio: 16 / 9;
-  }
-
-  .cassilia-home-feature-media::after {
-    background: linear-gradient(0deg, rgba(7, 11, 18, .58), transparent 48%);
+    min-height: 680px;
+    align-items: flex-end;
   }
 
   .cassilia-home-feature-media img {
-    min-height: 0;
+    object-position: 65% center;
+  }
+
+  .cassilia-home-feature-shade {
+    background:
+      linear-gradient(0deg, rgba(4, 7, 12, .98) 0%, rgba(4, 7, 12, .74) 48%, rgba(4, 7, 12, .22) 100%),
+      linear-gradient(90deg, rgba(4, 7, 12, .58), transparent 72%);
   }
 
   .cassilia-home-feature-copy {
-    padding: 34px 28px 38px;
-    border-top: 1px solid var(--line);
-    border-left: 0;
+    width: calc(100% - 40px);
+    margin-left: 20px;
+    padding-bottom: 72px;
   }
 
   .cassilia-home-feature-copy .section-title {
-    font-size: clamp(40px, 12vw, 58px);
+    font-size: clamp(68px, 22vw, 112px);
+  }
+
+  .cassilia-home-feature-copy .section-desc {
+    margin-top: 26px;
+    font-size: 16px;
+  }
+
+  .cassilia-home-feature-mark {
+    display: none;
   }
 }
