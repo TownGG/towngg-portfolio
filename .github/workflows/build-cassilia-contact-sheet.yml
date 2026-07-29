@@ -1,4 +1,4 @@
-name: Build Cassilia screenshot contact sheet
+name: Build Cassilia screenshot contact sheets
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
       - name: Install Pillow
         run: python -m pip install --quiet pillow
 
-      - name: Build numbered contact sheet PDF
+      - name: Build compact numbered JPEG sheets
         shell: bash
         run: |
           python - <<'PY'
@@ -28,33 +28,33 @@ jobs:
           from PIL import Image, ImageDraw, ImageFont, ImageOps
 
           root = Path('assets/images/gallery-all-compressed')
-          out_dir = Path('audit')
-          out_dir.mkdir(exist_ok=True)
+          out_dir = Path('audit/cassilia-sheets')
+          out_dir.mkdir(parents=True, exist_ok=True)
           files = [root / f'screenshot_20260729_{i:03d}.jpg' for i in range(8, 58)]
           files = [p for p in files if p.exists()]
 
-          page_w, page_h = 1800, 2400
-          cols, rows = 3, 4
-          margin, gap = 55, 28
-          header_h = 80
+          page_w, page_h = 900, 1280
+          cols, rows = 2, 5
+          margin, gap = 24, 18
+          header_h = 52
           cell_w = (page_w - margin * 2 - gap * (cols - 1)) // cols
           cell_h = (page_h - margin * 2 - header_h - gap * (rows - 1)) // rows
-          image_h = cell_h - 58
+          image_h = cell_h - 34
 
           try:
-              font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 30)
-              small = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 24)
+              header_font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 22)
+              label_font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 18)
           except Exception:
-              font = ImageFont.load_default()
-              small = ImageFont.load_default()
+              header_font = ImageFont.load_default()
+              label_font = ImageFont.load_default()
 
-          pages = []
+          outputs = []
           for page_index in range((len(files) + cols * rows - 1) // (cols * rows)):
-              page = Image.new('RGB', (page_w, page_h), '#11151b')
+              page = Image.new('RGB', (page_w, page_h), '#10151c')
               draw = ImageDraw.Draw(page)
               start = page_index * cols * rows
               end = min(start + cols * rows, len(files))
-              draw.text((margin, 22), f'Cassilia screenshots {files[start].stem[-3:]}–{files[end-1].stem[-3:]}', fill='#f0d18a', font=font)
+              draw.text((margin, 14), f'Cassilia {files[start].stem[-3:]}–{files[end-1].stem[-3:]}', fill='#f0d18a', font=header_font)
 
               for local_index, path in enumerate(files[start:end]):
                   row, col = divmod(local_index, cols)
@@ -64,25 +64,25 @@ jobs:
                       source = source.convert('RGB')
                       thumb = ImageOps.fit(source, (cell_w, image_h), method=Image.Resampling.LANCZOS)
                   page.paste(thumb, (x, y))
-                  draw.rectangle((x, y, x + cell_w, y + image_h), outline='#556474', width=2)
-                  label = path.stem.replace('screenshot_20260729_', '')
-                  draw.rectangle((x, y + image_h, x + cell_w, y + cell_h), fill='#1a222c')
-                  draw.text((x + 16, y + image_h + 12), label, fill='white', font=small)
-              pages.append(page)
+                  draw.rectangle((x, y, x + cell_w, y + image_h), outline='#667789', width=2)
+                  draw.rectangle((x, y + image_h, x + cell_w, y + cell_h), fill='#19222c')
+                  draw.text((x + 12, y + image_h + 6), path.stem[-3:], fill='white', font=label_font)
 
-          pdf_path = out_dir / 'cassilia-screenshots-008-057.pdf'
-          pages[0].save(pdf_path, save_all=True, append_images=pages[1:], resolution=120.0)
-          print(f'Created {pdf_path} with {len(pages)} pages and {len(files)} images')
+              out = out_dir / f'cassilia-{files[start].stem[-3:]}-{files[end-1].stem[-3:]}.jpg'
+              page.save(out, quality=42, optimize=True, progressive=True)
+              outputs.append(out)
+
+          print('Created:', ', '.join(map(str, outputs)))
           PY
 
-      - name: Commit audit PDF
+      - name: Commit audit sheets
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add audit/cassilia-screenshots-008-057.pdf
+          git add audit/cassilia-sheets/*.jpg
           if git diff --cached --quiet; then
             exit 0
           fi
-          git commit -m "Build Cassilia screenshot audit sheet"
+          git commit -m "Build compact Cassilia screenshot sheets"
           git push
