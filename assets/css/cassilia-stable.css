@@ -1,0 +1,636 @@
+/* Cassilia production layout v3.0
+   One authoritative layer for spacing, imagery staging and responsive behavior. */
+
+body[data-page="cassilia"] .cassilia-story {
+  --story-copy-width: 720px;
+  font-family: "Inter", sans-serif;
+}
+
+/* Never allow animation setup to create empty sections. */
+.reveal-block,
+html.motion-ready .reveal-block,
+html.motion-ready .reveal-block.is-visible {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Content controls chapter height. */
+.cassilia-story .story-panel {
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+.cassilia-story h1,
+.cassilia-story h2,
+.cassilia-story h3,
+.cassilia-story blockquote {
+  font-family: "Rajdhani", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cassilia-story h2 {
+  font-size: clamp(54px, 7vw, 112px);
+  line-height: .88;
+  letter-spacing: -.045em;
+}
+
+.cassilia-story h3 {
+  font-size: clamp(42px, 5vw, 80px);
+  line-height: .9;
+  letter-spacing: -.04em;
+}
+
+.cassilia-story p {
+  max-width: var(--story-copy-width);
+  font-family: "Inter", sans-serif;
+  font-size: clamp(17px, 1.12vw, 19px);
+  line-height: 1.82;
+}
+
+.story-kicker {
+  margin-bottom: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .3em;
+}
+
+/* Hero: the only guaranteed full viewport chapter. */
+.cassilia-hero {
+  min-height: 100svh !important;
+  height: 100svh !important;
+  padding-top: 76px;
+}
+
+.cassilia-hero-media img {
+  object-position: center;
+  filter: saturate(.76) contrast(1.08) brightness(.5);
+}
+
+.cassilia-hero-shade {
+  background:
+    linear-gradient(90deg, rgba(5,7,11,.97) 0%, rgba(5,7,11,.82) 34%, rgba(5,7,11,.18) 70%, rgba(5,7,11,.5) 100%),
+    linear-gradient(0deg, #05070b 0%, transparent 36%);
+}
+
+.cassilia-hero-layout {
+  grid-template-columns: minmax(0, 1.08fr) minmax(280px, .48fr);
+  align-items: end;
+  width: 100%;
+  padding-top: clamp(90px, 10vh, 150px);
+  padding-bottom: clamp(100px, 12vh, 170px);
+}
+
+.cassilia-hero-copy h1 {
+  max-width: 820px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: clamp(76px, 9.5vw, 158px);
+  font-weight: 700;
+  line-height: .76;
+}
+
+.cassilia-hero-lead {
+  max-width: 610px !important;
+  margin-top: 30px;
+  font-family: "Inter", sans-serif !important;
+  font-size: clamp(18px, 1.35vw, 23px) !important;
+  line-height: 1.65 !important;
+}
+
+.cassilia-hero-cutout,
+.sword-cutout-layer,
+.mantis-cutout-layer {
+  display: none !important;
+}
+
+/* Character profile */
+.identity-section {
+  display: block !important;
+  min-height: 0 !important;
+  padding: clamp(86px, 7vw, 120px) 0 clamp(76px, 6vw, 106px) !important;
+}
+
+.identity-layout {
+  min-height: 0 !important;
+}
+
+.identity-copy {
+  max-width: var(--story-copy-width);
+}
+
+.character-profile {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  max-width: 720px;
+  margin-top: 36px;
+  border: 1px solid rgba(140,203,224,.18);
+  background: rgba(140,203,224,.08);
+}
+
+.character-profile > div {
+  min-height: 100px;
+  padding: 20px 22px;
+  background: rgba(7,11,17,.92);
+}
+
+.character-profile dt {
+  margin-bottom: 8px;
+  color: var(--cassilia-blue);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+.character-profile dd {
+  margin: 0;
+  color: var(--cassilia-paper);
+  font-family: "Rajdhani", sans-serif;
+  font-size: clamp(18px, 1.35vw, 23px);
+  font-weight: 600;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.identity-stage {
+  min-height: clamp(500px, 45vw, 660px) !important;
+}
+
+.identity-portrait {
+  inset: 2% 2% 2% 18%;
+}
+
+.identity-portrait img {
+  object-position: center;
+  filter: saturate(.86) contrast(1.05) brightness(.82);
+}
+
+.identity-marquee {
+  position: relative !important;
+  bottom: auto !important;
+  margin-top: clamp(40px, 4vw, 64px);
+  overflow: hidden;
+}
+
+/* Temerius: compact content-driven chapter. */
+.sword-section {
+  display: block !important;
+  min-height: 0 !important;
+  padding: clamp(88px, 7vw, 118px) 0 !important;
+  background: #080806;
+}
+
+.sword-bg {
+  position: absolute;
+  inset: 0;
+}
+
+.sword-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 62% center;
+  filter: saturate(.74) contrast(1.1) brightness(.42);
+  transform: none !important;
+}
+
+.sword-bg::after {
+  background:
+    linear-gradient(90deg, rgba(8,8,6,.98) 0%, rgba(8,8,6,.88) 43%, rgba(8,8,6,.28) 74%, rgba(8,8,6,.62)),
+    linear-gradient(0deg, rgba(8,8,6,.92) 0%, transparent 34%, rgba(8,8,6,.66) 100%) !important;
+}
+
+.sword-layout {
+  position: relative;
+  z-index: 2;
+  min-height: 0 !important;
+  padding: 0 !important;
+  align-items: center;
+}
+
+.whisper-field {
+  gap: clamp(46px, 5vw, 76px) !important;
+}
+
+.sword-statement {
+  position: relative !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: min(1180px, calc(100% - 48px));
+  max-width: none !important;
+  margin: clamp(44px, 4vw, 68px) auto 0 !important;
+  padding: clamp(24px, 2.4vw, 34px) clamp(26px, 3vw, 44px) !important;
+}
+
+/* First encounter */
+.terminus-section {
+  display: block !important;
+  min-height: 0 !important;
+  padding: clamp(88px, 7vw, 118px) 0 clamp(96px, 8vw, 128px) !important;
+}
+
+.terminus-section .chapter-heading {
+  width: min(1380px, 92%);
+  margin: 0 auto clamp(42px, 4vw, 62px) !important;
+}
+
+.terminus-gallery {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.2fr) minmax(330px, .68fr) !important;
+  grid-template-rows: auto auto !important;
+  gap: clamp(16px, 1.5vw, 24px) !important;
+  width: min(1500px, 92%) !important;
+  margin: 0 auto !important;
+}
+
+.terminus-main-shot {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  min-height: clamp(470px, 50vw, 720px) !important;
+}
+
+.terminus-copy {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(26px, 2.6vw, 42px) !important;
+}
+
+.terminus-secondary-shot {
+  grid-column: 2;
+  grid-row: 2;
+  min-height: clamp(230px, 22vw, 340px) !important;
+}
+
+.story-shot img {
+  object-position: center;
+  filter: saturate(.88) contrast(1.06) brightness(.84);
+}
+
+.terminus-battle-strip {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(8px, .8vw, 14px);
+  width: min(1500px, 92%);
+  margin: clamp(46px, 4vw, 66px) auto 0;
+  padding-top: 24px;
+}
+
+.terminus-battle-strip::before {
+  content: "THE BATTLE AT THE TEMPLE";
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: rgba(236,230,217,.46);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .28em;
+}
+
+.terminus-battle-strip figure {
+  aspect-ratio: 16 / 10;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(236,230,217,.1);
+}
+
+.terminus-battle-strip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.battle-line {
+  position: relative !important;
+  bottom: auto !important;
+  margin-top: clamp(46px, 4vw, 68px) !important;
+  overflow: hidden;
+}
+
+/* Cinematic chapters: controlled height, not forced multi-screen gaps. */
+.story-photo-bg,
+.relationship-bg,
+.finale-photo-bg {
+  position: absolute;
+  inset: 0;
+}
+
+.story-photo-bg img,
+.relationship-bg img,
+.finale-photo-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.story-photo-bg::after,
+.relationship-bg::after,
+.finale-photo-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.story-photo-bg::after {
+  background: rgba(2,3,5,.7);
+}
+
+.unity-section,
+.soul-section,
+.finale-section {
+  min-height: clamp(640px, 82svh, 820px) !important;
+  height: auto !important;
+  padding: clamp(82px, 7vw, 112px) 0 !important;
+}
+
+.unity-section {
+  display: grid !important;
+}
+
+.unity-section .story-photo-bg img {
+  object-position: center;
+  filter: grayscale(.2) contrast(1.08) brightness(.48);
+}
+
+.soul-section {
+  display: grid !important;
+}
+
+.soul-split img {
+  filter: grayscale(.24) brightness(.38) contrast(1.08);
+}
+
+.soul-content {
+  width: min(760px, 86%);
+  padding: clamp(34px, 4vw, 52px);
+}
+
+.relationship-section {
+  position: relative;
+  display: block !important;
+  min-height: 0 !important;
+  padding: clamp(90px, 7vw, 118px) 0 !important;
+  background: #0b0b0c;
+}
+
+.relationship-bg img {
+  object-position: center;
+  filter: grayscale(.28) saturate(.7) contrast(1.08) brightness(.36);
+}
+
+.relationship-bg::after {
+  background: linear-gradient(90deg, rgba(11,11,12,.96), rgba(11,11,12,.68) 48%, rgba(11,11,12,.82));
+}
+
+.relationship-grid {
+  position: relative;
+  z-index: 2;
+}
+
+/* Lives and mod-specific chapters. Text-bearing covers are allowed only here. */
+.legacy-section {
+  min-height: 0 !important;
+  padding: clamp(90px, 7vw, 120px) 0 !important;
+}
+
+.legacy-section > .chapter-heading {
+  margin-bottom: clamp(46px, 4vw, 68px) !important;
+}
+
+.legacy-chapter {
+  min-height: 0 !important;
+  padding: clamp(52px, 5vw, 78px) clamp(28px, 5vw, 84px) !important;
+}
+
+.legacy-chapter + .legacy-chapter {
+  margin-top: clamp(24px, 2.5vw, 40px) !important;
+}
+
+.legacy-image {
+  min-height: 0 !important;
+  aspect-ratio: 16 / 9;
+}
+
+.legacy-copy {
+  max-width: 720px;
+}
+
+.mantis-stack {
+  min-height: clamp(420px, 48vw, 640px) !important;
+}
+
+/* Ownership and mod archive */
+.ownership-section {
+  display: grid !important;
+  min-height: clamp(520px, 66svh, 680px) !important;
+  padding: clamp(90px, 7vw, 120px) 0 !important;
+}
+
+.mods-section {
+  min-height: 0 !important;
+  padding: clamp(90px, 7vw, 120px) 0 !important;
+}
+
+.cassilia-mod-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.cassilia-mod-card {
+  display: block;
+  min-height: 0;
+  padding: 0 0 24px;
+}
+
+.cassilia-mod-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: center;
+}
+
+.cassilia-mod-card > span,
+.cassilia-mod-card h3,
+.cassilia-mod-card p {
+  display: block;
+  margin-right: 22px;
+  margin-left: 22px;
+}
+
+.cassilia-mod-card > span { margin-top: 20px; }
+
+.finale-section {
+  position: relative;
+  background: #05070b !important;
+}
+
+.finale-photo-bg img {
+  object-position: center;
+  filter: saturate(.72) contrast(1.08) brightness(.42);
+}
+
+.finale-photo-bg::after {
+  background: radial-gradient(circle at center, rgba(5,7,11,.38), rgba(5,7,11,.94) 78%);
+}
+
+.finale-copy {
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 980px) {
+  .cassilia-hero-layout,
+  .identity-layout,
+  .sword-layout,
+  .relationship-grid,
+  .legacy-chapter {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cassilia-hero-layout {
+    gap: 38px;
+  }
+
+  .identity-stage {
+    min-height: 560px !important;
+  }
+
+  .terminus-gallery {
+    grid-template-columns: 1fr !important;
+  }
+
+  .terminus-main-shot,
+  .terminus-copy,
+  .terminus-secondary-shot {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .terminus-main-shot,
+  .terminus-secondary-shot {
+    min-height: 0 !important;
+    aspect-ratio: 16 / 10;
+  }
+
+  .terminus-battle-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cassilia-mod-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .cassilia-hero {
+    min-height: 100svh !important;
+    height: auto !important;
+  }
+
+  .cassilia-hero-layout {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: calc(100svh - 76px);
+    padding: 24vh 0 72px;
+  }
+
+  .cassilia-hero-copy h1 {
+    font-size: clamp(62px, 20vw, 102px);
+  }
+
+  .cassilia-index,
+  .scroll-cue {
+    display: none;
+  }
+
+  .identity-section,
+  .sword-section,
+  .terminus-section,
+  .relationship-section,
+  .legacy-section,
+  .ownership-section,
+  .mods-section {
+    padding-top: 72px !important;
+    padding-bottom: 72px !important;
+  }
+
+  .character-profile {
+    grid-template-columns: 1fr;
+  }
+
+  .identity-stage {
+    min-height: 470px !important;
+  }
+
+  .identity-portrait {
+    inset: 0 -10% 0 8%;
+  }
+
+  .whisper-field {
+    display: none;
+  }
+
+  .sword-statement,
+  .terminus-gallery,
+  .terminus-battle-strip {
+    width: calc(100% - 28px) !important;
+  }
+
+  .terminus-battle-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .unity-section,
+  .soul-section,
+  .finale-section,
+  .ownership-section {
+    min-height: 0 !important;
+    padding: 86px 0 !important;
+  }
+
+  .soul-split {
+    width: 100%;
+  }
+
+  .soul-left {
+    opacity: .38;
+  }
+
+  .soul-right {
+    opacity: .62;
+  }
+
+  .legacy-chapter {
+    padding: 44px 0 !important;
+  }
+
+  .power-chapter .legacy-copy,
+  .casual-chapter .legacy-copy {
+    order: 2;
+  }
+
+  .mantis-stack {
+    min-height: 92vw !important;
+  }
+
+  .cassilia-mod-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cassilia-story * {
+    scroll-behavior: auto !important;
+  }
+}
