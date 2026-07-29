@@ -109,7 +109,7 @@
   z-index: 4;
   right: clamp(20px, 4vw, 72px);
   bottom: clamp(24px, 4vw, 64px);
-  width: clamp(220px, 26vw, 420px);
+  width: clamp(190px, 18vw, 280px);
   margin: 0;
   overflow: hidden;
   aspect-ratio: 16 / 10;
