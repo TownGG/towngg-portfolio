@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-30T10:30:29Z",
+  "updatedAt": "2026-07-30T11:00:30Z",
   "mods": [
     {
       "platform": "nexus",
@@ -10,7 +10,7 @@
       "total_downloads": 605,
       "unique_downloads": 479,
       "daily_downloads": 1,
-      "likes": 34,
+      "likes": 35,
       "views": 0
     },
     {
@@ -22,7 +22,7 @@
       "total_downloads": 1579,
       "unique_downloads": 837,
       "daily_downloads": 2,
-      "likes": 35,
+      "likes": 36,
       "views": 0
     },
     {
@@ -34,7 +34,7 @@
       "total_downloads": 570,
       "unique_downloads": 501,
       "daily_downloads": 2,
-      "likes": 24,
+      "likes": 25,
       "views": 0
     },
     {
@@ -46,7 +46,7 @@
       "total_downloads": 413,
       "unique_downloads": 298,
       "daily_downloads": 0,
-      "likes": 10,
+      "likes": 11,
       "views": 0
     },
     {
@@ -58,7 +58,7 @@
       "total_downloads": 775,
       "unique_downloads": 547,
       "daily_downloads": 1,
-      "likes": 38,
+      "likes": 39,
       "views": 0
     },
     {
@@ -70,7 +70,7 @@
       "total_downloads": 3575,
       "unique_downloads": 2420,
       "daily_downloads": 9,
-      "likes": 156,
+      "likes": 157,
       "views": 0
     },
     {
@@ -82,7 +82,7 @@
       "total_downloads": 914,
       "unique_downloads": 616,
       "daily_downloads": 3,
-      "likes": 25,
+      "likes": 26,
       "views": 0
     },
     {
@@ -94,7 +94,7 @@
       "total_downloads": 202,
       "unique_downloads": 185,
       "daily_downloads": 0,
-      "likes": 9,
+      "likes": 10,
       "views": 0
     },
     {
@@ -106,7 +106,7 @@
       "total_downloads": 262,
       "unique_downloads": 252,
       "daily_downloads": 2,
-      "likes": 12,
+      "likes": 13,
       "views": 0
     },
     {
@@ -118,7 +118,7 @@
       "total_downloads": 247,
       "unique_downloads": 218,
       "daily_downloads": 0,
-      "likes": 12,
+      "likes": 13,
       "views": 0
     },
     {
@@ -130,7 +130,7 @@
       "total_downloads": 160,
       "unique_downloads": 149,
       "daily_downloads": 0,
-      "likes": 7,
+      "likes": 8,
       "views": 0
     },
     {
@@ -142,7 +142,7 @@
       "total_downloads": 39,
       "unique_downloads": 36,
       "daily_downloads": 0,
-      "likes": 2,
+      "likes": 3,
       "views": 0
     },
     {
@@ -154,7 +154,7 @@
       "total_downloads": 1148,
       "unique_downloads": 627,
       "daily_downloads": 4,
-      "likes": 28,
+      "likes": 29,
       "views": 0
     },
     {
@@ -166,7 +166,7 @@
       "total_downloads": 83,
       "unique_downloads": 58,
       "daily_downloads": 0,
-      "likes": 7,
+      "likes": 8,
       "views": 0
     },
     {
@@ -178,7 +178,7 @@
       "total_downloads": 159,
       "unique_downloads": 147,
       "daily_downloads": 2,
-      "likes": 7,
+      "likes": 8,
       "views": 0
     },
     {
@@ -190,7 +190,7 @@
       "total_downloads": 15,
       "unique_downloads": 13,
       "daily_downloads": 0,
-      "likes": 0,
+      "likes": 1,
       "views": 0
     },
     {
@@ -202,7 +202,7 @@
       "total_downloads": 481,
       "unique_downloads": 437,
       "daily_downloads": 3,
-      "likes": 26,
+      "likes": 27,
       "views": 0
     },
     {
@@ -214,7 +214,7 @@
       "total_downloads": 103,
       "unique_downloads": 98,
       "daily_downloads": 0,
-      "likes": 2,
+      "likes": 3,
       "views": 0
     },
     {
@@ -223,10 +223,10 @@
       "mod_name": "Cassilias Casual Outfit and Glasses",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17777",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
-      "total_downloads": 204,
+      "total_downloads": 205,
       "unique_downloads": 137,
-      "daily_downloads": 4,
-      "likes": 9,
+      "daily_downloads": 5,
+      "likes": 10,
       "views": 0
     }
   ]
