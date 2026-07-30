@@ -83,6 +83,48 @@ body[data-page="cassilia"] .cassilia-story .cassilia-hero-layout {
   }
 }
 
+/* Cassilia v3.4: the finale mirrors the opening hero and fills the visible area below the fixed header.
+   Only the finale height and its internal centering are changed. */
+body[data-page="cassilia"] .cassilia-story .finale-section.story-panel {
+  box-sizing: border-box;
+  display: grid !important;
+  place-items: center;
+  min-height: calc(100vh - 76px) !important;
+  height: auto !important;
+  padding-top: clamp(56px, 7vh, 92px) !important;
+  padding-bottom: clamp(56px, 7vh, 92px) !important;
+}
+
+body[data-page="cassilia"] .finale-copy {
+  align-self: center;
+}
+
+@supports (height: 100svh) {
+  body[data-page="cassilia"] .cassilia-story .finale-section.story-panel {
+    min-height: calc(100svh - 76px) !important;
+  }
+}
+
+@supports (height: 100dvh) {
+  body[data-page="cassilia"] .cassilia-story .finale-section.story-panel {
+    min-height: calc(100dvh - 76px) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  body[data-page="cassilia"] .cassilia-story .finale-section.story-panel {
+    min-height: calc(100vh - 76px) !important;
+    padding-top: clamp(44px, 6vh, 68px) !important;
+    padding-bottom: clamp(48px, 7vh, 76px) !important;
+  }
+
+  @supports (height: 100dvh) {
+    body[data-page="cassilia"] .cassilia-story .finale-section.story-panel {
+      min-height: calc(100dvh - 76px) !important;
+    }
+  }
+}
+
 /* Power Fist chapter: one full-body hero image and five authentic equipment variants/details. */
 .power-media-grid {
   grid-template-rows: repeat(5, minmax(0, 1fr));
