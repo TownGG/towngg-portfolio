@@ -1,0 +1,84 @@
+name: Build TGG Starfield Localizer Portable
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-portable:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout build payload
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Reconstruct source archive
+        shell: pwsh
+        run: |
+          $parts = Get-ChildItem ".build/tgg/part*" | Sort-Object Name
+          if ($parts.Count -ne 14) { throw "Expected 14 source parts, found $($parts.Count)." }
+          $builder = [System.Text.StringBuilder]::new()
+          foreach ($part in $parts) {
+            [void]$builder.Append([System.IO.File]::ReadAllText($part.FullName).Trim())
+          }
+          $bytes = [Convert]::FromBase64String($builder.ToString())
+          [System.IO.File]::WriteAllBytes("source.zip", $bytes)
+          $hash = (Get-FileHash "source.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($hash -ne "dfe31e5301c490bce01edcaf4b339b1b24f1c768fc23612134c7a763a875b556") {
+            throw "Source archive hash mismatch: $hash"
+          }
+          Expand-Archive "source.zip" -DestinationPath "source" -Force
+
+      - name: Build Windows x64 self-contained release
+        shell: pwsh
+        run: |
+          $project = "source/minbuild/src/TGG.Localizer.App/TGG.Localizer.App.csproj"
+          dotnet restore $project -r win-x64
+          dotnet publish $project -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:DebugType=portable -o "$env:RUNNER_TEMP/publish"
+
+      - name: Assemble portable hard-drive edition
+        shell: pwsh
+        run: |
+          $root = Join-Path $env:RUNNER_TEMP "portable"
+          $stage = Join-Path $root "TGG Starfield Localizer"
+          New-Item -ItemType Directory -Path $stage -Force | Out-Null
+          Copy-Item "$env:RUNNER_TEMP/publish/*" $stage -Recurse -Force
+          Copy-Item "source/minbuild/packaging/*" $stage -Recurse -Force
+          $required = @(
+            "TGG Starfield Localizer.exe",
+            "TGG Starfield Localizer.dll",
+            "TGG.Localizer.Core.dll",
+            "TGG.Localizer.Infrastructure.dll",
+            "TGG.Localizer.CreationKit.dll",
+            "README.txt",
+            "LICENSE.txt",
+            "Languages",
+            "Templates",
+            "UserData"
+          )
+          foreach ($item in $required) {
+            if (-not (Test-Path (Join-Path $stage $item))) { throw "Missing portable item: $item" }
+          }
+          $zip = Join-Path $env:RUNNER_TEMP "TGG_Starfield_Localizer_v0.2.5_MVP_Portable.zip"
+          Compress-Archive -Path $stage -DestinationPath $zip -CompressionLevel Optimal -Force
+          $sha = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$sha  TGG_Starfield_Localizer_v0.2.5_MVP_Portable.zip" | Set-Content (Join-Path $env:RUNNER_TEMP "TGG_Starfield_Localizer_v0.2.5_MVP_Portable_SHA256.txt") -Encoding ascii
+          Get-Item $zip | Format-List Name,Length,FullName
+
+      - name: Upload portable package
+        uses: actions/upload-artifact@v4
+        with:
+          name: TGG_Starfield_Localizer_v0.2.5_MVP_Portable
+          path: |
+            ${{ runner.temp }}/TGG_Starfield_Localizer_v0.2.5_MVP_Portable.zip
+            ${{ runner.temp }}/TGG_Starfield_Localizer_v0.2.5_MVP_Portable_SHA256.txt
+          if-no-files-found: error
+          retention-days: 1
