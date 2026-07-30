@@ -27,11 +27,18 @@ jobs:
           if ($parts.Count -ne 14) { throw "Expected 14 source parts, found $($parts.Count)." }
           $builder = [System.Text.StringBuilder]::new()
           foreach ($part in $parts) {
-            [void]$builder.Append([System.IO.File]::ReadAllText($part.FullName).Trim())
+            $text = [System.IO.File]::ReadAllText($part.FullName)
+            $invalid = [regex]::Matches($text, '[^A-Za-z0-9+/=\s]').Count
+            $clean = [regex]::Replace($text, '[^A-Za-z0-9+/=]', '')
+            Write-Host "$($part.Name): raw=$($text.Length) clean=$($clean.Length) invalid=$invalid first=$($clean.Substring(0,[Math]::Min(12,$clean.Length))) last=$($clean.Substring([Math]::Max(0,$clean.Length-12)))"
+            [void]$builder.Append($clean)
           }
-          $bytes = [Convert]::FromBase64String($builder.ToString())
+          $joined = $builder.ToString()
+          Write-Host "Joined length: $($joined.Length), modulo4=$($joined.Length % 4)"
+          $bytes = [Convert]::FromBase64String($joined)
           [System.IO.File]::WriteAllBytes("source.zip", $bytes)
           $hash = (Get-FileHash "source.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "Reconstructed source SHA256: $hash"
           if ($hash -ne "dfe31e5301c490bce01edcaf4b339b1b24f1c768fc23612134c7a763a875b556") {
             throw "Source archive hash mismatch: $hash"
           }
