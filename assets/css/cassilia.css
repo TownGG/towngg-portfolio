@@ -4,3 +4,38 @@
 @import url("./cassilia-responsive.css?v=1.0.0");
 @import url("./cassilia-stable.css?v=3.0.202607292045");
 @import url("./cassilia-media.css?v=3.1.202607292152");
+
+/* Cassilia hotfix v3.2: keep the hero text on the same container line as TownGG MOD. */
+body[data-page="cassilia"] .cassilia-hero-layout {
+  width: min(1380px, 92%) !important;
+  margin-right: auto !important;
+  margin-left: auto !important;
+}
+
+/* The previous 20260729_035-038 images were unrelated character outfit shots.
+   Replace the visible Power Fist gallery with the actual 20260618 equipment screenshots. */
+.power-chapter .legacy-media-grid figure:nth-child(-n + 4) {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.power-chapter .legacy-media-grid figure:nth-child(-n + 4) img {
+  opacity: 0;
+}
+
+.power-chapter .legacy-media-grid figure:nth-child(1) {
+  background-image: url("../images/gallery-all-compressed/screenshot_20260618_006.jpg");
+}
+
+.power-chapter .legacy-media-grid figure:nth-child(2) {
+  background-image: url("../images/gallery-all-compressed/screenshot_20260618_001.jpg");
+}
+
+.power-chapter .legacy-media-grid figure:nth-child(3) {
+  background-image: url("../images/gallery-all-compressed/screenshot_20260618_004.jpg");
+}
+
+.power-chapter .legacy-media-grid figure:nth-child(4) {
+  background-image: url("../images/gallery-all-compressed/screenshot_20260618_005.jpg");
+}
