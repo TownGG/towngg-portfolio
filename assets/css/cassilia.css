@@ -21,6 +21,22 @@ body[data-page="cassilia"] .cassilia-hero-layout {
   grid-row: 1 / -1;
 }
 
+/* Motion layers stay GPU-friendly while GSAP animates them. */
+html.motion-ready .identity-photo,
+html.motion-ready .story-inline-photo,
+html.motion-ready .terminus-gallery figure,
+html.motion-ready .terminus-battle-strip figure,
+html.motion-ready .soul-companion-shot,
+html.motion-ready .relationship-gallery figure,
+html.motion-ready .legacy-intro-gallery figure,
+html.motion-ready .legacy-media-grid figure,
+html.motion-ready .cassilia-mod-card,
+html.motion-ready .finale-copy > * {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
 @media (max-width: 720px) {
   .power-media-grid {
     grid-template-rows: auto;
@@ -28,5 +44,20 @@ body[data-page="cassilia"] .cassilia-hero-layout {
 
   .power-media-grid .legacy-media-main {
     grid-row: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.motion-ready .identity-photo,
+  html.motion-ready .story-inline-photo,
+  html.motion-ready .terminus-gallery figure,
+  html.motion-ready .terminus-battle-strip figure,
+  html.motion-ready .soul-companion-shot,
+  html.motion-ready .relationship-gallery figure,
+  html.motion-ready .legacy-intro-gallery figure,
+  html.motion-ready .legacy-media-grid figure,
+  html.motion-ready .cassilia-mod-card,
+  html.motion-ready .finale-copy > * {
+    will-change: auto;
   }
 }
