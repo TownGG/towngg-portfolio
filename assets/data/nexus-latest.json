@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-31T01:30:28Z",
+  "updatedAt": "2026-07-31T02:00:33Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 916,
+      "total_downloads": 917,
       "unique_downloads": 617,
-      "daily_downloads": 1,
+      "daily_downloads": 2,
       "likes": 26,
       "views": 0
     },
@@ -223,9 +223,9 @@
       "mod_name": "Cassilias Casual Outfit and Glasses",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17777",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
-      "total_downloads": 211,
-      "unique_downloads": 142,
-      "daily_downloads": 0,
+      "total_downloads": 212,
+      "unique_downloads": 143,
+      "daily_downloads": 1,
       "likes": 10,
       "views": 0
     }
