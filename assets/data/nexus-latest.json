@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-30T23:30:31Z",
+  "updatedAt": "2026-07-31T00:00:29Z",
   "mods": [
     {
       "platform": "nexus",
@@ -9,7 +9,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
       "total_downloads": 607,
       "unique_downloads": 480,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 35,
       "views": 0
     },
@@ -21,7 +21,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
       "total_downloads": 1579,
       "unique_downloads": 837,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 36,
       "views": 0
     },
@@ -33,7 +33,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
       "total_downloads": 572,
       "unique_downloads": 502,
-      "daily_downloads": 4,
+      "daily_downloads": 0,
       "likes": 25,
       "views": 0
     },
@@ -57,7 +57,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
       "total_downloads": 778,
       "unique_downloads": 550,
-      "daily_downloads": 4,
+      "daily_downloads": 0,
       "likes": 39,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3583,
-      "unique_downloads": 2425,
-      "daily_downloads": 17,
+      "total_downloads": 3584,
+      "unique_downloads": 2426,
+      "daily_downloads": 1,
       "likes": 157,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 915,
-      "unique_downloads": 616,
-      "daily_downloads": 4,
+      "total_downloads": 916,
+      "unique_downloads": 617,
+      "daily_downloads": 1,
       "likes": 26,
       "views": 0
     },
@@ -103,9 +103,9 @@
       "mod_name": "CPF-STARBORN POWER FIST UNITY",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
-      "total_downloads": 262,
-      "unique_downloads": 252,
-      "daily_downloads": 2,
+      "total_downloads": 263,
+      "unique_downloads": 253,
+      "daily_downloads": 1,
       "likes": 13,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1153,
-      "unique_downloads": 629,
-      "daily_downloads": 9,
+      "total_downloads": 1155,
+      "unique_downloads": 630,
+      "daily_downloads": 2,
       "likes": 29,
       "views": 0
     },
@@ -177,7 +177,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
       "total_downloads": 159,
       "unique_downloads": 147,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 8,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 484,
-      "unique_downloads": 440,
-      "daily_downloads": 6,
+      "total_downloads": 485,
+      "unique_downloads": 441,
+      "daily_downloads": 1,
       "likes": 27,
       "views": 0
     },
@@ -213,7 +213,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
       "total_downloads": 104,
       "unique_downloads": 99,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 3,
       "views": 0
     },
@@ -225,7 +225,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
       "total_downloads": 211,
       "unique_downloads": 142,
-      "daily_downloads": 11,
+      "daily_downloads": 0,
       "likes": 10,
       "views": 0
     }
