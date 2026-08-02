@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-02T01:30:29Z",
+  "updatedAt": "2026-08-02T02:00:34Z",
   "mods": [
     {
       "platform": "nexus",
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3643,
-      "unique_downloads": 2455,
-      "daily_downloads": 0,
+      "total_downloads": 3644,
+      "unique_downloads": 2456,
+      "daily_downloads": 1,
       "likes": 159,
       "views": 0
     },
@@ -223,9 +223,9 @@
       "mod_name": "Cassilias Casual Outfit and Glasses",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17777",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
-      "total_downloads": 232,
-      "unique_downloads": 158,
-      "daily_downloads": 0,
+      "total_downloads": 233,
+      "unique_downloads": 159,
+      "daily_downloads": 1,
       "likes": 10,
       "views": 0
     }
