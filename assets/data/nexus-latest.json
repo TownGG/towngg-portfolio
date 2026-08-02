@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-02T12:16:49Z",
+  "updatedAt": "2026-08-02T12:30:28Z",
   "mods": [
     {
       "platform": "nexus",
@@ -226,7 +226,7 @@
       "total_downloads": 238,
       "unique_downloads": 162,
       "daily_downloads": 6,
-      "likes": 10,
+      "likes": 11,
       "views": 0
     }
   ]
