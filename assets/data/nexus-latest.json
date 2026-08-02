@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-02T17:00:31Z",
+  "updatedAt": "2026-08-02T17:30:34Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1587,
-      "unique_downloads": 844,
-      "daily_downloads": 2,
+      "total_downloads": 1588,
+      "unique_downloads": 845,
+      "daily_downloads": 3,
       "likes": 36,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 416,
-      "unique_downloads": 301,
-      "daily_downloads": 1,
+      "total_downloads": 417,
+      "unique_downloads": 302,
+      "daily_downloads": 2,
       "likes": 12,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 935,
+      "total_downloads": 936,
       "unique_downloads": 629,
-      "daily_downloads": 1,
+      "daily_downloads": 2,
       "likes": 27,
       "views": 0
     },
@@ -115,9 +115,9 @@
       "mod_name": "CPF-STARBORN  POWER FIST OMEGA",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17500",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842553-1785018540.png",
-      "total_downloads": 254,
-      "unique_downloads": 224,
-      "daily_downloads": 0,
+      "total_downloads": 255,
+      "unique_downloads": 225,
+      "daily_downloads": 1,
       "likes": 13,
       "views": 0
     },
@@ -199,8 +199,8 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 508,
-      "unique_downloads": 460,
+      "total_downloads": 509,
+      "unique_downloads": 461,
       "daily_downloads": 0,
       "likes": 30,
       "views": 0
