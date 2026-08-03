@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-03T05:00:28Z",
+  "updatedAt": "2026-08-03T05:30:35Z",
   "mods": [
     {
       "platform": "nexus",
@@ -139,9 +139,9 @@
       "mod_name": "CASSILIAs Trainning Dummy",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17521",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17521/17521-1782131371-2132304027.png",
-      "total_downloads": 41,
-      "unique_downloads": 38,
-      "daily_downloads": 0,
+      "total_downloads": 42,
+      "unique_downloads": 39,
+      "daily_downloads": 1,
       "likes": 3,
       "views": 0
     },
@@ -163,9 +163,9 @@
       "mod_name": "TGG Texture Forge - Starfield DDS Converter",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17625",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
-      "total_downloads": 85,
+      "total_downloads": 86,
       "unique_downloads": 60,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 9,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 522,
-      "unique_downloads": 473,
-      "daily_downloads": 2,
+      "total_downloads": 523,
+      "unique_downloads": 474,
+      "daily_downloads": 3,
       "likes": 31,
       "views": 0
     },
