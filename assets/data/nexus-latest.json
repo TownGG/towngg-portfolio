@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-03T20:39:49Z",
+  "updatedAt": "2026-08-03T21:00:37Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,8 +79,8 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 934,
-      "unique_downloads": 628,
+      "total_downloads": 935,
+      "unique_downloads": 629,
       "daily_downloads": 0,
       "likes": 28,
       "views": 0
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1184,
-      "unique_downloads": 645,
-      "daily_downloads": 0,
+      "total_downloads": 1189,
+      "unique_downloads": 648,
+      "daily_downloads": 2,
       "likes": 32,
       "views": 0
     },
@@ -211,9 +211,9 @@
       "mod_name": "CPF-MANTIS BLADE",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
-      "total_downloads": 112,
-      "unique_downloads": 103,
-      "daily_downloads": 0,
+      "total_downloads": 113,
+      "unique_downloads": 104,
+      "daily_downloads": 1,
       "likes": 5,
       "views": 0
     },
