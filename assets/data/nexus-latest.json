@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-06T23:30:53Z",
+  "updatedAt": "2026-08-07T00:00:55Z",
   "mods": [
     {
       "platform": "nexus",
@@ -9,7 +9,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
       "total_downloads": 618,
       "unique_downloads": 489,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 36,
       "views": 0
     },
@@ -21,7 +21,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
       "total_downloads": 1587,
       "unique_downloads": 844,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 39,
       "views": 0
     },
@@ -57,7 +57,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
       "total_downloads": 789,
       "unique_downloads": 558,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 42,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3645,
+      "total_downloads": 3646,
       "unique_downloads": 2459,
-      "daily_downloads": 3,
+      "daily_downloads": 1,
       "likes": 164,
       "views": 0
     },
@@ -201,7 +201,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
       "total_downloads": 510,
       "unique_downloads": 463,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 36,
       "views": 0
     },
@@ -225,7 +225,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
       "total_downloads": 238,
       "unique_downloads": 163,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 12,
       "views": 0
     }
