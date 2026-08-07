@@ -103,9 +103,36 @@
     document.head.appendChild(script);
   }
 
+  function ensureWanjiaDongliSocialLink() {
+    const url = "https://www.wanjiadongli.com/download?params=%257B%2522id%2522%253A%25222717446%2522%257D&name=users%2Fid&channelCode=5B53KCA4VMKG";
+
+    document.querySelectorAll("[data-socials]").forEach((target) => {
+      let link = target.querySelector('[data-social-link="wanjiadongli"]');
+      if (!link) {
+        link = Array.from(target.querySelectorAll("a")).find((item) => item.textContent.trim() === "玩家动力");
+      }
+
+      if (!link) {
+        link = document.createElement("a");
+        link.className = "social-btn";
+        link.textContent = "玩家动力";
+        const nexus = Array.from(target.querySelectorAll("a")).find((item) => item.textContent.trim() === "Nexus Mods");
+        if (nexus) nexus.insertAdjacentElement("afterend", link);
+        else target.appendChild(link);
+      }
+
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.dataset.socialLink = "wanjiadongli";
+    });
+  }
+
   injectStableStyle();
   ensureHeaderControls();
   syncHeaderLanguage(preferredLanguage());
   bindSwitcher();
   loadDownloadsRefresh();
+  document.addEventListener("DOMContentLoaded", ensureWanjiaDongliSocialLink);
+  window.addEventListener("load", ensureWanjiaDongliSocialLink);
 })();
