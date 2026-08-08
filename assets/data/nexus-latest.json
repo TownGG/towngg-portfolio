@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-08T07:01:08Z",
+  "updatedAt": "2026-08-08T07:17:44Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,10 +55,10 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 795,
-      "unique_downloads": 561,
-      "daily_downloads": 3,
-      "likes": 43,
+      "total_downloads": 796,
+      "unique_downloads": 562,
+      "daily_downloads": 4,
+      "likes": 44,
       "views": 0
     },
     {
@@ -70,7 +70,7 @@
       "total_downloads": 3642,
       "unique_downloads": 2454,
       "daily_downloads": 3,
-      "likes": 165,
+      "likes": 166,
       "views": 0
     },
     {
@@ -202,7 +202,7 @@
       "total_downloads": 509,
       "unique_downloads": 461,
       "daily_downloads": 4,
-      "likes": 38,
+      "likes": 40,
       "views": 0
     },
     {
@@ -226,7 +226,7 @@
       "total_downloads": 239,
       "unique_downloads": 164,
       "daily_downloads": 2,
-      "likes": 12,
+      "likes": 14,
       "views": 0
     }
   ]
