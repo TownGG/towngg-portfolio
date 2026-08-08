@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-08T22:01:05Z",
+  "updatedAt": "2026-08-08T22:31:11Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1588,
-      "unique_downloads": 845,
-      "daily_downloads": 0,
+      "total_downloads": 1589,
+      "unique_downloads": 846,
+      "daily_downloads": 1,
       "likes": 39,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 415,
-      "unique_downloads": 300,
-      "daily_downloads": 0,
+      "total_downloads": 416,
+      "unique_downloads": 301,
+      "daily_downloads": 1,
       "likes": 13,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 517,
-      "unique_downloads": 465,
-      "daily_downloads": 12,
+      "total_downloads": 518,
+      "unique_downloads": 466,
+      "daily_downloads": 13,
       "likes": 42,
       "views": 0
     },
@@ -235,8 +235,8 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 90,
-      "unique_downloads": 83,
+      "total_downloads": 92,
+      "unique_downloads": 85,
       "daily_downloads": 0,
       "likes": 1,
       "views": 0
