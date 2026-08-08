@@ -267,6 +267,20 @@ window.siteData = {
       links: [
         { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17777" }
       ]
+    },
+    {
+      title: "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
+      category: "Nexus Mods / Auto Synced",
+      group: "Clothing",
+      image: "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
+      alt: "TGG Galaxy Fashion Lingerie-BLACK STOCKING Nexus Mods cover image",
+      description: "Automatically synced from Nexus Mods.",
+      tags: ["Nexus", "Auto Synced", "Starfield"],
+      downloads: "0",
+      endorsements: "0",
+      links: [
+        { label: "Nexus Mods", url: "https://www.nexusmods.com/starfield/mods/17881" }
+      ]
     }
   ],
   creations: [
