@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-09T01:01:05Z",
+  "updatedAt": "2026-08-09T01:31:05Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 586,
-      "unique_downloads": 515,
-      "daily_downloads": 0,
+      "total_downloads": 587,
+      "unique_downloads": 516,
+      "daily_downloads": 1,
       "likes": 28,
       "views": 0
     },
@@ -91,9 +91,9 @@
       "mod_name": "CPF-UC VANGUARD POWER FIST MK2",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17479",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
-      "total_downloads": 205,
-      "unique_downloads": 188,
-      "daily_downloads": 0,
+      "total_downloads": 206,
+      "unique_downloads": 189,
+      "daily_downloads": 1,
       "likes": 10,
       "views": 0
     },
@@ -223,9 +223,9 @@
       "mod_name": "Cassilias Casual Outfit and Glasses",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17777",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
-      "total_downloads": 239,
-      "unique_downloads": 163,
-      "daily_downloads": 0,
+      "total_downloads": 240,
+      "unique_downloads": 164,
+      "daily_downloads": 1,
       "likes": 15,
       "views": 0
     },
@@ -235,9 +235,9 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 100,
-      "unique_downloads": 90,
-      "daily_downloads": 3,
+      "total_downloads": 103,
+      "unique_downloads": 93,
+      "daily_downloads": 6,
       "likes": 1,
       "views": 0
     }
