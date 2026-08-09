@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-09T20:01:05Z",
+  "updatedAt": "2026-08-09T20:31:08Z",
   "mods": [
     {
       "platform": "nexus",
@@ -163,8 +163,8 @@
       "mod_name": "TGG Texture Forge - Starfield DDS Converter",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17625",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
-      "total_downloads": 84,
-      "unique_downloads": 59,
+      "total_downloads": 85,
+      "unique_downloads": 60,
       "daily_downloads": 0,
       "likes": 9,
       "views": 0
@@ -199,8 +199,8 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 515,
-      "unique_downloads": 465,
+      "total_downloads": 516,
+      "unique_downloads": 466,
       "daily_downloads": 0,
       "likes": 42,
       "views": 0
@@ -235,9 +235,9 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 169,
-      "unique_downloads": 155,
-      "daily_downloads": 72,
+      "total_downloads": 170,
+      "unique_downloads": 156,
+      "daily_downloads": 73,
       "likes": 3,
       "views": 0
     }
