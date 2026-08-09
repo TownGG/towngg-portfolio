@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-09T00:01:08Z",
+  "updatedAt": "2026-08-09T00:31:05Z",
   "mods": [
     {
       "platform": "nexus",
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3649,
-      "unique_downloads": 2462,
-      "daily_downloads": 0,
+      "total_downloads": 3650,
+      "unique_downloads": 2463,
+      "daily_downloads": 1,
       "likes": 167,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1187,
-      "unique_downloads": 644,
-      "daily_downloads": 0,
+      "total_downloads": 1188,
+      "unique_downloads": 645,
+      "daily_downloads": 1,
       "likes": 34,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 518,
-      "unique_downloads": 466,
-      "daily_downloads": 0,
+      "total_downloads": 519,
+      "unique_downloads": 467,
+      "daily_downloads": 1,
       "likes": 42,
       "views": 0
     },
@@ -235,9 +235,9 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 97,
-      "unique_downloads": 89,
-      "daily_downloads": 0,
+      "total_downloads": 100,
+      "unique_downloads": 90,
+      "daily_downloads": 3,
       "likes": 1,
       "views": 0
     }
