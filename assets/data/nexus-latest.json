@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-09T21:31:06Z",
+  "updatedAt": "2026-08-09T21:50:50Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 794,
-      "unique_downloads": 562,
-      "daily_downloads": 1,
+      "total_downloads": 795,
+      "unique_downloads": 563,
+      "daily_downloads": 2,
       "likes": 44,
       "views": 0
     },
@@ -235,9 +235,9 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 171,
-      "unique_downloads": 157,
-      "daily_downloads": 74,
+      "total_downloads": 172,
+      "unique_downloads": 158,
+      "daily_downloads": 75,
       "likes": 3,
       "views": 0
     }
