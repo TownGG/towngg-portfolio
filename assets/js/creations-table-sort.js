@@ -232,7 +232,12 @@
       state.activeDirection = nextDirection;
       state.defaultSortApplied = true;
       stateByTable.set(table, state);
-      sortTableBy(config, index, column.type, nextDirection);
+
+      const creationsRepairOwnsClick = config.tableName === 'creations'
+        && table.dataset.creationsDetailsRepairReady === 'true';
+      if (!creationsRepairOwnsClick) {
+        sortTableBy(config, index, column.type, nextDirection);
+      }
     });
   }
 
