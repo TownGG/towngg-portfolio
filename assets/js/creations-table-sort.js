@@ -219,6 +219,23 @@
     return header.textContent.trim();
   }
 
+  function bindSortButton(config, table, state, button, index, column) {
+    if (!button || button.dataset.townggTableSortBound === 'true') return;
+    button.dataset.townggTableSortBound = 'true';
+    button.addEventListener('click', () => {
+      const defaultDirection = column.type === 'text' ? 'asc' : 'desc';
+      const nextDirection = state.activeKey === column.key && state.activeDirection === defaultDirection
+        ? (defaultDirection === 'asc' ? 'desc' : 'asc')
+        : defaultDirection;
+
+      state.activeKey = column.key;
+      state.activeDirection = nextDirection;
+      state.defaultSortApplied = true;
+      stateByTable.set(table, state);
+      sortTableBy(config, index, column.type, nextDirection);
+    });
+  }
+
   function enhanceTable(config) {
     const { body, table, headerRow } = tableElements(config);
     if (!body || !table || !headerRow || !body.children.length) return;
@@ -241,23 +258,13 @@
       const existingButton = header.querySelector(`[${config.buttonAttr}]`);
       if (existingButton) {
         existingButton.setAttribute(config.buttonAttr, column.key);
+        bindSortButton(config, table, state, existingButton, index, column);
         return;
       }
 
       const label = plainHeaderText(header) || column.key;
       header.innerHTML = `<button type="button" class="dashboard-table-sort" ${config.buttonAttr}="${column.key}" aria-sort="none">${label}</button>`;
-      header.querySelector(`[${config.buttonAttr}]`).addEventListener('click', () => {
-        const defaultDirection = column.type === 'text' ? 'asc' : 'desc';
-        const nextDirection = state.activeKey === column.key && state.activeDirection === defaultDirection
-          ? (defaultDirection === 'asc' ? 'desc' : 'asc')
-          : defaultDirection;
-
-        state.activeKey = column.key;
-        state.activeDirection = nextDirection;
-        state.defaultSortApplied = true;
-        stateByTable.set(table, state);
-        sortTableBy(config, index, column.type, nextDirection);
-      });
+      bindSortButton(config, table, state, header.querySelector(`[${config.buttonAttr}]`), index, column);
     });
 
     const sorted = reapplyActiveSort(config, table, state) || applyDefaultSort(config, table, state);
