@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-11T23:30:37Z",
+  "updatedAt": "2026-08-12T00:00:33Z",
   "mods": [
     {
       "platform": "nexus",
@@ -9,7 +9,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
       "total_downloads": 621,
       "unique_downloads": 493,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 37,
       "views": 0
     },
@@ -153,7 +153,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
       "total_downloads": 1185,
       "unique_downloads": 645,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 34,
       "views": 0
     },
@@ -237,7 +237,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
       "total_downloads": 238,
       "unique_downloads": 219,
-      "daily_downloads": 27,
+      "daily_downloads": 0,
       "likes": 5,
       "views": 0
     }
