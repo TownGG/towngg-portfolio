@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-13T22:00:47Z",
+  "updatedAt": "2026-08-13T22:25:28Z",
   "mods": [
     {
       "platform": "nexus",
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1184,
+      "total_downloads": 1186,
       "unique_downloads": 645,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 34,
       "views": 0
     },
@@ -187,9 +187,9 @@
       "mod_name": "TGG BA2 Platform Watcher",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17727",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17727/17727-1784439369-1623894850.png",
-      "total_downloads": 18,
-      "unique_downloads": 14,
-      "daily_downloads": 0,
+      "total_downloads": 19,
+      "unique_downloads": 15,
+      "daily_downloads": 1,
       "likes": 1,
       "views": 0
     },
