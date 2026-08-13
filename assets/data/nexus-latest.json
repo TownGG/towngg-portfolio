@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-13T16:00:52Z",
+  "updatedAt": "2026-08-13T16:30:44Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1584,
+      "total_downloads": 1585,
       "unique_downloads": 841,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 39,
       "views": 0
     },
@@ -55,8 +55,8 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 789,
-      "unique_downloads": 559,
+      "total_downloads": 790,
+      "unique_downloads": 560,
       "daily_downloads": 0,
       "likes": 44,
       "views": 0
@@ -67,7 +67,7 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3635,
+      "total_downloads": 3637,
       "unique_downloads": 2454,
       "daily_downloads": 0,
       "likes": 168,
@@ -199,8 +199,8 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 503,
-      "unique_downloads": 456,
+      "total_downloads": 504,
+      "unique_downloads": 457,
       "daily_downloads": 0,
       "likes": 43,
       "views": 0
@@ -235,9 +235,9 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 263,
+      "total_downloads": 264,
       "unique_downloads": 241,
-      "daily_downloads": 12,
+      "daily_downloads": 13,
       "likes": 6,
       "views": 0
     }
