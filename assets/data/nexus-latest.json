@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-14T23:02:37Z",
+  "updatedAt": "2026-08-14T23:30:36Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1589,
-      "unique_downloads": 845,
-      "daily_downloads": 4,
+      "total_downloads": 1590,
+      "unique_downloads": 846,
+      "daily_downloads": 5,
       "likes": 39,
       "views": 0
     },
@@ -67,8 +67,8 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3641,
-      "unique_downloads": 2459,
+      "total_downloads": 3643,
+      "unique_downloads": 2461,
       "daily_downloads": 0,
       "likes": 169,
       "views": 0
@@ -223,9 +223,9 @@
       "mod_name": "Cassilias Casual Outfit and Glasses",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17777",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
-      "total_downloads": 238,
-      "unique_downloads": 162,
-      "daily_downloads": 0,
+      "total_downloads": 239,
+      "unique_downloads": 163,
+      "daily_downloads": 1,
       "likes": 19,
       "views": 0
     },
@@ -235,10 +235,10 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 303,
-      "unique_downloads": 277,
-      "daily_downloads": 34,
-      "likes": 10,
+      "total_downloads": 305,
+      "unique_downloads": 278,
+      "daily_downloads": 36,
+      "likes": 11,
       "views": 0
     }
   ]
