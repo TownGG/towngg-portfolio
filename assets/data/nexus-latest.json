@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-14T03:15:46Z",
+  "updatedAt": "2026-08-14T05:10:16Z",
   "mods": [
     {
       "platform": "nexus",
@@ -34,7 +34,7 @@
       "total_downloads": 589,
       "unique_downloads": 516,
       "daily_downloads": 2,
-      "likes": 29,
+      "likes": 30,
       "views": 0
     },
     {
@@ -70,7 +70,7 @@
       "total_downloads": 3654,
       "unique_downloads": 2463,
       "daily_downloads": 2,
-      "likes": 168,
+      "likes": 169,
       "views": 0
     },
     {
@@ -223,10 +223,10 @@
       "mod_name": "Cassilias Casual Outfit and Glasses",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17777",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
-      "total_downloads": 238,
-      "unique_downloads": 163,
-      "daily_downloads": 0,
-      "likes": 18,
+      "total_downloads": 239,
+      "unique_downloads": 164,
+      "daily_downloads": 1,
+      "likes": 19,
       "views": 0
     },
     {
@@ -235,10 +235,10 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 272,
-      "unique_downloads": 248,
-      "daily_downloads": 3,
-      "likes": 7,
+      "total_downloads": 278,
+      "unique_downloads": 254,
+      "daily_downloads": 9,
+      "likes": 8,
       "views": 0
     }
   ]
