@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-15T01:30:25Z",
+  "updatedAt": "2026-08-15T01:52:20Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 934,
+      "total_downloads": 935,
       "unique_downloads": 629,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 32,
       "views": 0
     },
@@ -211,9 +211,9 @@
       "mod_name": "CPF-MANTIS BLADE",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
-      "total_downloads": 113,
-      "unique_downloads": 105,
-      "daily_downloads": 0,
+      "total_downloads": 114,
+      "unique_downloads": 106,
+      "daily_downloads": 1,
       "likes": 10,
       "views": 0
     },
@@ -235,9 +235,9 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 306,
-      "unique_downloads": 279,
-      "daily_downloads": 1,
+      "total_downloads": 307,
+      "unique_downloads": 280,
+      "daily_downloads": 2,
       "likes": 11,
       "views": 0
     }
