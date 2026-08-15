@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-15T19:59:09Z",
+  "updatedAt": "2026-08-15T20:30:29Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 587,
-      "unique_downloads": 514,
-      "daily_downloads": 0,
+      "total_downloads": 589,
+      "unique_downloads": 515,
+      "daily_downloads": 2,
       "likes": 30,
       "views": 0
     },
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 788,
+      "total_downloads": 789,
       "unique_downloads": 557,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 44,
       "views": 0
     },
@@ -67,7 +67,7 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3642,
+      "total_downloads": 3643,
       "unique_downloads": 2458,
       "daily_downloads": 0,
       "likes": 169,
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 509,
-      "unique_downloads": 460,
-      "daily_downloads": 2,
+      "total_downloads": 511,
+      "unique_downloads": 462,
+      "daily_downloads": 4,
       "likes": 45,
       "views": 0
     },
