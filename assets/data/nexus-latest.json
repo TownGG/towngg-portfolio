@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-14T23:40:39Z",
+  "updatedAt": "2026-08-15T00:00:28Z",
   "mods": [
     {
       "platform": "nexus",
@@ -21,7 +21,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
       "total_downloads": 1590,
       "unique_downloads": 846,
-      "daily_downloads": 5,
+      "daily_downloads": 0,
       "likes": 39,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3643,
-      "unique_downloads": 2461,
-      "daily_downloads": 0,
+      "total_downloads": 3644,
+      "unique_downloads": 2462,
+      "daily_downloads": 1,
       "likes": 169,
       "views": 0
     },
@@ -81,7 +81,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
       "total_downloads": 934,
       "unique_downloads": 629,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 32,
       "views": 0
     },
@@ -93,7 +93,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
       "total_downloads": 207,
       "unique_downloads": 190,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 12,
       "views": 0
     },
@@ -105,7 +105,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
       "total_downloads": 267,
       "unique_downloads": 257,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 16,
       "views": 0
     },
@@ -117,7 +117,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842553-1785018540.png",
       "total_downloads": 253,
       "unique_downloads": 223,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 16,
       "views": 0
     },
@@ -129,7 +129,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
       "total_downloads": 164,
       "unique_downloads": 152,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 11,
       "views": 0
     },
@@ -201,7 +201,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
       "total_downloads": 507,
       "unique_downloads": 459,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 44,
       "views": 0
     },
@@ -213,7 +213,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
       "total_downloads": 113,
       "unique_downloads": 105,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 10,
       "views": 0
     },
@@ -225,7 +225,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
       "total_downloads": 239,
       "unique_downloads": 163,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 19,
       "views": 0
     },
@@ -235,9 +235,9 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 305,
-      "unique_downloads": 278,
-      "daily_downloads": 36,
+      "total_downloads": 306,
+      "unique_downloads": 279,
+      "daily_downloads": 1,
       "likes": 11,
       "views": 0
     }
