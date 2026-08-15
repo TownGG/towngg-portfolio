@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-15T03:30:34Z",
+  "updatedAt": "2026-08-15T03:57:10Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1590,
-      "unique_downloads": 846,
-      "daily_downloads": 0,
+      "total_downloads": 1591,
+      "unique_downloads": 847,
+      "daily_downloads": 1,
       "likes": 39,
       "views": 0
     },
@@ -235,9 +235,9 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 310,
-      "unique_downloads": 283,
-      "daily_downloads": 5,
+      "total_downloads": 311,
+      "unique_downloads": 284,
+      "daily_downloads": 6,
       "likes": 11,
       "views": 0
     }
