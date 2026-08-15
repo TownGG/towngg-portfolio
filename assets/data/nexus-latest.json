@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-15T15:59:35Z",
+  "updatedAt": "2026-08-15T16:30:21Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,8 +19,8 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1586,
-      "unique_downloads": 843,
+      "total_downloads": 1587,
+      "unique_downloads": 844,
       "daily_downloads": 0,
       "likes": 39,
       "views": 0
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 935,
-      "unique_downloads": 629,
-      "daily_downloads": 1,
+      "total_downloads": 936,
+      "unique_downloads": 630,
+      "daily_downloads": 2,
       "likes": 32,
       "views": 0
     },
@@ -103,8 +103,8 @@
       "mod_name": "CPF-STARBORN POWER FIST UNITY",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
-      "total_downloads": 265,
-      "unique_downloads": 255,
+      "total_downloads": 266,
+      "unique_downloads": 256,
       "daily_downloads": 0,
       "likes": 16,
       "views": 0
@@ -115,9 +115,9 @@
       "mod_name": "CPF-STARBORN  POWER FIST OMEGA",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17500",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842553-1785018540.png",
-      "total_downloads": 253,
-      "unique_downloads": 223,
-      "daily_downloads": 0,
+      "total_downloads": 254,
+      "unique_downloads": 224,
+      "daily_downloads": 1,
       "likes": 16,
       "views": 0
     },
@@ -178,7 +178,7 @@
       "total_downloads": 163,
       "unique_downloads": 151,
       "daily_downloads": 2,
-      "likes": 11,
+      "likes": 12,
       "views": 0
     },
     {
@@ -199,10 +199,10 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 506,
-      "unique_downloads": 457,
-      "daily_downloads": 0,
-      "likes": 44,
+      "total_downloads": 508,
+      "unique_downloads": 459,
+      "daily_downloads": 1,
+      "likes": 45,
       "views": 0
     },
     {
@@ -211,8 +211,8 @@
       "mod_name": "CPF-MANTIS BLADE",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
-      "total_downloads": 109,
-      "unique_downloads": 101,
+      "total_downloads": 110,
+      "unique_downloads": 102,
       "daily_downloads": 0,
       "likes": 10,
       "views": 0
@@ -223,8 +223,8 @@
       "mod_name": "Cassilias Casual Outfit and Glasses",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17777",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
-      "total_downloads": 236,
-      "unique_downloads": 161,
+      "total_downloads": 237,
+      "unique_downloads": 162,
       "daily_downloads": 0,
       "likes": 19,
       "views": 0
@@ -235,9 +235,9 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 328,
-      "unique_downloads": 300,
-      "daily_downloads": 23,
+      "total_downloads": 329,
+      "unique_downloads": 301,
+      "daily_downloads": 24,
       "likes": 11,
       "views": 0
     }
