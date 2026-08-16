@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-16T00:30:24Z",
+  "updatedAt": "2026-08-16T01:00:22Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1587,
-      "unique_downloads": 844,
-      "daily_downloads": 0,
+      "total_downloads": 1588,
+      "unique_downloads": 845,
+      "daily_downloads": 1,
       "likes": 39,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 3648,
+      "total_downloads": 3649,
       "unique_downloads": 2461,
-      "daily_downloads": 1,
+      "daily_downloads": 2,
       "likes": 169,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1190,
-      "unique_downloads": 647,
-      "daily_downloads": 0,
+      "total_downloads": 1192,
+      "unique_downloads": 648,
+      "daily_downloads": 2,
       "likes": 34,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 513,
-      "unique_downloads": 463,
-      "daily_downloads": 0,
+      "total_downloads": 514,
+      "unique_downloads": 464,
+      "daily_downloads": 1,
       "likes": 45,
       "views": 0
     },
