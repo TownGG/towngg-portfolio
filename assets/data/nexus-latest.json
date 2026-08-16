@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-16T04:52:47Z",
+  "updatedAt": "2026-08-16T05:00:21Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,10 +79,10 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 937,
-      "unique_downloads": 630,
-      "daily_downloads": 0,
-      "likes": 32,
+      "total_downloads": 938,
+      "unique_downloads": 631,
+      "daily_downloads": 1,
+      "likes": 33,
       "views": 0
     },
     {
@@ -214,7 +214,7 @@
       "total_downloads": 110,
       "unique_downloads": 102,
       "daily_downloads": 0,
-      "likes": 10,
+      "likes": 11,
       "views": 0
     },
     {
