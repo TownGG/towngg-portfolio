@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: update-nexus-dashboard-data
@@ -37,8 +38,23 @@ jobs:
           git add assets/data/nexus-mods.json assets/data/nexus-history.csv assets/data/nexus-latest.json assets/js/site-data.js
           if git diff --cached --quiet; then
             echo "No Nexus data changes to commit."
-            exit 0
+          else
+            git commit -m "Update Nexus dashboard data"
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi
-          git commit -m "Update Nexus dashboard data"
-          git pull --rebase origin main
-          git push origin HEAD:main
+
+      - name: Trigger Bethesda Creations sync
+        if: ${{ github.event_name == 'schedule' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Triggering Sync Bethesda Creations via workflow_dispatch..."
+          curl -fsSL \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/sync-creations.yml/dispatches" \
+            -d '{"ref":"main"}'
+          echo "Creations sync dispatch requested."
