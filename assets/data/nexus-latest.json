@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-18T02:01:01Z",
+  "updatedAt": "2026-08-18T02:30:59Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 935,
+      "total_downloads": 936,
       "unique_downloads": 629,
-      "daily_downloads": 1,
+      "daily_downloads": 2,
       "likes": 33,
       "views": 0
     },
@@ -244,9 +244,9 @@
     {
       "platform": "nexus",
       "mod_id": "18000",
-      "mod_name": "Nexus Mod 18000",
+      "mod_name": "TGG Galaxy Fashion-Fruit Pajama Collection",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18000",
-      "image_url": "",
+      "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18000/18000-1787018537-1839278272.jpg",
       "total_downloads": 0,
       "unique_downloads": 0,
       "daily_downloads": 0,
