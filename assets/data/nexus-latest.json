@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-18T08:01:02Z",
+  "updatedAt": "2026-08-18T08:31:01Z",
   "mods": [
     {
       "platform": "nexus",
@@ -163,9 +163,9 @@
       "mod_name": "TGG Texture Forge - Starfield DDS Converter",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17625",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
-      "total_downloads": 91,
-      "unique_downloads": 65,
-      "daily_downloads": 6,
+      "total_downloads": 92,
+      "unique_downloads": 66,
+      "daily_downloads": 7,
       "likes": 9,
       "views": 0
     },
@@ -223,9 +223,9 @@
       "mod_name": "Cassilias Casual Outfit and Glasses",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17777",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
-      "total_downloads": 330,
+      "total_downloads": 331,
       "unique_downloads": 238,
-      "daily_downloads": 90,
+      "daily_downloads": 91,
       "likes": 19,
       "views": 0
     },
