@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-18T19:31:07Z",
+  "updatedAt": "2026-08-18T20:01:05Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 703,
-      "unique_downloads": 608,
-      "daily_downloads": 116,
+      "total_downloads": 704,
+      "unique_downloads": 609,
+      "daily_downloads": 117,
       "likes": 30,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 4016,
-      "unique_downloads": 2692,
-      "daily_downloads": 372,
+      "total_downloads": 4018,
+      "unique_downloads": 2694,
+      "daily_downloads": 374,
       "likes": 172,
       "views": 0
     },
@@ -247,10 +247,10 @@
       "mod_name": "TGG Galaxy Fashion-Fruit Pajama Collection",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18000",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18000/18000-1787018537-1839278272.jpg",
-      "total_downloads": 14,
-      "unique_downloads": 13,
+      "total_downloads": 15,
+      "unique_downloads": 14,
       "daily_downloads": 0,
-      "likes": 0,
+      "likes": 1,
       "views": 0
     }
   ]
