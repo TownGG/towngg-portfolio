@@ -10,7 +10,7 @@ permissions:
   actions: write
 
 concurrency:
-  group: update-nexus-dashboard-data
+  group: sync-creations
   cancel-in-progress: false
 
 jobs:
