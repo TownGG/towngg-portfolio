@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-19T22:07:11Z",
+  "updatedAt": "2026-08-19T22:58:14Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,7 +55,7 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 883,
+      "total_downloads": 884,
       "unique_downloads": 621,
       "daily_downloads": 0,
       "likes": 45,
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 4030,
-      "unique_downloads": 2700,
-      "daily_downloads": 10,
+      "total_downloads": 4031,
+      "unique_downloads": 2701,
+      "daily_downloads": 11,
       "likes": 173,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 718,
-      "unique_downloads": 639,
-      "daily_downloads": 0,
+      "total_downloads": 719,
+      "unique_downloads": 640,
+      "daily_downloads": 1,
       "likes": 47,
       "views": 0
     },
