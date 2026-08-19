@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-19T14:09:44Z",
+  "updatedAt": "2026-08-19T14:56:12Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1655,
-      "unique_downloads": 891,
-      "daily_downloads": 2,
+      "total_downloads": 1656,
+      "unique_downloads": 892,
+      "daily_downloads": 3,
       "likes": 39,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 434,
-      "unique_downloads": 314,
-      "daily_downloads": 1,
+      "total_downloads": 435,
+      "unique_downloads": 315,
+      "daily_downloads": 2,
       "likes": 14,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 4020,
-      "unique_downloads": 2693,
-      "daily_downloads": 0,
+      "total_downloads": 4021,
+      "unique_downloads": 2694,
+      "daily_downloads": 1,
       "likes": 173,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1343,
+      "total_downloads": 1344,
       "unique_downloads": 724,
-      "daily_downloads": 5,
+      "daily_downloads": 6,
       "likes": 34,
       "views": 0
     },
