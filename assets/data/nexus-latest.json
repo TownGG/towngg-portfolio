@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-19T15:21:15Z",
+  "updatedAt": "2026-08-19T16:09:11Z",
   "mods": [
     {
       "platform": "nexus",
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1344,
+      "total_downloads": 1345,
       "unique_downloads": 724,
-      "daily_downloads": 6,
+      "daily_downloads": 7,
       "likes": 34,
       "views": 0
     },
@@ -235,8 +235,8 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 365,
-      "unique_downloads": 324,
+      "total_downloads": 366,
+      "unique_downloads": 325,
       "daily_downloads": 0,
       "likes": 14,
       "views": 0
@@ -247,9 +247,9 @@
       "mod_name": "TGG Galaxy Fashion-Fruit Pajama Collection",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18000",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18000/18000-1787018537-1839278272.jpg",
-      "total_downloads": 19,
-      "unique_downloads": 18,
-      "daily_downloads": 4,
+      "total_downloads": 20,
+      "unique_downloads": 19,
+      "daily_downloads": 5,
       "likes": 1,
       "views": 0
     }
