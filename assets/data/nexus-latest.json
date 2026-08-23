@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-22T23:59:48Z",
+  "updatedAt": "2026-08-23T00:53:13Z",
   "mods": [
     {
       "platform": "nexus",
@@ -9,7 +9,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
       "total_downloads": 702,
       "unique_downloads": 551,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 39,
       "views": 0
     },
@@ -21,7 +21,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
       "total_downloads": 1677,
       "unique_downloads": 906,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 39,
       "views": 0
     },
@@ -33,7 +33,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
       "total_downloads": 738,
       "unique_downloads": 637,
-      "daily_downloads": 8,
+      "daily_downloads": 0,
       "likes": 30,
       "views": 0
     },
@@ -57,7 +57,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
       "total_downloads": 913,
       "unique_downloads": 641,
-      "daily_downloads": 4,
+      "daily_downloads": 0,
       "likes": 46,
       "views": 0
     },
@@ -69,7 +69,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
       "total_downloads": 4125,
       "unique_downloads": 2761,
-      "daily_downloads": 26,
+      "daily_downloads": 0,
       "likes": 178,
       "views": 0
     },
@@ -81,7 +81,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
       "total_downloads": 1050,
       "unique_downloads": 703,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 33,
       "views": 0
     },
@@ -105,7 +105,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
       "total_downloads": 297,
       "unique_downloads": 279,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 16,
       "views": 0
     },
@@ -129,7 +129,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
       "total_downloads": 183,
       "unique_downloads": 167,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 11,
       "views": 0
     },
@@ -153,7 +153,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
       "total_downloads": 1376,
       "unique_downloads": 740,
-      "daily_downloads": 8,
+      "daily_downloads": 0,
       "likes": 34,
       "views": 0
     },
@@ -165,7 +165,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
       "total_downloads": 94,
       "unique_downloads": 67,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 9,
       "views": 0
     },
@@ -177,7 +177,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
       "total_downloads": 196,
       "unique_downloads": 180,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 12,
       "views": 0
     },
@@ -201,7 +201,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
       "total_downloads": 745,
       "unique_downloads": 659,
-      "daily_downloads": 6,
+      "daily_downloads": 0,
       "likes": 47,
       "views": 0
     },
@@ -213,7 +213,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
       "total_downloads": 163,
       "unique_downloads": 151,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 12,
       "views": 0
     },
@@ -223,8 +223,8 @@
       "mod_name": "Cassilias Casual Outfit and Glasses",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17777",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
-      "total_downloads": 342,
-      "unique_downloads": 245,
+      "total_downloads": 343,
+      "unique_downloads": 246,
       "daily_downloads": 1,
       "likes": 19,
       "views": 0
@@ -235,9 +235,9 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 446,
-      "unique_downloads": 373,
-      "daily_downloads": 14,
+      "total_downloads": 448,
+      "unique_downloads": 375,
+      "daily_downloads": 2,
       "likes": 14,
       "views": 0
     },
