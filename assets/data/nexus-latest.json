@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-24T06:01:43Z",
+  "updatedAt": "2026-08-24T06:26:50Z",
   "mods": [
     {
       "platform": "nexus",
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 755,
+      "total_downloads": 756,
       "unique_downloads": 666,
-      "daily_downloads": 3,
+      "daily_downloads": 4,
       "likes": 47,
       "views": 0
     },
@@ -259,9 +259,9 @@
       "mod_name": "POWER RANGER UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18049",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18049/18049-1787491919-946013974.png",
-      "total_downloads": 25,
-      "unique_downloads": 24,
-      "daily_downloads": 4,
+      "total_downloads": 26,
+      "unique_downloads": 25,
+      "daily_downloads": 5,
       "likes": 2,
       "views": 0
     }
