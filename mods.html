@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="./assets/css/mods-alignment-fix.css?v=2.05.01">
   <link rel="stylesheet" href="./assets/css/mod-list-sort.css?v=2.05.15">
 </head>
-<body>
+<body data-creations-pricing="free">
   <header class="site-header">
     <div class="container nav">
       <a class="brand" href="./index.html">TownGG <span>MOD</span></a>
@@ -102,6 +102,7 @@
             <div class="mods-platform-control">
               <div class="platform-tabs" role="tablist" aria-label="Mod platform">
                 <button class="platform-tab is-active" type="button" role="tab" aria-selected="true" data-platform-tab="creations">Creations</button>
+                <a class="platform-tab" href="./paid-creations.html" role="tab" aria-selected="false" data-paid-creations-tab>Paid Creations</a>
                 <button class="platform-tab" type="button" role="tab" aria-selected="false" data-platform-tab="nexus">Nexus Mods</button>
               </div>
             </div>
@@ -171,6 +172,7 @@
             <div class="mods-platform-control">
               <div class="platform-tabs" role="tablist" aria-label="Mod platform">
                 <button class="platform-tab is-active" type="button" role="tab" aria-selected="true" data-platform-tab="creations">Creations</button>
+                <a class="platform-tab" href="./paid-creations.html" role="tab" aria-selected="false" data-paid-creations-tab>Paid Creations</a>
                 <button class="platform-tab" type="button" role="tab" aria-selected="false" data-platform-tab="nexus">Nexus Mods</button>
               </div>
             </div>
@@ -250,6 +252,7 @@
   <script>
     document.write('<script src="./assets/js/site-data.js?v=' + Date.now() + '"><\/script>');
   </script>
+  <script src="./assets/js/creations-pricing-mode.js?v=2.05.20260826"></script>
   <script src="./assets/js/main.js?v=2.05.20260718-scroll-fix"></script>
   <script>
     dataUrl = window.dataUrl = function(path) {
@@ -260,7 +263,9 @@
   </script>
   <script>
     (() => {
-      const defaultPlatform = "creations";
+      const defaultPlatform = new URLSearchParams(window.location.search).get("platform") === "nexus"
+        ? "nexus"
+        : "creations";
 
       function syncPlatformTabs(platform = defaultPlatform) {
         document.querySelectorAll("[data-platform-tab]").forEach((tab) => {
@@ -271,6 +276,11 @@
 
         document.querySelectorAll("[data-platform-panel]").forEach((panel) => {
           panel.classList.toggle("is-active", panel.dataset.platformPanel === platform);
+        });
+
+        document.querySelectorAll("[data-paid-creations-tab]").forEach((tab) => {
+          tab.classList.remove("is-active");
+          tab.setAttribute("aria-selected", "false");
         });
       }
 
