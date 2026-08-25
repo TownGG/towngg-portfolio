@@ -121,6 +121,7 @@
   }
 
   function createDailyState(rows) {
+    rows = window.townggFilterCreationDailyRows?.(rows) || rows;
     const allSeries = dailySeries(rows);
     const selected = allSeries.at(-1) || { date: "", snapshotAt: "", value: 0, rows: [] };
     const today = todayKey();
