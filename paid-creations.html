@@ -286,8 +286,7 @@
       }
 
       const initialize = () => {
-        const activePanel = document.querySelector("[data-platform-panel].is-active");
-        syncPlatformTabs(activePanel?.dataset.platformPanel || defaultPlatform);
+        syncPlatformTabs(defaultPlatform);
       };
 
       if (document.readyState === "loading") {
