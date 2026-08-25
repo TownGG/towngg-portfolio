@@ -164,6 +164,8 @@ function renderCreationObject(item) {
   push('alt', item.alt);
   push('description', item.description);
   push('tags', item.tags);
+  push('price', item.price);
+  push('isPaid', item.isPaid);
   for (const key of statKeys) push(key, item[key]);
   push('updatedAt', item.updatedAt);
   push('source', item.source);
@@ -177,6 +179,7 @@ function renderCreationObject(item) {
         return `${key}: [${links}]`;
       }
     }
+    if (key === 'isPaid') return `${key}: ${value === true}`;
     return `${key}: ${jsString(value)}`;
   });
 
@@ -293,6 +296,93 @@ function normalizeImageUrl(value, pageUrl) {
   } catch {
     return null;
   }
+}
+
+async function scrapePricing(page) {
+  return page.evaluate(() => {
+    const isVisible = (node) => {
+      const rect = node?.getBoundingClientRect?.();
+      const style = node ? window.getComputedStyle(node) : null;
+      return Boolean(rect && rect.width > 1 && rect.height > 1 && style?.display !== 'none' && style?.visibility !== 'hidden');
+    };
+    const parsePrice = (value) => {
+      const matches = String(value || '').replace(/,/g, '').match(/\b([1-9][0-9]{1,4})\b/g) || [];
+      return matches.map(Number).find((number) => Number.isFinite(number) && number > 0) || 0;
+    };
+    const candidates = [];
+    const addCandidate = (value, source, priority) => {
+      const price = parsePrice(value);
+      if (price > 0) candidates.push({ price, source, priority });
+    };
+
+    const priceAttributes = ['data-price', 'data-cost', 'data-credits', 'data-credit-price', 'data-testid'];
+    for (const node of [...document.querySelectorAll('[data-price],[data-cost],[data-credits],[data-credit-price]')]) {
+      if (!isVisible(node)) continue;
+      for (const attribute of priceAttributes) {
+        addCandidate(node.getAttribute(attribute), `attribute:${attribute}`, 1);
+      }
+      addCandidate(node.innerText || node.textContent, 'price-attribute-text', 1);
+    }
+
+    const semanticNodes = [
+      ...document.querySelectorAll(
+        '[class*="price" i],[class*="credit" i],[class*="currency" i],' +
+        '[aria-label*="price" i],[aria-label*="credit" i],[title*="price" i],[title*="credit" i]'
+      )
+    ];
+    for (const node of semanticNodes) {
+      if (!isVisible(node)) continue;
+      const container = node.closest('button,a,[role="button"],li,div') || node;
+      const marker = [
+        node.className?.baseVal || node.className,
+        node.getAttribute?.('aria-label'),
+        node.getAttribute?.('title'),
+        node.getAttribute?.('data-testid'),
+        node.outerHTML?.slice(0, 800)
+      ].filter(Boolean).join(' ');
+      if (!/(price|credit|currency|purchase|buy|cost)/i.test(marker)) continue;
+      addCandidate(container.innerText || container.textContent, 'semantic-price-element', 2);
+    }
+
+    const actionNodes = [...document.querySelectorAll('button,a,[role="button"]')];
+    for (const node of actionNodes) {
+      if (!isVisible(node)) continue;
+      const text = String(node.innerText || node.textContent || '').replace(/\s+/g, ' ').trim();
+      const marker = [
+        text,
+        node.getAttribute('aria-label'),
+        node.getAttribute('title'),
+        node.className?.baseVal || node.className,
+        node.outerHTML?.slice(0, 1200)
+      ].filter(Boolean).join(' ');
+      if (!/(creation\s*credits?|credits?|\bcc\b|currency|purchase|buy|price)/i.test(marker)) continue;
+      addCandidate(text, 'purchase-action', 3);
+    }
+
+    const bodyText = String(document.body?.innerText || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
+    const labeledPatterns = [
+      /(?:price|cost)\s*:?\s*([1-9][0-9]{1,4})\s*(?:cc|credits?|creation credits?)/i,
+      /([1-9][0-9]{1,4})\s*(?:cc|credits?|creation credits?)/i,
+      /(?:cc|credits?|creation credits?)\s*:?\s*([1-9][0-9]{1,4})/i
+    ];
+    for (const pattern of labeledPatterns) {
+      const match = bodyText.match(pattern);
+      if (match) addCandidate(match[1], 'labeled-page-text', 4);
+    }
+
+    candidates.sort((a, b) => a.priority - b.priority);
+    const match = candidates[0];
+    if (match) {
+      return { ok: true, price: match.price, isPaid: true, source: match.source };
+    }
+
+    const hasCreationPage = /\/starfield\/details\//i.test(window.location.pathname)
+      && Boolean(document.querySelector('h1,[data-testid="creation-title"]'))
+      && bodyText.length > 100;
+    return hasCreationPage
+      ? { ok: true, price: 0, isPaid: false, source: 'no-price-element' }
+      : { ok: false, price: null, isPaid: null, source: 'page-not-ready' };
+  });
 }
 
 async function scrapeCoverImage(page) {
@@ -442,8 +532,11 @@ async function scrapeAllTimeEngagementStats(page, debugContext = {}) {
   return { ok: Boolean(Object.keys(stats).length), stats, timeRange: 'all-time-or-fallback' };
 }
 
-function statsLine(stats, coverImage, title, oldTitle) {
-  return `title=${title && title !== oldTitle ? `${oldTitle} -> ${title}` : title || oldTitle}, likes=${stats.likes || '-'}, downloads=${stats.downloads || '-'}, cover=${coverImage ? 'yes' : 'no'}, views=${stats.views || '-'}, plays=${stats.plays || '-'}, bookmarks=${stats.bookmarks || '-'}, libraryAdds=${stats.libraryAdds || '-'}`;
+function statsLine(stats, coverImage, title, oldTitle, pricing) {
+  const pricingLabel = pricing?.ok
+    ? (pricing.isPaid ? `${pricing.price} CC (paid)` : 'free')
+    : 'kept';
+  return `title=${title && title !== oldTitle ? `${oldTitle} -> ${title}` : title || oldTitle}, price=${pricingLabel}, likes=${stats.likes || '-'}, downloads=${stats.downloads || '-'}, cover=${coverImage ? 'yes' : 'no'}, views=${stats.views || '-'}, plays=${stats.plays || '-'}, bookmarks=${stats.bookmarks || '-'}, libraryAdds=${stats.libraryAdds || '-'}`;
 }
 
 async function scrapeCreation(page, creation) {
@@ -463,6 +556,12 @@ async function scrapeCreation(page, creation) {
   const finalUrl = page.url() || url;
   const title = await scrapeTitle(page, creation.title, titleFromUrl(finalUrl) || titleFromUrl(url));
   const coverImage = normalizeImageUrl(await scrapeCoverImage(page), url);
+  const pricing = await scrapePricing(page).catch(() => ({
+    ok: false,
+    price: null,
+    isPaid: null,
+    source: 'scrape-error'
+  }));
   const allTime = await scrapeAllTimeEngagementStats(page, debugContext);
   let fallbackStats = {};
   if (!allTime.ok) {
@@ -480,7 +579,7 @@ async function scrapeCreation(page, creation) {
     return { ok: false, error: 'no_stats_cover_or_title_found' };
   }
 
-  return { ok: true, title, stats, coverImage };
+  return { ok: true, title, stats, coverImage, pricing };
 }
 
 async function login() {
@@ -546,12 +645,16 @@ async function sync() {
         alt: creation.alt ? String(creation.alt).replace(creation.title, result.title || creation.title) : creation.alt,
         ...result.stats,
         ...(result.coverImage ? { image: result.coverImage } : {}),
+        ...(result.pricing?.ok ? {
+          price: String(result.pricing.price),
+          isPaid: result.pricing.isPaid
+        } : {}),
         updatedAt: today,
         source: 'Browser Capture'
       };
       nextSource = replaceCreationObjectByKey(nextSource, creation, renderCreationObject(merged));
       success += 1;
-      console.log(statsLine(result.stats, result.coverImage, result.title, creation.title));
+      console.log(statsLine(result.stats, result.coverImage, result.title, creation.title, result.pricing));
     } catch (error) {
       failed += 1;
       console.log(`kept old data (${error.message})`);
