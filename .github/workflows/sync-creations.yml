@@ -93,6 +93,8 @@ jobs:
           const creations = Array.isArray(context.window.siteData?.creations) ? context.window.siteData.creations : [];
           const rows = creations.map((item) => ({
             title: item.title || '',
+            price: item.isPaid === true ? `${item.price || '?'} CC` : 'Free',
+            isPaid: item.isPaid === true,
             views: item.views || '-',
             bookmarks: item.bookmarks || '-',
             likes: item.likes || '-',
