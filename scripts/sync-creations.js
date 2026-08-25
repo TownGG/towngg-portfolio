@@ -248,43 +248,40 @@ async function scrapeTitle(page, fallbackTitle, urlTitle) {
       .replace(/\s+-\s*Bethesda.*$/i, '')
       .replace(/\s+/g, ' ')
       .trim();
+    const isGeneric = (value) => /^(bethesda creations?|featured|recommended|more creations?|stats|details|overview)$/i.test(clean(value));
 
-    const titleSelectors = [
-      'h1',
-      '[data-testid="creation-title"]',
-      '[class*="title" i]',
-      '[class*="Title" i]'
-    ];
+    const visible = (node) => {
+      const rect = node?.getBoundingClientRect?.();
+      return Boolean(rect && rect.width > 20 && rect.height > 8);
+    };
 
-    const visibleTexts = titleSelectors.flatMap((selector) =>
-      [...document.querySelectorAll(selector)]
-        .filter((node) => {
-          const rect = node.getBoundingClientRect();
-          return rect.width > 20 && rect.height > 8;
-        })
-        .map((node) => node.innerText || node.textContent || '')
-    );
+    const primaryHeadings = [
+      ...document.querySelectorAll('h1,[data-testid="creation-title"]')
+    ]
+      .filter(visible)
+      .map((node) => clean(node.innerText || node.textContent))
+      .filter((value) => value && !isGeneric(value));
 
     const candidates = [
-      ...visibleTexts,
+      ...primaryHeadings,
       document.querySelector('meta[property="og:title"]')?.getAttribute('content'),
-      document.title,
       fallback
-    ].map(clean).filter(Boolean);
+    ].map(clean).filter((value) => value && !isGeneric(value));
 
-    return candidates.find((item) => !/^bethesda creations?$/i.test(item) && !/^(stats|details|overview)$/i.test(item)) || fallback;
+    return candidates[0] || fallback;
   }, fallbackTitle).catch(() => fallbackTitle);
 
+  const isGeneric = (value) => /^(bethesda creations?|featured|recommended|more creations?|stats|details|overview)$/i.test(cleanTitle(value));
   const cleanedPageTitle = cleanTitle(pageTitle);
   const cleanedUrlTitle = cleanTitle(urlTitle);
   const cleanedFallback = cleanTitle(fallbackTitle);
 
-  if (cleanedPageTitle && cleanedPageTitle !== cleanedFallback) return cleanedPageTitle;
-  if (cleanedUrlTitle && cleanedUrlTitle !== cleanedFallback) return cleanedUrlTitle;
-  return cleanedPageTitle || cleanedUrlTitle || cleanedFallback;
+  if (cleanedPageTitle && !isGeneric(cleanedPageTitle) && cleanedPageTitle !== cleanedFallback) return cleanedPageTitle;
+  if (cleanedUrlTitle && !isGeneric(cleanedUrlTitle) && cleanedUrlTitle !== cleanedFallback) return cleanedUrlTitle;
+  return (!isGeneric(cleanedPageTitle) && cleanedPageTitle) || (!isGeneric(cleanedUrlTitle) && cleanedUrlTitle) || cleanedFallback;
 }
 
-function normalizeImageUrl(value, pageUrl) {
+function normalizeImageUrl(value, pageUrl)function normalizeImageUrl(value, pageUrl) {
   if (!value) return null;
   const raw = String(value).trim();
   if (!raw || raw.startsWith('data:') || raw.startsWith('blob:')) return null;
@@ -305,6 +302,32 @@ async function scrapePricing(page) {
       const style = node ? window.getComputedStyle(node) : null;
       return Boolean(rect && rect.width > 1 && rect.height > 1 && style?.display !== 'none' && style?.visibility !== 'hidden');
     };
+    const isGenericHeading = (value) => /^(bethesda creations?|featured|recommended|more creations?|stats|details|overview)$/i.test(
+      String(value || '').replace(/\s+/g, ' ').trim()
+    );
+    const titleNode = [...document.querySelectorAll('h1,[data-testid="creation-title"]')]
+      .find((node) => isVisible(node) && !isGenericHeading(node.innerText || node.textContent));
+
+    if (!titleNode) {
+      return { ok: false, price: null, isPaid: null, source: 'creation-title-not-found' };
+    }
+
+    const titleRect = titleNode.getBoundingClientRect();
+    let primaryRoot = titleNode.parentElement || titleNode;
+    let candidate = titleNode.parentElement;
+    for (let depth = 0; candidate && depth < 6; depth += 1, candidate = candidate.parentElement) {
+      const text = String(candidate.innerText || candidate.textContent || '').replace(/\s+/g, ' ').trim();
+      const detailLinks = candidate.querySelectorAll('a[href*="/starfield/details/"]').length;
+      if (text.length > 6500 || detailLinks > 2) break;
+      primaryRoot = candidate;
+    }
+
+    const isPrimaryNode = (node) => {
+      if (!node || !primaryRoot.contains(node) || !isVisible(node)) return false;
+      if (node.closest('[class*="featured" i],[class*="recommend" i],[class*="related" i]')) return false;
+      const rect = node.getBoundingClientRect();
+      return rect.bottom >= titleRect.top - 160 && rect.top <= titleRect.bottom + 560;
+    };
     const parsePrice = (value) => {
       const matches = String(value || '').replace(/,/g, '').match(/\b([1-9][0-9]{1,4})\b/g) || [];
       return matches.map(Number).find((number) => Number.isFinite(number) && number > 0) || 0;
@@ -315,23 +338,23 @@ async function scrapePricing(page) {
       if (price > 0) candidates.push({ price, source, priority });
     };
 
-    const priceAttributes = ['data-price', 'data-cost', 'data-credits', 'data-credit-price', 'data-testid'];
-    for (const node of [...document.querySelectorAll('[data-price],[data-cost],[data-credits],[data-credit-price]')]) {
-      if (!isVisible(node)) continue;
+    const priceAttributes = ['data-price', 'data-cost', 'data-credits', 'data-credit-price'];
+    for (const node of [...primaryRoot.querySelectorAll('[data-price],[data-cost],[data-credits],[data-credit-price]')]) {
+      if (!isPrimaryNode(node)) continue;
       for (const attribute of priceAttributes) {
-        addCandidate(node.getAttribute(attribute), `attribute:${attribute}`, 1);
+        addCandidate(node.getAttribute(attribute), 'attribute:' + attribute, 1);
       }
       addCandidate(node.innerText || node.textContent, 'price-attribute-text', 1);
     }
 
     const semanticNodes = [
-      ...document.querySelectorAll(
+      ...primaryRoot.querySelectorAll(
         '[class*="price" i],[class*="credit" i],[class*="currency" i],' +
         '[aria-label*="price" i],[aria-label*="credit" i],[title*="price" i],[title*="credit" i]'
       )
     ];
     for (const node of semanticNodes) {
-      if (!isVisible(node)) continue;
+      if (!isPrimaryNode(node)) continue;
       const container = node.closest('button,a,[role="button"],li,div') || node;
       const marker = [
         node.className?.baseVal || node.className,
@@ -344,9 +367,8 @@ async function scrapePricing(page) {
       addCandidate(container.innerText || container.textContent, 'semantic-price-element', 2);
     }
 
-    const actionNodes = [...document.querySelectorAll('button,a,[role="button"]')];
-    for (const node of actionNodes) {
-      if (!isVisible(node)) continue;
+    for (const node of [...primaryRoot.querySelectorAll('button,a,[role="button"]')]) {
+      if (!isPrimaryNode(node)) continue;
       const text = String(node.innerText || node.textContent || '').replace(/\s+/g, ' ').trim();
       const marker = [
         text,
@@ -359,15 +381,17 @@ async function scrapePricing(page) {
       addCandidate(text, 'purchase-action', 3);
     }
 
-    const bodyText = String(document.body?.innerText || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
+    const primaryText = String(primaryRoot.innerText || primaryRoot.textContent || '')
+      .replace(/\u00a0/g, ' ')
+      .replace(/\s+/g, ' ');
     const labeledPatterns = [
       /(?:price|cost)\s*:?\s*([1-9][0-9]{1,4})\s*(?:cc|credits?|creation credits?)/i,
       /([1-9][0-9]{1,4})\s*(?:cc|credits?|creation credits?)/i,
       /(?:cc|credits?|creation credits?)\s*:?\s*([1-9][0-9]{1,4})/i
     ];
     for (const pattern of labeledPatterns) {
-      const match = bodyText.match(pattern);
-      if (match) addCandidate(match[1], 'labeled-page-text', 4);
+      const match = primaryText.match(pattern);
+      if (match) addCandidate(match[1], 'labeled-primary-text', 4);
     }
 
     candidates.sort((a, b) => a.priority - b.priority);
@@ -377,17 +401,39 @@ async function scrapePricing(page) {
     }
 
     const hasCreationPage = /\/starfield\/details\//i.test(window.location.pathname)
-      && Boolean(document.querySelector('h1,[data-testid="creation-title"]'))
-      && bodyText.length > 100;
+      && primaryText.length > 40;
     return hasCreationPage
-      ? { ok: true, price: 0, isPaid: false, source: 'no-price-element' }
+      ? { ok: true, price: 0, isPaid: false, source: 'no-primary-price-element' }
       : { ok: false, price: null, isPaid: null, source: 'page-not-ready' };
   });
 }
 
-async function scrapeCoverImage(page) {
+async function scrapeCoverImage(page)async function scrapeCoverImage(page) {
   return page.evaluate(() => {
-    const candidates = [...document.images]
+    const metaImage = document.querySelector('meta[property="og:image"]')?.getAttribute('content');
+    if (metaImage && !/avatar|logo|icon|favicon|spinner|placeholder/i.test(metaImage)) return metaImage;
+
+    const isVisible = (node) => {
+      const rect = node?.getBoundingClientRect?.();
+      return Boolean(rect && rect.width > 20 && rect.height > 20);
+    };
+    const titleNode = [...document.querySelectorAll('h1,[data-testid="creation-title"]')]
+      .find((node) => isVisible(node) && !/^(featured|recommended|more creations?)$/i.test(
+        String(node.innerText || node.textContent || '').replace(/\s+/g, ' ').trim()
+      ));
+    if (!titleNode) return null;
+
+    const titleRect = titleNode.getBoundingClientRect();
+    let primaryRoot = titleNode.parentElement || titleNode;
+    let candidate = titleNode.parentElement;
+    for (let depth = 0; candidate && depth < 6; depth += 1, candidate = candidate.parentElement) {
+      const text = String(candidate.innerText || candidate.textContent || '').replace(/\s+/g, ' ').trim();
+      const detailLinks = candidate.querySelectorAll('a[href*="/starfield/details/"]').length;
+      if (text.length > 6500 || detailLinks > 2) break;
+      primaryRoot = candidate;
+    }
+
+    const candidates = [...primaryRoot.querySelectorAll('img')]
       .map((img) => {
         const rect = img.getBoundingClientRect();
         const src = img.currentSrc || img.src || img.getAttribute('src') || img.getAttribute('data-src') || '';
@@ -395,19 +441,18 @@ async function scrapeCoverImage(page) {
         const width = Math.max(img.naturalWidth || 0, rect.width || 0);
         const height = Math.max(img.naturalHeight || 0, rect.height || 0);
         const ratio = width / Math.max(1, height);
-        const isVisible = rect.width > 20 && rect.height > 20 && rect.bottom > 40 && rect.top < window.innerHeight;
-        return { src, alt, width, height, ratio, rectTop: rect.top, rectLeft: rect.left, area: width * height, isVisible };
+        const nearTitle = rect.bottom >= titleRect.top - 180 && rect.top <= titleRect.bottom + 720;
+        const inRecommendation = Boolean(img.closest('[class*="featured" i],[class*="recommend" i],[class*="related" i]'));
+        return { src, alt, width, height, ratio, rectTop: rect.top, rectLeft: rect.left, area: width * height, nearTitle, inRecommendation };
       })
-      .filter((item) => item.src && item.isVisible)
+      .filter((item) => item.src && item.nearTitle && !item.inRecommendation)
       .filter((item) => item.width >= 80 && item.height >= 80)
       .filter((item) => item.ratio >= 0.75 && item.ratio <= 2.25)
-      .filter((item) => item.area <= 450000)
-      .filter((item) => !/avatar|logo|icon|favicon|spinner|placeholder|banner|hero|background/i.test(`${item.src} ${item.alt}`))
+      .filter((item) => item.area <= 1000000)
+      .filter((item) => !/avatar|logo|icon|favicon|spinner|placeholder|banner|background/i.test(item.src + ' ' + item.alt))
       .sort((a, b) => {
-        const aHeroPenalty = a.ratio > 2 || a.width > 800 ? 10000 : 0;
-        const bHeroPenalty = b.ratio > 2 || b.width > 800 ? 10000 : 0;
-        const aScore = Math.abs(a.rectTop - 260) + Math.abs(a.rectLeft - 80) + aHeroPenalty;
-        const bScore = Math.abs(b.rectTop - 260) + Math.abs(b.rectLeft - 80) + bHeroPenalty;
+        const aScore = Math.abs(a.rectTop - titleRect.bottom) + Math.abs(a.rectLeft - titleRect.left);
+        const bScore = Math.abs(b.rectTop - titleRect.bottom) + Math.abs(b.rectLeft - titleRect.left);
         return aScore - bScore;
       });
 
@@ -415,7 +460,54 @@ async function scrapeCoverImage(page) {
   });
 }
 
-function compactStats(stats) {
+async function verifyCreationAuthor(page, expectedAuthor = 'TownGG') {
+  return page.evaluate((expected) => {
+    const normalizeText = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const exactExpected = (value) => {
+      const normalized = normalizeText(value).toLowerCase();
+      const target = expected.toLowerCase();
+      return normalized === target
+        || normalized === 'by ' + target
+        || normalized === 'author: ' + target
+        || normalized === 'creator: ' + target;
+    };
+
+    const titleNode = [...document.querySelectorAll('h1,[data-testid="creation-title"]')]
+      .find((node) => {
+        const rect = node.getBoundingClientRect();
+        return rect.width > 20 && rect.height > 8;
+      });
+    let root = titleNode?.parentElement || document.querySelector('main') || document.body;
+    let candidate = titleNode?.parentElement;
+    for (let depth = 0; candidate && depth < 6; depth += 1, candidate = candidate.parentElement) {
+      const text = normalizeText(candidate.innerText || candidate.textContent);
+      const detailLinks = candidate.querySelectorAll('a[href*="/starfield/details/"]').length;
+      if (text.length > 6500 || detailLinks > 2) break;
+      root = candidate;
+    }
+
+    const authorNodes = [
+      ...root.querySelectorAll(
+        '[data-author],[data-creator],[class*="author" i],[class*="creator" i],' +
+        'a[href*="author_displayname="],a[href*="/author/"]'
+      )
+    ];
+    const signals = authorNodes
+      .map((node) => normalizeText(
+        node.innerText || node.textContent || node.getAttribute('data-author') || node.getAttribute('data-creator')
+      ))
+      .filter(Boolean)
+      .filter((value) => value.length <= 120);
+
+    if (signals.some(exactExpected)) return { ok: true, author: expected };
+    const explicitOther = signals.find((value) => /^(by|author:|creator:)/i.test(value));
+    return explicitOther
+      ? { ok: false, author: explicitOther }
+      : { ok: null, author: '' };
+  }, expectedAuthor);
+}
+
+function compactStats(stats)function compactStats(stats) {
   return Object.fromEntries(Object.entries(stats).filter(([, value]) => value));
 }
 
@@ -550,6 +642,11 @@ async function scrapeCreation(page, creation) {
   }
   await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   await page.waitForTimeout(SLOW_MS);
+
+  const ownership = await verifyCreationAuthor(page, 'TownGG').catch(() => ({ ok: null, author: '' }));
+  if (ownership.ok === false) {
+    return { ok: false, error: 'author_mismatch:' + ownership.author };
+  }
 
   const debugLikes = parseNumberValue(creation.likes) > LIKE_DEBUG_THRESHOLD;
   const debugContext = { debug: debugLikes, title: creation.title };
