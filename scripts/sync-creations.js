@@ -281,7 +281,7 @@ async function scrapeTitle(page, fallbackTitle, urlTitle) {
   return (!isGeneric(cleanedPageTitle) && cleanedPageTitle) || (!isGeneric(cleanedUrlTitle) && cleanedUrlTitle) || cleanedFallback;
 }
 
-function normalizeImageUrl(value, pageUrl)function normalizeImageUrl(value, pageUrl) {
+function normalizeImageUrl(value, pageUrl) {
   if (!value) return null;
   const raw = String(value).trim();
   if (!raw || raw.startsWith('data:') || raw.startsWith('blob:')) return null;
@@ -408,7 +408,7 @@ async function scrapePricing(page) {
   });
 }
 
-async function scrapeCoverImage(page)async function scrapeCoverImage(page) {
+async function scrapeCoverImage(page) {
   return page.evaluate(() => {
     const metaImage = document.querySelector('meta[property="og:image"]')?.getAttribute('content');
     if (metaImage && !/avatar|logo|icon|favicon|spinner|placeholder/i.test(metaImage)) return metaImage;
@@ -507,7 +507,7 @@ async function verifyCreationAuthor(page, expectedAuthor = 'TownGG') {
   }, expectedAuthor);
 }
 
-function compactStats(stats)function compactStats(stats) {
+function compactStats(stats) {
   return Object.fromEntries(Object.entries(stats).filter(([, value]) => value));
 }
 
