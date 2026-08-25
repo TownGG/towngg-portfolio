@@ -192,7 +192,8 @@
       summaryFetchPromise = fetch(`${DAILY_CSV_URL}?t=${Date.now()}`, { cache: 'no-store' })
         .then((response) => response.ok ? response.text() : '')
         .then((text) => {
-          cachedDailyRows = text ? parseCSV(text) : [];
+          const parsedRows = text ? parseCSV(text) : [];
+          cachedDailyRows = window.townggFilterCreationDailyRows?.(parsedRows) || parsedRows;
           return cachedDailyRows;
         })
         .catch((error) => {
