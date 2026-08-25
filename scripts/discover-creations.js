@@ -140,18 +140,51 @@ async function scrollAuthorPage(page) {
 async function extractCreationLinksFromPage(page) {
   return page.evaluate((expectedAuthor) => {
     const seen = new Set();
+    const expected = String(expectedAuthor || '').trim().toLowerCase();
 
-    const belongsToExpectedAuthor = (anchor) => {
+    const exactAuthorMatch = (value) => {
+      const normalized = String(value || '').replace(/\s+/g, ' ').trim().toLowerCase();
+      return normalized === expected
+        || normalized === `by ${expected}`
+        || normalized === `author: ${expected}`
+        || normalized === `creator: ${expected}`;
+    };
+
+    const belongsToExpectedAuthorCard = (anchor) => {
       let node = anchor;
-      for (let depth = 0; node && depth < 8; depth += 1, node = node.parentElement) {
+      for (let depth = 0; node && depth < 7; depth += 1, node = node.parentElement) {
+        const detailLinks = [...node.querySelectorAll('a[href*="/starfield/details/"]')];
         const text = String(node.innerText || node.textContent || '').replace(/\s+/g, ' ').trim();
-        if (new RegExp(`(^|\\s)${expectedAuthor}(\\s|$)`, 'i').test(text)) return true;
+
+        // Once an ancestor contains several cards, its TownGG heading must not
+        // authorize every Featured/recommended card below it.
+        if (detailLinks.length > 3 || text.length > 1800) break;
+
+        const authorNodes = [
+          ...node.querySelectorAll(
+            '[data-author],[data-creator],[class*="author" i],[class*="creator" i],' +
+            'a[href*="author_displayname="],a[href*="/author/"]'
+          )
+        ];
+        if (authorNodes.some((item) => exactAuthorMatch(item.innerText || item.textContent || item.getAttribute('data-author') || item.getAttribute('data-creator')))) {
+          return true;
+        }
+
+        const lines = String(node.innerText || node.textContent || '')
+          .split(/\r?\n/)
+          .map((line) => line.replace(/\s+/g, ' ').trim())
+          .filter(Boolean);
+        if (lines.some(exactAuthorMatch)) return true;
       }
       return false;
     };
 
     return [...document.querySelectorAll('a[href*="/starfield/details/"]')]
-      .filter(belongsToExpectedAuthor)
+      .filter((anchor) => {
+        const rect = anchor.getBoundingClientRect();
+        return rect.width > 2 && rect.height > 2;
+      })
+      .filter(belongsToExpectedAuthorCard)
       .map((anchor) => {
         const href = anchor.href || anchor.getAttribute('href') || '';
         try {
