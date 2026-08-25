@@ -275,6 +275,69 @@ async function discoverCreationLinks(page) {
   return links;
 }
 
+async function verifyCreationAuthor(page, url, expectedAuthor = 'TownGG') {
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: TIMEOUT_MS });
+  await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
+  await page.waitForTimeout(900);
+
+  return page.evaluate((expected) => {
+    const normalizeText = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const target = expected.toLowerCase();
+    const exactExpected = (value) => {
+      const normalized = normalizeText(value).toLowerCase();
+      return normalized === target
+        || normalized === 'by ' + target
+        || normalized === 'author: ' + target
+        || normalized === 'creator: ' + target;
+    };
+
+    const titleNode = [...document.querySelectorAll('h1,[data-testid="creation-title"]')]
+      .find((node) => {
+        const rect = node.getBoundingClientRect();
+        return rect.width > 20 && rect.height > 8
+          && !/^(featured|recommended|more creations?)$/i.test(normalizeText(node.innerText || node.textContent));
+      });
+    if (!titleNode) return { ok: false, reason: 'creation-title-not-found', author: '' };
+
+    let root = titleNode.parentElement || titleNode;
+    let candidate = titleNode.parentElement;
+    for (let depth = 0; candidate && depth < 6; depth += 1, candidate = candidate.parentElement) {
+      const text = normalizeText(candidate.innerText || candidate.textContent);
+      const detailLinks = candidate.querySelectorAll('a[href*="/starfield/details/"]').length;
+      if (text.length > 6500 || detailLinks > 2) break;
+      root = candidate;
+    }
+
+    const authorNodes = [
+      ...root.querySelectorAll(
+        '[data-author],[data-creator],[class*="author" i],[class*="creator" i],' +
+        'a[href*="author_displayname="],a[href*="/author/"]'
+      )
+    ];
+    const signals = authorNodes
+      .map((node) => normalizeText(
+        node.innerText || node.textContent || node.getAttribute('data-author') || node.getAttribute('data-creator')
+      ))
+      .filter(Boolean)
+      .filter((value) => value.length <= 120);
+
+    const lines = String(root.innerText || root.textContent || '')
+      .split(/\r?\n/)
+      .map(normalizeText)
+      .filter(Boolean)
+      .filter((value) => value.length <= 120);
+    const allSignals = [...new Set([...signals, ...lines])];
+
+    if (allSignals.some(exactExpected)) return { ok: true, reason: 'author-match', author: expected };
+    const explicitAuthor = allSignals.find((value) => /^(by|author:|creator:)/i.test(value)) || '';
+    return {
+      ok: false,
+      reason: explicitAuthor ? 'author-mismatch' : 'author-not-confirmed',
+      author: explicitAuthor
+    };
+  }, expectedAuthor);
+}
+
 async function main() {
   const source = await fs.readFile(SITE_DATA_PATH, 'utf8');
   const siteData = loadSiteData(source);
@@ -289,7 +352,6 @@ async function main() {
   const context = await openContext();
   const page = context.pages()[0] || await context.newPage();
   const links = await discoverCreationLinks(page);
-  await closeContext(context);
 
   const discovered = [];
   const seenNewIds = new Set();
@@ -297,6 +359,17 @@ async function main() {
     const id = creationIdFromUrl(url);
     if (!id || existingIds.has(id) || seenNewIds.has(id)) continue;
     seenNewIds.add(id);
+
+    const authorCheck = await verifyCreationAuthor(page, url).catch((error) => ({
+      ok: false,
+      reason: 'author-check-error:' + error.message,
+      author: ''
+    }));
+    if (!authorCheck.ok) {
+      console.log('Skipped non-TownGG or unverified Creation: ' + url + ' (' + authorCheck.reason + (authorCheck.author ? ', ' + authorCheck.author : '') + ')');
+      continue;
+    }
+
     const title = titleFromUrl(url);
     discovered.push({
       title,
@@ -317,6 +390,8 @@ async function main() {
       links: [{ label: 'Bethesda Creations', url }]
     });
   }
+
+  await closeContext(context);
 
   if (!discovered.length) {
     console.log(`Bethesda Creations discovery complete: ${links.length} links found, no new Creations.`);
