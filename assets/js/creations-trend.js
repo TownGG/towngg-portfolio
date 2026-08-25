@@ -190,7 +190,8 @@
   async function loadModDailyRows() {
     const response = await fetch(`./assets/data/creations-mod-daily.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" });
     if (!response.ok) return null;
-    const rows = parseCSV(await response.text());
+    const parsedRows = parseCSV(await response.text());
+    const rows = window.townggFilterCreationDailyRows?.(parsedRows) || parsedRows;
     return rows.length ? rows : null;
   }
 
