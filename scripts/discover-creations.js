@@ -138,9 +138,20 @@ async function scrollAuthorPage(page) {
 }
 
 async function extractCreationLinksFromPage(page) {
-  return page.evaluate(() => {
+  return page.evaluate((expectedAuthor) => {
     const seen = new Set();
+
+    const belongsToExpectedAuthor = (anchor) => {
+      let node = anchor;
+      for (let depth = 0; node && depth < 8; depth += 1, node = node.parentElement) {
+        const text = String(node.innerText || node.textContent || '').replace(/\s+/g, ' ').trim();
+        if (new RegExp(`(^|\\s)${expectedAuthor}(\\s|$)`, 'i').test(text)) return true;
+      }
+      return false;
+    };
+
     return [...document.querySelectorAll('a[href*="/starfield/details/"]')]
+      .filter(belongsToExpectedAuthor)
       .map((anchor) => {
         const href = anchor.href || anchor.getAttribute('href') || '';
         try {
@@ -153,7 +164,7 @@ async function extractCreationLinksFromPage(page) {
         }
       })
       .filter((url) => url && !seen.has(url) && seen.add(url));
-  });
+  }, 'TownGG');
 }
 
 async function clickNextAuthorPage(page) {
