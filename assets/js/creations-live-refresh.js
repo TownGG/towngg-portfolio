@@ -152,6 +152,7 @@
   }
 
   function dailySeries(rows = state.dailyRows) {
+    rows = window.townggFilterCreationDailyRows?.(rows) || rows;
     const groups = new Map();
     rows.forEach((row) => {
       if (!row.date) return;
@@ -327,10 +328,12 @@
         fetch(`${SITE_DATA_URL}?t=${Date.now()}`, { cache: 'no-store' }).then((response) => response.ok ? response.text() : ''),
         fetch(`${DAILY_CSV_URL}?t=${Date.now()}`, { cache: 'no-store' }).then((response) => response.ok ? response.text() : '')
       ]);
-      const nextData = siteSource ? parseSiteData(siteSource) : null;
+      const parsedData = siteSource ? parseSiteData(siteSource) : null;
+      const nextData = window.townggApplyCreationPricingMode?.(parsedData) || parsedData;
       if (!nextData?.creations?.length) return;
       state.data = nextData;
-      state.dailyRows = dailyText ? parseCSV(dailyText) : [];
+      const parsedDailyRows = dailyText ? parseCSV(dailyText) : [];
+      state.dailyRows = window.townggFilterCreationDailyRows?.(parsedDailyRows) || parsedDailyRows;
       applyAll();
     } catch (error) {
       console.warn('Creations live GitHub refresh skipped', error);
