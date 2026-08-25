@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-25T19:58:28Z",
+  "updatedAt": "2026-08-25T20:54:01Z",
   "mods": [
     {
       "platform": "nexus",
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 4186,
-      "unique_downloads": 2799,
-      "daily_downloads": 8,
+      "total_downloads": 4189,
+      "unique_downloads": 2801,
+      "daily_downloads": 11,
       "likes": 179,
       "views": 0
     },
@@ -154,7 +154,7 @@
       "total_downloads": 1402,
       "unique_downloads": 756,
       "daily_downloads": 7,
-      "likes": 34,
+      "likes": 35,
       "views": 0
     },
     {
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 765,
-      "unique_downloads": 673,
-      "daily_downloads": 5,
+      "total_downloads": 766,
+      "unique_downloads": 674,
+      "daily_downloads": 6,
       "likes": 48,
       "views": 0
     },
@@ -259,9 +259,9 @@
       "mod_name": "POWER RANGER UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18049",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18049/18049-1787491919-946013974.png",
-      "total_downloads": 41,
-      "unique_downloads": 40,
-      "daily_downloads": 11,
+      "total_downloads": 42,
+      "unique_downloads": 41,
+      "daily_downloads": 12,
       "likes": 3,
       "views": 0
     }
