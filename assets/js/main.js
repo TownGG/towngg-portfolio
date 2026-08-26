@@ -98,10 +98,15 @@ function creationCard(mod) {
   const image = mod.image
     ? `<img src="${mod.image}" alt="${mod.alt}" loading="lazy">`
     : `<div class="project-image-placeholder"><span>Bethesda</span><strong>Creations</strong></div>`;
+  const priceCredits = Number(String(mod.price || "0").replace(/[^0-9.]/g, "")) || 0;
+  const priceBadge = mod.isPaid === true && priceCredits > 0
+    ? `<span class="creation-price-badge" title="Creation Credits">${priceCredits} CC</span>`
+    : "";
   return `
     <a class="project-card project-card-link" data-group="${mod.group}" href="${primaryLink}" target="_blank" rel="noopener">
       <div class="project-image">
         ${image}
+        ${priceBadge}
       </div>
       <div class="project-content">
         <h3 class="card-title">${mod.title}</h3>
