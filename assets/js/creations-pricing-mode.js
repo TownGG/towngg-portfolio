@@ -8,9 +8,7 @@
 
   function isPaid(item) {
     if (!item) return false;
-    if (item.isPaid === true || String(item.isPaid).toLowerCase() === "true") return true;
-    if (toNumber(item.price) > 0 || toNumber(item.priceCredits) > 0) return true;
-    return Boolean(item.priceTier && !/^(free|0)$/i.test(String(item.priceTier).trim()));
+    return item.isPaid === true || String(item.isPaid).toLowerCase() === "true";
   }
 
   function matchesMode(item) {
