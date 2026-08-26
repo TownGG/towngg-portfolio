@@ -46,8 +46,8 @@ function jsString(value) {
 }
 
 function renderCreationObject(item) {
-  const links = item.links.map((link) => `{ label: ${jsString(link.label)}, url: ${jsString(link.url)} }`).join(', ');
-  return `{ title: ${jsString(item.title)}, group: ${jsString(item.group)}, category: ${jsString(item.category)}, image: ${jsString(item.image)}, alt: ${jsString(item.alt)}, description: ${jsString(item.description)}, tags: [${item.tags.map(jsString).join(', ')}], views: ${jsString(item.views)}, bookmarks: ${jsString(item.bookmarks)}, likes: ${jsString(item.likes)}, downloads: ${jsString(item.downloads)}, plays: ${jsString(item.plays)}, libraryAdds: ${jsString(item.libraryAdds)}, updatedAt: ${jsString(item.updatedAt)}, source: ${jsString(item.source)}, links: [${links}] }`;
+  const links = (item.links || []).map((link) => `{ label: ${jsString(link.label)}, url: ${jsString(link.url)} }`).join(', ');
+  return `{ title: ${jsString(item.title)}, group: ${jsString(item.group)}, category: ${jsString(item.category)}, image: ${jsString(item.image)}, alt: ${jsString(item.alt)}, description: ${jsString(item.description)}, tags: [${(item.tags || []).map(jsString).join(', ')}], price: ${jsString(item.price ?? '0')}, isPaid: ${item.isPaid === true}, views: ${jsString(item.views)}, bookmarks: ${jsString(item.bookmarks)}, likes: ${jsString(item.likes)}, downloads: ${jsString(item.downloads)}, plays: ${jsString(item.plays)}, libraryAdds: ${jsString(item.libraryAdds)}, updatedAt: ${jsString(item.updatedAt)}, source: ${jsString(item.source)}, links: [${links}] }`;
 }
 
 function findMatchingBrace(source, openIndex) {
@@ -87,6 +87,31 @@ function findCreationsArrayRange(source) {
   const closeIndex = findMatchingBrace(source, openIndex);
   if (openIndex < 0 || closeIndex < 0) return null;
   return { openIndex, closeIndex };
+}
+
+function findCreationObjectRangeById(source, creationId) {
+  const range = findCreationsArrayRange(source);
+  if (!range || !creationId) return null;
+  const segment = source.slice(range.openIndex + 1, range.closeIndex);
+  const objectPattern = /\{\s*title\s*:/g;
+  let match;
+
+  while ((match = objectPattern.exec(segment))) {
+    const objectStart = range.openIndex + 1 + match.index;
+    const objectEnd = findMatchingBrace(source, objectStart);
+    if (objectEnd < 0 || objectEnd > range.closeIndex) continue;
+    const objectText = source.slice(objectStart, objectEnd + 1).toLowerCase();
+    if (objectText.includes('/details/' + String(creationId).toLowerCase())) {
+      return { objectStart, objectEnd };
+    }
+  }
+  return null;
+}
+
+function replaceCreationObjectById(source, creationId, item) {
+  const range = findCreationObjectRangeById(source, creationId);
+  if (!range) return source;
+  return source.slice(0, range.objectStart) + renderCreationObject(item) + source.slice(range.objectEnd + 1);
 }
 
 function insertCreations(source, newItems) {
@@ -137,66 +162,139 @@ async function scrollAuthorPage(page) {
   }
 }
 
-async function extractCreationLinksFromPage(page) {
+async function extractCreationsFromAuthorPage(page) {
   return page.evaluate((expectedAuthor) => {
-    const seen = new Set();
     const expected = String(expectedAuthor || '').trim().toLowerCase();
+    const results = new Map();
 
+    const normalizeText = (value) => String(value || '').replace(/\s+/g, ' ').trim();
     const exactAuthorMatch = (value) => {
-      const normalized = String(value || '').replace(/\s+/g, ' ').trim().toLowerCase();
+      const normalized = normalizeText(value).toLowerCase();
       return normalized === expected
-        || normalized === `by ${expected}`
-        || normalized === `author: ${expected}`
-        || normalized === `creator: ${expected}`;
+        || normalized === 'by ' + expected
+        || normalized === 'author: ' + expected
+        || normalized === 'creator: ' + expected;
+    };
+    const parsePrice = (value) => {
+      const numbers = normalizeText(value).replace(/,/g, '').match(/\b([1-9][0-9]{1,4})\b/g) || [];
+      return numbers.map(Number).find((number) => Number.isFinite(number) && number >= 10) || 0;
     };
 
-    const belongsToExpectedAuthorCard = (anchor) => {
+    const authorSignalsIn = (node) => {
+      const authorNodes = [
+        ...node.querySelectorAll(
+          '[data-author],[data-creator],[class*="author" i],[class*="creator" i],' +
+          'a[href*="author_displayname="],a[href*="/author/"]'
+        )
+      ];
+      if (authorNodes.some((item) => exactAuthorMatch(
+        item.innerText || item.textContent || item.getAttribute('data-author') || item.getAttribute('data-creator')
+      ))) return true;
+
+      return String(node.innerText || node.textContent || '')
+        .split(/\r?\n/)
+        .map(normalizeText)
+        .filter(Boolean)
+        .some(exactAuthorMatch);
+    };
+
+    const findCardRoot = (anchor) => {
       let node = anchor;
-      for (let depth = 0; node && depth < 7; depth += 1, node = node.parentElement) {
-        const detailLinks = [...node.querySelectorAll('a[href*="/starfield/details/"]')];
-        const text = String(node.innerText || node.textContent || '').replace(/\s+/g, ' ').trim();
-
-        // Once an ancestor contains several cards, its TownGG heading must not
-        // authorize every Featured/recommended card below it.
-        if (detailLinks.length > 3 || text.length > 1800) break;
-
-        const authorNodes = [
-          ...node.querySelectorAll(
-            '[data-author],[data-creator],[class*="author" i],[class*="creator" i],' +
-            'a[href*="author_displayname="],a[href*="/author/"]'
-          )
-        ];
-        if (authorNodes.some((item) => exactAuthorMatch(item.innerText || item.textContent || item.getAttribute('data-author') || item.getAttribute('data-creator')))) {
-          return true;
-        }
-
-        const lines = String(node.innerText || node.textContent || '')
-          .split(/\r?\n/)
-          .map((line) => line.replace(/\s+/g, ' ').trim())
-          .filter(Boolean);
-        if (lines.some(exactAuthorMatch)) return true;
+      let matchedRoot = null;
+      for (let depth = 0; node && depth < 8; depth += 1, node = node.parentElement) {
+        const detailLinks = node.querySelectorAll('a[href*="/starfield/details/"]').length;
+        const text = normalizeText(node.innerText || node.textContent);
+        if (detailLinks > 3 || text.length > 1800) break;
+        if (authorSignalsIn(node)) matchedRoot = node;
       }
-      return false;
+      return matchedRoot;
     };
 
-    return [...document.querySelectorAll('a[href*="/starfield/details/"]')]
-      .filter((anchor) => {
-        const rect = anchor.getBoundingClientRect();
-        return rect.width > 2 && rect.height > 2;
-      })
-      .filter(belongsToExpectedAuthorCard)
-      .map((anchor) => {
-        const href = anchor.href || anchor.getAttribute('href') || '';
-        try {
-          const url = new URL(href, window.location.href);
-          url.search = '';
-          url.hash = '';
-          return url.toString();
-        } catch {
-          return '';
+    const pricingFromCard = (card) => {
+      const candidates = [];
+      const add = (value, source, priority) => {
+        const price = parsePrice(value);
+        if (price > 0) candidates.push({ price, source, priority });
+      };
+
+      for (const node of [...card.querySelectorAll('[data-price],[data-cost],[data-credits],[data-credit-price]')]) {
+        for (const attribute of ['data-price', 'data-cost', 'data-credits', 'data-credit-price']) {
+          add(node.getAttribute(attribute), 'card-attribute:' + attribute, 1);
         }
-      })
-      .filter((url) => url && !seen.has(url) && seen.add(url));
+        add(node.innerText || node.textContent, 'card-price-attribute-text', 1);
+      }
+
+      for (const node of [...card.querySelectorAll(
+        '[class*="price" i],[class*="credit" i],[class*="currency" i],' +
+        '[aria-label*="price" i],[aria-label*="credit" i],[title*="price" i],[title*="credit" i]'
+      )]) {
+        const container = node.closest('button,[role="button"],li,div') || node;
+        const marker = [
+          node.className?.baseVal || node.className,
+          node.getAttribute?.('aria-label'),
+          node.getAttribute?.('title'),
+          node.getAttribute?.('data-testid'),
+          node.outerHTML?.slice(0, 800)
+        ].filter(Boolean).join(' ');
+        if (/(price|credit|currency|cost)/i.test(marker)) {
+          add(container.innerText || container.textContent, 'card-semantic-price', 2);
+        }
+      }
+
+      for (const icon of [...card.querySelectorAll('img,svg,use')]) {
+        const marker = [
+          icon.getAttribute?.('alt'),
+          icon.getAttribute?.('title'),
+          icon.getAttribute?.('aria-label'),
+          icon.getAttribute?.('src'),
+          icon.getAttribute?.('href'),
+          icon.getAttribute?.('xlink:href'),
+          icon.className?.baseVal || icon.className,
+          icon.outerHTML?.slice(0, 800)
+        ].filter(Boolean).join(' ');
+        if (!/(creation.?credits?|credits?|currency|wallet|coin|cc[_-]?icon)/i.test(marker)) continue;
+
+        let container = icon.parentElement;
+        for (let depth = 0; container && depth < 5; depth += 1, container = container.parentElement) {
+          if (!card.contains(container)) break;
+          add(container.innerText || container.textContent, 'card-credits-icon', 2);
+        }
+      }
+
+      candidates.sort((a, b) => a.priority - b.priority);
+      const match = candidates[0];
+      const cardText = normalizeText(card.innerText || card.textContent);
+      const explicitFree = /(^|\s)free(\s|$)|免费/i.test(cardText);
+      return match
+        ? { price: match.price, isPaid: true, pricingSource: match.source, pricingState: 'paid' }
+        : { price: 0, isPaid: false, pricingSource: explicitFree ? 'card-explicit-free' : 'card-no-price', pricingState: explicitFree ? 'free-explicit' : 'free-no-price' };
+    };
+
+    for (const anchor of [...document.querySelectorAll('a[href*="/starfield/details/"]')]) {
+      const rect = anchor.getBoundingClientRect();
+      if (rect.width <= 2 || rect.height <= 2) continue;
+      const card = findCardRoot(anchor);
+      if (!card) continue;
+
+      const href = anchor.href || anchor.getAttribute('href') || '';
+      let url = '';
+      try {
+        const parsed = new URL(href, window.location.href);
+        parsed.search = '';
+        parsed.hash = '';
+        url = parsed.toString();
+      } catch {
+        continue;
+      }
+
+      const pricing = pricingFromCard(card);
+      const current = results.get(url);
+      if (!current || pricing.isPaid || !current.isPaid) {
+        results.set(url, { url, ...pricing });
+      }
+    }
+
+    return [...results.values()];
   }, 'TownGG');
 }
 
@@ -233,46 +331,48 @@ async function clickNextAuthorPage(page) {
   }).catch(() => false);
 }
 
-async function discoverCreationLinks(page) {
+async function discoverCreations(page) {
   await page.goto(CREATIONS_HOME, { waitUntil: 'domcontentloaded', timeout: TIMEOUT_MS });
   await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   await page.waitForTimeout(1800);
 
-  const allLinks = new Map();
+  const allItems = new Map();
   const seenPageSignatures = new Set();
 
   for (let pageIndex = 1; pageIndex <= MAX_AUTHOR_PAGES; pageIndex += 1) {
     await scrollAuthorPage(page);
-    const pageLinks = await extractCreationLinksFromPage(page);
-    const signature = pageLinks.map((url) => creationIdFromUrl(url)).filter(Boolean).join('|');
+    const pageItems = await extractCreationsFromAuthorPage(page);
+    const signature = pageItems.map((item) => creationIdFromUrl(item.url)).filter(Boolean).join('|');
 
-    for (const url of pageLinks) {
-      const id = creationIdFromUrl(url);
-      if (id && !allLinks.has(id)) allLinks.set(id, url);
+    for (const item of pageItems) {
+      const id = creationIdFromUrl(item.url);
+      if (!id) continue;
+      const current = allItems.get(id);
+      if (!current || item.isPaid || !current.isPaid) allItems.set(id, item);
     }
 
-    console.log(`Author page ${pageIndex}: ${pageLinks.length} links found, ${allLinks.size} total unique.`);
+    const paidCount = pageItems.filter((item) => item.isPaid).length;
+    console.log(`Author page ${pageIndex}: ${pageItems.length} TownGG cards found, ${paidCount} paid, ${allItems.size} total unique.`);
 
-    if (!pageLinks.length || seenPageSignatures.has(signature)) break;
+    if (!pageItems.length || seenPageSignatures.has(signature)) break;
     seenPageSignatures.add(signature);
 
     const clickedNext = await clickNextAuthorPage(page);
     if (!clickedNext) break;
-
     await page.waitForTimeout(1800);
     await page.waitForLoadState('networkidle', { timeout: TIMEOUT_MS }).catch(() => {});
   }
 
-  const links = [...allLinks.values()];
-  if (!links.length) {
+  const items = [...allItems.values()];
+  if (!items.length) {
     await savePageDebug(page, 'discover-author-page-0-links', {
-      reason: 'no_author_links_found',
+      reason: 'no_author_cards_found',
       authorUrl: CREATIONS_HOME,
       currentUrl: page.url()
     });
   }
 
-  return links;
+  return items;
 }
 
 async function verifyCreationAuthor(page, url, expectedAuthor = 'TownGG') {
@@ -342,24 +442,52 @@ async function main() {
   const source = await fs.readFile(SITE_DATA_PATH, 'utf8');
   const siteData = loadSiteData(source);
   const creations = Array.isArray(siteData.creations) ? siteData.creations : [];
-  const existingIds = new Set(
+  const existingById = new Map(
     creations
-      .flatMap((creation) => creation.links || [])
-      .map((link) => creationIdFromUrl(link.url))
+      .map((creation) => {
+        const id = (creation.links || []).map((link) => creationIdFromUrl(link.url)).find(Boolean);
+        return id ? [id, creation] : null;
+      })
       .filter(Boolean)
   );
 
   const context = await openContext();
   const page = context.pages()[0] || await context.newPage();
-  const links = await discoverCreationLinks(page);
+  const listedItems = await discoverCreations(page);
 
+  let nextSource = source;
+  let pricingUpdates = 0;
   const discovered = [];
   const seenNewIds = new Set();
-  for (const url of links) {
-    const id = creationIdFromUrl(url);
-    if (!id || existingIds.has(id) || seenNewIds.has(id)) continue;
-    seenNewIds.add(id);
 
+  for (const listed of listedItems) {
+    const url = listed.url;
+    const id = creationIdFromUrl(url);
+    if (!id || seenNewIds.has(id)) continue;
+
+    const existing = existingById.get(id);
+    if (existing) {
+      const confirmedPaid = listed.isPaid === true;
+      const confirmedFree = listed.pricingState === 'free-explicit';
+      const shouldUpdate = confirmedPaid || confirmedFree || existing.isPaid !== true;
+
+      if (shouldUpdate) {
+        const nextPrice = confirmedPaid ? String(listed.price) : '0';
+        const nextPaid = confirmedPaid;
+        const paidChanged = (existing.isPaid === true) !== nextPaid;
+        if (String(existing.price ?? '0') !== nextPrice || paidChanged) {
+          const merged = { ...existing, price: nextPrice, isPaid: nextPaid };
+          nextSource = replaceCreationObjectById(nextSource, id, merged);
+          pricingUpdates += 1;
+          console.log(`Pricing updated from author card: ${existing.title} -> ${nextPaid ? nextPrice + ' CC' : 'Free'} (${listed.pricingSource}).`);
+        }
+      } else {
+        console.log(`Pricing preserved: ${existing.title} remains ${existing.price || '?'} CC because the author card price was not confirmed.`);
+      }
+      continue;
+    }
+
+    seenNewIds.add(id);
     const authorCheck = await verifyCreationAuthor(page, url).catch((error) => ({
       ok: false,
       reason: 'author-check-error:' + error.message,
@@ -379,6 +507,8 @@ async function main() {
       alt: `${title} Bethesda Creations cover`,
       description: 'Automatically discovered from Bethesda Creations.',
       tags: ['Bethesda Creations', 'Auto Discovered'],
+      price: String(listed.price || 0),
+      isPaid: listed.isPaid === true,
       views: '0',
       bookmarks: '0',
       likes: '0',
@@ -392,16 +522,16 @@ async function main() {
   }
 
   await closeContext(context);
+  nextSource = insertCreations(nextSource, discovered);
 
-  if (!discovered.length) {
-    console.log(`Bethesda Creations discovery complete: ${links.length} links found, no new Creations.`);
+  if (nextSource === source) {
+    console.log(`Bethesda Creations discovery complete: ${listedItems.length} TownGG cards found, no data changes.`);
     return;
   }
 
-  const nextSource = insertCreations(source, discovered);
   await fs.writeFile(SITE_DATA_PATH, nextSource, 'utf8');
-  console.log(`Bethesda Creations discovery complete: ${links.length} links found, ${discovered.length} new Creations added.`);
-  discovered.forEach((item) => console.log(`Added: ${item.title}`));
+  console.log(`Bethesda Creations discovery complete: ${listedItems.length} TownGG cards found, ${pricingUpdates} pricing updates, ${discovered.length} new Creations added.`);
+  discovered.forEach((item) => console.log(`Added: ${item.title} (${item.isPaid ? item.price + ' CC' : 'Free'})`));
 }
 
 main().catch((error) => {
