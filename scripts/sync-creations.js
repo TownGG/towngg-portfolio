@@ -301,94 +301,6 @@ function normalizeImageUrl(value, pageUrl) {
   }
 }
 
-async function scrapeAchievementSupport(page) {
-  return page.evaluate(() => {
-    const normalizeText = (value) => String(value || '').replace(/\s+/g, ' ').trim();
-    const negativePatterns = [
-      /does not support achievements?/i,
-      /doesn't support achievements?/i,
-      /achievements? (?:are )?not supported/i,
-      /achievements? disabled/i,
-      /not achievement friendly/i,
-      /不支持成就/
-    ];
-    const positivePatterns = [
-      /^supports? achievements?$/i,
-      /^achievements? (?:are )?supported$/i,
-      /^achievements? enabled$/i,
-      /^achievement friendly$/i,
-      /^支持成就$/
-    ];
-    const classify = (value) => {
-      const text = normalizeText(value);
-      if (!text || text.length > 160) return null;
-      if (negativePatterns.some((pattern) => pattern.test(text))) return false;
-      if (positivePatterns.some((pattern) => pattern.test(text))) return true;
-      return null;
-    };
-    const isVisible = (node) => {
-      const rect = node?.getBoundingClientRect?.();
-      const style = node ? window.getComputedStyle(node) : null;
-      return Boolean(rect && rect.width > 1 && rect.height > 1 && style?.display !== 'none' && style?.visibility !== 'hidden');
-    };
-    const titleNode = [...document.querySelectorAll('h1,[data-testid="creation-title"]')]
-      .find((node) => isVisible(node) && !/^(featured|recommended|more creations?)$/i.test(normalizeText(node.innerText || node.textContent)));
-    if (!titleNode) return { ok: false, supportsAchievements: null, source: 'creation-title-not-found' };
-
-    const titleRect = titleNode.getBoundingClientRect();
-    const inCurrentDetailArea = (node) => {
-      if (!isVisible(node)) return false;
-      if (node.closest('[class*="featured" i],[class*="recommend" i],[class*="related" i]')) return false;
-      const rect = node.getBoundingClientRect();
-      return rect.bottom >= titleRect.top - 200 && rect.top <= titleRect.bottom + 1200;
-    };
-
-    const semanticCandidates = [
-      ...document.querySelectorAll(
-        '[class*="achievement" i],[data-testid*="achievement" i],' +
-        '[aria-label*="achievement" i],[title*="achievement" i],img[alt*="achievement" i]'
-      )
-    ];
-    for (const node of semanticCandidates) {
-      if (!inCurrentDetailArea(node)) continue;
-      const values = [
-        node.getAttribute?.('aria-label'),
-        node.getAttribute?.('title'),
-        node.getAttribute?.('alt'),
-        node.innerText,
-        node.textContent
-      ];
-      for (const value of values) {
-        const state = classify(value);
-        if (state !== null) {
-          return {
-            ok: true,
-            supportsAchievements: state,
-            source: state ? 'detail-supports-achievements' : 'detail-does-not-support-achievements'
-          };
-        }
-      }
-    }
-
-    const leafCandidates = [
-      ...document.querySelectorAll('span,p,li,small,strong,label')
-    ];
-    for (const node of leafCandidates) {
-      if (!inCurrentDetailArea(node)) continue;
-      const state = classify(node.innerText || node.textContent);
-      if (state !== null) {
-        return {
-          ok: true,
-          supportsAchievements: state,
-          source: state ? 'detail-supports-achievements-text' : 'detail-does-not-support-achievements-text'
-        };
-      }
-    }
-
-    return { ok: false, supportsAchievements: null, source: 'achievement-state-not-confirmed' };
-  });
-}
-
 async function scrapeCoverImage(page) {
   return page.evaluate(() => {
     const metaImage = document.querySelector('meta[property="og:image"]')?.getAttribute('content');
@@ -634,24 +546,12 @@ async function scrapeCreation(page, creation) {
   const finalUrl = page.url() || url;
   const title = await scrapeTitle(page, creation.title, titleFromUrl(finalUrl) || titleFromUrl(url));
   const coverImage = normalizeImageUrl(await scrapeCoverImage(page), url);
-  const achievementSupport = await scrapeAchievementSupport(page).catch(() => ({
+  const pricing = {
     ok: false,
-    supportsAchievements: null,
-    source: 'achievement-scrape-error'
-  }));
-  const pricing = achievementSupport.ok
-    ? {
-        ok: true,
-        price: achievementSupport.supportsAchievements ? String(creation.price || '0') : '0',
-        isPaid: achievementSupport.supportsAchievements === true,
-        source: achievementSupport.source
-      }
-    : {
-        ok: false,
-        price: null,
-        isPaid: null,
-        source: achievementSupport.source
-      };
+    price: null,
+    isPaid: null,
+    source: 'managed-exclusively-by-author-list-discovery'
+  };
   const allTime = await scrapeAllTimeEngagementStats(page, debugContext);
   let fallbackStats = {};
   if (!allTime.ok) {
