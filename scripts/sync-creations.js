@@ -295,164 +295,58 @@ function normalizeImageUrl(value, pageUrl) {
   }
 }
 
-async function scrapePricing(page, currentCreationId = '') {
-  return page.evaluate((expectedCreationId) => {
-    const normalizedId = String(expectedCreationId || '').toLowerCase();
+async function scrapeAchievementSupport(page) {
+  return page.evaluate(() => {
+    const normalizeText = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const achievementPattern = /supports? achievements?|achievements? (?:supported|enabled)|achievement friendly|支持成就/i;
     const isVisible = (node) => {
       const rect = node?.getBoundingClientRect?.();
       const style = node ? window.getComputedStyle(node) : null;
       return Boolean(rect && rect.width > 1 && rect.height > 1 && style?.display !== 'none' && style?.visibility !== 'hidden');
     };
-    const parsePrice = (value) => {
-      const matches = String(value || '').replace(/,/g, '').match(/\b([1-9][0-9]{1,4})\b/g) || [];
-      return matches.map(Number).find((number) => Number.isFinite(number) && number >= 10) || 0;
-    };
-    const isGenericHeading = (value) => /^(bethesda creations?|featured|recommended|more creations?|stats|details|overview)$/i.test(
-      String(value || '').replace(/\s+/g, ' ').trim()
-    );
     const titleNode = [...document.querySelectorAll('h1,[data-testid="creation-title"]')]
-      .find((node) => isVisible(node) && !isGenericHeading(node.innerText || node.textContent));
-
-    if (!titleNode) {
-      return { ok: false, price: null, isPaid: null, source: 'creation-title-not-found' };
-    }
+      .find((node) => isVisible(node) && !/^(featured|recommended|more creations?)$/i.test(normalizeText(node.innerText || node.textContent)));
+    if (!titleNode) return { ok: false, supportsAchievements: null, source: 'creation-title-not-found' };
 
     const titleRect = titleNode.getBoundingClientRect();
-    const isRecommendationNode = (node) => Boolean(
-      node?.closest?.('[class*="featured" i],[class*="recommend" i],[class*="related" i],[data-testid*="featured" i],[data-testid*="recommend" i]')
-    );
-    const belongsToCurrentDetail = (node) => {
-      if (!node || !isVisible(node) || isRecommendationNode(node)) return false;
-      const rect = node.getBoundingClientRect();
-      if (rect.bottom < titleRect.top - 220 || rect.top > titleRect.bottom + 900) return false;
-
-      let ancestor = node;
-      for (let depth = 0; ancestor && depth < 7; depth += 1, ancestor = ancestor.parentElement) {
-        const detailHrefs = [...ancestor.querySelectorAll('a[href*="/starfield/details/"]')]
-          .map((anchor) => String(anchor.href || anchor.getAttribute('href') || '').toLowerCase());
-        if (!detailHrefs.length) continue;
-        if (normalizedId && detailHrefs.some((href) => href.includes(normalizedId))) return true;
-        if (detailHrefs.some((href) => !normalizedId || !href.includes(normalizedId))) return false;
-      }
-      return true;
-    };
-
-    const candidates = [];
-    const addCandidate = (value, source, priority) => {
-      const price = parsePrice(value);
-      if (price > 0) candidates.push({ price, source, priority });
-    };
-
-    // Prefer serialized page data tied to the current Creation ID. This avoids
-    // mixing in prices from Featured/recommended cards.
-    const priceKeys = /^(price|cost|credits|creditprice|creditcost|creationcredits|creationcreditprice)$/i;
-    const idKeys = /^(id|uuid|contentid|content_id|creationid|creation_id)$/i;
-    const walkSerialized = (value, depth = 0) => {
-      if (!value || depth > 12) return;
-      if (Array.isArray(value)) {
-        value.forEach((item) => walkSerialized(item, depth + 1));
-        return;
-      }
-      if (typeof value !== 'object') return;
-
-      const entries = Object.entries(value);
-      const objectIds = entries
-        .filter(([key]) => idKeys.test(key))
-        .map(([, item]) => String(item || '').toLowerCase());
-      const matchesCurrent = normalizedId && objectIds.some((item) => item.includes(normalizedId));
-      if (matchesCurrent) {
-        for (const [key, item] of entries) {
-          if (priceKeys.test(key)) addCandidate(item, 'serialized-current-creation:' + key, 0);
-        }
-      }
-      entries.forEach(([, item]) => walkSerialized(item, depth + 1));
-    };
-
-    for (const script of [...document.querySelectorAll('script[type="application/json"],script#__NEXT_DATA__,script[type="application/ld+json"]')]) {
-      try {
-        walkSerialized(JSON.parse(script.textContent || ''));
-      } catch {
-        // Ignore non-JSON script blocks.
-      }
-    }
-
-    const priceAttributes = ['data-price', 'data-cost', 'data-credits', 'data-credit-price'];
-    for (const node of [...document.querySelectorAll('[data-price],[data-cost],[data-credits],[data-credit-price]')]) {
-      if (!belongsToCurrentDetail(node)) continue;
-      for (const attribute of priceAttributes) {
-        addCandidate(node.getAttribute(attribute), 'attribute:' + attribute, 1);
-      }
-      addCandidate(node.innerText || node.textContent, 'price-attribute-text', 1);
-    }
-
-    const semanticNodes = [
+    const candidates = [
       ...document.querySelectorAll(
-        '[class*="price" i],[class*="credit" i],[class*="currency" i],' +
-        '[aria-label*="price" i],[aria-label*="credit" i],[title*="price" i],[title*="credit" i]'
+        '[class*="achievement" i],[data-testid*="achievement" i],' +
+        '[aria-label*="achievement" i],[title*="achievement" i],img[alt*="achievement" i]'
       )
     ];
-    for (const node of semanticNodes) {
-      if (!belongsToCurrentDetail(node)) continue;
-      const container = node.closest('button,a,[role="button"],li,div') || node;
+
+    for (const node of candidates) {
+      if (!isVisible(node)) continue;
+      if (node.closest('[class*="featured" i],[class*="recommend" i],[class*="related" i]')) continue;
+      const rect = node.getBoundingClientRect();
+      if (rect.bottom < titleRect.top - 200 || rect.top > titleRect.bottom + 1200) continue;
       const marker = [
-        node.className?.baseVal || node.className,
+        node.innerText,
+        node.textContent,
         node.getAttribute?.('aria-label'),
         node.getAttribute?.('title'),
-        node.getAttribute?.('data-testid'),
+        node.getAttribute?.('alt'),
         node.outerHTML?.slice(0, 1000)
       ].filter(Boolean).join(' ');
-      if (!/(price|credit|currency|purchase|buy|cost)/i.test(marker)) continue;
-      addCandidate(container.innerText || container.textContent, 'semantic-price-element', 2);
+      if (achievementPattern.test(normalizeText(marker))) {
+        return { ok: true, supportsAchievements: true, source: 'detail-achievement-badge' };
+      }
     }
 
-    // Bethesda often renders only a numeric value beside a Credits SVG/icon.
-    for (const icon of [...document.querySelectorAll('img,svg,use')]) {
-      const marker = [
-        icon.getAttribute?.('alt'),
-        icon.getAttribute?.('title'),
-        icon.getAttribute?.('aria-label'),
-        icon.getAttribute?.('src'),
-        icon.getAttribute?.('href'),
-        icon.getAttribute?.('xlink:href'),
-        icon.className?.baseVal || icon.className,
-        icon.outerHTML?.slice(0, 800)
-      ].filter(Boolean).join(' ');
-      if (!/(creation.?credits?|credits?|currency|wallet|coin|cc[_-]?icon)/i.test(marker)) continue;
-      const container = icon.closest('button,a,[role="button"],li,[class*="price" i],[class*="credit" i],div') || icon.parentElement;
-      if (!belongsToCurrentDetail(container)) continue;
-      addCandidate(container?.innerText || container?.textContent, 'credits-icon-near-title', 2);
+    const nearbyTextNodes = [...document.querySelectorAll('span,p,div,li')]
+      .filter(isVisible)
+      .filter((node) => {
+        if (node.closest('[class*="featured" i],[class*="recommend" i],[class*="related" i]')) return false;
+        const rect = node.getBoundingClientRect();
+        return rect.bottom >= titleRect.top - 200 && rect.top <= titleRect.bottom + 1200;
+      });
+    if (nearbyTextNodes.some((node) => achievementPattern.test(normalizeText(node.innerText || node.textContent)))) {
+      return { ok: true, supportsAchievements: true, source: 'detail-achievement-text' };
     }
 
-    for (const node of [...document.querySelectorAll('button,a,[role="button"]')]) {
-      if (!belongsToCurrentDetail(node)) continue;
-      const text = String(node.innerText || node.textContent || '').replace(/\s+/g, ' ').trim();
-      const marker = [
-        text,
-        node.getAttribute('aria-label'),
-        node.getAttribute('title'),
-        node.className?.baseVal || node.className,
-        node.outerHTML?.slice(0, 1200)
-      ].filter(Boolean).join(' ');
-      if (!/(creation\s*credits?|credits?|\bcc\b|currency|purchase|buy|price)/i.test(marker)) continue;
-      addCandidate(text, 'purchase-action', 3);
-    }
-
-    candidates.sort((a, b) => a.priority - b.priority);
-    const match = candidates[0];
-    if (match) {
-      return { ok: true, price: match.price, isPaid: true, source: match.source };
-    }
-
-    // Absence of a visible price is not proof that a Creation is free. The
-    // component can be delayed, hidden for an owned item, or outside the first
-    // render. Returning unknown preserves the last confirmed paid/free state.
-    return {
-      ok: false,
-      price: null,
-      isPaid: null,
-      source: 'price-not-confirmed-preserve-existing'
-    };
-  }, currentCreationId);
+    return { ok: false, supportsAchievements: null, source: 'achievement-badge-not-confirmed' };
+  });
 }
 
 async function scrapeCoverImage(page) {
@@ -700,12 +594,24 @@ async function scrapeCreation(page, creation) {
   const finalUrl = page.url() || url;
   const title = await scrapeTitle(page, creation.title, titleFromUrl(finalUrl) || titleFromUrl(url));
   const coverImage = normalizeImageUrl(await scrapeCoverImage(page), url);
-  const pricing = await scrapePricing(page, stableCreationKeyFromUrl(url)).catch(() => ({
+  const achievementSupport = await scrapeAchievementSupport(page).catch(() => ({
     ok: false,
-    price: null,
-    isPaid: null,
-    source: 'scrape-error'
+    supportsAchievements: null,
+    source: 'achievement-scrape-error'
   }));
+  const pricing = achievementSupport.ok && achievementSupport.supportsAchievements
+    ? {
+        ok: true,
+        price: String(creation.price || '0'),
+        isPaid: true,
+        source: achievementSupport.source
+      }
+    : {
+        ok: false,
+        price: null,
+        isPaid: null,
+        source: achievementSupport.source
+      };
   const allTime = await scrapeAllTimeEngagementStats(page, debugContext);
   let fallbackStats = {};
   if (!allTime.ok) {
