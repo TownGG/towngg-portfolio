@@ -295,12 +295,17 @@ function normalizeImageUrl(value, pageUrl) {
   }
 }
 
-async function scrapePricing(page) {
-  return page.evaluate(() => {
+async function scrapePricing(page, currentCreationId = '') {
+  return page.evaluate((expectedCreationId) => {
+    const normalizedId = String(expectedCreationId || '').toLowerCase();
     const isVisible = (node) => {
       const rect = node?.getBoundingClientRect?.();
       const style = node ? window.getComputedStyle(node) : null;
       return Boolean(rect && rect.width > 1 && rect.height > 1 && style?.display !== 'none' && style?.visibility !== 'hidden');
+    };
+    const parsePrice = (value) => {
+      const matches = String(value || '').replace(/,/g, '').match(/\b([1-9][0-9]{1,4})\b/g) || [];
+      return matches.map(Number).find((number) => Number.isFinite(number) && number >= 10) || 0;
     };
     const isGenericHeading = (value) => /^(bethesda creations?|featured|recommended|more creations?|stats|details|overview)$/i.test(
       String(value || '').replace(/\s+/g, ' ').trim()
@@ -313,34 +318,67 @@ async function scrapePricing(page) {
     }
 
     const titleRect = titleNode.getBoundingClientRect();
-    let primaryRoot = titleNode.parentElement || titleNode;
-    let candidate = titleNode.parentElement;
-    for (let depth = 0; candidate && depth < 6; depth += 1, candidate = candidate.parentElement) {
-      const text = String(candidate.innerText || candidate.textContent || '').replace(/\s+/g, ' ').trim();
-      const detailLinks = candidate.querySelectorAll('a[href*="/starfield/details/"]').length;
-      if (text.length > 6500 || detailLinks > 2) break;
-      primaryRoot = candidate;
-    }
-
-    const isPrimaryNode = (node) => {
-      if (!node || !primaryRoot.contains(node) || !isVisible(node)) return false;
-      if (node.closest('[class*="featured" i],[class*="recommend" i],[class*="related" i]')) return false;
+    const isRecommendationNode = (node) => Boolean(
+      node?.closest?.('[class*="featured" i],[class*="recommend" i],[class*="related" i],[data-testid*="featured" i],[data-testid*="recommend" i]')
+    );
+    const belongsToCurrentDetail = (node) => {
+      if (!node || !isVisible(node) || isRecommendationNode(node)) return false;
       const rect = node.getBoundingClientRect();
-      return rect.bottom >= titleRect.top - 160 && rect.top <= titleRect.bottom + 560;
+      if (rect.bottom < titleRect.top - 220 || rect.top > titleRect.bottom + 900) return false;
+
+      let ancestor = node;
+      for (let depth = 0; ancestor && depth < 7; depth += 1, ancestor = ancestor.parentElement) {
+        const detailHrefs = [...ancestor.querySelectorAll('a[href*="/starfield/details/"]')]
+          .map((anchor) => String(anchor.href || anchor.getAttribute('href') || '').toLowerCase());
+        if (!detailHrefs.length) continue;
+        if (normalizedId && detailHrefs.some((href) => href.includes(normalizedId))) return true;
+        if (detailHrefs.some((href) => !normalizedId || !href.includes(normalizedId))) return false;
+      }
+      return true;
     };
-    const parsePrice = (value) => {
-      const matches = String(value || '').replace(/,/g, '').match(/\b([1-9][0-9]{1,4})\b/g) || [];
-      return matches.map(Number).find((number) => Number.isFinite(number) && number > 0) || 0;
-    };
+
     const candidates = [];
     const addCandidate = (value, source, priority) => {
       const price = parsePrice(value);
       if (price > 0) candidates.push({ price, source, priority });
     };
 
+    // Prefer serialized page data tied to the current Creation ID. This avoids
+    // mixing in prices from Featured/recommended cards.
+    const priceKeys = /^(price|cost|credits|creditprice|creditcost|creationcredits|creationcreditprice)$/i;
+    const idKeys = /^(id|uuid|contentid|content_id|creationid|creation_id)$/i;
+    const walkSerialized = (value, depth = 0) => {
+      if (!value || depth > 12) return;
+      if (Array.isArray(value)) {
+        value.forEach((item) => walkSerialized(item, depth + 1));
+        return;
+      }
+      if (typeof value !== 'object') return;
+
+      const entries = Object.entries(value);
+      const objectIds = entries
+        .filter(([key]) => idKeys.test(key))
+        .map(([, item]) => String(item || '').toLowerCase());
+      const matchesCurrent = normalizedId && objectIds.some((item) => item.includes(normalizedId));
+      if (matchesCurrent) {
+        for (const [key, item] of entries) {
+          if (priceKeys.test(key)) addCandidate(item, 'serialized-current-creation:' + key, 0);
+        }
+      }
+      entries.forEach(([, item]) => walkSerialized(item, depth + 1));
+    };
+
+    for (const script of [...document.querySelectorAll('script[type="application/json"],script#__NEXT_DATA__,script[type="application/ld+json"]')]) {
+      try {
+        walkSerialized(JSON.parse(script.textContent || ''));
+      } catch {
+        // Ignore non-JSON script blocks.
+      }
+    }
+
     const priceAttributes = ['data-price', 'data-cost', 'data-credits', 'data-credit-price'];
-    for (const node of [...primaryRoot.querySelectorAll('[data-price],[data-cost],[data-credits],[data-credit-price]')]) {
-      if (!isPrimaryNode(node)) continue;
+    for (const node of [...document.querySelectorAll('[data-price],[data-cost],[data-credits],[data-credit-price]')]) {
+      if (!belongsToCurrentDetail(node)) continue;
       for (const attribute of priceAttributes) {
         addCandidate(node.getAttribute(attribute), 'attribute:' + attribute, 1);
       }
@@ -348,27 +386,45 @@ async function scrapePricing(page) {
     }
 
     const semanticNodes = [
-      ...primaryRoot.querySelectorAll(
+      ...document.querySelectorAll(
         '[class*="price" i],[class*="credit" i],[class*="currency" i],' +
         '[aria-label*="price" i],[aria-label*="credit" i],[title*="price" i],[title*="credit" i]'
       )
     ];
     for (const node of semanticNodes) {
-      if (!isPrimaryNode(node)) continue;
+      if (!belongsToCurrentDetail(node)) continue;
       const container = node.closest('button,a,[role="button"],li,div') || node;
       const marker = [
         node.className?.baseVal || node.className,
         node.getAttribute?.('aria-label'),
         node.getAttribute?.('title'),
         node.getAttribute?.('data-testid'),
-        node.outerHTML?.slice(0, 800)
+        node.outerHTML?.slice(0, 1000)
       ].filter(Boolean).join(' ');
       if (!/(price|credit|currency|purchase|buy|cost)/i.test(marker)) continue;
       addCandidate(container.innerText || container.textContent, 'semantic-price-element', 2);
     }
 
-    for (const node of [...primaryRoot.querySelectorAll('button,a,[role="button"]')]) {
-      if (!isPrimaryNode(node)) continue;
+    // Bethesda often renders only a numeric value beside a Credits SVG/icon.
+    for (const icon of [...document.querySelectorAll('img,svg,use')]) {
+      const marker = [
+        icon.getAttribute?.('alt'),
+        icon.getAttribute?.('title'),
+        icon.getAttribute?.('aria-label'),
+        icon.getAttribute?.('src'),
+        icon.getAttribute?.('href'),
+        icon.getAttribute?.('xlink:href'),
+        icon.className?.baseVal || icon.className,
+        icon.outerHTML?.slice(0, 800)
+      ].filter(Boolean).join(' ');
+      if (!/(creation.?credits?|credits?|currency|wallet|coin|cc[_-]?icon)/i.test(marker)) continue;
+      const container = icon.closest('button,a,[role="button"],li,[class*="price" i],[class*="credit" i],div') || icon.parentElement;
+      if (!belongsToCurrentDetail(container)) continue;
+      addCandidate(container?.innerText || container?.textContent, 'credits-icon-near-title', 2);
+    }
+
+    for (const node of [...document.querySelectorAll('button,a,[role="button"]')]) {
+      if (!belongsToCurrentDetail(node)) continue;
       const text = String(node.innerText || node.textContent || '').replace(/\s+/g, ' ').trim();
       const marker = [
         text,
@@ -381,31 +437,22 @@ async function scrapePricing(page) {
       addCandidate(text, 'purchase-action', 3);
     }
 
-    const primaryText = String(primaryRoot.innerText || primaryRoot.textContent || '')
-      .replace(/\u00a0/g, ' ')
-      .replace(/\s+/g, ' ');
-    const labeledPatterns = [
-      /(?:price|cost)\s*:?\s*([1-9][0-9]{1,4})\s*(?:cc|credits?|creation credits?)/i,
-      /([1-9][0-9]{1,4})\s*(?:cc|credits?|creation credits?)/i,
-      /(?:cc|credits?|creation credits?)\s*:?\s*([1-9][0-9]{1,4})/i
-    ];
-    for (const pattern of labeledPatterns) {
-      const match = primaryText.match(pattern);
-      if (match) addCandidate(match[1], 'labeled-primary-text', 4);
-    }
-
     candidates.sort((a, b) => a.priority - b.priority);
     const match = candidates[0];
     if (match) {
       return { ok: true, price: match.price, isPaid: true, source: match.source };
     }
 
-    const hasCreationPage = /\/starfield\/details\//i.test(window.location.pathname)
-      && primaryText.length > 40;
-    return hasCreationPage
-      ? { ok: true, price: 0, isPaid: false, source: 'no-primary-price-element' }
-      : { ok: false, price: null, isPaid: null, source: 'page-not-ready' };
-  });
+    // Absence of a visible price is not proof that a Creation is free. The
+    // component can be delayed, hidden for an owned item, or outside the first
+    // render. Returning unknown preserves the last confirmed paid/free state.
+    return {
+      ok: false,
+      price: null,
+      isPaid: null,
+      source: 'price-not-confirmed-preserve-existing'
+    };
+  }, currentCreationId);
 }
 
 async function scrapeCoverImage(page) {
@@ -653,7 +700,7 @@ async function scrapeCreation(page, creation) {
   const finalUrl = page.url() || url;
   const title = await scrapeTitle(page, creation.title, titleFromUrl(finalUrl) || titleFromUrl(url));
   const coverImage = normalizeImageUrl(await scrapeCoverImage(page), url);
-  const pricing = await scrapePricing(page).catch(() => ({
+  const pricing = await scrapePricing(page, stableCreationKeyFromUrl(url)).catch(() => ({
     ok: false,
     price: null,
     isPaid: null,
