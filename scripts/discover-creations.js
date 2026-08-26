@@ -202,10 +202,23 @@ async function extractCreationsFromAuthorPage(page) {
       let node = anchor;
       let matchedRoot = null;
       for (let depth = 0; node && depth < 8; depth += 1, node = node.parentElement) {
-        const detailLinks = node.querySelectorAll('a[href*="/starfield/details/"]').length;
+        const detailUrls = new Set(
+          [...node.querySelectorAll('a[href*="/starfield/details/"]')]
+            .map((item) => {
+              try {
+                const url = new URL(item.href || item.getAttribute('href') || '', window.location.href);
+                return url.pathname.toLowerCase();
+              } catch {
+                return '';
+              }
+            })
+            .filter(Boolean)
+        );
         const text = normalizeText(node.innerText || node.textContent);
-        if (detailLinks > 3 || text.length > 1800) break;
-        if (authorSignalsIn(node)) matchedRoot = node;
+        // A single card may contain separate image/title links, but every
+        // details link inside it must resolve to the same Creation.
+        if (detailUrls.size > 1 || text.length > 1800) break;
+        if (detailUrls.size === 1 && authorSignalsIn(node)) matchedRoot = node;
       }
       return matchedRoot;
     };
