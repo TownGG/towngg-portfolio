@@ -264,13 +264,25 @@
   function updateCards() {
     const target = document.querySelector('[data-creations-mods]');
     if (!target) return;
-    target.innerHTML = confirmedCreations().filter((item) => item.image && toNumber(item.downloads) > 0).map((item) => `
-      <a class="project-card project-card-link" data-group="${escapeHtml(item.group || '')}" href="${escapeHtml(primaryUrl(item))}" target="_blank" rel="noopener">
-        <div class="project-image"><img src="${escapeHtml(item.image || '')}" alt="${escapeHtml(item.alt || item.title || '')}" loading="lazy"></div>
-        <div class="project-content"><h3 class="card-title">${escapeHtml(item.title || '')}</h3><p class="card-desc">${escapeHtml(item.description || '')}</p><div class="mod-tags">${(item.tags || []).map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div></div>
-        <div class="stats"><span title="Likes"><span class="stat-icon">★</span>${escapeHtml(item.likes || '')}</span><span title="Downloads"><span class="stat-icon">↓</span>${escapeHtml(item.downloads || '')}</span></div>
-      </a>
-    `).join('');
+    target.innerHTML = confirmedCreations()
+      .filter((item) => item.image && toNumber(item.downloads) > 0)
+      .map((item) => {
+        const priceCredits = toNumber(item.price);
+        const priceBadge = item.isPaid === true && priceCredits > 0
+          ? `<span class="creation-price-badge" title="Creation Credits">${escapeHtml(priceCredits)} CC</span>`
+          : '';
+        return `
+          <a class="project-card project-card-link" data-group="${escapeHtml(item.group || '')}" href="${escapeHtml(primaryUrl(item))}" target="_blank" rel="noopener">
+            <div class="project-image">
+              <img src="${escapeHtml(item.image || '')}" alt="${escapeHtml(item.alt || item.title || '')}" loading="lazy">
+              ${priceBadge}
+            </div>
+            <div class="project-content"><h3 class="card-title">${escapeHtml(item.title || '')}</h3><p class="card-desc">${escapeHtml(item.description || '')}</p><div class="mod-tags">${(item.tags || []).map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div></div>
+            <div class="stats"><span title="Likes"><span class="stat-icon">★</span>${escapeHtml(item.likes || '')}</span><span title="Downloads"><span class="stat-icon">↓</span>${escapeHtml(item.downloads || '')}</span></div>
+          </a>
+        `;
+      })
+      .join('');
   }
 
   function updateTable() {
