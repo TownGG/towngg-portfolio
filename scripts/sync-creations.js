@@ -275,9 +275,15 @@ async function scrapeTitle(page, fallbackTitle, urlTitle) {
   const cleanedPageTitle = cleanTitle(pageTitle);
   const cleanedUrlTitle = cleanTitle(urlTitle);
   const cleanedFallback = cleanTitle(fallbackTitle);
+  const looksDegraded = (value) => /\bamp\b|\b39\b|\bconst$/i.test(String(value || '').trim());
 
-  if (cleanedPageTitle && !isGeneric(cleanedPageTitle) && cleanedPageTitle !== cleanedFallback) return cleanedPageTitle;
-  if (cleanedUrlTitle && !isGeneric(cleanedUrlTitle) && cleanedUrlTitle !== cleanedFallback) return cleanedUrlTitle;
+  if (cleanedPageTitle && !isGeneric(cleanedPageTitle) && !looksDegraded(cleanedPageTitle) && cleanedPageTitle !== cleanedFallback) {
+    return cleanedPageTitle;
+  }
+  if (cleanedFallback && !isGeneric(cleanedFallback) && !looksDegraded(cleanedFallback)) return cleanedFallback;
+  if (cleanedUrlTitle && !isGeneric(cleanedUrlTitle) && !looksDegraded(cleanedUrlTitle) && cleanedUrlTitle !== cleanedFallback) {
+    return cleanedUrlTitle;
+  }
   return (!isGeneric(cleanedPageTitle) && cleanedPageTitle) || (!isGeneric(cleanedUrlTitle) && cleanedUrlTitle) || cleanedFallback;
 }
 
@@ -298,7 +304,28 @@ function normalizeImageUrl(value, pageUrl) {
 async function scrapeAchievementSupport(page) {
   return page.evaluate(() => {
     const normalizeText = (value) => String(value || '').replace(/\s+/g, ' ').trim();
-    const achievementPattern = /supports? achievements?|achievements? (?:supported|enabled)|achievement friendly|支持成就/i;
+    const negativePatterns = [
+      /does not support achievements?/i,
+      /doesn't support achievements?/i,
+      /achievements? (?:are )?not supported/i,
+      /achievements? disabled/i,
+      /not achievement friendly/i,
+      /不支持成就/
+    ];
+    const positivePatterns = [
+      /^supports? achievements?$/i,
+      /^achievements? (?:are )?supported$/i,
+      /^achievements? enabled$/i,
+      /^achievement friendly$/i,
+      /^支持成就$/
+    ];
+    const classify = (value) => {
+      const text = normalizeText(value);
+      if (!text || text.length > 160) return null;
+      if (negativePatterns.some((pattern) => pattern.test(text))) return false;
+      if (positivePatterns.some((pattern) => pattern.test(text))) return true;
+      return null;
+    };
     const isVisible = (node) => {
       const rect = node?.getBoundingClientRect?.();
       const style = node ? window.getComputedStyle(node) : null;
@@ -309,43 +336,56 @@ async function scrapeAchievementSupport(page) {
     if (!titleNode) return { ok: false, supportsAchievements: null, source: 'creation-title-not-found' };
 
     const titleRect = titleNode.getBoundingClientRect();
-    const candidates = [
+    const inCurrentDetailArea = (node) => {
+      if (!isVisible(node)) return false;
+      if (node.closest('[class*="featured" i],[class*="recommend" i],[class*="related" i]')) return false;
+      const rect = node.getBoundingClientRect();
+      return rect.bottom >= titleRect.top - 200 && rect.top <= titleRect.bottom + 1200;
+    };
+
+    const semanticCandidates = [
       ...document.querySelectorAll(
         '[class*="achievement" i],[data-testid*="achievement" i],' +
         '[aria-label*="achievement" i],[title*="achievement" i],img[alt*="achievement" i]'
       )
     ];
-
-    for (const node of candidates) {
-      if (!isVisible(node)) continue;
-      if (node.closest('[class*="featured" i],[class*="recommend" i],[class*="related" i]')) continue;
-      const rect = node.getBoundingClientRect();
-      if (rect.bottom < titleRect.top - 200 || rect.top > titleRect.bottom + 1200) continue;
-      const marker = [
-        node.innerText,
-        node.textContent,
+    for (const node of semanticCandidates) {
+      if (!inCurrentDetailArea(node)) continue;
+      const values = [
         node.getAttribute?.('aria-label'),
         node.getAttribute?.('title'),
         node.getAttribute?.('alt'),
-        node.outerHTML?.slice(0, 1000)
-      ].filter(Boolean).join(' ');
-      if (achievementPattern.test(normalizeText(marker))) {
-        return { ok: true, supportsAchievements: true, source: 'detail-achievement-badge' };
+        node.innerText,
+        node.textContent
+      ];
+      for (const value of values) {
+        const state = classify(value);
+        if (state !== null) {
+          return {
+            ok: true,
+            supportsAchievements: state,
+            source: state ? 'detail-supports-achievements' : 'detail-does-not-support-achievements'
+          };
+        }
       }
     }
 
-    const nearbyTextNodes = [...document.querySelectorAll('span,p,div,li')]
-      .filter(isVisible)
-      .filter((node) => {
-        if (node.closest('[class*="featured" i],[class*="recommend" i],[class*="related" i]')) return false;
-        const rect = node.getBoundingClientRect();
-        return rect.bottom >= titleRect.top - 200 && rect.top <= titleRect.bottom + 1200;
-      });
-    if (nearbyTextNodes.some((node) => achievementPattern.test(normalizeText(node.innerText || node.textContent)))) {
-      return { ok: true, supportsAchievements: true, source: 'detail-achievement-text' };
+    const leafCandidates = [
+      ...document.querySelectorAll('span,p,li,small,strong,label')
+    ];
+    for (const node of leafCandidates) {
+      if (!inCurrentDetailArea(node)) continue;
+      const state = classify(node.innerText || node.textContent);
+      if (state !== null) {
+        return {
+          ok: true,
+          supportsAchievements: state,
+          source: state ? 'detail-supports-achievements-text' : 'detail-does-not-support-achievements-text'
+        };
+      }
     }
 
-    return { ok: false, supportsAchievements: null, source: 'achievement-badge-not-confirmed' };
+    return { ok: false, supportsAchievements: null, source: 'achievement-state-not-confirmed' };
   });
 }
 
@@ -599,11 +639,11 @@ async function scrapeCreation(page, creation) {
     supportsAchievements: null,
     source: 'achievement-scrape-error'
   }));
-  const pricing = achievementSupport.ok && achievementSupport.supportsAchievements
+  const pricing = achievementSupport.ok
     ? {
         ok: true,
-        price: String(creation.price || '0'),
-        isPaid: true,
+        price: achievementSupport.supportsAchievements ? String(creation.price || '0') : '0',
+        isPaid: achievementSupport.supportsAchievements === true,
         source: achievementSupport.source
       }
     : {
