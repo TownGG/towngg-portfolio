@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-27T10:07:40Z",
+  "updatedAt": "2026-08-27T10:30:53Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1690,
-      "unique_downloads": 919,
-      "daily_downloads": 0,
+      "total_downloads": 1691,
+      "unique_downloads": 920,
+      "daily_downloads": 1,
       "likes": 41,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 773,
-      "unique_downloads": 681,
-      "daily_downloads": 1,
+      "total_downloads": 774,
+      "unique_downloads": 682,
+      "daily_downloads": 2,
       "likes": 49,
       "views": 0
     },
