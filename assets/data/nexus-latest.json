@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-28T20:38:15Z",
+  "updatedAt": "2026-08-28T21:30:58Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1695,
-      "unique_downloads": 923,
-      "daily_downloads": 4,
+      "total_downloads": 1696,
+      "unique_downloads": 924,
+      "daily_downloads": 5,
       "likes": 41,
       "views": 0
     },
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 761,
-      "unique_downloads": 656,
-      "daily_downloads": 3,
+      "total_downloads": 762,
+      "unique_downloads": 657,
+      "daily_downloads": 4,
       "likes": 30,
       "views": 0
     },
@@ -70,7 +70,7 @@
       "total_downloads": 4228,
       "unique_downloads": 2827,
       "daily_downloads": 18,
-      "likes": 180,
+      "likes": 181,
       "views": 0
     },
     {
@@ -202,7 +202,7 @@
       "total_downloads": 778,
       "unique_downloads": 685,
       "daily_downloads": 3,
-      "likes": 49,
+      "likes": 50,
       "views": 0
     },
     {
