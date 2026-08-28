@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-28T16:01:02Z",
+  "updatedAt": "2026-08-28T16:37:32Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1693,
+      "total_downloads": 1694,
       "unique_downloads": 922,
-      "daily_downloads": 2,
+      "daily_downloads": 3,
       "likes": 41,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1428,
+      "total_downloads": 1429,
       "unique_downloads": 769,
-      "daily_downloads": 2,
+      "daily_downloads": 3,
       "likes": 37,
       "views": 0
     },
@@ -175,9 +175,9 @@
       "mod_name": "CPF-RYUJIN DEATH CLAW",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17632",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
-      "total_downloads": 205,
-      "unique_downloads": 189,
-      "daily_downloads": 2,
+      "total_downloads": 206,
+      "unique_downloads": 190,
+      "daily_downloads": 3,
       "likes": 13,
       "views": 0
     },
@@ -259,9 +259,9 @@
       "mod_name": "POWER RANGER UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18049",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18049/18049-1787491919-946013974.png",
-      "total_downloads": 54,
-      "unique_downloads": 53,
-      "daily_downloads": 3,
+      "total_downloads": 55,
+      "unique_downloads": 54,
+      "daily_downloads": 4,
       "likes": 3,
       "views": 0
     }
