@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-29T06:00:51Z",
+  "updatedAt": "2026-08-29T06:52:26Z",
   "mods": [
     {
       "platform": "nexus",
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1431,
-      "unique_downloads": 769,
-      "daily_downloads": 0,
+      "total_downloads": 1434,
+      "unique_downloads": 770,
+      "daily_downloads": 3,
       "likes": 37,
       "views": 0
     },
@@ -259,9 +259,9 @@
       "mod_name": "POWER RANGER UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18049",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18049/18049-1787491919-946013974.png",
-      "total_downloads": 59,
-      "unique_downloads": 58,
-      "daily_downloads": 1,
+      "total_downloads": 60,
+      "unique_downloads": 59,
+      "daily_downloads": 2,
       "likes": 3,
       "views": 0
     }
