@@ -3,6 +3,7 @@
   const SITE_DATA_URL = `${RAW_BASE}/assets/js/site-data.js`;
   const DAILY_CSV_URL = `${RAW_BASE}/assets/data/creations-mod-daily.csv`;
   const REFRESH_MS = 2 * 60 * 1000;
+  const SHOW_PRICE = document.body.dataset.creationsPricing === 'paid';
   const state = { data: null, dailyRows: [], activeSortKey: 'daily', activeSortDirection: 'desc' };
 
   const translations = {
@@ -16,6 +17,7 @@
 
   const tableColumns = [
     ['Creation', 'creation'],
+    ...(SHOW_PRICE ? [['Price', 'price']] : []),
     ['Daily', 'daily'],
     ['Likes', 'likes'],
     ['Views', 'views'],
@@ -53,6 +55,11 @@
 
   function formatNumber(value) {
     return new Intl.NumberFormat(locale()).format(toNumber(value));
+  }
+
+  function formatPrice(value) {
+    const credits = toNumber(value);
+    return credits > 0 ? `${formatNumber(credits)} CC` : '-';
   }
 
   function escapeHtml(value) {
@@ -296,7 +303,7 @@
     const items = confirmedCreations()
       .map((item, index) => ({ item, index, daily: toNumber(daily.get(normalizeTitle(item.title))?.daily_downloads) }))
       .sort((a, b) => (b.daily - a.daily) || (toNumber(b.item.downloads) - toNumber(a.item.downloads)) || (a.index - b.index));
-    body.innerHTML = items.map(({ item, daily: dailyValue }) => `<tr><td><a href="${escapeHtml(primaryUrl(item))}" target="_blank" rel="noopener">${escapeHtml(item.title || '')}</a></td><td>${formatNumber(dailyValue)}</td><td>${formatNumber(item.likes)}</td><td>${formatNumber(item.views)}</td><td>${formatNumber(item.downloads)}</td><td>${formatNumber(item.plays)}</td><td>${formatNumber(item.libraryAdds)}</td></tr>`).join('');
+    body.innerHTML = items.map(({ item, daily: dailyValue }) => `<tr><td><a href="${escapeHtml(primaryUrl(item))}" target="_blank" rel="noopener">${escapeHtml(item.title || '')}</a></td>${SHOW_PRICE ? `<td>${formatPrice(item.price)}</td>` : ''}<td>${formatNumber(dailyValue)}</td><td>${formatNumber(item.likes)}</td><td>${formatNumber(item.views)}</td><td>${formatNumber(item.downloads)}</td><td>${formatNumber(item.plays)}</td><td>${formatNumber(item.libraryAdds)}</td></tr>`).join('');
     if (table) {
       const totalBody = table.querySelector('tbody[data-table-total-for="creations"]');
       if (totalBody) totalBody.remove();

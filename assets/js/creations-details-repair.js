@@ -1,5 +1,6 @@
 (() => {
   const TABLE_SELECTOR = '[data-creations-table]';
+  const SHOW_PRICE = document.body.dataset.creationsPricing === 'paid';
   const DEFAULT_SORT_KEY = 'daily';
   const DEFAULT_SORT_DIRECTION = 'desc';
   const state = {
@@ -11,16 +12,17 @@
   };
 
   const labels = {
-    en: ['Creation', 'Daily', 'Likes', 'Views', 'Downloads', 'Plays', 'Library Adds'],
-    'zh-CN': ['Creation', '每日', '点赞', '浏览', '下载', '游玩', '加入库'],
-    'zh-TW': ['Creation', '每日', '按讚', '瀏覽', '下載', '遊玩', '加入庫'],
-    ja: ['Creation', '日別', 'いいね', '閲覧', 'ダウンロード', 'プレイ', 'ライブラリ追加'],
-    ko: ['Creation', '일일', '좋아요', '조회', '다운로드', '플레이', '라이브러리 추가'],
-    ru: ['Creation', 'Ежедневно', 'Лайки', 'Просмотры', 'Загрузки', 'Запуски', 'Добавления в библиотеку']
+    en: ['Creation', 'Price', 'Daily', 'Likes', 'Views', 'Downloads', 'Plays', 'Library Adds'],
+    'zh-CN': ['Creation', '价格', '每日', '点赞', '浏览', '下载', '游玩', '加入库'],
+    'zh-TW': ['Creation', '價格', '每日', '按讚', '瀏覽', '下載', '遊玩', '加入庫'],
+    ja: ['Creation', '価格', '日別', 'いいね', '閲覧', 'ダウンロード', 'プレイ', 'ライブラリ追加'],
+    ko: ['Creation', '가격', '일일', '좋아요', '조회', '다운로드', '플레이', '라이브러리 추가'],
+    ru: ['Creation', 'Цена', 'Ежедневно', 'Лайки', 'Просмотры', 'Загрузки', 'Запуски', 'Добавления в библиотеку']
   };
 
   const columns = [
     { key: 'creation', type: 'text' },
+    ...(SHOW_PRICE ? [{ key: 'price', type: 'number' }] : []),
     { key: 'daily', type: 'number' },
     { key: 'likes', type: 'number' },
     { key: 'views', type: 'number' },
@@ -64,6 +66,11 @@
 
   function formatNumber(value) {
     return new Intl.NumberFormat(locale()).format(toNumber(value));
+  }
+
+  function formatPrice(value) {
+    const credits = toNumber(value);
+    return credits > 0 ? `${formatNumber(credits)} CC` : '-';
   }
 
   function escapeHtml(value) {
@@ -126,13 +133,14 @@
   }
 
   function hasCompleteTable(table, body, itemsLength) {
-    const hasSevenHeaders = table.querySelectorAll('thead th').length === columns.length;
-    const hasSevenCells = [...body.querySelectorAll('tr')].every((row) => row.children.length === columns.length);
-    return hasSevenHeaders && hasSevenCells && body.children.length === itemsLength;
+    const hasExpectedHeaders = table.querySelectorAll('thead th').length === columns.length;
+    const hasExpectedCells = [...body.querySelectorAll('tr')].every((row) => row.children.length === columns.length);
+    return hasExpectedHeaders && hasExpectedCells && body.children.length === itemsLength;
   }
 
   function renderHeaders(headerRow) {
-    const text = labels[lang()] || labels.en;
+    const localized = labels[lang()] || labels.en;
+    const text = SHOW_PRICE ? localized : localized.filter((_, index) => index !== 1);
     headerRow.innerHTML = columns.map((column, index) => (
       `<th><button type="button" class="dashboard-table-sort" data-creations-table-sort="${column.key}" aria-sort="none">${text[index]}</button></th>`
     )).join('');
@@ -144,6 +152,7 @@
     return `
       <tr>
         <td><a href="${escapeHtml(href)}" target="_blank" rel="noopener">${escapeHtml(title)}</a></td>
+        ${SHOW_PRICE ? `<td>${formatPrice(metricValue(item, 'price'))}</td>` : ''}
         <td>${formatNumber(dailyForItem(item))}</td>
         <td>${formatNumber(metricValue(item, 'likes'))}</td>
         <td>${formatNumber(metricValue(item, 'views'))}</td>
@@ -158,6 +167,7 @@
     return [
       creationKeyFromItem(item) || normalizeTitle(item.title),
       normalizeTitle(item.title),
+      SHOW_PRICE ? toNumber(metricValue(item, 'price')) : '',
       toNumber(metricValue(item, 'likes')),
       toNumber(metricValue(item, 'views')),
       toNumber(metricValue(item, 'downloads')),

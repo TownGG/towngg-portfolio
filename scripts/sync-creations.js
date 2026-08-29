@@ -460,6 +460,25 @@ function aggregateLabeledNumbers(text, labels) {
   return total > 0 ? numberFormat.format(Math.round(total)) : null;
 }
 
+function largestLabeledNumber(text, labels) {
+  const normalized = String(text || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
+  let largest = 0;
+
+  for (const label of labels) {
+    const afterPattern = new RegExp(`${escapeRegExp(label)}\\s*:?\\s*([0-9][0-9,.]*)`, 'gi');
+    for (const match of normalized.matchAll(afterPattern)) {
+      largest = Math.max(largest, parseNumberValue(match[1]));
+    }
+
+    const beforePattern = new RegExp(`([0-9][0-9,.]*)\\s*${escapeRegExp(label)}`, 'gi');
+    for (const match of normalized.matchAll(beforePattern)) {
+      largest = Math.max(largest, parseNumberValue(match[1]));
+    }
+  }
+
+  return largest > 0 ? numberFormat.format(Math.round(largest)) : null;
+}
+
 function parsePlatformStats(text, context = {}) {
   return {
     likes: aggregateImmediateLabeledNumbers(text, ['likes', 'like', '喜欢'], { ...context, metric: 'likes' }),
@@ -508,20 +527,95 @@ async function selectPlatformAny(page) {
   await page.waitForTimeout(900);
 }
 
-async function scrapeAllTimeEngagementStats(page, debugContext = {}) {
+async function scrapePaidLibraryAddsFromChart(page, creation) {
+  if (creation?.isPaid !== true) {
+    return { value: null, source: 'not-paid', samples: 0 };
+  }
+
+  const labels = [
+    'library adds',
+    'library add',
+    'adds to library',
+    'added to library',
+    'library additions',
+    'subscribes',
+    'subscriptions',
+    '订阅数',
+    '加入库'
+  ];
+  let bestValue = largestLabeledNumber(
+    await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => ''),
+    labels
+  );
+  let bestSource = bestValue ? 'visible-text' : 'not-found';
+
+  const boxes = await page.locator('svg, canvas').evaluateAll((nodes) => nodes
+    .map((node) => {
+      const rect = node.getBoundingClientRect();
+      return {
+        x: rect.left,
+        y: rect.top,
+        width: rect.width,
+        height: rect.height,
+        area: rect.width * rect.height
+      };
+    })
+    .filter((rect) => rect.width > 240 && rect.height > 120 && rect.y >= 0)
+    .sort((a, b) => b.area - a.area)
+    .slice(0, 3)
+  ).catch(() => []);
+
+  const points = [];
+  for (const box of boxes) {
+    for (const xFactor of [0.995, 0.98, 0.95, 0.9, 0.78, 0.58, 0.35, 0.12]) {
+      for (const yFactor of [0.28, 0.52, 0.76]) {
+        points.push({
+          x: box.x + box.width * xFactor,
+          y: box.y + box.height * yFactor
+        });
+      }
+    }
+  }
+
+  let samples = 0;
+  for (const point of points) {
+    await page.mouse.move(point.x, point.y).catch(() => {});
+    await page.waitForTimeout(90);
+    samples += 1;
+    const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
+    const candidate = largestLabeledNumber(text, labels);
+    if (parseNumberValue(candidate) > parseNumberValue(bestValue)) {
+      bestValue = candidate;
+      bestSource = 'chart-tooltip';
+    }
+  }
+
+  return { value: bestValue, source: bestSource, samples };
+}
+
+async function scrapeAllTimeEngagementStats(page, creation, debugContext = {}) {
   await openStatsTab(page);
   await forceSelectAllTime(page);
   await selectPlatformAny(page);
   const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
   const stats = compactStats(parsePlatformStats(text, { ...debugContext, source: 'STATS All time body' }));
-  return { ok: Boolean(Object.keys(stats).length), stats, timeRange: 'all-time-or-fallback' };
+  const libraryAddsProbe = await scrapePaidLibraryAddsFromChart(page, creation);
+  if (libraryAddsProbe.value) stats.libraryAdds = libraryAddsProbe.value;
+  return {
+    ok: Boolean(Object.keys(stats).length),
+    stats,
+    timeRange: 'all-time-or-fallback',
+    libraryAddsProbe
+  };
 }
 
-function statsLine(stats, coverImage, title, oldTitle, pricing) {
+function statsLine(stats, coverImage, title, oldTitle, pricing, libraryAddsProbe) {
   const pricingLabel = pricing?.ok
     ? (pricing.isPaid ? `${pricing.price} CC (paid)` : 'free')
     : 'kept';
-  return `title=${title && title !== oldTitle ? `${oldTitle} -> ${title}` : title || oldTitle}, price=${pricingLabel}, likes=${stats.likes || '-'}, downloads=${stats.downloads || '-'}, cover=${coverImage ? 'yes' : 'no'}, views=${stats.views || '-'}, plays=${stats.plays || '-'}, bookmarks=${stats.bookmarks || '-'}, libraryAdds=${stats.libraryAdds || '-'}`;
+  const libraryAddsSource = libraryAddsProbe?.source || 'body-text';
+  const libraryAddsSamples = libraryAddsProbe?.samples || 0;
+  return `title=${title && title !== oldTitle ? `${oldTitle} -> ${title}` : title || oldTitle}, price=${pricingLabel}, likes=${stats.likes || '-'}, downloads=${stats.downloads || '-'}, cover=${coverImage ? 'yes' : 'no'}, views=${stats.views || '-'}, plays=${stats.plays || '-'}, bookmarks=${stats.bookmarks || '-'}, libraryAdds=${stats.libraryAdds || '-'}, libraryAddsSource=${libraryAddsSource}, libraryAddsSamples=${libraryAddsSamples}`;
 }
 
 async function scrapeCreation(page, creation) {
@@ -552,7 +646,7 @@ async function scrapeCreation(page, creation) {
     isPaid: null,
     source: 'managed-exclusively-by-author-list-discovery'
   };
-  const allTime = await scrapeAllTimeEngagementStats(page, debugContext);
+  const allTime = await scrapeAllTimeEngagementStats(page, creation, debugContext);
   let fallbackStats = {};
   if (!allTime.ok) {
     await openDetailsTab(page);
@@ -569,7 +663,7 @@ async function scrapeCreation(page, creation) {
     return { ok: false, error: 'no_stats_cover_or_title_found' };
   }
 
-  return { ok: true, title, stats, coverImage, pricing };
+  return { ok: true, title, stats, coverImage, pricing, libraryAddsProbe: allTime.libraryAddsProbe };
 }
 
 async function login() {
@@ -644,7 +738,7 @@ async function sync() {
       };
       nextSource = replaceCreationObjectByKey(nextSource, creation, renderCreationObject(merged));
       success += 1;
-      console.log(statsLine(result.stats, result.coverImage, result.title, creation.title, result.pricing));
+      console.log(statsLine(result.stats, result.coverImage, result.title, creation.title, result.pricing, result.libraryAddsProbe));
     } catch (error) {
       failed += 1;
       console.log(`kept old data (${error.message})`);

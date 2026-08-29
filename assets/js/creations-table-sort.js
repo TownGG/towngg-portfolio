@@ -1,4 +1,5 @@
 (() => {
+  const SHOW_PRICE = document.body.dataset.creationsPricing === 'paid';
   const TABLES = [
     {
       bodySelector: '[data-creations-table]',
@@ -8,6 +9,7 @@
       defaultSort: { key: 'daily', direction: 'desc' },
       columns: [
         { key: 'creation', type: 'text' },
+        ...(SHOW_PRICE ? [{ key: 'price', type: 'number', aggregate: false }] : []),
         { key: 'daily', type: 'number' },
         { key: 'likes', type: 'number' },
         { key: 'views', type: 'number' },
@@ -115,7 +117,7 @@
     if (!rows.length) return;
 
     const totals = config.columns.map((column, index) => {
-      if (index === 0 || column.type !== 'number') return null;
+      if (index === 0 || column.type !== 'number' || column.aggregate === false) return null;
       const centralized = centralizedDailyTotal(config, column);
       if (centralized !== null) return centralized;
       return rows.reduce((sum, row) => sum + cellValue(row, index, 'number'), 0);
@@ -131,6 +133,7 @@
 
     const cells = config.columns.map((column, index) => {
       if (index === 0) return `<td><strong>${totalLabels[lang()] || totalLabels.en}</strong></td>`;
+      if (totals[index] === null) return '<td></td>';
       return `<td><strong>${formatNumber(totals[index])}</strong></td>`;
     }).join('');
     const nextHtml = `<tr class="dashboard-table-total-row" data-table-total-row="${config.tableName}">${cells}</tr>`;
