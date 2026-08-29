@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-29T15:00:52Z",
+  "updatedAt": "2026-08-29T15:37:36Z",
   "mods": [
     {
       "platform": "nexus",
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 4235,
-      "unique_downloads": 2834,
-      "daily_downloads": 7,
+      "total_downloads": 4236,
+      "unique_downloads": 2835,
+      "daily_downloads": 8,
       "likes": 181,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 781,
-      "unique_downloads": 687,
-      "daily_downloads": 3,
+      "total_downloads": 782,
+      "unique_downloads": 688,
+      "daily_downloads": 4,
       "likes": 50,
       "views": 0
     },
@@ -235,9 +235,9 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 526,
-      "unique_downloads": 432,
-      "daily_downloads": 8,
+      "total_downloads": 527,
+      "unique_downloads": 433,
+      "daily_downloads": 9,
       "likes": 16,
       "views": 0
     },
@@ -247,9 +247,9 @@
       "mod_name": "TGG Galaxy Fashion-Fruit Pajama Collection",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18000",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18000/18000-1787018537-1839278272.jpg",
-      "total_downloads": 36,
-      "unique_downloads": 34,
-      "daily_downloads": 2,
+      "total_downloads": 37,
+      "unique_downloads": 35,
+      "daily_downloads": 3,
       "likes": 2,
       "views": 0
     },
@@ -262,7 +262,7 @@
       "total_downloads": 59,
       "unique_downloads": 58,
       "daily_downloads": 1,
-      "likes": 4,
+      "likes": 5,
       "views": 0
     }
   ]
