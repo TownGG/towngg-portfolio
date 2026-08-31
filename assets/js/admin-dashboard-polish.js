@@ -96,9 +96,7 @@
       }
 
       const lock = event.target.closest('[data-polish-lock]');
-      if (lock) {
-        document.querySelector('.admin-hero [data-lock-admin]')?.click();
-      }
+      if (lock) document.querySelector('.admin-hero [data-lock-admin]')?.click();
     });
   }
 
@@ -125,18 +123,25 @@
       const timestamps = window.siteData.creations
         .map((item) => item.updatedAt)
         .filter(Boolean)
-        .map((value) => new Date(String(value).replace(' ', 'T')))
+        .map((item) => new Date(String(item).replace(' ', 'T')))
         .filter((date) => !Number.isNaN(date.getTime()))
         .sort((a, b) => b - a);
       if (timestamps[0]) value = timestamps[0].toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
     }
 
     if (!value) value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-    target.textContent = value;
+    if (target.textContent !== value) target.textContent = value;
+  }
+
+  function interactiveCards(root = document) {
+    const cards = [];
+    if (root instanceof Element && root.matches('.admin-metric-card, .admin-analytics-panel, .admin-card')) cards.push(root);
+    root.querySelectorAll?.('.admin-metric-card, .admin-analytics-panel, .admin-card').forEach((card) => cards.push(card));
+    return cards;
   }
 
   function bindSpotlights(root = document) {
-    root.querySelectorAll?.('.admin-metric-card, .admin-analytics-panel, .admin-card').forEach((card) => {
+    interactiveCards(root).forEach((card) => {
       if (card.dataset.polishPointerBound) return;
       card.dataset.polishPointerBound = 'true';
       card.addEventListener('pointermove', (event) => {
@@ -148,7 +153,9 @@
   }
 
   function polishMetricIcons(root = document) {
-    const cards = root.querySelectorAll?.('.admin-metric-card') || [];
+    const cards = [];
+    if (root instanceof Element && root.matches('.admin-metric-card')) cards.push(root);
+    root.querySelectorAll?.('.admin-metric-card').forEach((card) => cards.push(card));
     cards.forEach((card, index) => {
       const icon = card.querySelector('.admin-metric-icon');
       if (!icon || icon.dataset.polished) return;
@@ -196,7 +203,6 @@
         polishMetricIcons(node);
       }));
       ensureDashboardHeading();
-      syncLastUpdated();
     });
     observer.observe(document.body, { childList: true, subtree: true });
   }
