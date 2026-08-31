@@ -88,22 +88,42 @@
     });
   }
 
+  const ADMIN_LINK_SELECTOR = 'a[data-admin-nav], a[href*="admin-upload.html"]';
+
   function decorateAdminLinks(root = document) {
-    const links = root.querySelectorAll?.('a[data-admin-nav], a[href="./admin-upload.html"], a[href$="/admin-upload.html"]') || [];
+    const links = root.querySelectorAll?.(ADMIN_LINK_SELECTOR) || [];
     links.forEach((link) => {
       link.target = "_blank";
       const rel = new Set(String(link.rel || "").split(/\s+/).filter(Boolean));
       rel.add("noopener");
+      rel.add("noreferrer");
       link.rel = [...rel].join(" ");
       link.dataset.adminOpensNewTab = "true";
     });
+  }
+
+  function bindAdminNewTabGuard() {
+    if (document.documentElement.dataset.adminNewTabGuard === "true") return;
+    document.documentElement.dataset.adminNewTabGuard = "true";
+
+    document.addEventListener("click", (event) => {
+      const link = event.target.closest?.(ADMIN_LINK_SELECTOR);
+      if (!link) return;
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      const url = new URL(link.getAttribute("href") || "./admin-upload.html", window.location.href).href;
+      const popup = window.open(url, "_blank", "noopener,noreferrer");
+      if (popup) popup.opener = null;
+    }, true);
   }
 
   function observeAdminLinks() {
     const observer = new MutationObserver((records) => {
       records.forEach((record) => record.addedNodes.forEach((node) => {
         if (!(node instanceof Element)) return;
-        if (node.matches?.('a[data-admin-nav], a[href="./admin-upload.html"], a[href$="/admin-upload.html"]')) decorateAdminLinks(node.parentElement || document);
+        if (node.matches?.(ADMIN_LINK_SELECTOR)) decorateAdminLinks(node.parentElement || document);
         else decorateAdminLinks(node);
       }));
     });
@@ -112,6 +132,7 @@
 
   function init() {
     decorateAdminLinks();
+    bindAdminNewTabGuard();
     observeAdminLinks();
 
     const switcher = document.querySelector(".language-switcher");
