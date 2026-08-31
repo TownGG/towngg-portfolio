@@ -88,7 +88,32 @@
     });
   }
 
+  function decorateAdminLinks(root = document) {
+    const links = root.querySelectorAll?.('a[data-admin-nav], a[href="./admin-upload.html"], a[href$="/admin-upload.html"]') || [];
+    links.forEach((link) => {
+      link.target = "_blank";
+      const rel = new Set(String(link.rel || "").split(/\s+/).filter(Boolean));
+      rel.add("noopener");
+      link.rel = [...rel].join(" ");
+      link.dataset.adminOpensNewTab = "true";
+    });
+  }
+
+  function observeAdminLinks() {
+    const observer = new MutationObserver((records) => {
+      records.forEach((record) => record.addedNodes.forEach((node) => {
+        if (!(node instanceof Element)) return;
+        if (node.matches?.('a[data-admin-nav], a[href="./admin-upload.html"], a[href$="/admin-upload.html"]')) decorateAdminLinks(node.parentElement || document);
+        else decorateAdminLinks(node);
+      }));
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  }
+
   function init() {
+    decorateAdminLinks();
+    observeAdminLinks();
+
     const switcher = document.querySelector(".language-switcher");
     if (!switcher) return;
     ensureLanguageOptions(switcher);
