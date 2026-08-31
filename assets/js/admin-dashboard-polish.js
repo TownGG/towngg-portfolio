@@ -208,7 +208,7 @@
 
     const setText = (selector, value) => {
       const node = document.querySelector(selector);
-      if (node) node.textContent = value;
+      if (node && node.textContent !== value) node.textContent = value;
     };
 
     const sidebar = {
@@ -235,8 +235,8 @@
     setText('[data-polish-view-site]', c.viewWebsite);
     setText('[data-polish-lock]', c.lockAdmin);
 
-    document.querySelectorAll('.admin-dashboard-title h1').forEach((node) => { node.textContent = c.dashboard; });
-    document.querySelectorAll('.admin-dashboard-title p').forEach((node) => { node.textContent = c.dashboardSubtitle; });
+    document.querySelectorAll('.admin-dashboard-title h1').forEach((node) => { if (node.textContent !== c.dashboard) node.textContent = c.dashboard; });
+    document.querySelectorAll('.admin-dashboard-title p').forEach((node) => { if (node.textContent !== c.dashboardSubtitle) node.textContent = c.dashboardSubtitle; });
 
     if (lang === 'zh-CN') applyChineseSupplement();
   }
@@ -321,7 +321,7 @@
     }
 
     if (!value) value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-    target.textContent = value;
+    if (target.textContent !== value) target.textContent = value;
   }
 
   function bindSpotlights(root = document) {
