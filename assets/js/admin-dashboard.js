@@ -176,7 +176,7 @@
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/\"/g, '&quot;');
   }
 
   function normalizeTitle(value) {
@@ -196,10 +196,10 @@
     for (let index = 0; index < text.length; index += 1) {
       const char = text[index];
       const next = text[index + 1];
-      if (char === '"' && quoted && next === '"') {
-        cell += '"';
+      if (char === '\"' && quoted && next === '\"') {
+        cell += '\"';
         index += 1;
-      } else if (char === '"') {
+      } else if (char === '\"') {
         quoted = !quoted;
       } else if (char === ',' && !quoted) {
         row.push(cell);
@@ -256,12 +256,7 @@
 
   function titleIsPaid(title, paidTitles) {
     const key = normalizeTitle(title);
-    if (!key) return false;
-    if (paidTitles.has(key)) return true;
-    for (const paid of paidTitles) {
-      if (paid.length > 7 && key.length > 7 && (paid.includes(key) || key.includes(paid))) return true;
-    }
-    return false;
+    return Boolean(key && paidTitles.has(key));
   }
 
   function buildCreationDays(rows, paidTitles) {
