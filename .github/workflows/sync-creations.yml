@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: sync-creations
+  group: sync-bethesda-creations
   cancel-in-progress: false
 
 jobs:

@@ -5,8 +5,11 @@ import os
 import re
 import ssl
 import sys
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 
@@ -19,6 +22,9 @@ SITE_DATA_PATH = ROOT / "assets" / "js" / "site-data.js"
 DEFAULT_DISCOVERY_GAME = "starfield"
 DEFAULT_DISCOVERY_AUTHOR = "TownGG"
 DEFAULT_DISCOVERY_PERIOD = "1m"
+DEFAULT_REQUEST_TIMEOUT = 12
+DEFAULT_REQUEST_ATTEMPTS = 2
+DEFAULT_MAX_WORKERS = 4
 
 FIELDS = [
     "date",
@@ -62,17 +68,46 @@ def number(value, default=0):
     return int(digits) if digits else default
 
 
+def env_int(name, default, minimum=1, maximum=60):
+    try:
+        value = int(os.environ.get(name, str(default)))
+    except (TypeError, ValueError):
+        value = default
+    return max(minimum, min(maximum, value))
+
+
 def request_json(url, api_key):
-    req = urllib.request.Request(
-        url,
-        headers={
-            "Accept": "application/json",
-            "User-Agent": "TownGG portfolio stats collector",
-            "apikey": api_key,
-        },
-    )
-    with urllib.request.urlopen(req, timeout=30, context=ssl.create_default_context()) as response:
-        return json.loads(response.read().decode("utf-8", "replace"))
+    timeout = env_int("NEXUS_REQUEST_TIMEOUT", DEFAULT_REQUEST_TIMEOUT, 5, 30)
+    attempts = env_int("NEXUS_REQUEST_ATTEMPTS", DEFAULT_REQUEST_ATTEMPTS, 1, 4)
+    retryable_statuses = {408, 425, 429, 500, 502, 503, 504}
+    last_error = None
+
+    for attempt in range(1, attempts + 1):
+        req = urllib.request.Request(
+            url,
+            headers={
+                "Accept": "application/json",
+                "User-Agent": "TownGG portfolio stats collector",
+                "apikey": api_key,
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=timeout, context=ssl.create_default_context()) as response:
+                return json.loads(response.read().decode("utf-8", "replace"))
+        except urllib.error.HTTPError as exc:
+            last_error = exc
+            if exc.code not in retryable_statuses or attempt >= attempts:
+                raise
+        except (TimeoutError, urllib.error.URLError) as exc:
+            last_error = exc
+            if attempt >= attempts:
+                raise
+
+        wait_seconds = min(3, attempt * 1.5)
+        print(f"Nexus request retry {attempt + 1}/{attempts} after {last_error}", flush=True)
+        time.sleep(wait_seconds)
+
+    raise last_error or RuntimeError("Nexus request failed without an error")
 
 
 def nexus_mod_url(game, mod_id):
@@ -130,6 +165,37 @@ def write_latest(rows, updated_at):
     }
     LATEST_PATH.parent.mkdir(parents=True, exist_ok=True)
     LATEST_PATH.write_text(json.dumps(latest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def read_latest_rows():
+    if not LATEST_PATH.exists():
+        return []
+    try:
+        payload = json.loads(LATEST_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    return payload.get("mods", []) if isinstance(payload.get("mods"), list) else []
+
+
+def merge_latest_rows(mods, fresh_rows, previous_rows):
+    fresh_by_id = {str(row.get("mod_id", "")): row for row in fresh_rows}
+    previous_by_id = {
+        str(row.get("mod_id", "")): row
+        for row in previous_rows
+        if row.get("mod_id")
+    }
+    latest_rows = []
+    preserved = 0
+    for mod in mods:
+        mod_id = str(mod.get("mod_id", ""))
+        row = fresh_by_id.get(mod_id)
+        if row is None:
+            row = previous_by_id.get(mod_id)
+            if row is not None:
+                preserved += 1
+        if row is not None:
+            latest_rows.append(row)
+    return latest_rows, preserved
 
 
 def latest_previous(rows, platform, mod_id, date):
@@ -313,6 +379,45 @@ def row_from_item(mod, item):
     }
 
 
+def collect_mod_stats(api_key, mods):
+    if not mods:
+        return [], {}
+
+    max_workers = env_int("NEXUS_MAX_WORKERS", DEFAULT_MAX_WORKERS, 1, 8)
+    item_by_id = {}
+    failed = []
+
+    def collect_one(mod):
+        mod_id = str(mod["mod_id"])
+        url = f"https://api.nexusmods.com/v1/games/{mod['game']}/mods/{mod_id}.json"
+        return mod_id, request_json(url, api_key)
+
+    print(f"Collecting {len(mods)} Nexus mods with {max_workers} workers.", flush=True)
+    with ThreadPoolExecutor(max_workers=min(max_workers, len(mods))) as executor:
+        futures = {executor.submit(collect_one, mod): mod for mod in mods}
+        for future in as_completed(futures):
+            mod = futures[future]
+            mod_id = str(mod["mod_id"])
+            try:
+                collected_id, item = future.result()
+                item_by_id[collected_id] = item
+                print(f"Collected Nexus mod {collected_id} ({len(item_by_id)}/{len(mods)}).", flush=True)
+            except Exception as exc:
+                failed.append(mod_id)
+                print(f"Failed to collect {mod_id}: {exc}", flush=True)
+
+    fresh_rows = [
+        row_from_item(mod, item_by_id[str(mod["mod_id"])])
+        for mod in mods
+        if str(mod["mod_id"]) in item_by_id
+    ]
+    print(
+        f"Nexus collection finished: {len(fresh_rows)} succeeded, {len(failed)} failed.",
+        flush=True,
+    )
+    return fresh_rows, item_by_id
+
+
 def site_data_has_mod_id(site_data_text, mod_id):
     return f"/mods/{mod_id}" in site_data_text
 
@@ -396,19 +501,7 @@ def main():
     discovered = discover_author_mods(api_key, config_mods)
     mods, added = merge_discovered_mods(config, discovered)
     previous_rows = read_history()
-    fresh_rows = []
-    item_by_id = {}
-
-    for mod in mods:
-        url = f"https://api.nexusmods.com/v1/games/{mod['game']}/mods/{mod['mod_id']}.json"
-        try:
-            item = request_json(url, api_key)
-        except Exception as exc:
-            print(f"Failed to collect {mod['mod_id']}: {exc}")
-            continue
-        mod_id = str(mod["mod_id"])
-        item_by_id[mod_id] = item
-        fresh_rows.append(row_from_item(mod, item))
+    fresh_rows, item_by_id = collect_mod_stats(api_key, mods)
 
     if not fresh_rows:
         print("No fresh rows collected.")
@@ -420,10 +513,13 @@ def main():
         if not any(row.get("date") == date and row.get("platform") == new["platform"] and row.get("mod_id") == new["mod_id"] for new in normalized)
     ]
     write_history(kept + normalized)
-    write_latest(normalized, updated_at)
+    latest_rows, preserved = merge_latest_rows(mods, normalized, read_latest_rows())
+    write_latest(latest_rows, updated_at)
     card_count = write_missing_site_cards(mods, item_by_id)
     print(f"Saved {len(normalized)} rows to {HISTORY_PATH}")
     print(f"Saved latest snapshot to {LATEST_PATH}")
+    if preserved:
+        print(f"Preserved {preserved} previous Nexus snapshot row(s) after request failures.")
     if added:
         print(f"Added {len(added)} discovered Nexus mod(s) to {CONFIG_PATH}")
     if card_count:
