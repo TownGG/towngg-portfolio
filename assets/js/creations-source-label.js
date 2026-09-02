@@ -1,4 +1,73 @@
 (() => {
+  const PAID_LIKE_FLOORS = new Map([
+    ['f5cba131-bd7a-4907-b537-4808025baff3', 11]
+  ]);
+
+  function toNumber(value) {
+    const parsed = Number(String(value || '0').replace(/[^0-9.-]/g, ''));
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function creationUuid(item) {
+    const link = item?.links?.find((entry) => /creations\.bethesda\.net/i.test(String(entry?.url || '')));
+    return String(link?.url || '').match(/\/details\/([0-9a-f-]{36})(?:\/|$)/i)?.[1]?.toLowerCase() || '';
+  }
+
+  function applyPaidLikeFloorsToData(data) {
+    if (!data || !Array.isArray(data.creations)) return data;
+    data.creations.forEach((item) => {
+      const floor = PAID_LIKE_FLOORS.get(creationUuid(item));
+      if (!floor) return;
+      if (toNumber(item.likes) < floor) item.likes = String(floor);
+    });
+    return data;
+  }
+
+  function patchPaidLikeFloorsInSource(source) {
+    let next = String(source || '');
+    for (const [uuid, floor] of PAID_LIKE_FLOORS) {
+      const uuidIndex = next.toLowerCase().indexOf(uuid);
+      if (uuidIndex < 0) continue;
+      const objectStart = next.lastIndexOf('{ title:', uuidIndex);
+      if (objectStart < 0) continue;
+      const prefix = next.slice(0, objectStart);
+      const objectAndRest = next.slice(objectStart);
+      const likesMatch = /\blikes\s*:\s*"([0-9,.]+)"/.exec(objectAndRest);
+      if (!likesMatch) continue;
+      const current = toNumber(likesMatch[1]);
+      if (current >= floor) continue;
+      const matchIndex = objectStart + likesMatch.index;
+      const before = next.slice(0, matchIndex);
+      const after = next.slice(matchIndex + likesMatch[0].length);
+      next = `${before}likes: "${floor}"${after}`;
+    }
+    return next;
+  }
+
+  applyPaidLikeFloorsToData(window.siteData);
+
+  if (!window.__townggPaidLikeFetchGuardInstalled && typeof window.fetch === 'function') {
+    window.__townggPaidLikeFetchGuardInstalled = true;
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = async (...args) => {
+      const response = await nativeFetch(...args);
+      const requestUrl = String(args[0]?.url || args[0] || '');
+      if (!/\/assets\/js\/site-data\.js(?:\?|$)/i.test(requestUrl)) return response;
+      try {
+        const text = await response.clone().text();
+        const patched = patchPaidLikeFloorsInSource(text);
+        if (patched === text) return response;
+        return new Response(patched, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers
+        });
+      } catch (_) {
+        return response;
+      }
+    };
+  }
+
   const translations = {
     en: {
       Updated: 'Updated {time}',
@@ -104,6 +173,7 @@
   }
 
   function installCreationsMeta() {
+    applyPaidLikeFloorsToData(window.siteData);
     localizeAutoDiscoveredCopy();
     updateCreationsTimestamp();
     localizeAutoDiscoveredCopy();
