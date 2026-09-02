@@ -11,6 +11,25 @@
     return item.isPaid === true || String(item.isPaid).toLowerCase() === "true";
   }
 
+  function creationUuid(item) {
+    const link = item?.links?.find((entry) => /creations\.bethesda\.net/i.test(String(entry?.url || "")));
+    return String(link?.url || "").match(/\/details\/([0-9a-f-]{36})(?:\/|$)/i)?.[1]?.toLowerCase() || "";
+  }
+
+  function applyKnownMetricFloors(data) {
+    if (!data || !Array.isArray(data.creations)) return data;
+    const likeFloors = new Map([
+      ["f5cba131-bd7a-4907-b537-4808025baff3", 11]
+    ]);
+    data.creations.forEach((item) => {
+      const floor = likeFloors.get(creationUuid(item));
+      if (!floor) return;
+      const current = toNumber(item.likes);
+      if (current < floor) item.likes = String(floor);
+    });
+    return data;
+  }
+
   function matchesMode(item) {
     if (mode === "paid") return isPaid(item);
     if (mode === "free") return !isPaid(item);
@@ -44,5 +63,5 @@
   window.townggIsPaidCreation = isPaid;
   window.townggApplyCreationPricingMode = applyPricingMode;
   window.townggFilterCreationDailyRows = filterDailyRows;
-  window.siteData = applyPricingMode(window.siteData);
+  window.siteData = applyPricingMode(applyKnownMetricFloors(window.siteData));
 })();
