@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-02T12:00:15Z",
+  "updatedAt": "2026-09-02T12:30:15Z",
   "mods": [
     {
       "platform": "nexus",
@@ -259,9 +259,9 @@
       "mod_name": "POWER RANGER UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18049",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18049/18049-1787491919-946013974.png",
-      "total_downloads": 67,
-      "unique_downloads": 65,
-      "daily_downloads": 0,
+      "total_downloads": 68,
+      "unique_downloads": 66,
+      "daily_downloads": 1,
       "likes": 5,
       "views": 0
     }
