@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-13T04:01:13Z",
+  "updatedAt": "2026-09-13T04:31:17Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1753,
-      "unique_downloads": 961,
-      "daily_downloads": 1,
+      "total_downloads": 1755,
+      "unique_downloads": 962,
+      "daily_downloads": 3,
       "likes": 41,
       "views": 0
     },
@@ -103,9 +103,9 @@
       "mod_name": "CPF-STARBORN POWER FIST UNITY",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17489",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
-      "total_downloads": 1042,
+      "total_downloads": 1043,
       "unique_downloads": 818,
-      "daily_downloads": 10,
+      "daily_downloads": 11,
       "likes": 18,
       "views": 0
     },
@@ -211,9 +211,9 @@
       "mod_name": "CPF-MANTIS BLADE",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
-      "total_downloads": 905,
+      "total_downloads": 906,
       "unique_downloads": 691,
-      "daily_downloads": 10,
+      "daily_downloads": 11,
       "likes": 16,
       "views": 0
     },
