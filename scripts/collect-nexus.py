@@ -47,7 +47,7 @@ def now_utc():
 
 
 def today():
-    return now_utc().astimezone().date().isoformat()
+    return now_utc().date().isoformat()
 
 
 def iso_now():
