@@ -116,6 +116,7 @@ jobs:
 
       - name: Upload Bethesda debug artifact
         if: ${{ always() && (failure() || inputs.debug == 'true') }}
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: bethesda-creations-debug
@@ -145,7 +146,7 @@ jobs:
           const siteVersionFile = 'assets/data/site-version.json';
           const parts = Object.fromEntries(
             new Intl.DateTimeFormat('en-CA', {
-              timeZone: 'Asia/Shanghai',
+              timeZone: 'UTC',
               year: 'numeric',
               month: '2-digit',
               day: '2-digit',
