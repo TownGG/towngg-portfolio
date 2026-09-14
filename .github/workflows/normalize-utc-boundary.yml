@@ -1,0 +1,69 @@
+name: Normalize UTC day boundary
+
+on:
+  push:
+    paths:
+      - '.github/workflows/normalize-utc-boundary.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Normalize UTC day boundary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          js_files = [
+              Path('assets/js/nexus-trend-fix.js'),
+              Path('assets/js/creations-trend.js'),
+              Path('assets/js/creations-live-refresh.js'),
+              Path('assets/js/creations-daily-summary-fix.js'),
+              Path('assets/js/creations-latest-sort-guard.js'),
+              Path('assets/js/admin-dashboard.js'),
+          ]
+
+          for path in js_files:
+              text = path.read_text(encoding='utf-8')
+              text = text.replace("timeZone: 'Asia/Shanghai'", "timeZone: 'UTC'")
+              text = text.replace('timeZone: "Asia/Shanghai"', 'timeZone: "UTC"')
+              path.write_text(text, encoding='utf-8')
+
+          nexus = Path('scripts/collect-nexus.py')
+          text = nexus.read_text(encoding='utf-8')
+          text = text.replace(
+              'return now_utc().astimezone().date().isoformat()',
+              'return now_utc().date().isoformat()'
+          )
+          nexus.write_text(text, encoding='utf-8')
+
+          admin = Path('admin-upload.html')
+          text = admin.read_text(encoding='utf-8')
+          text = re.sub(
+              r'admin-dashboard\.js\?v=[^"\']+',
+              'admin-dashboard.js?v=2.05.20',
+              text
+          )
+          admin.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit normalized UTC boundary
+        run: |
+          if git diff --quiet; then
+            echo "UTC boundary is already normalized."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/js/nexus-trend-fix.js assets/js/creations-trend.js assets/js/creations-live-refresh.js assets/js/creations-daily-summary-fix.js assets/js/creations-latest-sort-guard.js assets/js/admin-dashboard.js scripts/collect-nexus.py admin-upload.html
+          git commit -m "Use UTC day boundary across dashboards"
+          git pull --rebase origin main
+          git push origin HEAD:main
