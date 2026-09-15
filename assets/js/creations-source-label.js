@@ -30,7 +30,6 @@
       if (uuidIndex < 0) continue;
       const objectStart = next.lastIndexOf('{ title:', uuidIndex);
       if (objectStart < 0) continue;
-      const prefix = next.slice(0, objectStart);
       const objectAndRest = next.slice(objectStart);
       const likesMatch = /\blikes\s*:\s*"([0-9,.]+)"/.exec(objectAndRest);
       if (!likesMatch) continue;
@@ -173,9 +172,10 @@
   function localizeAutoDiscoveredCopy() {
     document.querySelectorAll('.project-card .card-desc, .project-card .tag').forEach((node) => {
       const original = node.dataset.i18nOriginal || node.textContent.trim();
-      node.dataset.i18nOriginal = original;
+      if (!node.dataset.i18nOriginal) node.dataset.i18nOriginal = original;
       if (original === 'Automatically discovered from Bethesda Creations.' || original === 'Auto Discovered') {
-        node.textContent = t(original);
+        const translated = t(original);
+        if (node.textContent !== translated) node.textContent = translated;
       }
     });
   }
@@ -184,17 +184,16 @@
     applyPaidLikeFloorsToData(window.siteData);
     localizeAutoDiscoveredCopy();
     updateCreationsTimestamp();
-    localizeAutoDiscoveredCopy();
   }
 
   function bootCreationsMeta() {
     const target = document.querySelector('[data-creations-mods]') || document.body;
-    const observer = new MutationObserver(installCreationsMeta);
+    const observer = new MutationObserver(() => installCreationsMeta());
     observer.observe(target, { childList: true, subtree: true });
 
     const timestampTarget = document.querySelector('[data-creations-updated]');
     if (timestampTarget) {
-      const timestampObserver = new MutationObserver(updateCreationsTimestamp);
+      const timestampObserver = new MutationObserver(() => updateCreationsTimestamp());
       timestampObserver.observe(timestampTarget, { childList: true, characterData: true, subtree: true });
     }
 
