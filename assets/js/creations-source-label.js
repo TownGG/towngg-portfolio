@@ -186,6 +186,8 @@
     localizeAutoDiscoveredCopy();
   }
 
+  window.addEventListener('towngg:creations-live-refreshed', updateCreationsTimestamp);
+
   window.addEventListener('DOMContentLoaded', () => {
     const target = document.querySelector('[data-creations-mods]') || document.body;
     const observer = new MutationObserver(installCreationsMeta);
