@@ -164,8 +164,9 @@
 
     const latest = latestUpdatedAt();
     if (!latest) return;
+    const nextText = t('Updated', { time: formatDashboardTime(latest) });
     target.classList.add('is-fresh');
-    target.textContent = t('Updated', { time: formatDashboardTime(latest) });
+    if (target.textContent !== nextText) target.textContent = nextText;
     target.title = t('Latest Bethesda Creations browser capture timestamp.');
   }
 
@@ -192,6 +193,12 @@
     const target = document.querySelector('[data-creations-mods]') || document.body;
     const observer = new MutationObserver(installCreationsMeta);
     observer.observe(target, { childList: true, subtree: true });
+
+    const timestampTarget = document.querySelector('[data-creations-updated]');
+    if (timestampTarget) {
+      const timestampObserver = new MutationObserver(updateCreationsTimestamp);
+      timestampObserver.observe(timestampTarget, { childList: true, characterData: true, subtree: true });
+    }
 
     document.addEventListener('click', (event) => {
       if (event.target.closest('.language-option[data-lang]')) window.setTimeout(installCreationsMeta, 90);
