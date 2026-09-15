@@ -236,7 +236,7 @@
     setText('[data-polish-lock]', c.lockAdmin);
 
     document.querySelectorAll('.admin-dashboard-title h1').forEach((node) => { if (node.textContent !== c.dashboard) node.textContent = c.dashboard; });
-    document.querySelectorAll('.admin-dashboard-title p').forEach((node) => { if (node.textContent !== c.dashboardSubtitle) node.textContent = c.dashboardSubtitle; });
+    document.querySelectorAll('[data-admin-dashboard-subtitle]').forEach((node) => { if (node.textContent !== c.dashboardSubtitle) node.textContent = c.dashboardSubtitle; });
 
     if (lang === 'zh-CN') applyChineseSupplement();
   }
