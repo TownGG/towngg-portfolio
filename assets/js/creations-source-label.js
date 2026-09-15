@@ -187,9 +187,7 @@
     localizeAutoDiscoveredCopy();
   }
 
-  window.addEventListener('towngg:creations-live-refreshed', updateCreationsTimestamp);
-
-  window.addEventListener('DOMContentLoaded', () => {
+  function bootCreationsMeta() {
     const target = document.querySelector('[data-creations-mods]') || document.body;
     const observer = new MutationObserver(installCreationsMeta);
     observer.observe(target, { childList: true, subtree: true });
@@ -204,8 +202,14 @@
       if (event.target.closest('.language-option[data-lang]')) window.setTimeout(installCreationsMeta, 90);
     });
 
+    installCreationsMeta();
     window.setTimeout(installCreationsMeta, 300);
     window.setTimeout(installCreationsMeta, 1200);
     window.setTimeout(installCreationsMeta, 2200);
-  });
+  }
+
+  window.addEventListener('towngg:creations-live-refreshed', updateCreationsTimestamp);
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootCreationsMeta, { once: true });
+  else bootCreationsMeta();
 })();
