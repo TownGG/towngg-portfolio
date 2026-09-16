@@ -19,17 +19,23 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
           path = Path('admin-upload.html')
           text = path.read_text(encoding='utf-8')
-          pairs = [
-              ('admin-dashboard.js?v=2.05.16', 'admin-dashboard.js?v=2.05.23'),
-              ('admin-dashboard-insights.js?v=2.05.17', 'admin-dashboard-insights.js?v=2.05.23'),
-              ('admin-dashboard-metric-override.js?v=2.05.18', 'admin-dashboard-metric-override.js?v=2.05.23'),
+          patterns = [
+              r'admin-dashboard\.js\?v=[^"\']+',
+              r'admin-dashboard-insights\.js\?v=[^"\']+',
+              r'admin-dashboard-metric-override\.js\?v=[^"\']+',
           ]
-          for old, new in pairs:
-              if old not in text:
-                  raise SystemExit(f'cache version not found: {old}')
-              text = text.replace(old, new, 1)
+          replacements = [
+              'admin-dashboard.js?v=2.05.23',
+              'admin-dashboard-insights.js?v=2.05.23',
+              'admin-dashboard-metric-override.js?v=2.05.23',
+          ]
+          for pattern, replacement in zip(patterns, replacements):
+              text, count = re.subn(pattern, replacement, text, count=1)
+              if count != 1:
+                  raise SystemExit(f'cache script not found: {pattern}')
           path.write_text(text, encoding='utf-8')
           PY
       - name: Commit cache bump
