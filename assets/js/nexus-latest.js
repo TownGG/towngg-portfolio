@@ -184,7 +184,7 @@
     if (!dashboard || applying) return;
     applying = true;
     try {
-      const response = await fetch(latestSnapshotPath("./assets/data/nexus-latest.json"), { cache: "no-store" });
+      const response = await fetch(latestSnapshotPath("https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-latest.json"), { cache: "no-store" });
       if (!response.ok) return;
       const payload = await response.json();
       cachedPayload = payload;

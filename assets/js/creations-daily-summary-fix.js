@@ -171,7 +171,7 @@
 
   async function loadDaily() {
     try {
-      const response = await fetch(`./assets/data/creations-mod-daily.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" });
+      const response = await fetch('https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/creations-mod-daily.csv?t=' + Date.now(), { cache: "no-store" });
       const rows = response.ok ? parseCSV(await response.text()) : [];
       publishDailyState(createDailyState(rows));
     } catch (error) {
