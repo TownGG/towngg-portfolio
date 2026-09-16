@@ -16,68 +16,34 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Patch admin dashboard live data sources
+      - name: Patch admin data sources
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          raw = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/'
+          replacements = {
+              'assets/js/admin-dashboard.js': [
+                  ("const CREATIONS_DAILY_URL = './assets/data/creations-mod-daily.csv';", "const CREATIONS_DAILY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/creations-mod-daily.csv';"),
+                  ("const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';", "const NEXUS_HISTORY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-history.csv';"),
+                  ("const NEXUS_LATEST_URL = './assets/data/nexus-latest.json';", "const NEXUS_LATEST_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-latest.json';"),
+              ],
+              'assets/js/admin-dashboard-insights.js': [
+                  ("const CREATIONS_DAILY_URL = './assets/data/creations-mod-daily.csv';", "const CREATIONS_DAILY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/creations-mod-daily.csv';"),
+                  ("const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';", "const NEXUS_HISTORY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-history.csv';"),
+              ],
+              'assets/js/admin-dashboard-metric-override.js': [
+                  ("const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';", "const NEXUS_HISTORY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-history.csv';"),
+              ],
+          }
 
-          path = Path('assets/js/admin-dashboard.js')
-          text = path.read_text(encoding='utf-8')
-          old = """  const CREATIONS_DAILY_URL = './assets/data/creations-mod-daily.csv';
-  const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';
-  const NEXUS_LATEST_URL = './assets/data/nexus-latest.json';"""
-          new = """  const CREATIONS_DAILY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/creations-mod-daily.csv';
-  const NEXUS_HISTORY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-history.csv';
-  const NEXUS_LATEST_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-latest.json';"""
-          if old not in text:
-              raise SystemExit('admin-dashboard data source block not found')
-          text = text.replace(old, new, 1)
-
-          old_init = """  function init() {
-    if (!installLayout()) return;
-    observeLanguage();
-    loadData().catch((error) => {
-      console.error('[admin-dashboard]', error);
-      const loading = document.querySelector('[data-admin-dashboard-loading]');
-      if (loading) { loading.className = 'admin-dashboard-error'; loading.textContent = `${t('loadError')} ${error.message}`; }
-    });
-  }"""
-          new_init = """  let refreshPromise = null;
-  function refreshData() {
-    if (refreshPromise) return refreshPromise;
-    refreshPromise = loadData().catch((error) => {
-      console.error('[admin-dashboard]', error);
-      const loading = document.querySelector('[data-admin-dashboard-loading]');
-      if (loading) { loading.className = 'admin-dashboard-error'; loading.textContent = `${t('loadError')} ${error.message}`; }
-    }).finally(() => { refreshPromise = null; });
-    return refreshPromise;
-  }
-  function init() {
-    if (!installLayout()) return;
-    observeLanguage();
-    refreshData();
-    window.setInterval(refreshData, 2 * 60 * 1000);
-    window.addEventListener('focus', refreshData);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshData(); });
-  }"""
-          if old_init not in text:
-              raise SystemExit('admin-dashboard init block not found')
-          path.write_text(text.replace(old_init, new_init, 1), encoding='utf-8')
-
-          path = Path('assets/js/admin-dashboard-insights.js')
-          text = path.read_text(encoding='utf-8')
-          text = text.replace("const CREATIONS_DAILY_URL = './assets/data/creations-mod-daily.csv';", "const CREATIONS_DAILY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/creations-mod-daily.csv';", 1)
-          text = text.replace("const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';", "const NEXUS_HISTORY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-history.csv';", 1)
-          path.write_text(text, encoding='utf-8')
-
-          path = Path('assets/js/admin-dashboard-metric-override.js')
-          text = path.read_text(encoding='utf-8')
-          old_metric = "const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';"
-          if old_metric not in text:
-              raise SystemExit('admin metric source block not found')
-          path.write_text(text.replace(old_metric, "const NEXUS_HISTORY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-history.csv';", 1), encoding='utf-8')
+          for filename, pairs in replacements.items():
+              path = Path(filename)
+              text = path.read_text(encoding='utf-8')
+              for old, new in pairs:
+                  if old not in text:
+                      raise SystemExit(f'pattern not found in {filename}: {old}')
+                  text = text.replace(old, new, 1)
+              path.write_text(text, encoding='utf-8')
           PY
 
       - name: Commit fix
@@ -85,10 +51,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/js/admin-dashboard.js assets/js/admin-dashboard-insights.js assets/js/admin-dashboard-metric-override.js
-          if git diff --cached --quiet; then
-            echo "No changes needed."
-            exit 0
-          fi
-          git commit -m "Keep admin dashboard synced to live daily data"
+          git commit -m "Use live GitHub data in admin dashboard"
           git pull --rebase origin main
           git push origin HEAD:main
