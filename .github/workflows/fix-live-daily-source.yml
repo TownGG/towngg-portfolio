@@ -1,0 +1,65 @@
+name: Fix live daily source after UTC rollover
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-live-daily-source.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use GitHub main as live daily data source
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          raw = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/'
+
+          path = Path('assets/js/creations-daily-summary-fix.js')
+          text = path.read_text(encoding='utf-8')
+          old = 'fetch(`./assets/data/creations-mod-daily.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" })'
+          new = f'fetch(`{raw}creations-mod-daily.csv?t=${{Date.now()}}`, {{ cache: "no-store" }})'
+          if old not in text:
+              raise SystemExit('creations-daily-summary-fix source pattern not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          path = Path('assets/js/creations-latest-sort-guard.js')
+          text = path.read_text(encoding='utf-8')
+          old1 = "const DAILY_CSV_URL = './assets/data/creations-mod-daily.csv';"
+          new1 = f"const DAILY_CSV_URL = '{raw}creations-mod-daily.csv';"
+          old2 = "const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';"
+          new2 = f"const NEXUS_HISTORY_URL = '{raw}nexus-history.csv';"
+          if old1 not in text or old2 not in text:
+              raise SystemExit('creations-latest-sort-guard source patterns not found')
+          text = text.replace(old1, new1, 1).replace(old2, new2, 1)
+          path.write_text(text, encoding='utf-8')
+
+          path = Path('assets/js/nexus-latest.js')
+          text = path.read_text(encoding='utf-8')
+          old = 'latestSnapshotPath("./assets/data/nexus-latest.json")'
+          new = f'latestSnapshotPath("{raw}nexus-latest.json")'
+          if old not in text:
+              raise SystemExit('nexus-latest source pattern not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/js/creations-daily-summary-fix.js assets/js/creations-latest-sort-guard.js assets/js/nexus-latest.js
+          if git diff --cached --quiet; then
+            echo "No changes needed."
+            exit 0
+          fi
+          git commit -m "Use live GitHub data for daily mod metrics"
+          git pull --rebase origin main
+          git push origin HEAD:main
