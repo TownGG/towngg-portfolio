@@ -26,7 +26,7 @@ jobs:
           path = Path('assets/js/creations-daily-summary-fix.js')
           text = path.read_text(encoding='utf-8')
           old = 'fetch(`./assets/data/creations-mod-daily.csv?v=${encodeURIComponent(storedVersion)}&t=${Date.now()}`, { cache: "no-store" })'
-          new = f'fetch(`{raw}creations-mod-daily.csv?t=${{Date.now()}}`, {{ cache: "no-store" }})'
+          new = "fetch('" + raw + "creations-mod-daily.csv?t=' + Date.now(), { cache: \"no-store\" })"
           if old not in text:
               raise SystemExit('creations-daily-summary-fix source pattern not found')
           path.write_text(text.replace(old, new, 1), encoding='utf-8')
