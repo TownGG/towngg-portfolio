@@ -11,6 +11,7 @@ import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,6 +19,7 @@ CONFIG_PATH = ROOT / "assets" / "data" / "nexus-mods.json"
 HISTORY_PATH = ROOT / "assets" / "data" / "nexus-history.csv"
 LATEST_PATH = ROOT / "assets" / "data" / "nexus-latest.json"
 SITE_DATA_PATH = ROOT / "assets" / "js" / "site-data.js"
+BEIJING_TZ = ZoneInfo("Asia/Shanghai")
 
 DEFAULT_DISCOVERY_GAME = "starfield"
 DEFAULT_DISCOVERY_AUTHOR = "TownGG"
@@ -47,7 +49,7 @@ def now_utc():
 
 
 def today():
-    return now_utc().date().isoformat()
+    return now_utc().astimezone(BEIJING_TZ).date().isoformat()
 
 
 def iso_now():
