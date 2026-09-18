@@ -143,9 +143,9 @@ jobs:
           const historyFile = 'assets/data/creations-history.csv';
           const modDailyFile = 'assets/data/creations-mod-daily.csv';
           const siteVersionFile = 'assets/data/site-version.json';
-          const parts = Object.fromEntries(
+          const utcParts = Object.fromEntries(
             new Intl.DateTimeFormat('en-CA', {
-              timeZone: 'Asia/Shanghai',
+              timeZone: 'UTC',
               year: 'numeric',
               month: '2-digit',
               day: '2-digit',
@@ -154,9 +154,17 @@ jobs:
               hour12: false
             }).formatToParts(new Date()).map((part) => [part.type, part.value])
           );
-          const stamp = `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
-          const versionStamp = `${parts.year}${parts.month}${parts.day}${parts.hour}${parts.minute}`;
-          const date = stamp.slice(0, 10);
+          const beijingParts = Object.fromEntries(
+            new Intl.DateTimeFormat('en-CA', {
+              timeZone: 'Asia/Shanghai',
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            }).formatToParts(new Date()).map((part) => [part.type, part.value])
+          );
+          const stamp = `${utcParts.year}-${utcParts.month}-${utcParts.day} ${utcParts.hour}:${utcParts.minute}`;
+          const versionStamp = `${utcParts.year}${utcParts.month}${utcParts.day}${utcParts.hour}${utcParts.minute}`;
+          const date = `${beijingParts.year}-${beijingParts.month}-${beijingParts.day}`;
           let source = fs.readFileSync(siteFile, 'utf8');
           source = source.replace(/updatedAt: "\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2})?"/g, `updatedAt: "${stamp}"`);
           fs.writeFileSync(siteFile, source);
