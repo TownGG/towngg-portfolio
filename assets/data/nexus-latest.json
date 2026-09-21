@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-20T23:30:15Z",
+  "updatedAt": "2026-09-21T00:00:14Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 2048,
+      "total_downloads": 2049,
       "unique_downloads": 1449,
-      "daily_downloads": 29,
+      "daily_downloads": 30,
       "likes": 50,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 2200,
+      "total_downloads": 2201,
       "unique_downloads": 1520,
-      "daily_downloads": 29,
+      "daily_downloads": 30,
       "likes": 38,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1594,
+      "total_downloads": 1596,
       "unique_downloads": 851,
-      "daily_downloads": 0,
+      "daily_downloads": 2,
       "likes": 39,
       "views": 0
     },
