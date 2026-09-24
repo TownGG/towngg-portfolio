@@ -92,7 +92,7 @@
       year: "numeric",
       month: "2-digit",
       day: "2-digit"
-    }).formatToParts(new Date()).map((part) => [part.type, part.value]));
+    }).formatToParts(new Date(Date.now() - 12 * 60 * 60 * 1000)).map((part) => [part.type, part.value]));
     return `${parts.year}-${parts.month}-${parts.day}`;
   }
 
