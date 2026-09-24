@@ -154,13 +154,14 @@ jobs:
               hour12: false
             }).formatToParts(new Date()).map((part) => [part.type, part.value])
           );
+          const statisticalDayDate = new Date(Date.now() - 12 * 60 * 60 * 1000);
           const beijingParts = Object.fromEntries(
             new Intl.DateTimeFormat('en-CA', {
               timeZone: 'Asia/Shanghai',
               year: 'numeric',
               month: '2-digit',
               day: '2-digit'
-            }).formatToParts(new Date()).map((part) => [part.type, part.value])
+            }).formatToParts(statisticalDayDate).map((part) => [part.type, part.value])
           );
           const stamp = `${utcParts.year}-${utcParts.month}-${utcParts.day} ${utcParts.hour}:${utcParts.minute}`;
           const versionStamp = `${utcParts.year}${utcParts.month}${utcParts.day}${utcParts.hour}${utcParts.minute}`;
