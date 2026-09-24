@@ -49,7 +49,7 @@ def now_utc():
 
 
 def today():
-    return now_utc().astimezone(BEIJING_TZ).date().isoformat()
+    return (now_utc().astimezone(BEIJING_TZ) - dt.timedelta(hours=12)).date().isoformat()
 
 
 def iso_now():
