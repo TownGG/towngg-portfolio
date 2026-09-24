@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-24T04:30:14Z",
+  "updatedAt": "2026-09-24T05:00:15Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1789,
-      "unique_downloads": 990,
-      "daily_downloads": 0,
+      "total_downloads": 1790,
+      "unique_downloads": 991,
+      "daily_downloads": 1,
       "likes": 44,
       "views": 0
     },
@@ -127,9 +127,9 @@
       "mod_name": "CPF-CRIMSON FLEET POWER FIST HELLHOUND",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17501",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
-      "total_downloads": 1338,
-      "unique_downloads": 997,
-      "daily_downloads": 2,
+      "total_downloads": 1339,
+      "unique_downloads": 998,
+      "daily_downloads": 3,
       "likes": 13,
       "views": 0
     },
