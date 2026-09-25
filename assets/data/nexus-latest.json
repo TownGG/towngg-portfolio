@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-25T03:30:15Z",
+  "updatedAt": "2026-09-25T04:00:15Z",
   "mods": [
     {
       "platform": "nexus",
@@ -9,7 +9,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17070/17070-1778687683-1944088645.png",
       "total_downloads": 1963,
       "unique_downloads": 1449,
-      "daily_downloads": 29,
+      "daily_downloads": 0,
       "likes": 43,
       "views": 0
     },
@@ -21,7 +21,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
       "total_downloads": 1791,
       "unique_downloads": 992,
-      "daily_downloads": 2,
+      "daily_downloads": 0,
       "likes": 44,
       "views": 0
     },
@@ -33,7 +33,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
       "total_downloads": 874,
       "unique_downloads": 748,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 34,
       "views": 0
     },
@@ -57,7 +57,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
       "total_downloads": 2184,
       "unique_downloads": 1534,
-      "daily_downloads": 24,
+      "daily_downloads": 0,
       "likes": 50,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 4672,
-      "unique_downloads": 3144,
-      "daily_downloads": 9,
+      "total_downloads": 4673,
+      "unique_downloads": 3145,
+      "daily_downloads": 1,
       "likes": 192,
       "views": 0
     },
@@ -81,7 +81,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
       "total_downloads": 2343,
       "unique_downloads": 1609,
-      "daily_downloads": 27,
+      "daily_downloads": 0,
       "likes": 38,
       "views": 0
     },
@@ -93,7 +93,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
       "total_downloads": 1391,
       "unique_downloads": 1040,
-      "daily_downloads": 26,
+      "daily_downloads": 0,
       "likes": 14,
       "views": 0
     },
@@ -105,7 +105,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17489/17489-1781703543-86285545.png",
       "total_downloads": 1492,
       "unique_downloads": 1138,
-      "daily_downloads": 25,
+      "daily_downloads": 0,
       "likes": 18,
       "views": 0
     },
@@ -117,7 +117,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842553-1785018540.png",
       "total_downloads": 1468,
       "unique_downloads": 1105,
-      "daily_downloads": 25,
+      "daily_downloads": 0,
       "likes": 18,
       "views": 0
     },
@@ -129,7 +129,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
       "total_downloads": 1360,
       "unique_downloads": 1008,
-      "daily_downloads": 24,
+      "daily_downloads": 0,
       "likes": 13,
       "views": 0
     },
@@ -153,7 +153,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
       "total_downloads": 1615,
       "unique_downloads": 863,
-      "daily_downloads": 3,
+      "daily_downloads": 0,
       "likes": 39,
       "views": 0
     },
@@ -177,7 +177,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
       "total_downloads": 1376,
       "unique_downloads": 1031,
-      "daily_downloads": 26,
+      "daily_downloads": 0,
       "likes": 14,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 2078,
-      "unique_downloads": 1623,
-      "daily_downloads": 28,
+      "total_downloads": 2079,
+      "unique_downloads": 1624,
+      "daily_downloads": 1,
       "likes": 53,
       "views": 0
     },
@@ -211,9 +211,9 @@
       "mod_name": "CPF-MANTIS BLADE",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
-      "total_downloads": 1349,
-      "unique_downloads": 1009,
-      "daily_downloads": 23,
+      "total_downloads": 1350,
+      "unique_downloads": 1010,
+      "daily_downloads": 1,
       "likes": 16,
       "views": 0
     },
@@ -237,7 +237,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
       "total_downloads": 1857,
       "unique_downloads": 1381,
-      "daily_downloads": 30,
+      "daily_downloads": 0,
       "likes": 23,
       "views": 0
     },
@@ -249,7 +249,7 @@
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18000/18000-1787018537-1839278272.jpg",
       "total_downloads": 49,
       "unique_downloads": 46,
-      "daily_downloads": 1,
+      "daily_downloads": 0,
       "likes": 3,
       "views": 0
     },
