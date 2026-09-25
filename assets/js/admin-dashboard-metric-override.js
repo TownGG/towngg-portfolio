@@ -1,5 +1,5 @@
 (() => {
-  const NEXUS_HISTORY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-history.csv';
+  const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';
   const state = { loaded: false, value: 0 };
 
   const labels = {
