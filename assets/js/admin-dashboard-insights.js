@@ -1,6 +1,6 @@
 (() => {
-  const CREATIONS_DAILY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/creations-mod-daily.csv';
-  const NEXUS_HISTORY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-history.csv';
+  const CREATIONS_DAILY_URL = './assets/data/creations-mod-daily.csv';
+  const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';
   const state = { creationRows: [], nexusRows: [], ready: false, range: 7 };
 
   const labels = {
