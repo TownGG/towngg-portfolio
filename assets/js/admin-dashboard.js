@@ -1,7 +1,7 @@
 (() => {
-  const CREATIONS_DAILY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/creations-mod-daily.csv';
-  const NEXUS_HISTORY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-history.csv';
-  const NEXUS_LATEST_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-latest.json';
+  const CREATIONS_DAILY_URL = './assets/data/creations-mod-daily.csv';
+  const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';
+  const NEXUS_LATEST_URL = './assets/data/nexus-latest.json';
 
   const COLORS = { free: '#43c7ff', paid: '#9b6cff', nexus: '#8ddf72' };
   const state = {
