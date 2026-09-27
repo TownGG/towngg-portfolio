@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-27T19:30:46Z",
+  "updatedAt": "2026-09-27T20:01:05Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,10 +19,10 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1799,
-      "unique_downloads": 999,
-      "daily_downloads": 3,
-      "likes": 44,
+      "total_downloads": 1800,
+      "unique_downloads": 1000,
+      "daily_downloads": 4,
+      "likes": 45,
       "views": 0
     },
     {
@@ -46,7 +46,7 @@
       "total_downloads": 485,
       "unique_downloads": 351,
       "daily_downloads": 0,
-      "likes": 15,
+      "likes": 16,
       "views": 0
     },
     {
@@ -82,7 +82,7 @@
       "total_downloads": 2462,
       "unique_downloads": 1695,
       "daily_downloads": 23,
-      "likes": 38,
+      "likes": 39,
       "views": 0
     },
     {
@@ -94,7 +94,7 @@
       "total_downloads": 1504,
       "unique_downloads": 1123,
       "daily_downloads": 21,
-      "likes": 14,
+      "likes": 15,
       "views": 0
     },
     {
@@ -106,7 +106,7 @@
       "total_downloads": 1607,
       "unique_downloads": 1224,
       "daily_downloads": 20,
-      "likes": 18,
+      "likes": 19,
       "views": 0
     },
     {
@@ -118,7 +118,7 @@
       "total_downloads": 1583,
       "unique_downloads": 1189,
       "daily_downloads": 22,
-      "likes": 18,
+      "likes": 19,
       "views": 0
     },
     {
@@ -130,7 +130,7 @@
       "total_downloads": 1473,
       "unique_downloads": 1089,
       "daily_downloads": 22,
-      "likes": 13,
+      "likes": 14,
       "views": 0
     },
     {
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 2196,
+      "total_downloads": 2197,
       "unique_downloads": 1707,
-      "daily_downloads": 24,
+      "daily_downloads": 25,
       "likes": 53,
       "views": 0
     },
@@ -223,9 +223,9 @@
       "mod_name": "Cassilias Casual Outfit and Glasses",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17777",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17777/17777-1785074310-1262931634.png",
-      "total_downloads": 421,
-      "unique_downloads": 311,
-      "daily_downloads": 2,
+      "total_downloads": 422,
+      "unique_downloads": 312,
+      "daily_downloads": 3,
       "likes": 23,
       "views": 0
     },
