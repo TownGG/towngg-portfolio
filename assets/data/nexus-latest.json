@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-30T13:30:47Z",
+  "updatedAt": "2026-09-30T14:00:50Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1811,
+      "total_downloads": 1812,
       "unique_downloads": 1007,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 45,
       "views": 0
     },
@@ -67,9 +67,9 @@
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 4759,
-      "unique_downloads": 3192,
-      "daily_downloads": 4,
+      "total_downloads": 4760,
+      "unique_downloads": 3193,
+      "daily_downloads": 5,
       "likes": 194,
       "views": 0
     },
@@ -175,9 +175,9 @@
       "mod_name": "CPF-RYUJIN DEATH CLAW",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17632",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
-      "total_downloads": 1576,
-      "unique_downloads": 1180,
-      "daily_downloads": 9,
+      "total_downloads": 1577,
+      "unique_downloads": 1181,
+      "daily_downloads": 10,
       "likes": 15,
       "views": 0
     },
@@ -202,7 +202,7 @@
       "total_downloads": 2295,
       "unique_downloads": 1778,
       "daily_downloads": 10,
-      "likes": 55,
+      "likes": 56,
       "views": 0
     },
     {
@@ -238,7 +238,7 @@
       "total_downloads": 2082,
       "unique_downloads": 1546,
       "daily_downloads": 10,
-      "likes": 24,
+      "likes": 25,
       "views": 0
     },
     {
