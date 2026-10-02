@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-02T20:01:09Z",
+  "updatedAt": "2026-10-02T20:31:07Z",
   "mods": [
     {
       "platform": "nexus",
@@ -43,8 +43,8 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 495,
-      "unique_downloads": 355,
+      "total_downloads": 496,
+      "unique_downloads": 356,
       "daily_downloads": 0,
       "likes": 16,
       "views": 0
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 2383,
-      "unique_downloads": 1846,
-      "daily_downloads": 19,
+      "total_downloads": 2384,
+      "unique_downloads": 1847,
+      "daily_downloads": 20,
       "likes": 58,
       "views": 0
     },
