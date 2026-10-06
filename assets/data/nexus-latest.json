@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-06T10:01:15Z",
+  "updatedAt": "2026-10-06T10:31:09Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 906,
-      "unique_downloads": 774,
-      "daily_downloads": 0,
+      "total_downloads": 907,
+      "unique_downloads": 775,
+      "daily_downloads": 1,
       "likes": 35,
       "views": 0
     },
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 2650,
-      "unique_downloads": 1878,
-      "daily_downloads": 7,
+      "total_downloads": 2651,
+      "unique_downloads": 1879,
+      "daily_downloads": 8,
       "likes": 51,
       "views": 0
     },
