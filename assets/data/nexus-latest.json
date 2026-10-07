@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-07T11:31:19Z",
+  "updatedAt": "2026-10-07T12:01:51Z",
   "mods": [
     {
       "platform": "nexus",
@@ -66,10 +66,10 @@
       "mod_id": "17387",
       "mod_name": "Cassilia's Old Constellation Uniform",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17387",
-      "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17387/17387-1780911831-1036925630.png",
-      "total_downloads": 4852,
-      "unique_downloads": 3257,
-      "daily_downloads": 3,
+      "image_url": "",
+      "total_downloads": 0,
+      "unique_downloads": 0,
+      "daily_downloads": 0,
       "likes": 201,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1695,
+      "total_downloads": 1696,
       "unique_downloads": 900,
-      "daily_downloads": 3,
+      "daily_downloads": 4,
       "likes": 41,
       "views": 0
     },
