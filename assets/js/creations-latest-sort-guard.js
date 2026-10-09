@@ -7,7 +7,7 @@
   const PILL_SELECTOR = '.telemetry-pill.telemetry-pill-heading';
   const CREATIONS_SUMMARY_SELECTOR = '[data-creations-summary]';
   const NEXUS_SUMMARY_SELECTOR = '[data-dashboard-summary]';
-  const DAILY_CSV_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/creations-mod-daily.csv';
+  const DAILY_CSV_URL = './assets/data/creations-mod-daily.csv';
   const NEXUS_HISTORY_URL = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-history.csv';
   const LANG_KEY = 'townggSiteLang';
   const SUPPORTED_LANGS = ['en', 'zh-CN', 'zh-TW', 'ja', 'ko', 'ru'];
