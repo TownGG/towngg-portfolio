@@ -33,19 +33,6 @@
   }
 
   function ensureHeaderControls() {
-    document.querySelectorAll(".nav-links").forEach((links) => {
-      if (!links.querySelector('a[href="./admin-upload.html"]')) {
-        const about = links.querySelector('a[href="./about.html"]');
-        if (about) {
-          const item = document.createElement("a");
-          item.href = "./admin-upload.html";
-          item.textContent = "Admin";
-          item.setAttribute("data-admin-nav", "true");
-          about.insertAdjacentElement("afterend", item);
-        }
-      }
-    });
-
     const navEl = document.querySelector(".nav");
     if (navEl && !navEl.querySelector(".language-switcher")) {
       const switcher = document.createElement("div");
