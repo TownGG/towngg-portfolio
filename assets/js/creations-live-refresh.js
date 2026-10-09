@@ -1,7 +1,6 @@
 (() => {
-  const RAW_BASE = 'https://raw.githubusercontent.com/TownGG/towngg-portfolio/main';
-  const SITE_DATA_URL = `${RAW_BASE}/assets/js/site-data.js`;
-  const DAILY_CSV_URL = `${RAW_BASE}/assets/data/creations-mod-daily.csv`;
+  const SITE_DATA_URL = './assets/js/site-data.js';
+  const DAILY_CSV_URL = './assets/data/creations-mod-daily.csv';
   const REFRESH_MS = 2 * 60 * 1000;
   const SHOW_PRICE = document.body.dataset.creationsPricing === 'paid';
   const state = { data: null, dailyRows: [], activeSortKey: 'daily', activeSortDirection: 'desc' };
@@ -355,7 +354,7 @@
       state.dailyRows = window.townggFilterCreationDailyRows?.(parsedDailyRows) || parsedDailyRows;
       applyAll();
     } catch (error) {
-      console.warn('Creations live GitHub refresh skipped', error);
+      console.warn('Creations live refresh skipped', error);
     }
   }
 
