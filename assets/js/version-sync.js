@@ -61,19 +61,6 @@
     location.reload();
   }
 
-  function ensureAdminNavEntry() {
-    document.querySelectorAll(".nav-links").forEach((nav) => {
-      if (nav.querySelector('a[href="./admin-upload.html"]')) return;
-      const about = nav.querySelector('a[href="./about.html"]');
-      if (!about) return;
-      const admin = document.createElement("a");
-      admin.href = "./admin-upload.html";
-      admin.textContent = "Admin";
-      admin.setAttribute("data-admin-nav", "true");
-      about.insertAdjacentElement("afterend", admin);
-    });
-  }
-
   function escapeHtml(value) {
     return String(value || "")
       .replace(/&/g, "&amp;")
@@ -417,7 +404,6 @@
     });
   }
 
-  ensureAdminNavEntry();
   injectMessageBoardAdminTab();
   setupMessageBoardBadge();
   startConditionalRefresh();
