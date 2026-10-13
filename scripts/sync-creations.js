@@ -528,15 +528,65 @@ async function selectPlatformAny(page) {
   await page.waitForTimeout(900);
 }
 
+function strictMetricFromLines(lines, labels) {
+  const escaped = labels.map(escapeRegExp).join('|');
+  const inline = new RegExp('^(?:' + escaped + ')\\s*[:：]?\\s*([0-9][0-9,.]*)$', 'i');
+  const labelOnly = new RegExp('^(?:' + escaped + ')\\s*[:：]?$', 'i');
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const inlineMatch = line.match(inline);
+    if (inlineMatch) {
+      const value = parseNumberValue(inlineMatch[1]);
+      if (Number.isFinite(value) && value >= 0) {
+        return numberFormat.format(Math.round(value));
+      }
+    }
+
+    if (!labelOnly.test(line)) continue;
+    for (let offset = 1; offset <= 2 && index + offset < lines.length; offset += 1) {
+      const valueLine = lines[index + offset];
+      if (!/^[0-9][0-9,.]*$/.test(valueLine)) break;
+      const value = parseNumberValue(valueLine);
+      if (Number.isFinite(value) && value >= 0) {
+        return numberFormat.format(Math.round(value));
+      }
+    }
+  }
+
+  return null;
+}
+
 function parseStatsTooltip(text) {
-  const stats = {
-    downloads: largestLabeledNumber(text, ['downloads', 'download', '下载']),
-    bookmarks: largestLabeledNumber(text, ['bookmarks', 'bookmark', '书签']),
-    views: largestLabeledNumber(text, ['views', 'view', '查看']),
-    plays: largestLabeledNumber(text, ['plays', 'play', '游玩数', '播放数']),
-    libraryAdds: largestLabeledNumber(text, ['library adds', 'library add', 'subscribes', 'subscribe', 'subscriptions', '加入库', '订阅数'])
-  };
-  return compactStats(stats);
+  const lines = String(text || '')
+    .replace(/\u00a0/g, ' ')
+    .split(/\n+/)
+    .map((line) => line.trim().replace(/\s+/g, ' '))
+    .filter(Boolean);
+
+  const candidates = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    if (!/^Views?\s*(?::|：|$)/i.test(lines[index])) continue;
+
+    // Bethesda's hover tooltip is a compact consecutive group. Keep the
+    // parsing local to that group so unrelated page/chart numbers cannot leak
+    // into another metric.
+    const windowLines = lines.slice(index, Math.min(lines.length, index + 18));
+    const candidate = compactStats({
+      views: strictMetricFromLines(windowLines, ['Views', 'View', '查看']),
+      plays: strictMetricFromLines(windowLines, ['Plays', 'Play', '游玩数', '播放数']),
+      bookmarks: strictMetricFromLines(windowLines, ['Bookmarks', 'Bookmark', '书签']),
+      libraryAdds: strictMetricFromLines(windowLines, ['Library Adds', 'Library Add', '加入库', '订阅数']),
+      downloads: strictMetricFromLines(windowLines, ['Downloads', 'Download', '下载'])
+    });
+
+    if (candidate.views && candidate.plays) candidates.push(candidate);
+  }
+
+  if (!candidates.length) return {};
+  candidates.sort((a, b) => chartStatsScore(b) - chartStatsScore(a));
+  return candidates[0];
 }
 
 function chartStatsScore(stats) {
@@ -583,13 +633,7 @@ async function scrapeChartStatsFallback(page) {
         // Use the exact same page-text source as the normal All Time parser.
         // A hovered chart adds its current stat labels/numbers to that text.
         const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
-        const candidate = compactStats({
-          downloads: largestLabeledNumber(text, ['downloads', 'download', '下载']),
-          bookmarks: largestLabeledNumber(text, ['bookmarks', 'bookmark', '书签']),
-          views: largestLabeledNumber(text, ['views', 'view', '查看']),
-          plays: largestLabeledNumber(text, ['plays', 'play', '游玩数', '播放数']),
-          libraryAdds: largestLabeledNumber(text, ['library adds', 'library add', 'subscribes', 'subscribe', 'subscriptions', '加入库', '订阅数'])
-        });
+        const candidate = parseStatsTooltip(text);
 
         // Compare complete samples as a unit. Never retain Views from one
         // hover point and Plays/Bookmarks from another.
