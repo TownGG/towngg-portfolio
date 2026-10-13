@@ -323,6 +323,91 @@ function parseStatsText(text) {
   return compactStats(parsed);
 }
 
+function parseLatestTooltipText(text) {
+  const normalized = String(text || '')
+    .replace(/\u00a0/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const read = (labels) => {
+    for (const label of labels) {
+      const pattern = new RegExp(escapeRegExp(label) + '\\s*[:：]?\\s*([0-9][0-9,.]*)', 'i');
+      const match = normalized.match(pattern);
+      if (match) return formatNumberValue(parseNumberValue(match[1]));
+    }
+    return null;
+  };
+
+  const stats = compactStats({
+    views: read(['Views', 'View', '查看']),
+    plays: read(['Plays', 'Play', '游玩数', '播放数']),
+    bookmarks: read(['Bookmarks', 'Bookmark', '书签数', '书签']),
+    libraryAdds: read(['Library Adds', 'Library Add', '库添加数', '加入库', '加入收藏库'])
+  });
+
+  const required = ['views', 'plays'];
+  if (!required.every((key) => stats[key])) return {};
+  return stats;
+}
+
+async function readVisibleStatsTooltip(page) {
+  return page.evaluate(() => {
+    const visible = (node) => {
+      const style = window.getComputedStyle(node);
+      if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity || 1) === 0) return false;
+      const rect = node.getBoundingClientRect();
+      return rect.width > 2 && rect.height > 2;
+    };
+
+    const selectors = [
+      '[role="tooltip"]',
+      '[class*="tooltip" i]',
+      '[id*="tooltip" i]',
+      'svg g',
+      'svg foreignObject',
+      'div'
+    ];
+
+    const seen = new Set();
+    const candidates = [];
+    for (const selector of selectors) {
+      for (const node of document.querySelectorAll(selector)) {
+        if (seen.has(node) || !visible(node)) continue;
+        seen.add(node);
+        const text = String(node.textContent || '')
+          .replace(/\u00a0/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (text.length < 12 || text.length > 900) continue;
+
+        const labels = [
+          /\bViews?\b/i,
+          /\bPlays?\b/i,
+          /\bBookmarks?\b/i,
+          /\bLibrary Adds?\b/i,
+          /\bDownloads?\b/i
+        ];
+        const score = labels.reduce((sum, pattern) => sum + (pattern.test(text) ? 1 : 0), 0);
+        if (score < 2 || !/\bViews?\b/i.test(text) || !/\bPlays?\b/i.test(text)) continue;
+
+        const rect = node.getBoundingClientRect();
+        candidates.push({
+          text,
+          score,
+          area: Math.max(1, rect.width * rect.height)
+        });
+      }
+    }
+
+    candidates.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (a.area !== b.area) return a.area - b.area;
+      return a.text.length - b.text.length;
+    });
+    return candidates[0]?.text || '';
+  }).catch(() => '');
+}
+
 function statNumeric(stats, key) {
   return parseNumberValue(stats[key]);
 }
@@ -353,31 +438,39 @@ async function hoverStatsChart(page) {
         area: rect.width * rect.height
       };
     })
-    .filter((rect) => rect.width > 180 && rect.height > 100 && rect.y > 0)
+    .filter((rect) => rect.width > 500 && rect.height > 180 && rect.y > 0)
     .sort((a, b) => b.area - a.area)
-    .slice(0, 3)
+    .slice(0, 2)
   ).catch(() => []);
 
-  const samples = [];
-  boxes.forEach((box) => {
-    [0.995, 0.98, 0.94, 0.9, 0.78, 0.6, 0.42, 0.24, 0.08].forEach((xFactor) => {
-      [0.18, 0.35, 0.52, 0.7, 0.86].forEach((yFactor) => {
-        samples.push({ x: box.x + box.width * xFactor, y: box.y + box.height * yFactor });
-      });
-    });
-  });
+  let bestStats = {};
+  let bestText = '';
 
-  const bestStats = {};
-  for (const point of samples) {
-    await page.mouse.move(point.x, point.y).catch(() => {});
-    await page.waitForTimeout(140);
-    const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
-    const stats = parseStatsText(text);
-    for (const key of ['views', 'plays', 'bookmarks', 'libraryAdds']) {
-      if (statNumeric(stats, key) > statNumeric(bestStats, key)) bestStats[key] = stats[key];
+  // The Bethesda paid analytics chart is cumulative. The final/current values
+  // are in the tooltip at the far-right edge, so only probe the latest edge.
+  for (const box of boxes) {
+    for (const xFactor of [0.997, 0.992, 0.985, 0.975, 0.96]) {
+      for (const yFactor of [0.5, 0.35, 0.68]) {
+        await page.mouse.move(
+          box.x + box.width * xFactor,
+          box.y + box.height * yFactor
+        ).catch(() => {});
+        await page.waitForTimeout(180);
+
+        const tooltipText = await readVisibleStatsTooltip(page);
+        const stats = parseLatestTooltipText(tooltipText);
+        if (!stats.views || !stats.plays) continue;
+
+        // Prefer the right-edge sample with the greatest cumulative Views.
+        if (statNumeric(stats, 'views') > statNumeric(bestStats, 'views')) {
+          bestStats = stats;
+          bestText = tooltipText;
+        }
+      }
     }
   }
 
+  if (bestText) console.log('[PAID_TOOLTIP_LATEST] ' + bestText);
   return compactStats(bestStats);
 }
 
@@ -389,14 +482,16 @@ async function scrapeStatsAllTime(page, url) {
   await openStatsTab(page);
   await selectStatsFilters(page);
 
+  if (PAID_ONLY) {
+    return compactStats(await hoverStatsChart(page));
+  }
+
   const directText = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
   const bestStats = parseStatsText(directText);
-
   const hoveredStats = await hoverStatsChart(page);
   for (const key of ['views', 'plays', 'bookmarks', 'libraryAdds']) {
     if (statNumeric(hoveredStats, key) > statNumeric(bestStats, key)) bestStats[key] = hoveredStats[key];
   }
-
   return compactStats(bestStats);
 }
 
