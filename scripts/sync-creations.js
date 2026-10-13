@@ -600,11 +600,12 @@ async function scrapeAllTimeEngagementStats(page, creation, debugContext = {}) {
   const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
   const stats = compactStats(parsePlatformStats(text, { ...debugContext, source: 'STATS All time body' }));
 
-  // Paid Creations use a different chart DOM. Hovering the chart is only
-  // trusted for Library Adds; never let tooltip probes overwrite Views,
-  // Plays, Bookmarks, Likes or Downloads captured from the Stats body.
-  const libraryAddsProbe = await scrapePaidLibraryAddsFromChart(page, creation);
-  if (libraryAddsProbe.value) stats.libraryAdds = libraryAddsProbe.value;
+  // Paid Creation analytics are handled by the dedicated paid All Time pass
+  // later in the sync chain. Do not probe paid charts here, otherwise stale
+  // or cross-mapped tooltip values can contaminate the item before repair.
+  const libraryAddsProbe = creation?.isPaid === true
+    ? { value: null, source: 'deferred-to-paid-alltime', samples: 0 }
+    : { value: null, source: 'not-paid', samples: 0 };
 
   return {
     ok: Boolean(Object.keys(stats).length),
