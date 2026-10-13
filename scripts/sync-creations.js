@@ -490,6 +490,147 @@ function parsePlatformStats(text, context = {}) {
   };
 }
 
+function parsePaidLatestTooltipText(text) {
+  const normalized = String(text || '')
+    .replace(/\u00a0/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const read = (labels) => {
+    for (const label of labels) {
+      const pattern = new RegExp(escapeRegExp(label) + '\\s*[:：]?\\s*([0-9][0-9,.]*)', 'i');
+      const match = normalized.match(pattern);
+      if (!match) continue;
+      const value = parseNumberValue(match[1]);
+      if (Number.isFinite(value) && value >= 0) return numberFormat.format(Math.round(value));
+    }
+    return null;
+  };
+
+  const stats = compactStats({
+    views: read(['Views', 'View', '查看']),
+    plays: read(['Plays', 'Play', '游玩数', '播放数']),
+    bookmarks: read(['Bookmarks', 'Bookmark', '书签数', '书签']),
+    libraryAdds: read(['Library Adds', 'Library Add', '库添加数', '加入库', '加入收藏库']),
+    downloads: read(['Downloads', 'Download', '下载'])
+  });
+
+  // A paid All-time tooltip always includes at least Views + Plays.
+  return stats.views && stats.plays ? stats : {};
+}
+
+async function readVisiblePaidStatsTooltip(page) {
+  return page.evaluate(() => {
+    const isVisible = (node) => {
+      const rect = node?.getBoundingClientRect?.();
+      if (!rect || rect.width <= 2 || rect.height <= 2) return false;
+      const style = window.getComputedStyle(node);
+      return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) !== 0;
+    };
+
+    const selectors = [
+      '[role="tooltip"]',
+      '[class*="tooltip" i]',
+      '[id*="tooltip" i]',
+      'svg foreignObject',
+      'svg g',
+      'div'
+    ];
+
+    const seen = new Set();
+    const candidates = [];
+    for (const selector of selectors) {
+      for (const node of document.querySelectorAll(selector)) {
+        if (seen.has(node) || !isVisible(node)) continue;
+        seen.add(node);
+
+        const text = String(node.textContent || '')
+          .replace(/\u00a0/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (text.length < 20 || text.length > 1000) continue;
+
+        const labels = [
+          /\bViews?\b/i,
+          /\bPlays?\b/i,
+          /\bBookmarks?\b/i,
+          /\bLibrary Adds?\b/i,
+          /\bDownloads?\b/i
+        ];
+        const score = labels.reduce((sum, pattern) => sum + (pattern.test(text) ? 1 : 0), 0);
+        if (score < 3 || !/\bViews?\b/i.test(text) || !/\bPlays?\b/i.test(text)) continue;
+
+        const rect = node.getBoundingClientRect();
+        candidates.push({
+          text,
+          score,
+          area: Math.max(1, rect.width * rect.height)
+        });
+      }
+    }
+
+    // Prefer the smallest node containing the full metric set. This avoids
+    // accidentally parsing the entire page/body around the chart.
+    candidates.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (a.area !== b.area) return a.area - b.area;
+      return a.text.length - b.text.length;
+    });
+    return candidates[0]?.text || '';
+  }).catch(() => '');
+}
+
+async function scrapePaidLatestAllTimeTooltip(page) {
+  const boxes = await page.locator('svg, canvas').evaluateAll((nodes) => nodes
+    .map((node) => {
+      const rect = node.getBoundingClientRect();
+      return {
+        x: rect.left,
+        y: rect.top,
+        width: rect.width,
+        height: rect.height,
+        area: rect.width * rect.height
+      };
+    })
+    .filter((rect) => rect.width > 500 && rect.height > 180 && rect.y >= 0)
+    .sort((a, b) => b.area - a.area)
+    .slice(0, 2)
+  ).catch(() => []);
+
+  let best = {};
+  let bestText = '';
+
+  for (const box of boxes) {
+    // All-time charts are cumulative. The current totals are at the extreme
+    // right edge, matching the values shown manually after selecting All time.
+    for (const xFactor of [0.999, 0.996, 0.992, 0.985, 0.975, 0.96]) {
+      for (const yFactor of [0.5, 0.35, 0.68, 0.82]) {
+        await page.mouse.move(
+          box.x + box.width * xFactor,
+          box.y + box.height * yFactor
+        ).catch(() => {});
+        await page.waitForTimeout(180);
+
+        const tooltipText = await readVisiblePaidStatsTooltip(page);
+        const stats = parsePaidLatestTooltipText(tooltipText);
+        if (!stats.views || !stats.plays) continue;
+
+        // The far-right/current sample should also have the largest cumulative
+        // Views among these adjacent right-edge probes.
+        if (parseNumberValue(stats.views) > parseNumberValue(best.views)) {
+          best = stats;
+          bestText = tooltipText;
+        }
+      }
+    }
+  }
+
+  if (bestText) {
+    console.log('[PAID_ALL_TIME_TOOLTIP] ' + bestText);
+  }
+  return best;
+}
+
 async function openDetailsTab(page) {
   await page.getByRole('tab', { name: /details/i }).click({ timeout: 5000 }).catch(async () => {
     await page.getByText(/^(details|详情)$/i).click({ timeout: 5000 }).catch(() => {});
@@ -597,31 +738,35 @@ async function scrapeAllTimeEngagementStats(page, creation, debugContext = {}) {
   await openStatsTab(page);
   await forceSelectAllTime(page);
   await selectPlatformAny(page);
+
   const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
   const stats = compactStats(parsePlatformStats(text, { ...debugContext, source: 'STATS All time body' }));
 
-  // Paid Creation analytics are handled by the dedicated paid All Time pass
-  // later in the sync chain. Do not probe paid charts here, otherwise stale
-  // or cross-mapped tooltip values can contaminate the item before repair.
-  const libraryAddsProbe = creation?.isPaid === true
-    ? { value: null, source: 'deferred-to-paid-alltime', samples: 0 }
-    : { value: null, source: 'not-paid', samples: 0 };
+  let paidTooltipProbe = { ok: false, source: 'not-paid' };
+  if (creation?.isPaid === true) {
+    const tooltipStats = await scrapePaidLatestAllTimeTooltip(page);
+    if (tooltipStats.views && tooltipStats.plays) {
+      Object.assign(stats, tooltipStats);
+      paidTooltipProbe = { ok: true, source: 'all-time-right-edge-tooltip', stats: tooltipStats };
+    } else {
+      paidTooltipProbe = { ok: false, source: 'all-time-right-edge-tooltip-not-found' };
+    }
+  }
 
   return {
     ok: Boolean(Object.keys(stats).length),
     stats,
-    timeRange: 'all-time-or-fallback',
-    libraryAddsProbe
+    timeRange: 'all-time',
+    paidTooltipProbe
   };
 }
 
-function statsLine(stats, coverImage, title, oldTitle, pricing, libraryAddsProbe) {
+function statsLine(stats, coverImage, title, oldTitle, pricing, paidTooltipProbe) {
   const pricingLabel = pricing?.ok
     ? (pricing.isPaid ? `${pricing.price} CC (paid)` : 'free')
     : 'kept';
-  const libraryAddsSource = libraryAddsProbe?.source || 'body-text';
-  const libraryAddsSamples = libraryAddsProbe?.samples || 0;
-  return `title=${title && title !== oldTitle ? `${oldTitle} -> ${title}` : title || oldTitle}, price=${pricingLabel}, likes=${stats.likes || '-'}, downloads=${stats.downloads || '-'}, cover=${coverImage ? 'yes' : 'no'}, views=${stats.views || '-'}, plays=${stats.plays || '-'}, bookmarks=${stats.bookmarks || '-'}, libraryAdds=${stats.libraryAdds || '-'}, libraryAddsSource=${libraryAddsSource}, libraryAddsSamples=${libraryAddsSamples}`;
+  const paidTooltipSource = paidTooltipProbe?.source || 'body-text';
+  return `title=${title && title !== oldTitle ? `${oldTitle} -> ${title}` : title || oldTitle}, price=${pricingLabel}, likes=${stats.likes || '-'}, downloads=${stats.downloads || '-'}, cover=${coverImage ? 'yes' : 'no'}, views=${stats.views || '-'}, plays=${stats.plays || '-'}, bookmarks=${stats.bookmarks || '-'}, libraryAdds=${stats.libraryAdds || '-'}, paidTooltipSource=${paidTooltipSource}`;
 }
 
 async function scrapeCreation(page, creation) {
@@ -669,7 +814,7 @@ async function scrapeCreation(page, creation) {
     return { ok: false, error: 'no_stats_cover_or_title_found' };
   }
 
-  return { ok: true, title, stats, coverImage, pricing, libraryAddsProbe: allTime.libraryAddsProbe };
+  return { ok: true, title, stats, coverImage, pricing, paidTooltipProbe: allTime.paidTooltipProbe };
 }
 
 async function login() {
@@ -744,7 +889,7 @@ async function sync() {
       };
       nextSource = replaceCreationObjectByKey(nextSource, creation, renderCreationObject(merged));
       success += 1;
-      console.log(statsLine(result.stats, result.coverImage, result.title, creation.title, result.pricing, result.libraryAddsProbe));
+      console.log(statsLine(result.stats, result.coverImage, result.title, creation.title, result.pricing, result.paidTooltipProbe));
     } catch (error) {
       failed += 1;
       console.log(`kept old data (${error.message})`);
