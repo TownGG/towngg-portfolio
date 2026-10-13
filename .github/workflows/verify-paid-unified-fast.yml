@@ -1,4 +1,5 @@
 name: Verify Paid With Unified Parser
+# rerun: generic-all-time-fallback
 
 on:
   push:
