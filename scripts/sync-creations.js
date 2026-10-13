@@ -550,69 +550,6 @@ function chartStatsScore(stats) {
   return completeness * 1e18 + secondary * 1e15 + magnitude;
 }
 
-async function readVisibleStatsTooltip(page) {
-  return page.evaluate(() => {
-    const visible = (node) => {
-      const rect = node?.getBoundingClientRect?.();
-      if (!rect || rect.width <= 2 || rect.height <= 2) return false;
-      const style = window.getComputedStyle(node);
-      return style.display !== 'none' &&
-        style.visibility !== 'hidden' &&
-        Number(style.opacity || 1) !== 0;
-    };
-
-    const selectors = [
-      '[role="tooltip"]',
-      '[class*="tooltip" i]',
-      '[id*="tooltip" i]',
-      'svg foreignObject',
-      'svg g',
-      'div'
-    ];
-
-    const seen = new Set();
-    const candidates = [];
-
-    for (const selector of selectors) {
-      for (const node of document.querySelectorAll(selector)) {
-        if (seen.has(node) || !visible(node)) continue;
-        seen.add(node);
-
-        const text = String(node.textContent || '')
-          .replace(/\u00a0/g, ' ')
-          .replace(/\s+/g, ' ')
-          .trim();
-        if (text.length < 12 || text.length > 1000) continue;
-
-        const patterns = [
-          /\bViews?\b/i,
-          /\bPlays?\b/i,
-          /\bDownloads?\b/i,
-          /\bBookmarks?\b/i,
-          /\bLibrary Adds?\b/i
-        ];
-        const matches = patterns.reduce((sum, pattern) => sum + (pattern.test(text) ? 1 : 0), 0);
-        if (matches < 2) continue;
-
-        const rect = node.getBoundingClientRect();
-        candidates.push({
-          text,
-          matches,
-          area: Math.max(1, rect.width * rect.height)
-        });
-      }
-    }
-
-    candidates.sort((a, b) => {
-      if (b.matches !== a.matches) return b.matches - a.matches;
-      if (a.area !== b.area) return a.area - b.area;
-      return a.text.length - b.text.length;
-    });
-
-    return candidates[0]?.text || '';
-  }).catch(() => '');
-}
-
 async function scrapeChartStatsFallback(page) {
   const boxes = await page.locator('svg, canvas').evaluateAll((nodes) => nodes
     .map((node) => {
@@ -631,7 +568,7 @@ async function scrapeChartStatsFallback(page) {
   ).catch(() => []);
 
   let bestStats = {};
-  let bestTooltip = '';
+  let samples = 0;
 
   for (const box of boxes) {
     for (const xFactor of [0.08, 0.2, 0.35, 0.5, 0.65, 0.78, 0.9, 0.96, 0.985, 0.995]) {
@@ -641,22 +578,36 @@ async function scrapeChartStatsFallback(page) {
           box.y + box.height * yFactor
         ).catch(() => {});
         await page.waitForTimeout(120);
+        samples += 1;
 
-        const tooltip = await readVisibleStatsTooltip(page);
-        if (!tooltip) continue;
-        const candidate = parseStatsTooltip(tooltip);
+        // Use the exact same page-text source as the normal All Time parser.
+        // A hovered chart adds its current stat labels/numbers to that text.
+        const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
+        const candidate = compactStats({
+          downloads: largestLabeledNumber(text, ['downloads', 'download', '下载']),
+          bookmarks: largestLabeledNumber(text, ['bookmarks', 'bookmark', '书签']),
+          views: largestLabeledNumber(text, ['views', 'view', '查看']),
+          plays: largestLabeledNumber(text, ['plays', 'play', '游玩数', '播放数']),
+          libraryAdds: largestLabeledNumber(text, ['library adds', 'library add', 'subscribes', 'subscribe', 'subscriptions', '加入库', '订阅数'])
+        });
 
-        // Keep a complete metric group from one tooltip sample. Never mix
-        // Views from one point with Plays/Bookmarks from another.
+        // Compare complete samples as a unit. Never retain Views from one
+        // hover point and Plays/Bookmarks from another.
         if (chartStatsScore(candidate) > chartStatsScore(bestStats)) {
           bestStats = candidate;
-          bestTooltip = tooltip;
         }
       }
     }
   }
 
-  if (bestTooltip) console.log('[ALL_TIME_CHART_FALLBACK] ' + bestTooltip);
+  if (Object.keys(bestStats).length) {
+    console.log('[ALL_TIME_CHART_FALLBACK] samples=' + samples +
+      ' views=' + (bestStats.views || '-') +
+      ' plays=' + (bestStats.plays || '-') +
+      ' bookmarks=' + (bestStats.bookmarks || '-') +
+      ' libraryAdds=' + (bestStats.libraryAdds || '-') +
+      ' downloads=' + (bestStats.downloads || '-'));
+  }
   return compactStats(bestStats);
 }
 
