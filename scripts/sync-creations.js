@@ -12,6 +12,7 @@ const LOGIN_MODE = process.argv.includes('--login');
 const HEADED_MODE = process.argv.includes('--headed');
 const HEADLESS = !LOGIN_MODE && !HEADED_MODE && process.env.HEADLESS !== 'false';
 const SLOW_MS = Number(process.env.CC_SLOW_MS || 1200);
+const ONLY_PAID = process.env.CC_ONLY_PAID === 'true';
 const TIMEOUT_MS = Number(process.env.CC_TIMEOUT_MS || 45000);
 const CREATIONS_HOME = 'https://creations.bethesda.net/en/starfield/all?author_displayname=TownGG';
 
@@ -693,6 +694,10 @@ async function sync() {
   const today = new Date().toISOString().slice(0, 10);
 
   for (const creation of creations) {
+    if (ONLY_PAID && creation?.isPaid !== true && parseNumberValue(creation?.price) <= 0) {
+      skipped += 1;
+      continue;
+    }
     if (!shouldSyncCreation(creation)) {
       skipped += 1;
       continue;
