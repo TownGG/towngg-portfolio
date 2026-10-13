@@ -1,5 +1,5 @@
 name: Verify Paid With Unified Parser
-# rerun: compare-body-and-chart
+# rerun: shared-body-chart-samples
 
 on:
   push:
