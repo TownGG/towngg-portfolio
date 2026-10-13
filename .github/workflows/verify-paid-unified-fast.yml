@@ -1,5 +1,5 @@
 name: Verify Paid With Unified Parser
-# rerun: generic-all-time-fallback
+# rerun: compare-body-and-chart
 
 on:
   push:
