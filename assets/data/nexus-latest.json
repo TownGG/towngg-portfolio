@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-13T15:01:10Z",
+  "updatedAt": "2026-10-13T15:31:07Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1847,
+      "total_downloads": 1848,
       "unique_downloads": 1028,
-      "daily_downloads": 2,
+      "daily_downloads": 3,
       "likes": 46,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 504,
+      "total_downloads": 505,
       "unique_downloads": 362,
-      "daily_downloads": 1,
+      "daily_downloads": 2,
       "likes": 17,
       "views": 0
     },
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 2953,
+      "total_downloads": 2954,
       "unique_downloads": 2093,
-      "daily_downloads": 24,
+      "daily_downloads": 25,
       "likes": 52,
       "views": 0
     },
