@@ -675,14 +675,17 @@ async function scrapeAllTimeEngagementStats(page, creation, debugContext = {}) {
   let stats = bodyStats;
   let statsSource = 'all-time-body';
 
-  // Same rule for every Creation: only fall back to the chart when the normal
-  // All Time body does not expose the core totals.
-  if (!bodyStats.views || !bodyStats.plays || !bodyStats.downloads) {
-    const chartStats = await scrapeChartStatsFallback(page);
-    if (chartStats.views && chartStats.plays) {
-      stats = { ...bodyStats, ...chartStats };
-      statsSource = 'all-time-chart-fallback';
-    }
+  // Every Creation uses the same two readers after All Time + ANY.
+  // Compare whole stat groups; never assemble Views/Plays/etc. from different
+  // chart samples, and never branch on paid/free.
+  const chartStats = await scrapeChartStatsFallback(page);
+  if (
+    chartStats.views &&
+    chartStats.plays &&
+    chartStatsScore(chartStats) > chartStatsScore(bodyStats)
+  ) {
+    stats = { ...bodyStats, ...chartStats };
+    statsSource = 'all-time-chart';
   }
 
   return {
