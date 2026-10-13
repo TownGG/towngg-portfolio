@@ -491,6 +491,13 @@ function parsePlatformStats(text, context = {}) {
   };
 }
 
+async function openDetailsTab(page) {
+  await page.getByRole('tab', { name: /details/i }).click({ timeout: 5000 }).catch(async () => {
+    await page.getByText(/^(details|详情)$/i).click({ timeout: 5000 }).catch(() => {});
+  });
+  await page.waitForTimeout(500);
+}
+
 async function openStatsTab(page) {
   await page.getByRole('tab', { name: /stats/i }).click({ timeout: 8000 }).catch(async () => {
     await page.getByText(/^(stats|统计)$/i).click({ timeout: 5000 }).catch(() => {});
@@ -521,28 +528,92 @@ async function selectPlatformAny(page) {
   await page.waitForTimeout(900);
 }
 
-async function scrapePaidLibraryAddsFromChart(page, creation) {
-  if (creation?.isPaid !== true) {
-    return { value: null, source: 'not-paid', samples: 0 };
-  }
+function parseStatsTooltip(text) {
+  const stats = {
+    downloads: largestLabeledNumber(text, ['downloads', 'download', '下载']),
+    bookmarks: largestLabeledNumber(text, ['bookmarks', 'bookmark', '书签']),
+    views: largestLabeledNumber(text, ['views', 'view', '查看']),
+    plays: largestLabeledNumber(text, ['plays', 'play', '游玩数', '播放数']),
+    libraryAdds: largestLabeledNumber(text, ['library adds', 'library add', 'subscribes', 'subscribe', 'subscriptions', '加入库', '订阅数'])
+  };
+  return compactStats(stats);
+}
 
-  const labels = [
-    'library adds',
-    'library add',
-    'adds to library',
-    'added to library',
-    'library additions',
-    'subscribes',
-    'subscriptions',
-    '订阅数',
-    '加入库'
-  ];
-  let bestValue = largestLabeledNumber(
-    await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => ''),
-    labels
-  );
-  let bestSource = bestValue ? 'visible-text' : 'not-found';
+function chartStatsScore(stats) {
+  const core = ['views', 'plays', 'downloads'];
+  const completeness = core.reduce((sum, key) => sum + (stats[key] ? 1 : 0), 0);
+  const secondary = ['bookmarks', 'libraryAdds'].reduce((sum, key) => sum + (stats[key] ? 1 : 0), 0);
+  const magnitude =
+    parseNumberValue(stats.views) * 1000000 +
+    parseNumberValue(stats.plays) * 1000 +
+    parseNumberValue(stats.downloads);
+  return completeness * 1e18 + secondary * 1e15 + magnitude;
+}
 
+async function readVisibleStatsTooltip(page) {
+  return page.evaluate(() => {
+    const visible = (node) => {
+      const rect = node?.getBoundingClientRect?.();
+      if (!rect || rect.width <= 2 || rect.height <= 2) return false;
+      const style = window.getComputedStyle(node);
+      return style.display !== 'none' &&
+        style.visibility !== 'hidden' &&
+        Number(style.opacity || 1) !== 0;
+    };
+
+    const selectors = [
+      '[role="tooltip"]',
+      '[class*="tooltip" i]',
+      '[id*="tooltip" i]',
+      'svg foreignObject',
+      'svg g',
+      'div'
+    ];
+
+    const seen = new Set();
+    const candidates = [];
+
+    for (const selector of selectors) {
+      for (const node of document.querySelectorAll(selector)) {
+        if (seen.has(node) || !visible(node)) continue;
+        seen.add(node);
+
+        const text = String(node.textContent || '')
+          .replace(/\u00a0/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (text.length < 12 || text.length > 1000) continue;
+
+        const patterns = [
+          /\bViews?\b/i,
+          /\bPlays?\b/i,
+          /\bDownloads?\b/i,
+          /\bBookmarks?\b/i,
+          /\bLibrary Adds?\b/i
+        ];
+        const matches = patterns.reduce((sum, pattern) => sum + (pattern.test(text) ? 1 : 0), 0);
+        if (matches < 2) continue;
+
+        const rect = node.getBoundingClientRect();
+        candidates.push({
+          text,
+          matches,
+          area: Math.max(1, rect.width * rect.height)
+        });
+      }
+    }
+
+    candidates.sort((a, b) => {
+      if (b.matches !== a.matches) return b.matches - a.matches;
+      if (a.area !== b.area) return a.area - b.area;
+      return a.text.length - b.text.length;
+    });
+
+    return candidates[0]?.text || '';
+  }).catch(() => '');
+}
+
+async function scrapeChartStatsFallback(page) {
   const boxes = await page.locator('svg, canvas').evaluateAll((nodes) => nodes
     .map((node) => {
       const rect = node.getBoundingClientRect();
@@ -559,32 +630,34 @@ async function scrapePaidLibraryAddsFromChart(page, creation) {
     .slice(0, 3)
   ).catch(() => []);
 
-  const points = [];
+  let bestStats = {};
+  let bestTooltip = '';
+
   for (const box of boxes) {
-    for (const xFactor of [0.995, 0.98, 0.95, 0.9, 0.78, 0.58, 0.35, 0.12]) {
-      for (const yFactor of [0.28, 0.52, 0.76]) {
-        points.push({
-          x: box.x + box.width * xFactor,
-          y: box.y + box.height * yFactor
-        });
+    for (const xFactor of [0.08, 0.2, 0.35, 0.5, 0.65, 0.78, 0.9, 0.96, 0.985, 0.995]) {
+      for (const yFactor of [0.2, 0.38, 0.55, 0.72, 0.86]) {
+        await page.mouse.move(
+          box.x + box.width * xFactor,
+          box.y + box.height * yFactor
+        ).catch(() => {});
+        await page.waitForTimeout(120);
+
+        const tooltip = await readVisibleStatsTooltip(page);
+        if (!tooltip) continue;
+        const candidate = parseStatsTooltip(tooltip);
+
+        // Keep a complete metric group from one tooltip sample. Never mix
+        // Views from one point with Plays/Bookmarks from another.
+        if (chartStatsScore(candidate) > chartStatsScore(bestStats)) {
+          bestStats = candidate;
+          bestTooltip = tooltip;
+        }
       }
     }
   }
 
-  let samples = 0;
-  for (const point of points) {
-    await page.mouse.move(point.x, point.y).catch(() => {});
-    await page.waitForTimeout(90);
-    samples += 1;
-    const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
-    const candidate = largestLabeledNumber(text, labels);
-    if (parseNumberValue(candidate) > parseNumberValue(bestValue)) {
-      bestValue = candidate;
-      bestSource = 'chart-tooltip';
-    }
-  }
-
-  return { value: bestValue, source: bestSource, samples };
+  if (bestTooltip) console.log('[ALL_TIME_CHART_FALLBACK] ' + bestTooltip);
+  return compactStats(bestStats);
 }
 
 async function scrapeAllTimeEngagementStats(page, creation, debugContext = {}) {
@@ -593,19 +666,30 @@ async function scrapeAllTimeEngagementStats(page, creation, debugContext = {}) {
   await selectPlatformAny(page);
   await page.waitForTimeout(1200);
 
-  // Free and paid Creations intentionally use the exact same All Time parser.
-  // Do not special-case paid items with chart/tooltip probing.
   const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
-  const stats = compactStats(parsePlatformStats(text, {
+  const bodyStats = compactStats(parsePlatformStats(text, {
     ...debugContext,
     source: 'STATS All time body'
   }));
+
+  let stats = bodyStats;
+  let statsSource = 'all-time-body';
+
+  // Same rule for every Creation: only fall back to the chart when the normal
+  // All Time body does not expose the core totals.
+  if (!bodyStats.views || !bodyStats.plays || !bodyStats.downloads) {
+    const chartStats = await scrapeChartStatsFallback(page);
+    if (chartStats.views && chartStats.plays) {
+      stats = { ...bodyStats, ...chartStats };
+      statsSource = 'all-time-chart-fallback';
+    }
+  }
 
   return {
     ok: Boolean(Object.keys(stats).length),
     stats,
     timeRange: 'all-time',
-    statsSource: 'all-time-body'
+    statsSource
   };
 }
 
