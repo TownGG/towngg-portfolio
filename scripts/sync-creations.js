@@ -527,35 +527,27 @@ async function selectPlatformAny(page) {
   await page.waitForTimeout(900);
 }
 
-async function scrapePaidTooltipStats(page, creation) {
+async function scrapePaidLibraryAddsFromChart(page, creation) {
   if (creation?.isPaid !== true) {
-    return { stats: {}, source: 'not-paid', samples: 0 };
+    return { value: null, source: 'not-paid', samples: 0 };
   }
 
-  const metricLabels = {
-    views: ['views', 'view', '查看'],
-    plays: ['plays', 'play', '播放数'],
-    bookmarks: ['bookmarks', 'bookmark', '书签'],
-    likes: ['likes', 'like', '喜欢'],
-    downloads: ['downloads', 'download', '下载'],
-    libraryAdds: [
-      'library adds',
-      'library add',
-      'adds to library',
-      'added to library',
-      'library additions',
-      'subscribes',
-      'subscriptions',
-      '订阅数',
-      '加入库'
-    ]
-  };
-  const visibleText = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
-  const bestStats = Object.fromEntries(Object.entries(metricLabels).map(([key, labels]) => [
-    key,
-    largestLabeledNumber(visibleText, labels)
-  ]));
-  let bestSource = Object.values(bestStats).some(Boolean) ? 'visible-text' : 'not-found';
+  const labels = [
+    'library adds',
+    'library add',
+    'adds to library',
+    'added to library',
+    'library additions',
+    'subscribes',
+    'subscriptions',
+    '订阅数',
+    '加入库'
+  ];
+  let bestValue = largestLabeledNumber(
+    await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => ''),
+    labels
+  );
+  let bestSource = bestValue ? 'visible-text' : 'not-found';
 
   const boxes = await page.locator('svg, canvas').evaluateAll((nodes) => nodes
     .map((node) => {
@@ -591,16 +583,14 @@ async function scrapePaidTooltipStats(page, creation) {
     await page.waitForTimeout(90);
     samples += 1;
     const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
-    for (const [key, labels] of Object.entries(metricLabels)) {
-      const candidate = largestLabeledNumber(text, labels);
-      if (parseNumberValue(candidate) > parseNumberValue(bestStats[key])) {
-        bestStats[key] = candidate;
-        bestSource = 'chart-tooltip';
-      }
+    const candidate = largestLabeledNumber(text, labels);
+    if (parseNumberValue(candidate) > parseNumberValue(bestValue)) {
+      bestValue = candidate;
+      bestSource = 'chart-tooltip';
     }
   }
 
-  return { stats: compactStats(bestStats), source: bestSource, samples };
+  return { value: bestValue, source: bestSource, samples };
 }
 
 async function scrapeAllTimeEngagementStats(page, creation, debugContext = {}) {
@@ -609,23 +599,28 @@ async function scrapeAllTimeEngagementStats(page, creation, debugContext = {}) {
   await selectPlatformAny(page);
   const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
   const stats = compactStats(parsePlatformStats(text, { ...debugContext, source: 'STATS All time body' }));
-  const paidTooltipProbe = await scrapePaidTooltipStats(page, creation);
-  Object.assign(stats, paidTooltipProbe.stats);
+
+  // Paid Creations use a different chart DOM. Hovering the chart is only
+  // trusted for Library Adds; never let tooltip probes overwrite Views,
+  // Plays, Bookmarks, Likes or Downloads captured from the Stats body.
+  const libraryAddsProbe = await scrapePaidLibraryAddsFromChart(page, creation);
+  if (libraryAddsProbe.value) stats.libraryAdds = libraryAddsProbe.value;
+
   return {
     ok: Boolean(Object.keys(stats).length),
     stats,
     timeRange: 'all-time-or-fallback',
-    paidTooltipProbe
+    libraryAddsProbe
   };
 }
 
-function statsLine(stats, coverImage, title, oldTitle, pricing, paidTooltipProbe) {
+function statsLine(stats, coverImage, title, oldTitle, pricing, libraryAddsProbe) {
   const pricingLabel = pricing?.ok
     ? (pricing.isPaid ? `${pricing.price} CC (paid)` : 'free')
     : 'kept';
-  const paidTooltipSource = paidTooltipProbe?.source || 'body-text';
-  const paidTooltipSamples = paidTooltipProbe?.samples || 0;
-  return `title=${title && title !== oldTitle ? `${oldTitle} -> ${title}` : title || oldTitle}, price=${pricingLabel}, likes=${stats.likes || '-'}, downloads=${stats.downloads || '-'}, cover=${coverImage ? 'yes' : 'no'}, views=${stats.views || '-'}, plays=${stats.plays || '-'}, bookmarks=${stats.bookmarks || '-'}, libraryAdds=${stats.libraryAdds || '-'}, paidTooltipSource=${paidTooltipSource}, paidTooltipSamples=${paidTooltipSamples}`;
+  const libraryAddsSource = libraryAddsProbe?.source || 'body-text';
+  const libraryAddsSamples = libraryAddsProbe?.samples || 0;
+  return `title=${title && title !== oldTitle ? `${oldTitle} -> ${title}` : title || oldTitle}, price=${pricingLabel}, likes=${stats.likes || '-'}, downloads=${stats.downloads || '-'}, cover=${coverImage ? 'yes' : 'no'}, views=${stats.views || '-'}, plays=${stats.plays || '-'}, bookmarks=${stats.bookmarks || '-'}, libraryAdds=${stats.libraryAdds || '-'}, libraryAddsSource=${libraryAddsSource}, libraryAddsSamples=${libraryAddsSamples}`;
 }
 
 async function scrapeCreation(page, creation) {
@@ -673,7 +668,7 @@ async function scrapeCreation(page, creation) {
     return { ok: false, error: 'no_stats_cover_or_title_found' };
   }
 
-  return { ok: true, title, stats, coverImage, pricing, paidTooltipProbe: allTime.paidTooltipProbe };
+  return { ok: true, title, stats, coverImage, pricing, libraryAddsProbe: allTime.libraryAddsProbe };
 }
 
 async function login() {
@@ -748,7 +743,7 @@ async function sync() {
       };
       nextSource = replaceCreationObjectByKey(nextSource, creation, renderCreationObject(merged));
       success += 1;
-      console.log(statsLine(result.stats, result.coverImage, result.title, creation.title, result.pricing, result.paidTooltipProbe));
+      console.log(statsLine(result.stats, result.coverImage, result.title, creation.title, result.pricing, result.libraryAddsProbe));
     } catch (error) {
       failed += 1;
       console.log(`kept old data (${error.message})`);
