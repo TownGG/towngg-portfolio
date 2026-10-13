@@ -96,40 +96,118 @@ function patchLikesByUuid(source, uuid, likes) {
 
 async function scrapeLikeCount(page) {
   return page.evaluate(() => {
-    const values = [];
-    const pushMatches = (text) => {
-      const input = String(text || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
-      const patterns = [
-        /\b(?:likes?|喜欢)\b\s*[:：]?\s*([0-9][0-9,.]*)/gi,
-        /([0-9][0-9,.]*)\s*\b(?:likes?|喜欢)\b/gi,
-        /["']?(?:likes|likeCount|likesCount|totalLikes)["']?\s*[:=]\s*["']?([0-9][0-9,.]*)/gi
-      ];
-      for (const pattern of patterns) {
-        for (const match of input.matchAll(pattern)) {
-          const value = Number(String(match[1] || '').replace(/[^0-9.]/g, ''));
-          if (Number.isFinite(value) && value >= 0 && value < 10000000) values.push(value);
-        }
+    const toNumber = (value) => {
+      const number = Number(String(value ?? '').replace(/[^0-9.]/g, ''));
+      return Number.isFinite(number) ? number : null;
+    };
+    const visible = (node) => {
+      const rect = node?.getBoundingClientRect?.();
+      return Boolean(rect && rect.width > 2 && rect.height > 2);
+    };
+    const collectNumbers = (text) => {
+      const values = [];
+      for (const match of String(text || '').matchAll(/(?:^|\s)([0-9][0-9,.]*)(?=\s|$)/g)) {
+        const value = toNumber(match[1]);
+        if (value !== null && value >= 0 && value < 10000000) values.push(value);
       }
+      return values;
     };
 
-    pushMatches(document.body?.innerText || '');
+    // Keep the search scoped to the current Creation so recommendations and
+    // other cards cannot leak their Like counts into this item.
+    const titleNode = [...document.querySelectorAll('h1,[data-testid="creation-title"]')]
+      .find((node) => visible(node));
+    let root = titleNode?.parentElement || document.querySelector('main') || document.body;
+    let candidate = titleNode?.parentElement;
+    for (let depth = 0; candidate && depth < 6; depth += 1, candidate = candidate.parentElement) {
+      const text = String(candidate.innerText || candidate.textContent || '').replace(/\s+/g, ' ').trim();
+      const detailLinks = candidate.querySelectorAll('a[href*="/starfield/details/"]').length;
+      if (text.length > 7000 || detailLinks > 1) break;
+      root = candidate;
+    }
 
-    const candidates = [...document.querySelectorAll('[aria-label],[title],[data-testid],button,[role="button"]')];
-    for (const node of candidates) {
-      const own = [
+    const rootText = String(root?.innerText || root?.textContent || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+
+    // Paid Creation detail headers currently render the Like total directly
+    // after "ALL PLATFORMS" beside the thumbs-up icon.
+    const platformPatterns = [
+      /\bALL PLATFORMS\b\s*([0-9][0-9,.]*)/i,
+      /\bANY PLATFORM\b\s*([0-9][0-9,.]*)/i,
+      /(?:所有平台|全部平台)\s*([0-9][0-9,.]*)/i
+    ];
+    for (const pattern of platformPatterns) {
+      const match = rootText.match(pattern);
+      const value = toNumber(match?.[1]);
+      if (value !== null && value >= 0) {
+        return { value, source: 'platform-summary' };
+      }
+    }
+
+    // Prefer a semantic Like / thumbs-up control. This also covers pages where
+    // the icon has an aria-label/title but the visible text is only a number.
+    const controls = [...root.querySelectorAll('button,[role="button"],[aria-label],[title],[data-testid]')];
+    const controlValues = [];
+    for (const node of controls) {
+      if (!visible(node)) continue;
+      const iconMarkers = [...node.querySelectorAll('svg,use,img,[aria-label],[title],[data-testid]')]
+        .slice(0, 12)
+        .map((icon) => [
+          icon.getAttribute?.('aria-label'),
+          icon.getAttribute?.('title'),
+          icon.getAttribute?.('data-testid'),
+          icon.getAttribute?.('alt'),
+          icon.getAttribute?.('src'),
+          icon.getAttribute?.('href'),
+          icon.getAttribute?.('xlink:href'),
+          icon.getAttribute?.('class')
+        ].filter(Boolean).join(' '))
+        .join(' ');
+      const marker = [
         node.getAttribute?.('aria-label'),
         node.getAttribute?.('title'),
         node.getAttribute?.('data-testid'),
-        node.innerText,
-        node.textContent
+        node.getAttribute?.('id'),
+        node.getAttribute?.('class'),
+        iconMarkers
       ].filter(Boolean).join(' ');
-      if (!/\blikes?\b|喜欢/i.test(own)) continue;
-      pushMatches(own);
-      const parentText = node.parentElement?.innerText || node.parentElement?.textContent || '';
-      pushMatches(String(parentText).slice(0, 500));
+
+      if (!/(?:^|[^a-z])(likes?|thumbs?[-_ ]?up|upvote|recommend)(?:[^a-z]|$)/i.test(marker)) continue;
+      if (/dislike|thumbs?[-_ ]?down/i.test(marker)) continue;
+
+      const nearby = [
+        node.innerText,
+        node.textContent,
+        node.nextElementSibling?.innerText,
+        node.nextElementSibling?.textContent,
+        node.previousElementSibling?.innerText,
+        node.previousElementSibling?.textContent,
+        node.parentElement?.innerText
+      ].filter(Boolean).join(' ');
+      controlValues.push(...collectNumbers(nearby));
+    }
+    if (controlValues.length) {
+      return { value: Math.max(...controlValues), source: 'like-control' };
     }
 
-    const html = document.documentElement?.innerHTML || '';
+    // Fallback to explicitly labelled Like text inside the current Creation.
+    const labelledValues = [];
+    const labelledPatterns = [
+      /\b(?:likes?|喜欢)\b\s*[:：]?\s*([0-9][0-9,.]*)/gi,
+      /([0-9][0-9,.]*)\s*\b(?:likes?|喜欢)\b/gi
+    ];
+    for (const pattern of labelledPatterns) {
+      for (const match of rootText.matchAll(pattern)) {
+        const value = toNumber(match[1]);
+        if (value !== null && value >= 0 && value < 10000000) labelledValues.push(value);
+      }
+    }
+    if (labelledValues.length) {
+      return { value: Math.max(...labelledValues), source: 'labelled-text' };
+    }
+
+    // Final fallback: inspect only this Creation's scoped HTML state.
+    const rootHtml = root?.outerHTML || '';
+    const stateValues = [];
     const propertyPatterns = [
       /["']likes["']\s*:\s*["']?([0-9][0-9,.]*)/gi,
       /["']likeCount["']\s*:\s*["']?([0-9][0-9,.]*)/gi,
@@ -137,14 +215,15 @@ async function scrapeLikeCount(page) {
       /["']totalLikes["']\s*:\s*["']?([0-9][0-9,.]*)/gi
     ];
     for (const pattern of propertyPatterns) {
-      for (const match of html.matchAll(pattern)) {
-        const value = Number(String(match[1] || '').replace(/[^0-9.]/g, ''));
-        if (Number.isFinite(value) && value >= 0 && value < 10000000) values.push(value);
+      for (const match of rootHtml.matchAll(pattern)) {
+        const value = toNumber(match[1]);
+        if (value !== null && value >= 0 && value < 10000000) stateValues.push(value);
       }
     }
-
-    return values.length ? Math.max(...values) : null;
-  }).catch(() => null);
+    return stateValues.length
+      ? { value: Math.max(...stateValues), source: 'scoped-state' }
+      : { value: null, source: 'not-detected' };
+  }).catch(() => ({ value: null, source: 'evaluate-error' }));
 }
 
 async function main() {
@@ -178,13 +257,17 @@ async function main() {
         await page.waitForTimeout(1200);
         const detected = await scrapeLikeCount(page);
         const previous = toNumber(item.likes);
-        const next = Math.max(previous, toNumber(detected));
-        if (next > previous) {
-          source = patchLikesByUuid(source, item.uuid, next);
-          changed += 1;
-          console.log(`${previous} -> ${next}`);
+        if (detected?.value !== null && detected?.value !== undefined) {
+          const next = Math.max(0, Math.round(Number(detected.value)));
+          if (next !== previous) {
+            source = patchLikesByUuid(source, item.uuid, next);
+            changed += 1;
+            console.log(`${previous} -> ${next} (${detected.source})`);
+          } else {
+            console.log(`kept ${previous} (${detected.source})`);
+          }
         } else {
-          console.log(`kept ${previous}${detected !== null ? ` (detected ${detected})` : ' (not detected)'}`);
+          console.log(`kept ${previous} (${detected?.source || 'not detected'})`);
         }
       } catch (error) {
         console.log(`kept ${toNumber(item.likes)} (${error.message})`);
