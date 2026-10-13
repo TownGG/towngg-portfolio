@@ -9,6 +9,7 @@ const AUTH_DIR = path.join(ROOT, '.auth');
 const PROFILE_DIR = path.join(AUTH_DIR, 'bethesda-profile');
 const STORAGE_PATH = path.join(AUTH_DIR, 'bethesda-storage.json');
 const HEADED_MODE = process.argv.includes('--headed');
+const PAID_ONLY = process.argv.includes('--paid-only');
 const HEADLESS = !HEADED_MODE && process.env.HEADLESS !== 'false';
 const TIMEOUT_MS = Number(process.env.CC_TIMEOUT_MS || 45000);
 const SLOW_MS = Number(process.env.CC_SLOW_MS || 1200);
@@ -48,8 +49,13 @@ function getCreationUrl(creation) {
   return creation?.links?.find((link) => /creations\.bethesda\.net/i.test(link.url))?.url;
 }
 
+function isPaidCreation(creation) {
+  return creation?.isPaid === true || parseNumberValue(creation?.price) > 0;
+}
+
 function shouldSyncCreation(creation) {
-  return Boolean(getCreationUrl(creation));
+  if (!getCreationUrl(creation)) return false;
+  return !PAID_ONLY || isPaidCreation(creation);
 }
 
 async function fileExists(filePath) {
@@ -134,6 +140,8 @@ function renderCreationObject(item) {
   push('alt', item.alt);
   push('description', item.description);
   push('tags', item.tags);
+  push('price', item.price);
+  push('isPaid', item.isPaid);
   for (const key of statKeys) push(key, item[key]);
   push('updatedAt', item.updatedAt);
   push('source', item.source);
@@ -147,6 +155,7 @@ function renderCreationObject(item) {
         return `${key}: [${links}]`;
       }
     }
+    if (key === 'isPaid') return key + ': ' + (value === true);
     return `${key}: ${jsString(value)}`;
   });
 
@@ -358,16 +367,18 @@ async function hoverStatsChart(page) {
     });
   });
 
-  let bestStats = {};
+  const bestStats = {};
   for (const point of samples) {
     await page.mouse.move(point.x, point.y).catch(() => {});
     await page.waitForTimeout(140);
     const text = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
     const stats = parseStatsText(text);
-    if (statsRank(stats) > statsRank(bestStats)) bestStats = stats;
+    for (const key of ['views', 'plays', 'bookmarks', 'libraryAdds']) {
+      if (statNumeric(stats, key) > statNumeric(bestStats, key)) bestStats[key] = stats[key];
+    }
   }
 
-  return bestStats;
+  return compactStats(bestStats);
 }
 
 async function scrapeStatsAllTime(page, url) {
@@ -379,10 +390,12 @@ async function scrapeStatsAllTime(page, url) {
   await selectStatsFilters(page);
 
   const directText = await page.locator('body').innerText({ timeout: TIMEOUT_MS }).catch(() => '');
-  let bestStats = parseStatsText(directText);
+  const bestStats = parseStatsText(directText);
 
   const hoveredStats = await hoverStatsChart(page);
-  if (statsRank(hoveredStats) > statsRank(bestStats)) bestStats = hoveredStats;
+  for (const key of ['views', 'plays', 'bookmarks', 'libraryAdds']) {
+    if (statNumeric(hoveredStats, key) > statNumeric(bestStats, key)) bestStats[key] = hoveredStats[key];
+  }
 
   return compactStats(bestStats);
 }
@@ -418,7 +431,7 @@ async function syncStatsAllTime() {
       const merged = {
         ...creation,
         ...statsAllTime,
-        source: 'Stats All Time'
+        source: PAID_ONLY ? 'Paid Stats All Time' : 'Stats All Time'
       };
       nextSource = replaceCreationObject(nextSource, creation.title, renderCreationObject(merged));
       success += 1;
