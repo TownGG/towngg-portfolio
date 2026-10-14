@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-14T18:00:57Z",
+  "updatedAt": "2026-10-14T18:31:00Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 2989,
+      "total_downloads": 2990,
       "unique_downloads": 2120,
-      "daily_downloads": 13,
+      "daily_downloads": 14,
       "likes": 53,
       "views": 0
     },
@@ -163,9 +163,9 @@
       "mod_name": "TGG Texture Forge - Starfield DDS Converter",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17625",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
-      "total_downloads": 113,
+      "total_downloads": 114,
       "unique_downloads": 82,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 9,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 2897,
-      "unique_downloads": 2212,
-      "daily_downloads": 14,
+      "total_downloads": 2898,
+      "unique_downloads": 2213,
+      "daily_downloads": 15,
       "likes": 63,
       "views": 0
     },
