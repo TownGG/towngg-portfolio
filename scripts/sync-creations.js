@@ -614,20 +614,20 @@ async function scrapeChartStatsFallback(page) {
     })
     .filter((rect) => rect.width > 240 && rect.height > 120 && rect.y >= 0)
     .sort((a, b) => b.area - a.area)
-    .slice(0, 3)
+    .slice(0, 1)
   ).catch(() => []);
 
   let bestStats = {};
   let samples = 0;
 
   for (const box of boxes) {
-    for (const xFactor of [0.08, 0.2, 0.35, 0.5, 0.65, 0.78, 0.9, 0.96, 0.985, 0.995]) {
-      for (const yFactor of [0.2, 0.38, 0.55, 0.72, 0.86]) {
+    for (const xFactor of [0.12, 0.35, 0.58, 0.78, 0.93, 0.99]) {
+      for (const yFactor of [0.3, 0.58, 0.82]) {
         await page.mouse.move(
           box.x + box.width * xFactor,
           box.y + box.height * yFactor
         ).catch(() => {});
-        await page.waitForTimeout(120);
+        await page.waitForTimeout(80);
         samples += 1;
 
         // Use the exact same page-text source as the normal All Time parser.
@@ -670,17 +670,29 @@ async function scrapeAllTimeEngagementStats(page, creation, debugContext = {}) {
   let stats = bodyStats;
   let statsSource = 'all-time-body';
 
-  // Every Creation uses the same two readers after All Time + ANY.
-  // Compare whole stat groups; never assemble Views/Plays/etc. from different
-  // chart samples, and never branch on paid/free.
-  const chartStats = await scrapeChartStatsFallback(page);
-  if (
-    chartStats.views &&
-    chartStats.plays &&
-    chartStatsScore(chartStats) > chartStatsScore(bodyStats)
-  ) {
-    stats = { ...bodyStats, ...chartStats };
-    statsSource = 'all-time-chart';
+  const baselineFields = ['views', 'plays', 'bookmarks', 'libraryAdds', 'downloads'];
+  const bodyIncomplete = !bodyStats.views || !bodyStats.plays || !bodyStats.downloads;
+  const bodyMateriallyBelowBaseline = baselineFields.some((key) => {
+    const previous = parseNumberValue(creation?.[key]);
+    const current = parseNumberValue(bodyStats?.[key]);
+    if (previous <= 0) return false;
+    if (current <= 0) return true;
+    return current < previous * 0.9;
+  });
+
+  // Fast path: the normal All Time body parser is enough for almost every
+  // Creation. Only scan the chart when the body is incomplete or clearly
+  // inconsistent with the previous baseline.
+  if (bodyIncomplete || bodyMateriallyBelowBaseline) {
+    const chartStats = await scrapeChartStatsFallback(page);
+    if (
+      chartStats.views &&
+      chartStats.plays &&
+      chartStatsScore(chartStats) > chartStatsScore(bodyStats)
+    ) {
+      stats = { ...bodyStats, ...chartStats };
+      statsSource = 'all-time-chart';
+    }
   }
 
   return {
@@ -794,6 +806,18 @@ async function sync() {
         continue;
       }
 
+      const previousDownloads = parseNumberValue(creation.downloads);
+      const scrapedDownloads = parseNumberValue(result.stats?.downloads);
+      if (!result.removed && previousDownloads > 0 && scrapedDownloads <= 0) {
+        const message =
+          '[FATAL_DOWNLOADS_UNAVAILABLE] Downloads could not be read for "' +
+          creation.title +
+          '". Bethesda auth/session is likely invalid; aborting this workflow immediately.';
+        console.error(message);
+        await closeContext(context).catch(() => {});
+        throw new Error(message);
+      }
+
       if (result.removed) {
         const merged = {
           ...creation,
@@ -824,6 +848,9 @@ async function sync() {
       success += 1;
       console.log(statsLine(result.stats, result.coverImage, result.title, creation.title, result.pricing, result.statsSource));
     } catch (error) {
+      if (String(error?.message || '').includes('[FATAL_DOWNLOADS_UNAVAILABLE]')) {
+        throw error;
+      }
       failed += 1;
       console.log(`kept old data (${error.message})`);
     }
