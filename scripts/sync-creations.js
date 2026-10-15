@@ -667,6 +667,18 @@ async function scrapeAllTimeEngagementStats(page, creation, debugContext = {}) {
     source: 'STATS All time body'
   }));
 
+  // Downloads is the auth canary. Every previously-published Creation with a
+  // known Downloads total must still expose Downloads after All Time + ANY.
+  // If it disappears, stop immediately instead of crawling the whole catalog.
+  const previousDownloads = parseNumberValue(creation?.downloads);
+  if (previousDownloads > 0 && parseNumberValue(bodyStats.downloads) <= 0) {
+    throw new Error(
+      '[FATAL_DOWNLOADS_UNAVAILABLE] Downloads could not be read for "' +
+      creation.title +
+      '". Bethesda auth/session is likely invalid; aborting this workflow immediately.'
+    );
+  }
+
   let stats = bodyStats;
   let statsSource = 'all-time-body';
 
