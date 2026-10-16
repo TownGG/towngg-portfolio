@@ -667,18 +667,6 @@ async function scrapeAllTimeEngagementStats(page, creation, debugContext = {}) {
     source: 'STATS All time body'
   }));
 
-  // Downloads is the auth canary. Every previously-published Creation with a
-  // known Downloads total must still expose Downloads after All Time + ANY.
-  // If it disappears, stop immediately instead of crawling the whole catalog.
-  const previousDownloads = parseNumberValue(creation?.downloads);
-  if (previousDownloads > 0 && parseNumberValue(bodyStats.downloads) <= 0) {
-    throw new Error(
-      '[FATAL_DOWNLOADS_UNAVAILABLE] Downloads could not be read for "' +
-      creation.title +
-      '". Bethesda auth/session is likely invalid; aborting this workflow immediately.'
-    );
-  }
-
   let stats = bodyStats;
   let statsSource = 'all-time-body';
 
@@ -797,6 +785,7 @@ async function sync() {
   let success = 0;
   let failed = 0;
   let skipped = 0;
+  let consecutiveMissingDownloads = 0;
   const today = new Date().toISOString().slice(0, 10);
 
   for (const creation of creations) {
@@ -811,23 +800,46 @@ async function sync() {
 
     process.stdout.write(`Syncing ${creation.title}... `);
     try {
-      const result = await scrapeCreation(page, creation);
+      let result = await scrapeCreation(page, creation);
+
+      // A missing Downloads label in the All Time body does not prove that
+      // authentication has expired. The shared chart parser has already been
+      // tried inside scrapeCreation; allow one fresh navigation as well.
+      const previousDownloads = parseNumberValue(creation.downloads);
+      const needsDownloadRecheck = (candidate) => previousDownloads > 0 &&
+        !candidate?.removed &&
+        ((candidate?.ok && parseNumberValue(candidate.stats?.downloads) <= 0) ||
+          (!candidate?.ok && candidate?.error === 'no_stats_cover_or_title_found'));
+
+      if (needsDownloadRecheck(result)) {
+        console.warn(`[DOWNLOADS_RECHECK] ${creation.title}: Downloads missing after body + chart read; retrying a fresh page once.`);
+        const retry = await scrapeCreation(page, creation);
+        if (retry.ok && (retry.removed || parseNumberValue(retry.stats?.downloads) > 0)) {
+          result = retry;
+        } else if (needsDownloadRecheck(retry)) {
+          consecutiveMissingDownloads += 1;
+          failed += 1;
+          console.warn(`[DOWNLOADS_MISSING] ${creation.title}: confirmed after retry; ${consecutiveMissingDownloads}/2 consecutive creations. Old data preserved.`);
+          if (consecutiveMissingDownloads >= 2) {
+            const message = '[FATAL_DOWNLOADS_UNAVAILABLE] Downloads unavailable on two consecutive distinct Creations after body, chart, and retry checks. Stopping sync without publishing stale data; this does not by itself prove token expiry.';
+            console.error(message);
+            await closeContext(context).catch(() => {});
+            throw new Error(message);
+          }
+          continue;
+        } else {
+          result = retry;
+        }
+      }
+
       if (!result.ok) {
         failed += 1;
         console.log(`kept old data (${result.error})`);
         continue;
       }
 
-      const previousDownloads = parseNumberValue(creation.downloads);
-      const scrapedDownloads = parseNumberValue(result.stats?.downloads);
-      if (!result.removed && previousDownloads > 0 && scrapedDownloads <= 0) {
-        const message =
-          '[FATAL_DOWNLOADS_UNAVAILABLE] Downloads could not be read for "' +
-          creation.title +
-          '". Bethesda auth/session is likely invalid; aborting this workflow immediately.';
-        console.error(message);
-        await closeContext(context).catch(() => {});
-        throw new Error(message);
+      if (result.removed || previousDownloads <= 0 || parseNumberValue(result.stats?.downloads) > 0) {
+        consecutiveMissingDownloads = 0;
       }
 
       if (result.removed) {
