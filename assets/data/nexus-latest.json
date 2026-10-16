@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-16T15:00:32Z",
+  "updatedAt": "2026-10-16T15:30:28Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 3049,
-      "unique_downloads": 2165,
-      "daily_downloads": 10,
+      "total_downloads": 3050,
+      "unique_downloads": 2166,
+      "daily_downloads": 11,
       "likes": 53,
       "views": 0
     },
@@ -139,9 +139,9 @@
       "mod_name": "CASSILIAs Trainning Dummy",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17521",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17521/17521-1782131371-2132304027.png",
-      "total_downloads": 64,
-      "unique_downloads": 57,
-      "daily_downloads": 0,
+      "total_downloads": 65,
+      "unique_downloads": 58,
+      "daily_downloads": 1,
       "likes": 4,
       "views": 0
     },
