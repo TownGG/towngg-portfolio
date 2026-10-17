@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-17T10:00:26Z",
+  "updatedAt": "2026-10-17T10:30:21Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1858,
-      "unique_downloads": 1036,
-      "daily_downloads": 1,
+      "total_downloads": 1860,
+      "unique_downloads": 1038,
+      "daily_downloads": 3,
       "likes": 47,
       "views": 0
     },
@@ -43,9 +43,9 @@
       "mod_name": "CASSILIAs SOUL",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17285",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17285/17285-1780066726-1556236471.png",
-      "total_downloads": 509,
-      "unique_downloads": 364,
-      "daily_downloads": 0,
+      "total_downloads": 510,
+      "unique_downloads": 365,
+      "daily_downloads": 1,
       "likes": 17,
       "views": 0
     },
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 3093,
+      "total_downloads": 3094,
       "unique_downloads": 2189,
-      "daily_downloads": 17,
+      "daily_downloads": 18,
       "likes": 53,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 3238,
-      "unique_downloads": 2256,
-      "daily_downloads": 18,
+      "total_downloads": 3239,
+      "unique_downloads": 2257,
+      "daily_downloads": 19,
       "likes": 42,
       "views": 0
     },
@@ -127,9 +127,9 @@
       "mod_name": "CPF-CRIMSON FLEET POWER FIST HELLHOUND",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17501",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17501/17501-1781854590-1310759891.png",
-      "total_downloads": 2198,
-      "unique_downloads": 1616,
-      "daily_downloads": 13,
+      "total_downloads": 2199,
+      "unique_downloads": 1617,
+      "daily_downloads": 14,
       "likes": 15,
       "views": 0
     },
@@ -211,9 +211,9 @@
       "mod_name": "CPF-MANTIS BLADE",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
-      "total_downloads": 2200,
-      "unique_downloads": 1630,
-      "daily_downloads": 13,
+      "total_downloads": 2201,
+      "unique_downloads": 1631,
+      "daily_downloads": 14,
       "likes": 18,
       "views": 0
     },
