@@ -1,15 +1,19 @@
 (() => {
   const DAILY_URL = './assets/data/creations-mod-daily.csv';
-  const state = { mode: 'paid', range: 7, rows: [], days: [], ready: false, lastSync: '' };
+  const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';
+  const NEXUS_LATEST_URL = './assets/data/nexus-latest.json';
+  const state = { mode: 'paid', range: 7, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, ready: false, lastSync: '' };
 
   const copy = {
     en: {
-      title: 'CC Analytics',
+      title: 'Mod Analytics',
       paid: 'Paid Creations',
       free: 'Free Creations',
+      nexus: 'Nexus Mods',
       paidFocus: 'Priority',
       paidSubtitle: 'Paid Creation performance, growth and conversion overview',
       freeSubtitle: 'Free Creation performance, growth and reach overview',
+      nexusSubtitle: 'Nexus Mods downloads, unique downloads and endorsement overview',
       dayWindow: 'Daily statistics: Beijing 12:00–next day 12:00',
       lastSync: 'Last Sync',
       last7: 'Last 7 days',
@@ -25,15 +29,20 @@
       views: 'Views',
       library: 'Library Adds',
       plays: 'Plays',
+      uniqueDownloads: 'Unique Downloads',
+      endorsements: 'Endorsements',
       vsYesterday: 'vs yesterday',
       vsPrevious: 'vs previous period',
       allTime: 'All-time',
       paidWorks: 'Paid works',
       freeWorks: 'Free works',
+      nexusWorks: 'Nexus mods',
       downloadsTrend: 'Downloads Trend',
       ccShare: 'CC Download Share',
       shareCopyPaid: 'Paid downloads as a share of all CC downloads in the selected period.',
       shareCopyFree: 'Free downloads as a share of all CC downloads in the selected period.',
+      shareCopyNexus: 'Unique downloads as a share of total Nexus downloads.',
+      nexusShare: 'Unique Download Ratio',
       periodDownloads: 'Period downloads',
       allTimeShare: 'All-time share',
       recent: 'Recent Daily Downloads',
@@ -42,6 +51,9 @@
       detail: 'Creation Performance',
       detailPaid: 'Paid works sorted by total downloads, with price and current-period activity.',
       detailFree: 'Free works sorted by total downloads, with current-period activity.',
+      detailNexus: 'Nexus mods sorted by total downloads with daily, unique and endorsement data.',
+      uniqueRate: 'Unique / Total',
+      endorsementRate: 'Endorsements / Unique',
       downloadRate: 'Downloads / Views',
       libraryRate: 'Library Adds / Downloads',
       likeRate: 'Likes / Downloads',
@@ -55,12 +67,14 @@
       focusHintFree: 'Free CC performance view'
     },
     'zh-CN': {
-      title: 'CC 数据看板',
+      title: '模组数据看板',
       paid: '付费 Creations',
       free: '免费 Creations',
+      nexus: 'Nexus Mods',
       paidFocus: '重点关注',
       paidSubtitle: '聚焦付费 CC 的下载增长、作品表现与转化数据',
       freeSubtitle: '查看免费 CC 的下载增长、作品表现与传播数据',
+      nexusSubtitle: '查看 Nexus Mods 下载、唯一下载与 Endorsements 表现',
       dayWindow: '每日统计口径：北京时间 12:00–次日 12:00',
       lastSync: '最后同步',
       last7: '最近 7 天',
@@ -76,15 +90,20 @@
       views: '浏览',
       library: '加入库',
       plays: '游玩',
+      uniqueDownloads: '唯一下载',
+      endorsements: 'Endorsements',
       vsYesterday: '较昨日',
       vsPrevious: '较上一周期',
       allTime: '累计数据',
       paidWorks: '付费作品',
       freeWorks: '免费作品',
+      nexusWorks: 'Nexus 模组',
       downloadsTrend: '下载趋势',
       ccShare: 'CC 下载占比',
       shareCopyPaid: '当前周期内，付费 CC 下载量占全部 CC 下载量的比例。',
       shareCopyFree: '当前周期内，免费 CC 下载量占全部 CC 下载量的比例。',
+      shareCopyNexus: 'Nexus 唯一下载占累计总下载的比例。',
+      nexusShare: '唯一下载占比',
       periodDownloads: '周期下载',
       allTimeShare: '累计占比',
       recent: '近期每日下载',
@@ -93,6 +112,9 @@
       detail: '作品表现明细',
       detailPaid: '按累计下载排序查看付费作品价格、今日增长及各项核心数据。',
       detailFree: '按累计下载排序查看免费作品今日增长及各项核心数据。',
+      detailNexus: '按累计下载排序查看 Nexus 模组今日下载、唯一下载与 Endorsements。',
+      uniqueRate: '唯一下载 / 总下载',
+      endorsementRate: 'Endorsements / 唯一下载',
       downloadRate: '下载 / 浏览',
       libraryRate: '加入库 / 下载',
       likeRate: '点赞 / 下载',
@@ -106,12 +128,14 @@
       focusHintFree: '免费 CC 数据视图'
     },
     ja: {
-      title: 'CC 分析',
+      title: 'Mod 分析',
       paid: '有料 Creations',
       free: '無料 Creations',
+      nexus: 'Nexus Mods',
       paidFocus: '重点',
       paidSubtitle: '有料 CC のダウンロード、成長、転換データ',
       freeSubtitle: '無料 CC のダウンロードと成長データ',
+      nexusSubtitle: 'Nexus Mods のダウンロード、ユニークDL、Endorsement データ',
       dayWindow: '日次集計：北京時間 12:00–翌日 12:00',
       lastSync: '最終同期',
       last7: '直近 7 日',
@@ -127,15 +151,20 @@
       views: '閲覧',
       library: 'ライブラリ追加',
       plays: 'プレイ',
+      uniqueDownloads: 'ユニークDL',
+      endorsements: 'Endorsements',
       vsYesterday: '昨日比',
       vsPrevious: '前期間比',
       allTime: '累計',
       paidWorks: '有料作品',
       freeWorks: '無料作品',
+      nexusWorks: 'Nexus Mod',
       downloadsTrend: 'DL推移',
       ccShare: 'CC DL比率',
       shareCopyPaid: '選択期間における全 CC DL 中の有料 CC 比率。',
       shareCopyFree: '選択期間における全 CC DL 中の無料 CC 比率。',
+      shareCopyNexus: 'Nexus のユニークDLが累計DLに占める比率。',
+      nexusShare: 'ユニークDL比率',
       periodDownloads: '期間DL',
       allTimeShare: '累計比率',
       recent: '日別DL',
@@ -144,6 +173,9 @@
       detail: '作品詳細',
       detailPaid: '有料作品の価格、今日の増加、主要指標。',
       detailFree: '無料作品の今日の増加と主要指標。',
+      detailNexus: 'Nexus Mod を累計DL順に表示し、日次・ユニークDL・Endorsement を確認。',
+      uniqueRate: 'ユニーク / 総DL',
+      endorsementRate: 'Endorsements / ユニーク',
       downloadRate: 'DL / 閲覧',
       libraryRate: 'ライブラリ / DL',
       likeRate: 'いいね / DL',
@@ -186,6 +218,7 @@
     return Array.isArray(window.siteData?.creations) ? window.siteData.creations : [];
   }
   function modeCreations() {
+    if (state.mode === 'nexus') return [];
     return creations().filter((item) => state.mode === 'paid' ? isPaid(item) : !isPaid(item));
   }
   function paidTitleSet() {
@@ -250,22 +283,61 @@
       return { date, free, paid: paidTotal, rows: snapshot, updatedAt: snapshot[0]?.last_updated || '' };
     }).sort((a, b) => a.date.localeCompare(b.date));
   }
-  function selectedValue(day) { return day ? n(day[state.mode]) : 0; }
+  function buildNexusDays(rows) {
+    const byDate = new Map();
+    rows.forEach((row) => {
+      if (!row.date) return;
+      const list = byDate.get(row.date) || [];
+      list.push(row);
+      byDate.set(row.date, list);
+    });
+    return [...byDate.entries()].map(([date, dateRows]) => ({
+      date,
+      nexus: dateRows.reduce((sum, row) => sum + n(row.daily_downloads), 0),
+      rows: dateRows
+    })).sort((a, b) => a.date.localeCompare(b.date));
+  }
+  function activeDays() {
+    return state.mode === 'nexus' ? state.nexusDays : state.days;
+  }
+  function selectedValue(day, mode = state.mode) {
+    if (!day) return 0;
+    return mode === 'nexus' ? n(day.nexus) : n(day[mode]);
+  }
   function currentDay() {
-    return state.days.find((day) => day.date === todayKey()) || { date: todayKey(), free: 0, paid: 0, rows: [] };
+    const days = activeDays();
+    return days.find((day) => day.date === todayKey()) || (state.mode === 'nexus'
+      ? { date: todayKey(), nexus: 0, rows: [] }
+      : { date: todayKey(), free: 0, paid: 0, rows: [] });
   }
   function priorDay(beforeDate) {
-    return [...state.days].filter((day) => day.date < beforeDate).sort((a, b) => a.date.localeCompare(b.date)).at(-1) || { free: 0, paid: 0, rows: [] };
+    const days = activeDays();
+    return [...days].filter((day) => day.date < beforeDate).sort((a, b) => a.date.localeCompare(b.date)).at(-1)
+      || (state.mode === 'nexus' ? { nexus: 0, rows: [] } : { free: 0, paid: 0, rows: [] });
   }
   function periodDays(count, offset = 0) {
-    const eligible = state.days.filter((day) => day.date <= todayKey());
+    const eligible = activeDays().filter((day) => day.date <= todayKey());
     const end = Math.max(0, eligible.length - offset);
     return eligible.slice(Math.max(0, end - count), end);
   }
   function periodValue(count, offset = 0, mode = state.mode) {
-    return periodDays(count, offset).reduce((sum, day) => sum + n(day[mode]), 0);
+    const days = mode === 'nexus' ? state.nexusDays : state.days;
+    const eligible = days.filter((day) => day.date <= todayKey());
+    const end = Math.max(0, eligible.length - offset);
+    return eligible.slice(Math.max(0, end - count), end).reduce((sum, day) => sum + selectedValue(day, mode), 0);
+  }
+  function nexusMods() {
+    return Array.isArray(state.nexusLatest?.mods) ? state.nexusLatest.mods : [];
   }
   function allTimeStats(mode = state.mode) {
+    if (mode === 'nexus') {
+      return nexusMods().reduce((sum, item) => {
+        sum.downloads += n(item.total_downloads);
+        sum.unique += n(item.unique_downloads);
+        sum.likes += n(item.likes);
+        return sum;
+      }, { downloads: 0, unique: 0, likes: 0, views: 0, library: 0, plays: 0, price: 0, count: nexusMods().length });
+    }
     const items = creations().filter((item) => mode === 'paid' ? isPaid(item) : !isPaid(item));
     return items.reduce((sum, item) => {
       sum.downloads += n(item.downloads);
@@ -275,7 +347,7 @@
       sum.plays += n(item.plays);
       sum.price += n(item.price);
       return sum;
-    }, { downloads: 0, likes: 0, views: 0, library: 0, plays: 0, price: 0, count: items.length });
+    }, { downloads: 0, unique: 0, likes: 0, views: 0, library: 0, plays: 0, price: 0, count: items.length });
   }
   function percentChange(current, previous) {
     if (!n(previous)) return null;
@@ -302,6 +374,7 @@
     return map;
   }
   function modeRowsInRange() {
+    if (state.mode === 'nexus') return periodDays(state.range).flatMap((day) => day.rows.map((row) => ({ ...row, date: day.date })));
     const paid = paidTitleSet();
     const rows = periodDays(state.range).flatMap((day) => day.rows.map((row) => ({ ...row, date: day.date })));
     return rows.filter((row) => {
@@ -312,8 +385,9 @@
   function topRows() {
     const map = new Map();
     modeRowsInRange().forEach((row) => {
-      const key = normalizeTitle(row.title);
-      const item = map.get(key) || { title: row.title || 'Unknown', downloads: 0 };
+      const title = state.mode === 'nexus' ? (row.mod_name || 'Unknown') : (row.title || 'Unknown');
+      const key = state.mode === 'nexus' ? String(row.mod_id || title) : normalizeTitle(title);
+      const item = map.get(key) || { title, downloads: 0 };
       item.downloads += n(row.daily_downloads);
       map.set(key, item);
     });
@@ -336,15 +410,20 @@
       card(t('yesterday'), fmt(previous), '◫', trend(percentChange(previous, selectedValue(beforeYesterday)), t('vsYesterday'))),
       card(t('sevenDays'), fmt(p7), '↗', trend(percentChange(p7, prev7), t('vsPrevious'))),
       card(t('thirtyDays'), fmt(p30), '∿', trend(percentChange(p30, prev30), t('vsPrevious'))),
-      card(t('works'), fmt(totals.count), '▱', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(state.mode === 'paid' ? t('paidWorks') : t('freeWorks')) + '</span>')
+      card(t('works'), fmt(totals.count), '▱', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(state.mode === 'paid' ? t('paidWorks') : state.mode === 'free' ? t('freeWorks') : t('nexusWorks')) + '</span>')
     ];
     if (state.mode === 'paid') {
       cards.push(card(t('avgPrice'), totals.count ? fmt(totals.price / totals.count) + ' CC' : '—', '$', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'));
     }
-    cards.push(card(t('likes'), fmt(totals.likes), '♡', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'));
-    cards.push(card(t('views'), fmt(totals.views), '◉', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'));
-    cards.push(card(t('library'), fmt(totals.library), '＋', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'));
-    if (state.mode === 'free') cards.push(card(t('plays'), fmt(totals.plays), '▶', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'));
+    if (state.mode === 'nexus') {
+      cards.push(card(t('uniqueDownloads'), fmt(totals.unique), '◎', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'));
+      cards.push(card(t('endorsements'), fmt(totals.likes), '♡', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'));
+    } else {
+      cards.push(card(t('likes'), fmt(totals.likes), '♡', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'));
+      cards.push(card(t('views'), fmt(totals.views), '◉', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'));
+      cards.push(card(t('library'), fmt(totals.library), '＋', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'));
+      if (state.mode === 'free') cards.push(card(t('plays'), fmt(totals.plays), '▶', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'));
+    }
     target.innerHTML = cards.join('');
   }
   function lineChart(days) {
@@ -380,16 +459,26 @@
     const ring = document.querySelector('[data-cc-share-ring]');
     const center = document.querySelector('[data-cc-share-center]');
     const copyNode = document.querySelector('[data-cc-share-copy]');
-    const selected = periodValue(state.range);
-    const totalCC = periodValue(state.range, 0, 'paid') + periodValue(state.range, 0, 'free');
-    const periodShare = totalCC ? selected / totalCC * 100 : 0;
-    const modeAll = allTimeStats(state.mode).downloads;
-    const allTotal = allTimeStats('paid').downloads + allTimeStats('free').downloads;
-    const allShare = allTotal ? modeAll / allTotal * 100 : 0;
-    if (ring) ring.style.setProperty('--share', Math.min(100, Math.max(0, periodShare)) + '%');
-    if (center) center.textContent = pct(periodShare);
+    let share = 0, selected = 0, secondaryLabel = t('allTimeShare'), secondaryValue = '0%';
+    if (state.mode === 'nexus') {
+      const totals = allTimeStats('nexus');
+      selected = periodValue(state.range, 0, 'nexus');
+      share = totals.downloads ? totals.unique / totals.downloads * 100 : 0;
+      secondaryLabel = t('uniqueDownloads');
+      secondaryValue = fmt(totals.unique);
+    } else {
+      selected = periodValue(state.range);
+      const totalCC = periodValue(state.range, 0, 'paid') + periodValue(state.range, 0, 'free');
+      share = totalCC ? selected / totalCC * 100 : 0;
+      const modeAll = allTimeStats(state.mode).downloads;
+      const allTotal = allTimeStats('paid').downloads + allTimeStats('free').downloads;
+      secondaryValue = pct(allTotal ? modeAll / allTotal * 100 : 0);
+    }
+    if (ring) ring.style.setProperty('--share', Math.min(100, Math.max(0, share)) + '%');
+    if (center) center.textContent = pct(share);
     if (copyNode) {
-      copyNode.innerHTML = '<strong>' + fmt(selected) + '</strong><p>' + esc(state.mode === 'paid' ? t('shareCopyPaid') : t('shareCopyFree')) + '</p><div class="admin-cc-share-meta"><div><span>' + esc(t('periodDownloads')) + '</span><b>' + fmt(selected) + '</b></div><div><span>' + esc(t('allTimeShare')) + '</span><b>' + pct(allShare) + '</b></div></div>';
+      const copyKey = state.mode === 'paid' ? 'shareCopyPaid' : state.mode === 'free' ? 'shareCopyFree' : 'shareCopyNexus';
+      copyNode.innerHTML = '<strong>' + fmt(selected) + '</strong><p>' + esc(t(copyKey)) + '</p><div class="admin-cc-share-meta"><div><span>' + esc(t('periodDownloads')) + '</span><b>' + fmt(selected) + '</b></div><div><span>' + esc(secondaryLabel) + '</span><b>' + esc(secondaryValue) + '</b></div></div>';
     }
   }
   function renderBars() {
@@ -409,12 +498,17 @@
     const target = document.querySelector('[data-cc-conversion]');
     if (!target) return;
     const total = allTimeStats();
-    const values = [
-      [t('downloadRate'), total.views ? total.downloads / total.views * 100 : 0, '%', 100],
-      [t('libraryRate'), total.downloads ? total.library / total.downloads * 100 : 0, '%', 100],
-      [t('likeRate'), total.downloads ? total.likes / total.downloads * 100 : 0, '%', 10],
-      [t('playsPerDownload'), total.downloads ? total.plays / total.downloads : 0, 'x', 30]
-    ];
+    const values = state.mode === 'nexus'
+      ? [
+          [t('uniqueRate'), total.downloads ? total.unique / total.downloads * 100 : 0, '%', 100],
+          [t('endorsementRate'), total.unique ? total.likes / total.unique * 100 : 0, '%', 10]
+        ]
+      : [
+          [t('downloadRate'), total.views ? total.downloads / total.views * 100 : 0, '%', 100],
+          [t('libraryRate'), total.downloads ? total.library / total.downloads * 100 : 0, '%', 100],
+          [t('likeRate'), total.downloads ? total.likes / total.downloads * 100 : 0, '%', 10],
+          [t('playsPerDownload'), total.downloads ? total.plays / total.downloads : 0, 'x', 30]
+        ];
     target.innerHTML = values.map(([label, value, suffix, scale]) => {
       const width = Math.min(100, Math.max(2, value / scale * 100));
       const shown = suffix === '%' ? value.toFixed(1) + '%' : value.toFixed(1) + '×';
@@ -426,6 +520,14 @@
     const body = document.querySelector('[data-cc-detail-body]');
     const note = document.querySelector('[data-cc-detail-note]');
     if (!head || !body) return;
+    if (state.mode === 'nexus') {
+      const daily = new Map(currentDay().rows.map((row) => [String(row.mod_id || ''), n(row.daily_downloads)]));
+      const items = nexusMods().map((item) => ({ ...item, daily: daily.get(String(item.mod_id || '')) || 0 })).sort((a,b) => n(b.total_downloads) - n(a.total_downloads));
+      head.innerHTML = '<tr><th>' + esc(t('creation')) + '</th><th>' + esc(t('daily')) + '</th><th>' + esc(t('total')) + '</th><th>' + esc(t('uniqueDownloads')) + '</th><th>' + esc(t('endorsements')) + '</th></tr>';
+      body.innerHTML = items.length ? items.map((item) => '<tr><td title="' + esc(item.mod_name) + '">' + esc(item.mod_name) + '</td><td class="' + (item.daily > 0 ? 'admin-cc-daily-positive' : '') + '">' + fmt(item.daily) + '</td><td>' + fmt(item.total_downloads) + '</td><td>' + fmt(item.unique_downloads) + '</td><td>' + fmt(item.likes) + '</td></tr>').join('') : '<tr><td colspan="5">' + esc(t('noData')) + '</td></tr>';
+      if (note) note.textContent = t('detailNexus');
+      return;
+    }
     const daily = dailyMap();
     const items = modeCreations().map((item) => ({ ...item, daily: daily.get(normalizeTitle(item.title)) || 0 })).sort((a,b) => n(b.downloads) - n(a.downloads));
     head.innerHTML = '<tr><th>' + esc(t('creation')) + '</th>' + (state.mode === 'paid' ? '<th>' + esc(t('price')) + '</th>' : '') + '<th>' + esc(t('daily')) + '</th><th>' + esc(t('total')) + '</th><th>' + esc(t('likes')) + '</th><th>' + esc(t('views')) + '</th><th>' + esc(t('library')) + '</th><th>' + esc(t('plays')) + '</th></tr>';
@@ -441,20 +543,17 @@
     const dayWindow = dashboard.querySelector('[data-cc-day-window]');
     const sync = dashboard.querySelector('[data-cc-sync]');
     if (title) title.textContent = t('title');
-    if (subtitle) subtitle.textContent = state.mode === 'paid' ? t('paidSubtitle') : t('freeSubtitle');
+    if (subtitle) subtitle.textContent = state.mode === 'paid' ? t('paidSubtitle') : state.mode === 'free' ? t('freeSubtitle') : t('nexusSubtitle');
     if (dayWindow) dayWindow.textContent = t('dayWindow');
-    if (sync) sync.textContent = t('lastSync') + ': ' + (state.lastSync || '—');
+    const syncValue = state.mode === 'nexus' ? (state.nexusLatest?.updatedAt || state.lastSync || '—') : (state.lastSync || '—');
+    if (sync) sync.textContent = t('lastSync') + ': ' + syncValue;
     dashboard.querySelectorAll('[data-cc-tab]').forEach((button) => {
       const active = button.dataset.ccTab === state.mode;
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-selected', String(active));
       const label = button.querySelector('span');
-      if (label) label.textContent = button.dataset.ccTab === 'paid' ? t('paid') : t('free');
-      const small = button.querySelector('small');
-      if (small) small.textContent = t('paidFocus');
+      if (label) label.textContent = button.dataset.ccTab === 'paid' ? t('paid') : button.dataset.ccTab === 'free' ? t('free') : t('nexus');
     });
-    const hint = dashboard.querySelector('[data-cc-focus-hint]');
-    if (hint) hint.textContent = state.mode === 'paid' ? t('focusHintPaid') : t('focusHintFree');
     const range = dashboard.querySelector('[data-cc-range]');
     if (range) {
       const a = range.querySelector('option[value="7"]'), b = range.querySelector('option[value="30"]');
@@ -463,7 +562,6 @@
     }
     const map = {
       '[data-cc-trend-title]': 'downloadsTrend',
-      '[data-cc-share-title]': 'ccShare',
       '[data-cc-recent-title]': 'recent',
       '[data-cc-ranking-title]': 'ranking',
       '[data-cc-conversion-title]': 'conversion',
@@ -473,9 +571,11 @@
       const node = dashboard.querySelector(selector);
       if (node) node.textContent = t(key);
     });
+    const shareTitle = dashboard.querySelector('[data-cc-share-title]');
+    if (shareTitle) shareTitle.textContent = state.mode === 'nexus' ? t('nexusShare') : t('ccShare');
     dashboard.querySelectorAll('[data-cc-range-label]').forEach((node) => { node.textContent = state.range === 30 ? t('last30') : t('last7'); });
     const legend = dashboard.querySelector('[data-cc-legend]');
-    if (legend) legend.lastChild.textContent = state.mode === 'paid' ? t('paid') : t('free');
+    if (legend) legend.lastChild.textContent = state.mode === 'paid' ? t('paid') : state.mode === 'free' ? t('free') : t('nexus');
     const rhead = dashboard.querySelector('[data-cc-ranking-head]');
     if (rhead) rhead.innerHTML = '<tr><th>#</th><th>' + esc(t('creation')) + '</th><th>' + esc(t('downloadsTrend').replace(' Trend','')) + '</th><th>%</th></tr>';
   }
@@ -491,19 +591,28 @@
     renderDetails();
   }
   function markup() {
-    return '<header class="admin-dashboard-header"><div class="admin-dashboard-title"><h1 data-cc-title>CC Analytics</h1><p data-cc-subtitle></p><p class="admin-dashboard-day-window" data-cc-day-window></p></div><div class="admin-dashboard-tools"><span class="admin-dashboard-sync" data-cc-sync></span><select class="admin-dashboard-range" data-cc-range aria-label="Dashboard period"><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></div></header>' +
-      '<div class="admin-cc-focus-strip"><div class="admin-cc-focus-tabs" role="tablist" aria-label="Creation pricing"><button class="admin-cc-focus-tab is-active" type="button" role="tab" aria-selected="true" data-cc-tab="paid"><i></i><span>Paid Creations</span><small>Priority</small></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="free"><i></i><span>Free Creations</span></button></div><div class="admin-cc-focus-strip-copy" data-cc-focus-hint></div></div>' +
+    return '<header class="admin-dashboard-header"><div class="admin-dashboard-title"><h1 data-cc-title>Mod Analytics</h1><p data-cc-subtitle></p><p class="admin-dashboard-day-window" data-cc-day-window></p></div><div class="admin-dashboard-tools"><span class="admin-dashboard-sync" data-cc-sync></span><select class="admin-dashboard-range" data-cc-range aria-label="Dashboard period"><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></div></header>' +
+      '<div class="admin-cc-focus-strip"><div class="admin-cc-focus-tabs" role="tablist" aria-label="Mod data source"><button class="admin-cc-focus-tab is-active" type="button" role="tab" aria-selected="true" data-cc-tab="paid"><i></i><span>Paid Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="free"><i></i><span>Free Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="nexus"><i></i><span>Nexus Mods</span></button></div></div>' +
       '<section class="admin-dashboard-metrics" data-cc-kpis></section>' +
-      '<div class="admin-cc-focus-dashboard-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-trend-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-focus-legend" data-cc-legend><i></i><span></span></div><div class="admin-line-chart" data-cc-line-chart></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-share-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-share-card"><div class="admin-cc-share-ring" data-cc-share-ring><div class="admin-cc-share-center"><strong data-cc-share-center>0%</strong><span>CC</span></div></div><div class="admin-cc-share-copy" data-cc-share-copy></div></div></section></div>' +
+      '<div class="admin-cc-focus-dashboard-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-trend-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-focus-legend" data-cc-legend><i></i><span></span></div><div class="admin-line-chart" data-cc-line-chart></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-share-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-share-card"><div class="admin-cc-share-ring" data-cc-share-ring><div class="admin-cc-share-center"><strong data-cc-share-center>0%</strong><span>MOD</span></div></div><div class="admin-cc-share-copy" data-cc-share-copy></div></div></section></div>' +
       '<div class="admin-cc-bottom-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-recent-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-bars" data-cc-bars></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-ranking-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-ranking-wrap"><table class="admin-ranking-table"><thead data-cc-ranking-head></thead><tbody data-cc-ranking></tbody></table></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-conversion-title></h3><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-conversion" data-cc-conversion></div></section></div>' +
       '<section class="admin-analytics-panel admin-cc-detail-panel admin-cc-panel-accent"><div class="admin-analytics-head"><div><h3 data-cc-detail-title></h3><p class="admin-insight-caption" data-cc-detail-note></p></div><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-detail-wrap"><table class="admin-cc-detail-table"><thead data-cc-detail-head></thead><tbody data-cc-detail-body></tbody></table></div></section>' +
-      '<div class="admin-dashboard-loading" data-cc-loading>Loading CC analytics…</div>';
+      '<div class="admin-dashboard-loading" data-cc-loading>Loading mod analytics…</div>';
   }
   async function load() {
-    const response = await fetch(DAILY_URL + '?v=' + Date.now(), { cache: 'no-store' });
-    if (!response.ok) throw new Error('CC data HTTP ' + response.status);
-    state.rows = parseCSV(await response.text());
+    const [creationResponse, nexusHistoryResponse, nexusLatestResponse] = await Promise.all([
+      fetch(DAILY_URL + '?v=' + Date.now(), { cache: 'no-store' }),
+      fetch(NEXUS_HISTORY_URL + '?v=' + Date.now(), { cache: 'no-store' }),
+      fetch(NEXUS_LATEST_URL + '?v=' + Date.now(), { cache: 'no-store' })
+    ]);
+    if (!creationResponse.ok) throw new Error('CC data HTTP ' + creationResponse.status);
+    if (!nexusHistoryResponse.ok) throw new Error('Nexus history HTTP ' + nexusHistoryResponse.status);
+    if (!nexusLatestResponse.ok) throw new Error('Nexus latest HTTP ' + nexusLatestResponse.status);
+    state.rows = parseCSV(await creationResponse.text());
     state.days = buildDays(state.rows);
+    state.nexusRows = parseCSV(await nexusHistoryResponse.text());
+    state.nexusDays = buildNexusDays(state.nexusRows);
+    state.nexusLatest = await nexusLatestResponse.json();
     state.lastSync = creations().map((item) => String(item.updatedAt || '')).filter(Boolean).sort().at(-1) || state.days.at(-1)?.updatedAt || '';
     state.ready = true;
     document.querySelector('[data-cc-loading]')?.remove();
@@ -521,7 +630,7 @@
     dashboard.addEventListener('click', (event) => {
       const tab = event.target.closest('[data-cc-tab]');
       if (!tab) return;
-      state.mode = tab.dataset.ccTab === 'free' ? 'free' : 'paid';
+      state.mode = ['paid', 'free', 'nexus'].includes(tab.dataset.ccTab) ? tab.dataset.ccTab : 'paid';
       renderAll();
     });
     dashboard.querySelector('[data-cc-range]')?.addEventListener('change', (event) => {
