@@ -29,6 +29,22 @@
   color: #ffd9a1;
 }
 
+.dashboard-date.is-stale::before {
+  content: "!";
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: #ff9f2f;
+  color: #241300;
+  box-shadow: 0 0 12px rgba(255, 159, 47, .38);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+}
+
 @media (max-width: 720px) {
   .dashboard-date {
     width: fit-content;
