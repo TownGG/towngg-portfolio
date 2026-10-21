@@ -1,8 +1,11 @@
 (() => {
+  const SITE_DATA_URL = './assets/js/site-data.js';
   const DAILY_URL = './assets/data/creations-mod-daily.csv';
   const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';
   const NEXUS_LATEST_URL = './assets/data/nexus-latest.json';
-  const state = { mode: 'paid', range: 7, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, ready: false, lastSync: '' };
+  const REFRESH_MS = 2 * 60 * 1000;
+  const STALE_AFTER_MS = 60 * 60 * 1000;
+  const state = { mode: 'paid', range: 7, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, ready: false, refreshing: false, signature: '', lastSync: '' };
 
   const copy = {
     en: {
@@ -205,13 +208,19 @@
     }).format(n(value));
   }
   function pct(value) { return Number.isFinite(value) ? value.toFixed(1) + '%' : '—'; }
-  function formatBeijingTime(value) {
+  function utcDate(value) {
     const raw = String(value || '').trim();
-    if (!raw) return '—';
+    if (!raw) return null;
     const iso = raw.replace(' ', 'T');
     const normalized = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(iso) ? iso : iso + 'Z';
     const date = new Date(normalized);
-    if (Number.isNaN(date.getTime())) return raw;
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+  function formatBeijingTime(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return '—';
+    const date = utcDate(raw);
+    if (!date) return raw;
     const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
       timeZone: 'Asia/Shanghai',
       year: 'numeric',
@@ -225,6 +234,20 @@
   }
   function esc(value) {
     return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function parseSiteData(source) {
+    const isolatedWindow = {};
+    return Function('window', source + '\n;return window.siteData;')(isolatedWindow);
+  }
+  function isStaleTimestamp(value) {
+    const date = utcDate(value);
+    return Boolean(date && Date.now() - date.getTime() > STALE_AFTER_MS);
+  }
+  function latestCreationTimestamp(items = creations()) {
+    return items
+      .map((item) => String(item.updatedAt || '').trim())
+      .filter(Boolean)
+      .sort((a, b) => (utcDate(b)?.getTime() || 0) - (utcDate(a)?.getTime() || 0))[0] || '';
   }
   function normalizeTitle(value) {
     return String(value || '').normalize('NFKD').toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]+/g, '').trim();
@@ -564,7 +587,15 @@
     if (subtitle) subtitle.textContent = state.mode === 'paid' ? t('paidSubtitle') : state.mode === 'free' ? t('freeSubtitle') : t('nexusSubtitle');
     if (dayWindow) dayWindow.textContent = t('dayWindow');
     const syncRaw = state.mode === 'nexus' ? (state.nexusLatest?.updatedAt || state.lastSync || '') : (state.lastSync || '');
-    if (sync) sync.textContent = t('lastSync') + ': ' + formatBeijingTime(syncRaw);
+    if (sync) {
+      const stale = isStaleTimestamp(syncRaw);
+      sync.textContent = t('lastSync') + ': ' + formatBeijingTime(syncRaw);
+      sync.classList.toggle('is-stale', stale);
+      sync.classList.toggle('is-fresh', !stale);
+      sync.title = stale
+        ? (lang() === 'zh-CN' ? '超过 1 小时未同步，请检查数据抓取或登录状态。' : 'No sync for over 1 hour. Check data collection or login state.')
+        : (lang() === 'zh-CN' ? '数据同步正常。' : 'Data sync is current.');
+    }
     dashboard.querySelectorAll('[data-cc-tab]').forEach((button) => {
       const active = button.dataset.ccTab === state.mode;
       button.classList.toggle('is-active', active);
@@ -609,32 +640,67 @@
     renderDetails();
   }
   function markup() {
-    return '<header class="admin-dashboard-header"><div class="admin-dashboard-title"><h1 data-cc-title>Mod Analytics</h1><p data-cc-subtitle></p><p class="admin-dashboard-day-window" data-cc-day-window></p></div><div class="admin-dashboard-tools"><span class="admin-dashboard-sync" data-cc-sync></span><select class="admin-dashboard-range" data-cc-range aria-label="Dashboard period"><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></div></header>' +
-      '<div class="admin-cc-focus-strip"><div class="admin-cc-focus-tabs" role="tablist" aria-label="Mod data source"><button class="admin-cc-focus-tab is-active" type="button" role="tab" aria-selected="true" data-cc-tab="paid"><i></i><span>Paid Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="free"><i></i><span>Free Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="nexus"><i></i><span>Nexus Mods</span></button></div></div>' +
+    return '<header class="admin-dashboard-header"><div class="admin-dashboard-title"><h1 data-cc-title>Mod Analytics</h1><p data-cc-subtitle></p><p class="admin-dashboard-day-window" data-cc-day-window></p></div><div class="admin-dashboard-tools"><select class="admin-dashboard-range" data-cc-range aria-label="Dashboard period"><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></div></header>' +
+      '<div class="admin-cc-focus-strip"><div class="admin-cc-focus-tabs" role="tablist" aria-label="Mod data source"><button class="admin-cc-focus-tab is-active" type="button" role="tab" aria-selected="true" data-cc-tab="paid"><i></i><span>Paid Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="free"><i></i><span>Free Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="nexus"><i></i><span>Nexus Mods</span></button></div><span class="admin-dashboard-sync admin-cc-tab-sync" data-cc-sync></span></div>' +
       '<section class="admin-dashboard-metrics" data-cc-kpis></section>' +
       '<div class="admin-cc-focus-dashboard-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-trend-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-focus-legend" data-cc-legend><i></i><span></span></div><div class="admin-line-chart" data-cc-line-chart></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-share-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-share-card"><div class="admin-cc-share-ring" data-cc-share-ring><div class="admin-cc-share-center"><strong data-cc-share-center>0%</strong><span>MOD</span></div></div><div class="admin-cc-share-copy" data-cc-share-copy></div></div></section></div>' +
       '<div class="admin-cc-bottom-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-recent-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-bars" data-cc-bars></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-ranking-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-ranking-wrap"><table class="admin-ranking-table"><thead data-cc-ranking-head></thead><tbody data-cc-ranking></tbody></table></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-conversion-title></h3><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-conversion" data-cc-conversion></div></section></div>' +
       '<section class="admin-analytics-panel admin-cc-detail-panel admin-cc-panel-accent"><div class="admin-analytics-head"><div><h3 data-cc-detail-title></h3><p class="admin-insight-caption" data-cc-detail-note></p></div><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-detail-wrap"><table class="admin-cc-detail-table"><thead data-cc-detail-head></thead><tbody data-cc-detail-body></tbody></table></div></section>' +
       '<div class="admin-dashboard-loading" data-cc-loading>Loading mod analytics…</div>';
   }
-  async function load() {
-    const [creationResponse, nexusHistoryResponse, nexusLatestResponse] = await Promise.all([
-      fetch(DAILY_URL + '?v=' + Date.now(), { cache: 'no-store' }),
-      fetch(NEXUS_HISTORY_URL + '?v=' + Date.now(), { cache: 'no-store' }),
-      fetch(NEXUS_LATEST_URL + '?v=' + Date.now(), { cache: 'no-store' })
-    ]);
-    if (!creationResponse.ok) throw new Error('CC data HTTP ' + creationResponse.status);
-    if (!nexusHistoryResponse.ok) throw new Error('Nexus history HTTP ' + nexusHistoryResponse.status);
-    if (!nexusLatestResponse.ok) throw new Error('Nexus latest HTTP ' + nexusLatestResponse.status);
-    state.rows = parseCSV(await creationResponse.text());
-    state.days = buildDays(state.rows);
-    state.nexusRows = parseCSV(await nexusHistoryResponse.text());
-    state.nexusDays = buildNexusDays(state.nexusRows);
-    state.nexusLatest = await nexusLatestResponse.json();
-    state.lastSync = creations().map((item) => String(item.updatedAt || '')).filter(Boolean).sort().at(-1) || state.days.at(-1)?.updatedAt || '';
-    state.ready = true;
-    document.querySelector('[data-cc-loading]')?.remove();
-    renderAll();
+  async function load(force = false) {
+    if (state.refreshing) return;
+    state.refreshing = true;
+    try {
+      const [siteResponse, creationResponse, nexusHistoryResponse, nexusLatestResponse] = await Promise.all([
+        fetch(SITE_DATA_URL + '?v=' + Date.now(), { cache: 'no-store' }),
+        fetch(DAILY_URL + '?v=' + Date.now(), { cache: 'no-store' }),
+        fetch(NEXUS_HISTORY_URL + '?v=' + Date.now(), { cache: 'no-store' }),
+        fetch(NEXUS_LATEST_URL + '?v=' + Date.now(), { cache: 'no-store' })
+      ]);
+      if (!siteResponse.ok) throw new Error('Site data HTTP ' + siteResponse.status);
+      if (!creationResponse.ok) throw new Error('CC data HTTP ' + creationResponse.status);
+      if (!nexusHistoryResponse.ok) throw new Error('Nexus history HTTP ' + nexusHistoryResponse.status);
+      if (!nexusLatestResponse.ok) throw new Error('Nexus latest HTTP ' + nexusLatestResponse.status);
+
+      const [siteSource, creationText, nexusHistoryText, nexusLatest] = await Promise.all([
+        siteResponse.text(),
+        creationResponse.text(),
+        nexusHistoryResponse.text(),
+        nexusLatestResponse.json()
+      ]);
+      const parsedSite = parseSiteData(siteSource);
+      const creationStamp = latestCreationTimestamp(parsedSite?.creations || []);
+      const signature = [
+        creationStamp,
+        creationText.length,
+        creationText.slice(-240),
+        nexusLatest?.updatedAt || '',
+        nexusHistoryText.length,
+        nexusHistoryText.slice(-240)
+      ].join('|');
+
+      if (!force && state.ready && signature === state.signature) {
+        updateText();
+        return;
+      }
+
+      if (parsedSite?.creations?.length) {
+        window.siteData = { ...(window.siteData || {}), ...parsedSite, creations: parsedSite.creations };
+      }
+      state.rows = parseCSV(creationText);
+      state.days = buildDays(state.rows);
+      state.nexusRows = parseCSV(nexusHistoryText);
+      state.nexusDays = buildNexusDays(state.nexusRows);
+      state.nexusLatest = nexusLatest;
+      state.lastSync = latestCreationTimestamp();
+      state.signature = signature;
+      state.ready = true;
+      document.querySelector('[data-cc-loading]')?.remove();
+      renderAll();
+    } finally {
+      state.refreshing = false;
+    }
   }
   function install() {
     const dashboard = document.querySelector('.admin-dashboard');
@@ -665,14 +731,21 @@
     });
     langObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 
-    load().catch((error) => {
+    const refresh = (force = false) => load(force).catch((error) => {
       console.error('[admin-cc-focus]', error);
       const loading = dashboard.querySelector('[data-cc-loading]');
-      if (loading) {
+      if (!state.ready && loading) {
         loading.className = 'admin-dashboard-error';
         loading.textContent = error.message;
       }
     });
+
+    refresh(true);
+    window.setInterval(() => refresh(false), REFRESH_MS);
+    window.setInterval(() => { if (state.ready) updateText(); }, 60 * 1000);
+    window.addEventListener('focus', () => refresh(false));
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(false); });
+    window.addEventListener('towngg:downloads-data-updated', () => refresh(false));
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true });
