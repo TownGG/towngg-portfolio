@@ -181,7 +181,7 @@
       library: '加入库',
       todayLibrary: '今日入库',
       weekLibrary: '本周入库',
-      monthLibrary: '本月入库',
+      monthLibrary: '本月入库数',
       librarySnapshot: '按快照增量统计',
       libraryUnavailable: '缺少起点数据',
       plays: '游玩',
