@@ -52,13 +52,10 @@
   }
 
   function triggerReload(reason, token) {
-    if (reloading) return;
     const lockKey = `${RELOAD_LOCK_PREFIX}${location.pathname}:${token}`;
     if (sessionStorage.getItem(lockKey) === "1") return;
-    reloading = true;
     sessionStorage.setItem(lockKey, "1");
-    console.info(`[TownGG] ${reason}. Reloading page.`);
-    location.reload();
+    console.info(`[TownGG] ${reason}. Update recorded without reloading the page.`);
   }
 
   function escapeHtml(value) {
