@@ -6,7 +6,7 @@
   const EARNINGS_URL = './assets/data/partner-earnings.json';
   const REFRESH_MS = 2 * 60 * 1000;
   const STALE_AFTER_MS = 60 * 60 * 1000;
-  const state = { mode: 'paid', range: 7, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], ready: false, refreshing: false, signature: '', lastSync: '' };
+  const state = { mode: 'paid', range: 'week', rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], ready: false, refreshing: false, signature: '', lastSync: '' };
 
   const copy = {
     en: {
@@ -23,8 +23,8 @@
       earningsDayWindow: "Earnings dates shown in Beijing time · API sync runs hourly",
       totalEarnings: "Total Earnings",
       currentMonthEarnings: "This Month",
-      sevenDayEarnings: "Last 7 Days",
-      thirtyDayEarnings: "Last 30 Days",
+      sevenDayEarnings: "This Week Earnings",
+      thirtyDayEarnings: "This Month Earnings",
       transactionCount: "Transactions",
       avgPerTransaction: "Avg / Transaction",
       adjustments: "Adjustments",
@@ -51,13 +51,13 @@
       adjustmentRate: "Adjustment share",
       dayWindow: 'Daily statistics: Beijing 12:00–next day 12:00',
       lastSync: 'Last Updated',
-      last7: 'Last 7 days',
-      last30: 'Last 30 days',
+      last7: 'This Week',
+      last30: 'This Month',
       totalDownloads: 'Total Downloads',
       today: 'Today',
       yesterday: 'Yesterday',
-      sevenDays: '7 Days',
-      thirtyDays: '30 Days',
+      sevenDays: 'This Week Downloads',
+      thirtyDays: 'This Month Downloads',
       works: 'Creations',
       avgPrice: 'Avg Price',
       likes: 'Likes',
@@ -81,9 +81,9 @@
       nexusMatrix: 'Unique vs Total Downloads',
       growthSnapshot: 'Growth Snapshot',
       bestDay: 'Best day',
-      avg7: '7-day average',
-      avg30: '30-day average',
-      momentum: '7-day momentum',
+      avg7: 'Daily Avg · This Week',
+      avg30: 'Daily Avg · This Month',
+      momentum: 'Weekly Momentum',
       top3Share: 'Top 3 share',
       priceAxis: 'Price (CC)',
       viewsAxis: 'Views',
@@ -131,8 +131,8 @@
       earningsDayWindow: "收益日期按北京时间展示 · API 每小时自动同步",
       totalEarnings: "累计收益",
       currentMonthEarnings: "本月收益",
-      sevenDayEarnings: "近 7 日收益",
-      thirtyDayEarnings: "近 30 日收益",
+      sevenDayEarnings: "本周收益",
+      thirtyDayEarnings: "本月收益",
       transactionCount: "交易笔数",
       avgPerTransaction: "单笔平均收益",
       adjustments: "调整项",
@@ -159,13 +159,13 @@
       adjustmentRate: "调整项占比",
       dayWindow: '每日统计口径：北京时间 12:00–次日 12:00',
       lastSync: '最后更新',
-      last7: '最近 7 天',
-      last30: '最近 30 天',
+      last7: '本周数据',
+      last30: '本月数据',
       totalDownloads: '累计下载',
       today: '今日下载',
       yesterday: '昨日下载',
-      sevenDays: '近 7 日下载',
-      thirtyDays: '近 30 日下载',
+      sevenDays: '本周下载',
+      thirtyDays: '本月下载',
       works: '作品数量',
       avgPrice: '平均价格',
       likes: '点赞',
@@ -189,9 +189,9 @@
       nexusMatrix: '唯一下载 × 总下载',
       growthSnapshot: '增长概览',
       bestDay: '最佳单日',
-      avg7: '7 日日均',
-      avg30: '30 日日均',
-      momentum: '7 日趋势',
+      avg7: '本周日均',
+      avg30: '本月日均',
+      momentum: '本周趋势',
       top3Share: 'Top 3 下载占比',
       priceAxis: '价格（CC）',
       viewsAxis: '浏览',
@@ -239,8 +239,8 @@
       earningsDayWindow: "収益日は北京時間表示 · API は毎時同期",
       totalEarnings: "累計収益",
       currentMonthEarnings: "今月",
-      sevenDayEarnings: "直近7日",
-      thirtyDayEarnings: "直近30日",
+      sevenDayEarnings: "今週の収益",
+      thirtyDayEarnings: "今月の収益",
       transactionCount: "取引数",
       avgPerTransaction: "平均 / 取引",
       adjustments: "調整額",
@@ -267,13 +267,13 @@
       adjustmentRate: "調整比率",
       dayWindow: '日次集計：北京時間 12:00–翌日 12:00',
       lastSync: '最終更新',
-      last7: '直近 7 日',
-      last30: '直近 30 日',
+      last7: '今週のデータ',
+      last30: '今月のデータ',
       totalDownloads: '累計DL',
       today: '今日',
       yesterday: '昨日',
-      sevenDays: '7日間',
-      thirtyDays: '30日間',
+      sevenDays: '今週DL',
+      thirtyDays: '今月DL',
       works: '作品数',
       avgPrice: '平均価格',
       likes: 'いいね',
@@ -297,9 +297,9 @@
       nexusMatrix: 'ユニークDL × 総DL',
       growthSnapshot: '成長サマリー',
       bestDay: '最高日',
-      avg7: '7日平均',
-      avg30: '30日平均',
-      momentum: '7日モメンタム',
+      avg7: '今週の日平均',
+      avg30: '今月の日平均',
+      momentum: '今週の増減',
       top3Share: 'Top 3 比率',
       priceAxis: '価格 (CC)',
       viewsAxis: '閲覧',
@@ -518,16 +518,48 @@
     return [...days].filter((day) => day.date < beforeDate).sort((a, b) => a.date.localeCompare(b.date)).at(-1)
       || (state.mode === 'nexus' ? { nexus: 0, rows: [] } : state.mode === 'earnings' ? { earnings: 0, transactions: 0, rows: [] } : { free: 0, paid: 0, rows: [] });
   }
-  function periodDays(count, offset = 0) {
-    const eligible = activeDays().filter((day) => day.date <= activeTodayKey());
-    const end = Math.max(0, eligible.length - offset);
-    return eligible.slice(Math.max(0, end - count), end);
+  // Each Bethesda CC daily row is keyed by its Beijing-noon start date.
+  // Consequently Monday's 12:00 opening of a week, or day 1's 12:00
+  // opening of a month, is represented by that calendar date's key.
+  // Nexus uses the existing daily date keys; no raw timestamps are rebucketed.
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  function keyDate(key) {
+    return new Date(String(key) + 'T00:00:00Z');
   }
-  function periodValue(count, offset = 0, mode = state.mode) {
-    const days = mode === 'earnings' ? state.earningsDays : mode === 'nexus' ? state.nexusDays : state.days;
-    const eligible = days.filter((day) => day.date <= activeTodayKey(mode));
-    const end = Math.max(0, eligible.length - offset);
-    return eligible.slice(Math.max(0, end - count), end).reduce((sum, day) => sum + selectedValue(day, mode), 0);
+  function dateKey(date) {
+    return date.toISOString().slice(0, 10);
+  }
+  function periodBounds(period = state.range, mode = state.mode, offset = 0) {
+    const today = keyDate(activeTodayKey(mode));
+    const start = new Date(today.getTime());
+    if (period === 'month') {
+      start.setUTCDate(1);
+      start.setUTCMonth(start.getUTCMonth() - offset);
+    } else {
+      start.setUTCDate(start.getUTCDate() - ((start.getUTCDay() + 6) % 7) - 7 * offset);
+    }
+    if (!offset) return { start: dateKey(start), end: dateKey(today) };
+
+    // Compare elapsed portions of equivalent calendar periods, not a partial
+    // current week/month against an entire previous week/month.
+    const currentStart = keyDate(periodBounds(period, mode, 0).start);
+    const elapsedDays = Math.floor((today.getTime() - currentStart.getTime()) / DAY_MS);
+    const candidateEnd = new Date(start.getTime() + elapsedDays * DAY_MS);
+    const following = new Date(start.getTime());
+    if (period === 'month') following.setUTCMonth(following.getUTCMonth() + 1);
+    else following.setUTCDate(following.getUTCDate() + 7);
+    const last = new Date(following.getTime() - DAY_MS);
+    return { start: dateKey(start), end: dateKey(candidateEnd < last ? candidateEnd : last) };
+  }
+  function modeDays(mode = state.mode) {
+    return mode === 'earnings' ? state.earningsDays : mode === 'nexus' ? state.nexusDays : state.days;
+  }
+  function periodDays(period = state.range, offset = 0, mode = state.mode) {
+    const { start, end } = periodBounds(period, mode, offset);
+    return modeDays(mode).filter((day) => day.date >= start && day.date <= end);
+  }
+  function periodValue(period = state.range, offset = 0, mode = state.mode) {
+    return periodDays(period, offset, mode).reduce((sum, day) => sum + selectedValue(day, mode), 0);
   }
   function nexusMods() {
     return Array.isArray(state.nexusLatest?.mods) ? state.nexusLatest.mods : [];
