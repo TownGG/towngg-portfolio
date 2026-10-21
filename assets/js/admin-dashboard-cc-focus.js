@@ -769,7 +769,7 @@
     const legend = dashboard.querySelector('[data-cc-legend]');
     if (legend) legend.lastChild.textContent = state.mode === 'paid' ? t('paid') : state.mode === 'free' ? t('free') : t('nexus');
     const rhead = dashboard.querySelector('[data-cc-ranking-head]');
-    if (rhead) rhead.innerHTML = '<tr><th>#</th><th>' + esc(t('creation')) + '</th><th>' + esc(t('downloadsTrend').replace(' Trend','')) + '</th><th>%</th></tr>';
+    if (rhead) rhead.innerHTML = '<tr><th>#</th><th>' + esc(t('creation')) + '</th><th>' + esc(t('downloadsAxis')) + '</th><th>%</th></tr>';
   }
   function renderAll() {
     if (!state.ready) return;
