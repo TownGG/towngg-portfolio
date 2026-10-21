@@ -1056,32 +1056,37 @@
     if (state.refreshing) return;
     state.refreshing = true;
     try {
-      const [siteResponse, creationResponse, nexusHistoryResponse, nexusLatestResponse] = await Promise.all([
+      const [siteResponse, creationResponse, nexusHistoryResponse, nexusLatestResponse, paidLibraryResponse] = await Promise.all([
         fetch(SITE_DATA_URL + '?v=' + Date.now(), { cache: 'no-store' }),
         fetch(DAILY_URL + '?v=' + Date.now(), { cache: 'no-store' }),
         fetch(NEXUS_HISTORY_URL + '?v=' + Date.now(), { cache: 'no-store' }),
-        fetch(NEXUS_LATEST_URL + '?v=' + Date.now(), { cache: 'no-store' })
+        fetch(NEXUS_LATEST_URL + '?v=' + Date.now(), { cache: 'no-store' }),
+        fetch(PAID_LIBRARY_HISTORY_URL + '?v=' + Date.now(), { cache: 'no-store' }).catch(() => null)
       ]);
       if (!siteResponse.ok) throw new Error('Site data HTTP ' + siteResponse.status);
       if (!creationResponse.ok) throw new Error('CC data HTTP ' + creationResponse.status);
       if (!nexusHistoryResponse.ok) throw new Error('Nexus history HTTP ' + nexusHistoryResponse.status);
       if (!nexusLatestResponse.ok) throw new Error('Nexus latest HTTP ' + nexusLatestResponse.status);
 
-      const [siteSource, creationText, nexusHistoryText, nexusLatest] = await Promise.all([
+      const [siteSource, creationText, nexusHistoryText, nexusLatest, paidLibraryText] = await Promise.all([
         siteResponse.text(),
         creationResponse.text(),
         nexusHistoryResponse.text(),
-        nexusLatestResponse.json()
+        nexusLatestResponse.json(),
+        paidLibraryResponse?.ok ? paidLibraryResponse.text() : Promise.resolve('')
       ]);
       const parsedSite = parseSiteData(siteSource);
       const creationStamp = latestCreationTimestamp(parsedSite?.creations || []);
       const signature = [
+        todayKey(),
         creationStamp,
         creationText.length,
         creationText.slice(-240),
         nexusLatest?.updatedAt || '',
         nexusHistoryText.length,
-        nexusHistoryText.slice(-240)
+        nexusHistoryText.slice(-240),
+        paidLibraryText.length,
+        paidLibraryText.slice(-240)
       ].join('|');
 
       if (!force && state.ready && signature === state.signature) {
@@ -1097,6 +1102,7 @@
       state.nexusRows = parseCSV(nexusHistoryText);
       state.nexusDays = buildNexusDays(state.nexusRows);
       state.nexusLatest = nexusLatest;
+      state.paidLibraryHistory = paidLibraryText ? parseCSV(paidLibraryText) : [];
       state.lastSync = latestCreationTimestamp();
       state.signature = signature;
       state.ready = true;
