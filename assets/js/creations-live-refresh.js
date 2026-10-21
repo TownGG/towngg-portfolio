@@ -359,8 +359,6 @@
   }
 
   function boot() {
-    refreshLiveCreations();
-    window.setTimeout(refreshLiveCreations, 1500);
     window.setInterval(refreshLiveCreations, REFRESH_MS);
     window.addEventListener('focus', refreshLiveCreations);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshLiveCreations(); });
