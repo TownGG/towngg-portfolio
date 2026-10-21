@@ -10,9 +10,14 @@
   --cc-accent-rgb: 67, 199, 255;
 }
 
+.admin-dashboard.cc-focus-dashboard[data-cc-mode="nexus"] {
+  --cc-accent: #8ddf72;
+  --cc-accent-rgb: 141, 223, 114;
+}
+
 .admin-cc-focus-tabs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 220px));
+  grid-template-columns: repeat(3, minmax(0, 200px));
   gap: 8px;
   width: fit-content;
   padding: 5px;
@@ -332,18 +337,21 @@
 }
 
 .admin-dashboard.cc-focus-dashboard .admin-chart-line.paid,
-.admin-dashboard.cc-focus-dashboard .admin-chart-line.free {
+.admin-dashboard.cc-focus-dashboard .admin-chart-line.free,
+.admin-dashboard.cc-focus-dashboard .admin-chart-line.nexus {
   stroke: var(--cc-accent);
   filter: drop-shadow(0 0 5px rgba(var(--cc-accent-rgb), .22));
 }
 
 .admin-dashboard.cc-focus-dashboard .admin-chart-point.paid,
-.admin-dashboard.cc-focus-dashboard .admin-chart-point.free {
+.admin-dashboard.cc-focus-dashboard .admin-chart-point.free,
+.admin-dashboard.cc-focus-dashboard .admin-chart-point.nexus {
   fill: var(--cc-accent);
 }
 
 .admin-dashboard.cc-focus-dashboard .admin-bar-seg.paid,
-.admin-dashboard.cc-focus-dashboard .admin-bar-seg.free {
+.admin-dashboard.cc-focus-dashboard .admin-bar-seg.free,
+.admin-dashboard.cc-focus-dashboard .admin-bar-seg.nexus {
   background: var(--cc-accent);
 }
 
@@ -361,7 +369,7 @@
 
 @media (max-width: 760px) {
   .admin-cc-focus-strip { align-items: stretch; flex-direction: column; }
-  .admin-cc-focus-tabs { width: 100%; grid-template-columns: 1fr 1fr; }
+  .admin-cc-focus-tabs { width: 100%; grid-template-columns: repeat(3, 1fr); }
   .admin-cc-focus-tab { padding-inline: 10px; }
   .admin-dashboard.cc-focus-dashboard .admin-dashboard-metrics { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
   .admin-cc-share-card { grid-template-columns: 1fr; min-height: 0; }
