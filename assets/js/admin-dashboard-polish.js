@@ -198,6 +198,31 @@
         </div>`;
       document.body.appendChild(panel);
     }
+
+    // Mobile navigation reuses the existing module tabs so the radio-based
+    // panels continue to work without a second copy of the navigation.
+    const sidebarTabs = document.querySelector('.admin-module-tabs');
+    if (sidebarTabs && !sidebarTabs.querySelector('.admin-mobile-drawer-head')) {
+      sidebarTabs.id = 'admin-mobile-drawer';
+      const drawerHead = document.createElement('div');
+      drawerHead.className = 'admin-mobile-drawer-head';
+      drawerHead.setAttribute('role', 'presentation');
+      drawerHead.innerHTML = '<strong>TownGG <span>MOD</span></strong><button class="admin-mobile-drawer-close" type="button" aria-label="Close menu">×</button>';
+      sidebarTabs.prepend(drawerHead);
+    }
+    if (!document.querySelector('.admin-mobile-drawer-backdrop')) {
+      const backdrop = document.createElement('button');
+      backdrop.type = 'button';
+      backdrop.className = 'admin-mobile-drawer-backdrop';
+      backdrop.setAttribute('aria-label', 'Close menu');
+      backdrop.setAttribute('tabindex', '-1');
+      document.body.appendChild(backdrop);
+    }
+    const drawerToggle = document.querySelector('.admin-topbar-toggle');
+    if (drawerToggle) {
+      drawerToggle.setAttribute('aria-controls', 'admin-mobile-drawer');
+      drawerToggle.setAttribute('aria-expanded', 'false');
+    }
   }
 
   function applyChromeLanguage() {
@@ -260,10 +285,34 @@
   }
 
   function bindChrome() {
+    const mobileQuery = window.matchMedia('(max-width: 760px)');
+    const drawerToggle = document.querySelector('.admin-topbar-toggle');
+    const drawerTabs = document.querySelector('.admin-module-tabs');
+
+    function setMobileDrawer(open, restoreFocus = false) {
+      const shouldOpen = Boolean(open && mobileQuery.matches && !body.classList.contains('is-locked'));
+      body.classList.toggle('admin-mobile-drawer-open', shouldOpen);
+      drawerToggle?.setAttribute('aria-expanded', String(shouldOpen));
+      drawerTabs?.setAttribute('aria-hidden', String(mobileQuery.matches && !shouldOpen));
+      if (restoreFocus && !shouldOpen && mobileQuery.matches) drawerToggle?.focus({ preventScroll: true });
+      if (shouldOpen) document.querySelector('.admin-mobile-drawer-close')?.focus({ preventScroll: true });
+    }
+
     document.addEventListener('click', (event) => {
       const toggle = event.target.closest('.admin-topbar-toggle');
       if (toggle) {
-        body.classList.toggle('admin-sidebar-collapsed');
+        if (mobileQuery.matches) setMobileDrawer(!body.classList.contains('admin-mobile-drawer-open'));
+        else body.classList.toggle('admin-sidebar-collapsed');
+        return;
+      }
+
+      if (event.target.closest('.admin-mobile-drawer-backdrop, .admin-mobile-drawer-close')) {
+        setMobileDrawer(false, true);
+        return;
+      }
+
+      if (event.target.closest('.admin-module-tabs .admin-module-tab')) {
+        if (mobileQuery.matches) setMobileDrawer(false);
         return;
       }
 
@@ -289,8 +338,32 @@
       }
 
       const lock = event.target.closest('[data-polish-lock]');
-      if (lock) document.querySelector('.admin-hero [data-lock-admin]')?.click();
+      if (lock) {
+        setMobileDrawer(false);
+        document.querySelector('.admin-hero [data-lock-admin]')?.click();
+      }
     });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && body.classList.contains('admin-mobile-drawer-open')) {
+        event.preventDefault();
+        setMobileDrawer(false, true);
+      }
+    });
+    window.addEventListener('resize', () => {
+      if (!mobileQuery.matches) setMobileDrawer(false);
+      else {
+        body.classList.remove('admin-sidebar-collapsed');
+        if (!body.classList.contains('admin-mobile-drawer-open')) {
+          drawerTabs?.setAttribute('aria-hidden', 'true');
+          drawerToggle?.setAttribute('aria-expanded', 'false');
+        }
+      }
+    });
+    if (mobileQuery.matches) {
+      body.classList.remove('admin-sidebar-collapsed');
+      setMobileDrawer(false);
+    }
   }
 
   function syncLastUpdated() {
