@@ -1053,6 +1053,9 @@
       const parsedSite = parseSiteData(siteSource);
       const creationStamp = latestCreationTimestamp(parsedSite?.creations || []);
       const signature = [
+        // Force a local chart update when the Beijing-noon day boundary changes.
+        todayKey(),
+        calendarTodayKey(),
         creationStamp,
         creationText.length,
         creationText.slice(-240),
