@@ -529,7 +529,13 @@
       renderAll();
     });
 
-    const langObserver = new MutationObserver(() => renderAll());
+    let observedLang = document.documentElement.lang;
+    const langObserver = new MutationObserver(() => {
+      const currentLang = document.documentElement.lang;
+      if (currentLang === observedLang) return;
+      observedLang = currentLang;
+      renderAll();
+    });
     langObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 
     load().catch((error) => {
