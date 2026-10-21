@@ -450,6 +450,10 @@
   .admin-upload-page *, .admin-upload-page *::before, .admin-upload-page *::after { animation-duration: .001ms !important; animation-delay: 0s !important; scroll-behavior: auto !important; }
 }
 
+/* Mobile drawer controls are absent from the desktop sidebar. */
+.admin-mobile-drawer-head,
+.admin-mobile-drawer-backdrop { display: none; }
+
 @media (max-width: 1100px) {
   :root { --admin-sidebar-width: 78px; }
   .admin-sidebar-brand { justify-content: center; padding-inline: 0; }
@@ -462,12 +466,119 @@
 
 @media (max-width: 760px) {
   :root { --admin-sidebar-width: 0px; }
+  .admin-upload-page.admin-sidebar-collapsed { --admin-sidebar-width: 0px; }
   .admin-upload-page::after,
   .admin-sidebar-brand,
-  .admin-module-tabs,
   .admin-sidebar-status-panel { display: none !important; }
   .admin-app-topbar { left: 0; padding-inline: 12px; }
   .admin-topbar-sync, .admin-topbar-user-copy { display: none; }
   .admin-upload-page .admin-shell { margin-left: 0 !important; padding: calc(var(--admin-topbar-height) + 14px) 12px 30px !important; }
   .admin-dashboard-metrics { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+
+  /* The hamburger opens the navigation; the desktop collapsed style does not apply. */
+  .admin-upload-page.admin-mobile-drawer-open { overflow: hidden; }
+  .admin-mobile-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 46;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: rgba(2, 7, 13, .68);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .22s ease, visibility .22s;
+    cursor: pointer;
+  }
+  .admin-mobile-drawer-open .admin-mobile-drawer-backdrop {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .admin-upload-page .admin-module-tabs {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    z-index: 47 !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: min-content;
+    align-content: start;
+    gap: 7px !important;
+    width: min(310px, 85vw) !important;
+    max-width: 100%;
+    height: 100dvh;
+    padding: max(14px, env(safe-area-inset-top)) 14px max(20px, env(safe-area-inset-bottom)) !important;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 0 !important;
+    border-right: 1px solid rgba(125,216,255,.20) !important;
+    border-radius: 0 !important;
+    background: linear-gradient(165deg, #112131, #070e17) !important;
+    box-shadow: 24px 0 60px rgba(0,0,0,.42) !important;
+    animation: none !important;
+    transform: translateX(-105%) !important;
+    transition: transform .26s cubic-bezier(.2,.8,.2,1), visibility .26s !important;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .admin-mobile-drawer-open .admin-module-tabs {
+    transform: translateX(0) !important;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .admin-upload-page .admin-module-tabs .admin-module-tab {
+    display: flex !important;
+    flex: 0 0 auto;
+    width: 100% !important;
+    min-height: 48px !important;
+    justify-content: flex-start !important;
+    padding: 11px 13px !important;
+    gap: 12px !important;
+    font-size: 12px !important;
+    white-space: normal;
+  }
+  .admin-upload-page .admin-module-tabs .admin-module-tab::before {
+    display: block !important;
+    flex: 0 0 24px !important;
+  }
+  .admin-mobile-drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    margin-bottom: 10px;
+    padding: 0 2px 13px;
+    border-bottom: 1px solid rgba(125,216,255,.16);
+  }
+  .admin-mobile-drawer-head strong {
+    color: #edf9ff;
+    font-family: "Rajdhani", sans-serif;
+    font-size: 20px;
+    letter-spacing: .02em;
+  }
+  .admin-mobile-drawer-head strong span { color: #43c7ff; }
+  .admin-mobile-drawer-close {
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(125,216,255,.18);
+    border-radius: 10px;
+    background: rgba(255,255,255,.04);
+    color: #d8edfa;
+    font: inherit;
+    font-size: 25px;
+    line-height: 1;
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-upload-page .admin-module-tabs,
+  .admin-mobile-drawer-backdrop { transition-duration: 0s !important; }
 }
