@@ -716,6 +716,12 @@
     ];
     if (state.mode === 'paid') {
       cards.push(card(t('avgPrice'), totals.count ? fmt(totals.price / totals.count) + ' CC' : '—', '$', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'));
+      const labels = [['todayLibrary', 'today', '＋'], ['weekLibrary', 'week', '▣'], ['monthLibrary', 'month', '▤']];
+      labels.forEach(([label, period, icon]) => {
+        const increment = paidLibraryIncrement(period);
+        const note = increment === null ? t('libraryUnavailable') : t('librarySnapshot');
+        cards.push(card(t(label), increment === null ? '—' : fmt(increment), icon, '<span class="admin-metric-trend is-flat">●</span><span>' + esc(note) + '</span>'));
+      });
     }
     if (state.mode === 'nexus') {
       cards.push(card(t('uniqueDownloads'), fmt(totals.unique), '◎', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'));
