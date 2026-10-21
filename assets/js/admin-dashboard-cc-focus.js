@@ -3,9 +3,10 @@
   const DAILY_URL = './assets/data/creations-mod-daily.csv';
   const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';
   const NEXUS_LATEST_URL = './assets/data/nexus-latest.json';
+  const EARNINGS_URL = './assets/data/partner-earnings.json';
   const REFRESH_MS = 2 * 60 * 1000;
   const STALE_AFTER_MS = 60 * 60 * 1000;
-  const state = { mode: 'paid', range: 7, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, ready: false, refreshing: false, signature: '', lastSync: '' };
+  const state = { mode: 'paid', range: 7, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], ready: false, refreshing: false, signature: '', lastSync: '' };
 
   const copy = {
     en: {
@@ -17,6 +18,37 @@
       paidSubtitle: 'Paid Creation performance, growth and conversion overview',
       freeSubtitle: 'Free Creation performance, growth and reach overview',
       nexusSubtitle: 'Nexus Mods downloads, unique downloads and endorsement overview',
+      earnings: "Creator Earnings",
+      earningsSubtitle: "Microsoft Partner Center earnings, transactions and payout status",
+      earningsDayWindow: "Earnings dates shown in Beijing time · API sync runs hourly",
+      totalEarnings: "Total Earnings",
+      currentMonthEarnings: "This Month",
+      sevenDayEarnings: "Last 7 Days",
+      thirtyDayEarnings: "Last 30 Days",
+      transactionCount: "Transactions",
+      avgPerTransaction: "Avg / Transaction",
+      adjustments: "Adjustments",
+      productsCount: "Paid Products",
+      unprocessedEarnings: "Unprocessed",
+      earningsTrend: "Earnings Trend",
+      dailyEarnings: "Daily Earnings",
+      rolling7Earnings: "7-day earnings average",
+      earningsShare: "Unprocessed Earnings Share",
+      shareCopyEarnings: "Share of creator earnings still marked UNPROCESSED by Partner Center.",
+      pendingEarnings: "Unprocessed earnings",
+      failedEarnings: "Failed / threshold",
+      productEarnings: "Product Earnings Ranking",
+      earningsStructure: "Earnings Structure",
+      earningsDetail: "Product Earnings Detail",
+      detailEarnings: "Earnings by paid Creation. Raw transaction and customer identifiers are not published.",
+      earningsMatrix: "Transactions × Earnings",
+      earningsMatrixTitle: "Earnings Efficiency Matrix",
+      transactionAxis: "Transactions",
+      earningsAxis: "Earnings (USD)",
+      avgEarning: "Average earning",
+      pendingRate: "Unprocessed share",
+      failedRate: "Failed share",
+      adjustmentRate: "Adjustment share",
       dayWindow: 'Daily statistics: Beijing 12:00–next day 12:00',
       lastSync: 'Last Updated',
       last7: 'Last 7 days',
@@ -94,6 +126,37 @@
       paidSubtitle: '聚焦付费 CC 的下载增长、作品表现与转化数据',
       freeSubtitle: '查看免费 CC 的下载增长、作品表现与传播数据',
       nexusSubtitle: '查看 Nexus Mods 下载、唯一下载与 Endorsements 表现',
+      earnings: "创作者收益",
+      earningsSubtitle: "同步 Microsoft Partner Center 收益、交易与结算状态",
+      earningsDayWindow: "收益日期按北京时间展示 · API 每小时自动同步",
+      totalEarnings: "累计收益",
+      currentMonthEarnings: "本月收益",
+      sevenDayEarnings: "近 7 日收益",
+      thirtyDayEarnings: "近 30 日收益",
+      transactionCount: "交易笔数",
+      avgPerTransaction: "单笔平均收益",
+      adjustments: "调整项",
+      productsCount: "付费作品数",
+      unprocessedEarnings: "待结算收益",
+      earningsTrend: "收益趋势",
+      dailyEarnings: "每日收益",
+      rolling7Earnings: "7 日收益均线",
+      earningsShare: "待结算收益占比",
+      shareCopyEarnings: "当前创作者收益中，仍被 Partner Center 标记为 UNPROCESSED 的比例。",
+      pendingEarnings: "待结算收益",
+      failedEarnings: "失败 / 未达付款门槛",
+      productEarnings: "作品收益排行",
+      earningsStructure: "收益结构",
+      earningsDetail: "作品收益明细",
+      detailEarnings: "按付费 Creation 查看收益与交易。公开数据仅保留聚合结果，不发布客户或交易标识。",
+      earningsMatrix: "交易笔数 × 收益",
+      earningsMatrixTitle: "收益效率矩阵",
+      transactionAxis: "交易笔数",
+      earningsAxis: "收益（USD）",
+      avgEarning: "平均单笔收益",
+      pendingRate: "待结算占比",
+      failedRate: "失败收益占比",
+      adjustmentRate: "调整项占比",
       dayWindow: '每日统计口径：北京时间 12:00–次日 12:00',
       lastSync: '最后更新',
       last7: '最近 7 天',
@@ -171,6 +234,37 @@
       paidSubtitle: '有料 CC のダウンロード、成長、転換データ',
       freeSubtitle: '無料 CC のダウンロードと成長データ',
       nexusSubtitle: 'Nexus Mods のダウンロード、ユニークDL、Endorsement データ',
+      earnings: "クリエイター収益",
+      earningsSubtitle: "Microsoft Partner Center の収益・取引・支払状況",
+      earningsDayWindow: "収益日は北京時間表示 · API は毎時同期",
+      totalEarnings: "累計収益",
+      currentMonthEarnings: "今月",
+      sevenDayEarnings: "直近7日",
+      thirtyDayEarnings: "直近30日",
+      transactionCount: "取引数",
+      avgPerTransaction: "平均 / 取引",
+      adjustments: "調整額",
+      productsCount: "有料作品数",
+      unprocessedEarnings: "未処理収益",
+      earningsTrend: "収益推移",
+      dailyEarnings: "日別収益",
+      rolling7Earnings: "7日収益平均",
+      earningsShare: "未処理収益比率",
+      shareCopyEarnings: "Partner Center で UNPROCESSED の収益比率。",
+      pendingEarnings: "未処理収益",
+      failedEarnings: "失敗 / 支払しきい値未達",
+      productEarnings: "作品収益ランキング",
+      earningsStructure: "収益構成",
+      earningsDetail: "作品収益詳細",
+      detailEarnings: "有料 Creation ごとの集計収益。顧客・取引識別子は公開しません。",
+      earningsMatrix: "取引数 × 収益",
+      earningsMatrixTitle: "収益効率マトリクス",
+      transactionAxis: "取引数",
+      earningsAxis: "収益 (USD)",
+      avgEarning: "平均収益",
+      pendingRate: "未処理比率",
+      failedRate: "失敗比率",
+      adjustmentRate: "調整比率",
       dayWindow: '日次集計：北京時間 12:00–翌日 12:00',
       lastSync: '最終更新',
       last7: '直近 7 日',
@@ -255,6 +349,12 @@
       maximumFractionDigits: digits
     }).format(n(value));
   }
+  function money(value) {
+    return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n(value));
+  }
+  function metric(value, digits = 0) {
+    return state.mode === 'earnings' ? money(value) : fmt(value, digits);
+  }
   function pct(value) { return Number.isFinite(value) ? value.toFixed(1) + '%' : '—'; }
   function utcDate(value) {
     const raw = String(value || '').trim();
@@ -307,7 +407,7 @@
     return Array.isArray(window.siteData?.creations) ? window.siteData.creations : [];
   }
   function modeCreations() {
-    if (state.mode === 'nexus') return [];
+    if (state.mode === 'nexus' || state.mode === 'earnings') return [];
     return creations().filter((item) => state.mode === 'paid' ? isPaid(item) : !isPaid(item));
   }
   function paidTitleSet() {
@@ -386,39 +486,66 @@
       rows: dateRows
     })).sort((a, b) => a.date.localeCompare(b.date));
   }
+  function calendarTodayKey() {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(new Date()).map((part) => [part.type, part.value]));
+    return parts.year + '-' + parts.month + '-' + parts.day;
+  }
+  function activeTodayKey(mode = state.mode) {
+    return mode === 'earnings' ? calendarTodayKey() : todayKey();
+  }
   function activeDays() {
+    if (state.mode === 'earnings') return state.earningsDays;
     return state.mode === 'nexus' ? state.nexusDays : state.days;
   }
   function selectedValue(day, mode = state.mode) {
     if (!day) return 0;
+    if (mode === 'earnings') return n(day.earnings);
     return mode === 'nexus' ? n(day.nexus) : n(day[mode]);
   }
   function currentDay() {
     const days = activeDays();
-    return days.find((day) => day.date === todayKey()) || (state.mode === 'nexus'
-      ? { date: todayKey(), nexus: 0, rows: [] }
-      : { date: todayKey(), free: 0, paid: 0, rows: [] });
+    const key = activeTodayKey();
+    return days.find((day) => day.date === key) || (state.mode === 'nexus'
+      ? { date: key, nexus: 0, rows: [] }
+      : state.mode === 'earnings'
+        ? { date: key, earnings: 0, transactions: 0, rows: [] }
+        : { date: key, free: 0, paid: 0, rows: [] });
   }
   function priorDay(beforeDate) {
     const days = activeDays();
     return [...days].filter((day) => day.date < beforeDate).sort((a, b) => a.date.localeCompare(b.date)).at(-1)
-      || (state.mode === 'nexus' ? { nexus: 0, rows: [] } : { free: 0, paid: 0, rows: [] });
+      || (state.mode === 'nexus' ? { nexus: 0, rows: [] } : state.mode === 'earnings' ? { earnings: 0, transactions: 0, rows: [] } : { free: 0, paid: 0, rows: [] });
   }
   function periodDays(count, offset = 0) {
-    const eligible = activeDays().filter((day) => day.date <= todayKey());
+    const eligible = activeDays().filter((day) => day.date <= activeTodayKey());
     const end = Math.max(0, eligible.length - offset);
     return eligible.slice(Math.max(0, end - count), end);
   }
   function periodValue(count, offset = 0, mode = state.mode) {
-    const days = mode === 'nexus' ? state.nexusDays : state.days;
-    const eligible = days.filter((day) => day.date <= todayKey());
+    const days = mode === 'earnings' ? state.earningsDays : mode === 'nexus' ? state.nexusDays : state.days;
+    const eligible = days.filter((day) => day.date <= activeTodayKey(mode));
     const end = Math.max(0, eligible.length - offset);
     return eligible.slice(Math.max(0, end - count), end).reduce((sum, day) => sum + selectedValue(day, mode), 0);
   }
   function nexusMods() {
     return Array.isArray(state.nexusLatest?.mods) ? state.nexusLatest.mods : [];
   }
+  function earningsData() {
+    return state.earnings || { totals: {}, daily: [], monthly: [], products: [], paymentStatus: [] };
+  }
+  function earningsProducts() {
+    return Array.isArray(earningsData().products) ? earningsData().products : [];
+  }
+  function earningsStatus(test) {
+    return (earningsData().paymentStatus || []).filter((item) => test(String(item.status || ''))).reduce((sum, item) => sum + n(item.earningsUSD), 0);
+  }
   function allTimeStats(mode = state.mode) {
+    if (mode === 'earnings') {
+      const data = earningsData();
+      return { downloads: n(data.totals?.earningsUSD), unique: n(data.totals?.transactionRows), likes: 0, views: 0, library: 0, plays: 0, price: 0, count: n(data.totals?.products) };
+    }
     if (mode === 'nexus') {
       return nexusMods().reduce((sum, item) => {
         sum.downloads += n(item.total_downloads);
@@ -485,6 +612,24 @@
   function renderMetrics() {
     const target = document.querySelector('[data-cc-kpis]');
     if (!target) return;
+    if (state.mode === 'earnings') {
+      const data = earningsData();
+      const totals = data.totals || {};
+      const average = n(totals.transactionRows) ? n(totals.earningsUSD) / n(totals.transactionRows) : 0;
+      const pending = earningsStatus((status) => /unprocessed/i.test(status));
+      target.innerHTML = [
+        card(t('totalEarnings'), money(totals.earningsUSD), '$', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'),
+        card(t('currentMonthEarnings'), money(totals.currentMonthUSD), '◫', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(data.period?.to || '') + '</span>'),
+        card(t('sevenDayEarnings'), money(totals.last7DaysUSD), '7', trend(percentChange(periodValue(7), periodValue(7, 7)), t('vsPrevious'))),
+        card(t('thirtyDayEarnings'), money(totals.last30DaysUSD), '30', trend(percentChange(periodValue(30), periodValue(30, 30)), t('vsPrevious'))),
+        card(t('transactionCount'), fmt(totals.transactionRows), '#', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'),
+        card(t('avgPerTransaction'), money(average), '÷', '<span class="admin-metric-trend is-flat">●</span><span>USD</span>'),
+        card(t('productsCount'), fmt(totals.products), '▱', '<span class="admin-metric-trend is-flat">●</span><span>Bethesda Games</span>'),
+        card(t('unprocessedEarnings'), money(pending), '…', '<span class="admin-metric-trend is-flat">●</span><span>Partner Center</span>'),
+        card(t('adjustments'), money(totals.adjustmentsUSD), '±', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>')
+      ].join('');
+      return;
+    }
     const today = currentDay();
     const yesterday = priorDay(today.date);
     const beforeYesterday = priorDay(yesterday.date || today.date);
@@ -538,7 +683,7 @@
     const grid = [0,1,2,3,4].map((step) => {
       const y = pt + chartH * (step / 4);
       const label = Math.round(yMax * (1 - step / 4));
-      return '<line class="admin-chart-grid-line" x1="' + pl + '" y1="' + y + '" x2="' + (width-pr) + '" y2="' + y + '"></line><text class="admin-chart-axis-text" x="5" y="' + (y+4) + '">' + fmt(label) + '</text>';
+      return '<line class="admin-chart-grid-line" x1="' + pl + '" y1="' + y + '" x2="' + (width-pr) + '" y2="' + y + '"></line><text class="admin-chart-axis-text" x="5" y="' + (y+4) + '">' + metric(label) + '</text>';
     }).join('');
     const poly = points.map((p) => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
     const avgPoly = avgPoints.map((p) => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
@@ -547,7 +692,7 @@
       ...points.map((p) => p.x.toFixed(1) + ',' + p.y.toFixed(1)),
       points.at(-1).x.toFixed(1) + ',' + (pt + chartH).toFixed(1)
     ].join(' ') : '';
-    const dots = points.map((p) => '<circle class="admin-chart-point ' + state.mode + '" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4"><title>' + esc(dateLabel(p.day.date) + ' · ' + fmt(p.value)) + '</title></circle>').join('');
+    const dots = points.map((p) => '<circle class="admin-chart-point ' + state.mode + '" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4"><title>' + esc(dateLabel(p.day.date) + ' · ' + metric(p.value)) + '</title></circle>').join('');
     const labels = points.map((p, index) => {
       if (days.length > 12 && index % Math.ceil(days.length / 7) !== 0 && index !== days.length - 1) return '';
       return '<text class="admin-chart-axis-text" x="' + p.x.toFixed(1) + '" y="' + (height-8) + '" text-anchor="middle">' + esc(dateLabel(p.day.date)) + '</text>';
@@ -558,12 +703,22 @@
     const target = document.querySelector('[data-cc-line-chart]');
     if (target) target.innerHTML = lineChart(periodDays(state.range));
     const legend = document.querySelector('[data-cc-legend]');
-    if (legend) legend.innerHTML = '<span class="admin-cc-legend-item"><i></i>' + esc(t('dailySeries')) + '</span><span class="admin-cc-legend-item is-average"><i></i>' + esc(t('rolling7')) + '</span>';
+    if (legend) legend.innerHTML = '<span class="admin-cc-legend-item"><i></i>' + esc(t(state.mode === 'earnings' ? 'dailyEarnings' : 'dailySeries')) + '</span><span class="admin-cc-legend-item is-average"><i></i>' + esc(t(state.mode === 'earnings' ? 'rolling7Earnings' : 'rolling7')) + '</span>';
   }
   function renderShare() {
     const ring = document.querySelector('[data-cc-share-ring]');
     const center = document.querySelector('[data-cc-share-center]');
     const copyNode = document.querySelector('[data-cc-share-copy]');
+    if (state.mode === 'earnings') {
+      const total = n(earningsData().totals?.earningsUSD);
+      const pending = earningsStatus((status) => /unprocessed/i.test(status));
+      const failed = earningsStatus((status) => /failed/i.test(status));
+      const share = total ? pending / total * 100 : 0;
+      if (ring) ring.style.setProperty('--share', Math.min(100, Math.max(0, share)) + '%');
+      if (center) center.textContent = pct(share);
+      if (copyNode) copyNode.innerHTML = '<strong>' + money(pending) + '</strong><p>' + esc(t('shareCopyEarnings')) + '</p><div class="admin-cc-share-meta"><div><span>' + esc(t('pendingEarnings')) + '</span><b>' + money(pending) + '</b></div><div><span>' + esc(t('failedEarnings')) + '</span><b>' + money(failed) + '</b></div></div>';
+      return;
+    }
     let share = 0, selected = 0, secondaryLabel = t('allTimeShare'), secondaryValue = '0%';
     if (state.mode === 'nexus') {
       const totals = allTimeStats('nexus');
@@ -591,17 +746,38 @@
     if (!target) return;
     const days = periodDays(state.range).slice(-10);
     const max = Math.max(1, ...days.map((day) => selectedValue(day)));
-    target.innerHTML = days.map((day) => '<div class="admin-bar-day" title="' + esc(dateLabel(day.date) + ' · ' + fmt(selectedValue(day))) + '"><div class="admin-bar-stack"><span class="admin-bar-seg ' + state.mode + '" style="height:' + (selectedValue(day)/max*100).toFixed(2) + '%"></span></div><label>' + esc(dateLabel(day.date)) + '</label></div>').join('');
+    target.innerHTML = days.map((day) => '<div class="admin-bar-day" title="' + esc(dateLabel(day.date) + ' · ' + metric(selectedValue(day))) + '"><div class="admin-bar-stack"><span class="admin-bar-seg ' + state.mode + '" style="height:' + (selectedValue(day)/max*100).toFixed(2) + '%"></span></div><label>' + esc(dateLabel(day.date)) + '</label></div>').join('');
   }
   function renderRanking() {
     const body = document.querySelector('[data-cc-ranking]');
     if (!body) return;
+    if (state.mode === 'earnings') {
+      const rows = earningsProducts().slice(0, 8);
+      const total = rows.reduce((sum, item) => sum + n(item.earningsUSD), 0) || 1;
+      body.innerHTML = rows.length ? rows.map((item, index) => '<tr><td>' + (index + 1) + '</td><td title="' + esc(item.name) + '">' + esc(item.name) + '</td><td>' + money(item.earningsUSD) + '</td><td>' + (n(item.earningsUSD) / total * 100).toFixed(1) + '%</td></tr>').join('') : '<tr><td colspan="4">' + esc(t('noData')) + '</td></tr>';
+      return;
+    }
     const rows = topRows(), total = rows.reduce((sum, item) => sum + item.downloads, 0) || 1;
     body.innerHTML = rows.length ? rows.map((item, index) => '<tr><td>' + (index+1) + '</td><td title="' + esc(item.title) + '">' + esc(item.title) + '</td><td>' + fmt(item.downloads) + '</td><td>' + ((item.downloads/total)*100).toFixed(1) + '%</td></tr>').join('') : '<tr><td colspan="4">' + esc(t('noData')) + '</td></tr>';
   }
   function renderConversion() {
     const target = document.querySelector('[data-cc-conversion]');
     if (!target) return;
+    if (state.mode === 'earnings') {
+      const data = earningsData(), totals = data.totals || {};
+      const total = n(totals.earningsUSD);
+      const pending = earningsStatus((status) => /unprocessed/i.test(status));
+      const failed = earningsStatus((status) => /failed/i.test(status));
+      const average = n(totals.transactionRows) ? total / n(totals.transactionRows) : 0;
+      const rows = [
+        [t('avgEarning'), money(average), Math.min(100, average / 1.5 * 100)],
+        [t('pendingRate'), pct(total ? pending / total * 100 : 0), total ? pending / total * 100 : 0],
+        [t('failedRate'), pct(total ? failed / total * 100 : 0), total ? failed / total * 100 : 0],
+        [t('adjustmentRate'), pct(total ? n(totals.adjustmentsUSD) / total * 100 : 0), total ? n(totals.adjustmentsUSD) / total * 100 : 0]
+      ];
+      target.innerHTML = rows.map(([label, shown, width]) => '<div class="admin-cc-conversion-row"><div class="admin-cc-conversion-head"><span>' + esc(label) + '</span><strong>' + esc(shown) + '</strong></div><div class="admin-cc-conversion-track"><i style="width:' + Math.max(2, Math.min(100, n(width))).toFixed(1) + '%"></i></div></div>').join('');
+      return;
+    }
     const total = allTimeStats();
     const values = state.mode === 'nexus'
       ? [
@@ -621,6 +797,13 @@
     }).join('');
   }
   function matrixDataset() {
+    if (state.mode === 'earnings') {
+      return earningsProducts().map((item) => ({
+        title: item.name || 'Unknown',
+        x: n(item.transactions),
+        y: n(item.earningsUSD)
+      })).filter((item) => item.x > 0 || item.y > 0).sort((a,b) => b.y - a.y).slice(0, 14);
+    }
     if (state.mode === 'nexus') {
       return nexusMods().map((item) => ({
         title: item.mod_name || 'Unknown',
@@ -663,12 +846,14 @@
       const y = pt + chartH - (item.y / yMax) * chartH;
       return '<circle class="admin-matrix-point ' + state.mode + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="6"><title>' + esc(item.title + ' · X ' + fmt(item.x) + ' · Y ' + fmt(item.y)) + '</title></circle>';
     }).join('');
-    const xLabel = state.mode === 'paid' ? t('priceAxis') : state.mode === 'free' ? t('viewsAxis') : t('uniqueAxis');
-    return target.innerHTML = '<svg viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="xMidYMid meet">' + grid + points + '<text class="admin-chart-axis-title" x="' + (pl+chartW/2) + '" y="' + (height-1) + '" text-anchor="middle">' + esc(xLabel) + '</text><text class="admin-chart-axis-title" transform="translate(12 ' + (pt+chartH/2) + ') rotate(-90)" text-anchor="middle">' + esc(t('downloadsAxis')) + '</text></svg>';
+    const xLabel = state.mode === 'earnings' ? t('transactionAxis') : state.mode === 'paid' ? t('priceAxis') : state.mode === 'free' ? t('viewsAxis') : t('uniqueAxis');
+    const yLabel = state.mode === 'earnings' ? t('earningsAxis') : t('downloadsAxis');
+    return target.innerHTML = '<svg viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="xMidYMid meet">' + grid + points + '<text class="admin-chart-axis-title" x="' + (pl+chartW/2) + '" y="' + (height-1) + '" text-anchor="middle">' + esc(xLabel) + '</text><text class="admin-chart-axis-title" transform="translate(12 ' + (pt+chartH/2) + ') rotate(-90)" text-anchor="middle">' + esc(yLabel) + '</text></svg>';
   }
   function concentrationShare() {
     let values = [];
-    if (state.mode === 'nexus') values = nexusMods().map((item) => n(item.total_downloads));
+    if (state.mode === 'earnings') values = earningsProducts().map((item) => n(item.earningsUSD));
+    else if (state.mode === 'nexus') values = nexusMods().map((item) => n(item.total_downloads));
     else values = modeCreations().map((item) => n(item.downloads));
     values = values.filter((value) => value > 0).sort((a,b) => b-a);
     const total = values.reduce((sum,value) => sum + value, 0);
@@ -687,9 +872,9 @@
     const momentumValue = percentChange(periodValue(7), periodValue(7,7));
     const momentumText = momentumValue === null ? '—' : (momentumValue >= 0 ? '+' : '') + momentumValue.toFixed(1) + '%';
     const rows = [
-      [t('bestDay'), best ? fmt(selectedValue(best)) + ' · ' + dateLabel(best.date) : '—'],
-      [t('avg7'), fmt(avg7, 1)],
-      [t('avg30'), fmt(avg30, 1)],
+      [t('bestDay'), best ? metric(selectedValue(best)) + ' · ' + dateLabel(best.date) : '—'],
+      [t('avg7'), state.mode === 'earnings' ? money(avg7) : fmt(avg7, 1)],
+      [t('avg30'), state.mode === 'earnings' ? money(avg30) : fmt(avg30, 1)],
       [t('momentum'), momentumText],
       [t('top3Share'), pct(concentrationShare())]
     ];
@@ -700,6 +885,13 @@
     const body = document.querySelector('[data-cc-detail-body]');
     const note = document.querySelector('[data-cc-detail-note]');
     if (!head || !body) return;
+    if (state.mode === 'earnings') {
+      const items = earningsProducts();
+      head.innerHTML = '<tr><th>' + esc(t('creation')) + '</th><th>' + esc(t('earningsAxis')) + '</th><th>' + esc(t('transactionCount')) + '</th><th>' + esc(t('avgPerTransaction')) + '</th></tr>';
+      body.innerHTML = items.length ? items.map((item) => '<tr><td title="' + esc(item.name) + '">' + esc(item.name) + '</td><td class="admin-cc-daily-positive">' + money(item.earningsUSD) + '</td><td>' + fmt(item.transactions) + '</td><td>' + money(item.avgEarningUSD) + '</td></tr>').join('') : '<tr><td colspan="4">' + esc(t('noData')) + '</td></tr>';
+      if (note) note.textContent = t('detailEarnings');
+      return;
+    }
     if (state.mode === 'nexus') {
       const daily = new Map(currentDay().rows.map((row) => [String(row.mod_id || ''), n(row.daily_downloads)]));
       const items = nexusMods().map((item) => ({ ...item, daily: daily.get(String(item.mod_id || '')) || 0 })).sort((a,b) => n(b.total_downloads) - n(a.total_downloads));
