@@ -314,12 +314,24 @@
 
     if (!value && window.siteData?.creations?.length) {
       const timestamps = window.siteData.creations
-        .map((item) => item.updatedAt)
+        .map((item) => String(item.updatedAt || '').trim())
         .filter(Boolean)
-        .map((stamp) => new Date(String(stamp).replace(' ', 'T')))
+        .map((stamp) => {
+          const iso = stamp.replace(' ', 'T');
+          return new Date(/(?:Z|[+-]\\d{2}:?\\d{2})$/i.test(iso) ? iso : iso + 'Z');
+        })
         .filter((date) => !Number.isNaN(date.getTime()))
         .sort((a, b) => b - a);
-      if (timestamps[0]) value = timestamps[0].toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      if (timestamps[0]) {
+        const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Shanghai',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        }).formatToParts(timestamps[0]).map((part) => [part.type, part.value]));
+        value = parts.hour + ':' + parts.minute + ':' + parts.second;
+      }
     }
 
     if (!value) value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
