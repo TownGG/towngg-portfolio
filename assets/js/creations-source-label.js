@@ -1,4 +1,5 @@
 (() => {
+  const STALE_AFTER_MS = 60 * 60 * 1000;
   const PAID_LIKE_FLOORS = new Map([
     ['f5cba131-bd7a-4907-b537-4808025baff3', 11]
   ]);
@@ -164,9 +165,14 @@
     const latest = latestUpdatedAt();
     if (!latest) return;
     const nextText = t('Updated', { time: formatDashboardTime(latest) });
-    target.classList.add('is-fresh');
+    const latestDate = utcDate(latest);
+    const stale = Boolean(latestDate && Date.now() - latestDate.getTime() > STALE_AFTER_MS);
+    target.classList.toggle('is-stale', stale);
+    target.classList.toggle('is-fresh', !stale);
     if (target.textContent !== nextText) target.textContent = nextText;
-    target.title = t('Latest Bethesda Creations browser capture timestamp.');
+    target.title = stale
+      ? (lang() === 'zh-CN' ? '超过 1 小时未更新，请检查 Bethesda 登录状态或抓取任务。' : 'No update for over 1 hour. Check the Bethesda login state or sync task.')
+      : t('Latest Bethesda Creations browser capture timestamp.');
   }
 
   function localizeAutoDiscoveredCopy() {
@@ -202,6 +208,7 @@
     });
 
     installCreationsMeta();
+    window.setInterval(updateCreationsTimestamp, 60 * 1000);
   }
 
   window.addEventListener('towngg:creations-live-refreshed', updateCreationsTimestamp);
