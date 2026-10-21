@@ -1,6 +1,6 @@
 (() => {
   const LATEST_REFRESH_MS = 5 * 60 * 1000;
-  const STALE_AFTER_MS = 90 * 60 * 1000;
+  const STALE_AFTER_MS = 60 * 60 * 1000;
   const translations = {
     en: { Updated: "Updated {time}", "Nexus latest snapshot is older than the expected hourly sync window.": "Nexus latest snapshot is older than the expected hourly sync window.", "Nexus latest snapshot loaded independently from the trend chart.": "Nexus latest snapshot loaded independently from the trend chart." },
     "zh-CN": { "Unique Downloads": "唯一下载", "Daily Downloads": "每日下载", "Yesterday Downloads": "昨日下载", "Total Downloads": "总下载", Endorsements: "点赞", Updated: "更新于 {time}", "Nexus latest snapshot is older than the expected hourly sync window.": "Nexus 最新快照已超过预期的每小时同步窗口。", "Nexus latest snapshot loaded independently from the trend chart.": "Nexus 最新快照已独立于趋势图加载。" },
@@ -184,7 +184,7 @@
     if (!dashboard || applying) return;
     applying = true;
     try {
-      const response = await fetch(latestSnapshotPath("https://raw.githubusercontent.com/TownGG/towngg-portfolio/main/assets/data/nexus-latest.json"), { cache: "no-store" });
+      const response = await fetch(latestSnapshotPath("./assets/data/nexus-latest.json"), { cache: "no-store" });
       if (!response.ok) return;
       const payload = await response.json();
       cachedPayload = payload;
@@ -198,6 +198,11 @@
 
   function bootNexusLatest() {
     window.setTimeout(applyNexusLatest, 100);
+    window.setInterval(applyNexusLatest, LATEST_REFRESH_MS);
+    window.setInterval(() => { if (cachedPayload?.updatedAt) updateTimestamp(cachedPayload.updatedAt); }, 60 * 1000);
+    window.addEventListener("focus", applyNexusLatest);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) applyNexusLatest(); });
+    window.addEventListener("towngg:downloads-data-updated", applyNexusLatest);
   }
 
   document.addEventListener("click", (event) => {
