@@ -2,6 +2,7 @@
   const SITE_DATA_URL = './assets/js/site-data.js';
   const DAILY_CSV_URL = './assets/data/creations-mod-daily.csv';
   const REFRESH_MS = 2 * 60 * 1000;
+  const STALE_AFTER_MS = 60 * 60 * 1000;
   const SHOW_PRICE = document.body.dataset.creationsPricing === 'paid';
   const state = { data: null, dailyRows: [], activeSortKey: 'daily', activeSortDirection: 'desc' };
 
@@ -65,24 +66,32 @@
     return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  function parseTime(value) {
+  function utcDate(value) {
     const raw = String(value || '').trim();
-    if (!raw) return 0;
-    const date = new Date(raw.replace(' ', 'T'));
-    return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+    if (!raw) return null;
+    const iso = raw.replace(' ', 'T');
+    const normalized = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(iso) ? iso : iso + 'Z';
+    const date = new Date(normalized);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  function parseTime(value) {
+    return utcDate(value)?.getTime() || 0;
   }
 
   function formatTime(value) {
-    const raw = String(value || '').trim();
-    if (!raw) return '';
-    const date = new Date(raw.replace(' ', 'T'));
-    if (Number.isNaN(date.getTime())) return raw;
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hour = String(date.getHours()).padStart(2, '0');
-    const minute = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hour}:${minute}`;
+    const date = utcDate(value);
+    if (!date) return String(value || '').trim();
+    const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Shanghai',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(date).map((part) => [part.type, part.value]));
+    return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
   }
 
   function latestUpdatedAt() {
@@ -230,9 +239,14 @@
     const target = document.querySelector('[data-creations-updated]');
     const latest = latestUpdatedAt();
     if (!target || !latest) return;
-    target.classList.add('is-fresh');
+    const latestDate = utcDate(latest);
+    const stale = Boolean(latestDate && Date.now() - latestDate.getTime() > STALE_AFTER_MS);
+    target.classList.toggle('is-stale', stale);
+    target.classList.toggle('is-fresh', !stale);
     target.textContent = t('Updated', { time: formatTime(latest) });
-    target.title = 'Live GitHub main branch data.';
+    target.title = stale
+      ? (lang() === 'zh-CN' ? '超过 1 小时未更新，请检查 Bethesda 登录状态或抓取任务。' : 'No update for over 1 hour. Check the Bethesda login state or sync task.')
+      : 'Live same-origin data.';
   }
 
   function updateSummary() {
