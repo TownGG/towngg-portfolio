@@ -652,8 +652,8 @@
       target.innerHTML = [
         card(t('totalEarnings'), money(totals.earningsUSD), '$', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'),
         card(t('currentMonthEarnings'), money(totals.currentMonthUSD), '◫', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(data.period?.to || '') + '</span>'),
-        card(t('sevenDayEarnings'), money(totals.last7DaysUSD), '7', trend(percentChange(periodValue(7), periodValue(7, 7)), t('vsPrevious'))),
-        card(t('thirtyDayEarnings'), money(totals.last30DaysUSD), '30', trend(percentChange(periodValue(30), periodValue(30, 30)), t('vsPrevious'))),
+        card(t('sevenDayEarnings'), money(periodValue('week')), 'W', trend(percentChange(periodValue('week'), periodValue('week', 1)), t('vsPrevious'))),
+        card(t('thirtyDayEarnings'), money(periodValue('month')), 'M', trend(percentChange(periodValue('month'), periodValue('month', 1)), t('vsPrevious'))),
         card(t('transactionCount'), fmt(totals.transactionRows), '#', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'),
         card(t('avgPerTransaction'), money(average), '÷', '<span class="admin-metric-trend is-flat">●</span><span>USD</span>'),
         card(t('productsCount'), fmt(totals.products), '▱', '<span class="admin-metric-trend is-flat">●</span><span>Bethesda Games</span>'),
@@ -667,8 +667,8 @@
     const beforeYesterday = priorDay(yesterday.date || today.date);
     const current = selectedValue(today);
     const previous = selectedValue(yesterday);
-    const p7 = periodValue(7), prev7 = periodValue(7, 7);
-    const p30 = periodValue(30), prev30 = periodValue(30, 30);
+    const p7 = periodValue('week'), prev7 = periodValue('week', 1);
+    const p30 = periodValue('month'), prev30 = periodValue('month', 1);
     const totals = allTimeStats();
     const cards = [
       card(t('totalDownloads'), fmt(totals.downloads), '↓', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'),
@@ -894,14 +894,13 @@
   function renderGrowthSnapshot() {
     const target = document.querySelector('[data-cc-snapshot]');
     if (!target) return;
-    const days = periodDays(Math.max(30, state.range));
     const visible = periodDays(state.range);
     const best = [...visible].sort((a,b) => selectedValue(b) - selectedValue(a))[0];
-    const avg7Days = periodDays(7);
-    const avg30Days = periodDays(30);
-    const avg7 = avg7Days.length ? avg7Days.reduce((sum,day) => sum + selectedValue(day),0) / avg7Days.length : 0;
-    const avg30 = avg30Days.length ? avg30Days.reduce((sum,day) => sum + selectedValue(day),0) / avg30Days.length : 0;
-    const momentumValue = percentChange(periodValue(7), periodValue(7,7));
+    const weekDays = periodDays('week');
+    const monthDays = periodDays('month');
+    const avg7 = weekDays.length ? weekDays.reduce((sum,day) => sum + selectedValue(day),0) / weekDays.length : 0;
+    const avg30 = monthDays.length ? monthDays.reduce((sum,day) => sum + selectedValue(day),0) / monthDays.length : 0;
+    const momentumValue = percentChange(periodValue('week'), periodValue('week', 1));
     const momentumText = momentumValue === null ? '—' : (momentumValue >= 0 ? '+' : '') + momentumValue.toFixed(1) + '%';
     const rows = [
       [t('bestDay'), best ? metric(selectedValue(best)) + ' · ' + dateLabel(best.date) : '—'],
@@ -968,7 +967,7 @@
     });
     const range = dashboard.querySelector('[data-cc-range]');
     if (range) {
-      const a = range.querySelector('option[value="7"]'), b = range.querySelector('option[value="30"]');
+      const a = range.querySelector('option[value="week"]'), b = range.querySelector('option[value="month"]');
       if (a) a.textContent = t('last7');
       if (b) b.textContent = t('last30');
     }
@@ -989,7 +988,7 @@
     if (shareTitle) shareTitle.textContent = state.mode === 'nexus' ? t('nexusShare') : t('ccShare');
     const matrixTitle = dashboard.querySelector('[data-cc-matrix-subtitle]');
     if (matrixTitle) matrixTitle.textContent = state.mode === 'paid' ? t('paidMatrix') : state.mode === 'free' ? t('freeMatrix') : t('nexusMatrix');
-    dashboard.querySelectorAll('[data-cc-range-label]').forEach((node) => { node.textContent = state.range === 30 ? t('last30') : t('last7'); });
+    dashboard.querySelectorAll('[data-cc-range-label]').forEach((node) => { node.textContent = state.range === 'month' ? t('last30') : t('last7'); });
     const legend = dashboard.querySelector('[data-cc-legend]');
     if (legend) legend.lastChild.textContent = state.mode === 'paid' ? t('paid') : state.mode === 'free' ? t('free') : t('nexus');
     const rhead = dashboard.querySelector('[data-cc-ranking-head]');
@@ -1009,7 +1008,7 @@
     renderDetails();
   }
   function markup() {
-    return '<header class="admin-dashboard-header"><div class="admin-dashboard-title"><h1 data-cc-title>Mod Analytics</h1><p data-cc-subtitle></p><p class="admin-dashboard-day-window" data-cc-day-window></p></div><div class="admin-dashboard-tools"><select class="admin-dashboard-range" data-cc-range aria-label="Dashboard period"><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></div></header>' +
+    return '<header class="admin-dashboard-header"><div class="admin-dashboard-title"><h1 data-cc-title>Mod Analytics</h1><p data-cc-subtitle></p><p class="admin-dashboard-day-window" data-cc-day-window></p></div><div class="admin-dashboard-tools"><select class="admin-dashboard-range" data-cc-range aria-label="Dashboard period"><option value="week">This Week</option><option value="month">This Month</option></select></div></header>' +
       '<div class="admin-cc-focus-strip"><div class="admin-cc-focus-tabs" role="tablist" aria-label="Mod data source"><button class="admin-cc-focus-tab is-active" type="button" role="tab" aria-selected="true" data-cc-tab="paid"><i></i><span>Paid Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="free"><i></i><span>Free Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="nexus"><i></i><span>Nexus Mods</span></button></div><span class="admin-dashboard-sync admin-cc-tab-sync" data-cc-sync></span></div>' +
       '<section class="admin-dashboard-metrics" data-cc-kpis></section>' +
       '<div class="admin-cc-focus-dashboard-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-trend-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-focus-legend" data-cc-legend><i></i><span></span></div><div class="admin-line-chart" data-cc-line-chart></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-share-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-share-card"><div class="admin-cc-share-ring" data-cc-share-ring><div class="admin-cc-share-center"><strong data-cc-share-center>0%</strong><span>MOD</span></div></div><div class="admin-cc-share-copy" data-cc-share-copy></div></div></section></div>' +
@@ -1088,7 +1087,7 @@
       renderAll();
     });
     dashboard.querySelector('[data-cc-range]')?.addEventListener('change', (event) => {
-      state.range = Number(event.target.value) === 30 ? 30 : 7;
+      state.range = event.target.value === 'month' ? 'month' : 'week';
       renderAll();
     });
 
