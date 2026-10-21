@@ -600,3 +600,135 @@
   }
   .admin-cc-focus-tab small { display: none; }
 }
+
+/* Readability pass: dashboard typography on desktop and mobile. */
+.admin-dashboard.cc-focus-dashboard .admin-dashboard-title h1 {
+  font-size: clamp(32px, 2.8vw, 38px) !important;
+}
+.admin-dashboard.cc-focus-dashboard .admin-dashboard-title p {
+  font-size: 14px !important;
+  line-height: 1.5;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-focus-tab {
+  font-size: 14px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-dashboard-metrics .admin-metric-card {
+  min-height: 122px;
+  padding: 16px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-metric-label {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #b4c6d6;
+}
+.admin-dashboard.cc-focus-dashboard .admin-metric-value {
+  font-size: clamp(26px, 2.2vw, 34px);
+}
+.admin-dashboard.cc-focus-dashboard .admin-metric-foot {
+  flex-wrap: wrap;
+  row-gap: 3px;
+  white-space: normal;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #97adbf;
+}
+.admin-dashboard.cc-focus-dashboard .admin-analytics-head h3 {
+  font-size: 16px;
+  line-height: 1.4;
+}
+.admin-dashboard.cc-focus-dashboard .admin-analytics-period,
+.admin-dashboard.cc-focus-dashboard .admin-chart-legend,
+.admin-dashboard.cc-focus-dashboard .admin-cc-focus-legend {
+  font-size: 12px;
+  color: #a6bbcc;
+}
+.admin-dashboard.cc-focus-dashboard .admin-chart-axis-text,
+.admin-dashboard.cc-focus-dashboard .admin-chart-axis-title {
+  font-size: 12px;
+  fill: #9aafc2;
+}
+.admin-dashboard.cc-focus-dashboard .admin-bar-day label {
+  font-size: 11px;
+  color: #9aafc2;
+}
+.admin-dashboard.cc-focus-dashboard .admin-ranking-table,
+.admin-dashboard.cc-focus-dashboard .admin-cc-detail-table {
+  font-size: 12px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-ranking-table th,
+.admin-dashboard.cc-focus-dashboard .admin-cc-detail-table th {
+  font-size: 11px;
+  color: #a1b5c7;
+}
+.admin-dashboard.cc-focus-dashboard .admin-ranking-table th,
+.admin-dashboard.cc-focus-dashboard .admin-ranking-table td,
+.admin-dashboard.cc-focus-dashboard .admin-cc-detail-table th,
+.admin-dashboard.cc-focus-dashboard .admin-cc-detail-table td {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-share-center span {
+  font-size: 11px;
+  color: #a2b7c9;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-share-copy p,
+.admin-dashboard.cc-focus-dashboard .admin-cc-share-meta div,
+.admin-dashboard.cc-focus-dashboard .admin-cc-conversion-head,
+.admin-dashboard.cc-focus-dashboard .admin-cc-snapshot-row span {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #a5b9c9;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-conversion-head strong {
+  font-size: 16px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-snapshot-row strong {
+  font-size: 17px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-empty,
+.admin-dashboard.cc-focus-dashboard .admin-compare-label,
+.admin-dashboard.cc-focus-dashboard .admin-share-item-name {
+  font-size: 12px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-compare-seg,
+.admin-dashboard.cc-focus-dashboard .admin-share-item small {
+  font-size: 11px;
+}
+
+@media (max-width: 760px) {
+  .admin-dashboard.cc-focus-dashboard .admin-dashboard-title h1 {
+    font-size: 30px !important;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-dashboard-title p {
+    font-size: 13px !important;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-focus-tab {
+    font-size: 13px;
+    min-width: 0;
+    padding-inline: 8px;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-analytics-head h3 {
+    font-size: 15px;
+  }
+}
+@media (max-width: 520px) {
+  .admin-dashboard.cc-focus-dashboard .admin-dashboard-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-dashboard-metrics .admin-metric-card {
+    min-height: 124px;
+    padding: 13px 10px;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-metric-label {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-metric-value {
+    font-size: clamp(23px, 6.3vw, 27px);
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-metric-foot {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+}
