@@ -205,6 +205,24 @@
     }).format(n(value));
   }
   function pct(value) { return Number.isFinite(value) ? value.toFixed(1) + '%' : '—'; }
+  function formatBeijingTime(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return '—';
+    const iso = raw.replace(' ', 'T');
+    const normalized = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(iso) ? iso : iso + 'Z';
+    const date = new Date(normalized);
+    if (Number.isNaN(date.getTime())) return raw;
+    const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Shanghai',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(date).map((part) => [part.type, part.value]));
+    return parts.year + '-' + parts.month + '-' + parts.day + ' ' + parts.hour + ':' + parts.minute;
+  }
   function esc(value) {
     return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
@@ -545,8 +563,8 @@
     if (title) title.textContent = t('title');
     if (subtitle) subtitle.textContent = state.mode === 'paid' ? t('paidSubtitle') : state.mode === 'free' ? t('freeSubtitle') : t('nexusSubtitle');
     if (dayWindow) dayWindow.textContent = t('dayWindow');
-    const syncValue = state.mode === 'nexus' ? (state.nexusLatest?.updatedAt || state.lastSync || '—') : (state.lastSync || '—');
-    if (sync) sync.textContent = t('lastSync') + ': ' + syncValue;
+    const syncRaw = state.mode === 'nexus' ? (state.nexusLatest?.updatedAt || state.lastSync || '') : (state.lastSync || '');
+    if (sync) sync.textContent = t('lastSync') + ': ' + formatBeijingTime(syncRaw);
     dashboard.querySelectorAll('[data-cc-tab]').forEach((button) => {
       const active = button.dataset.ccTab === state.mode;
       button.classList.toggle('is-active', active);
