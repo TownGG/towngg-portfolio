@@ -92,6 +92,11 @@
   line-height: 1.55;
 }
 
+/* Keep stale-sync warning legible after moving the timestamp into the day-window note. */
+.admin-dashboard-day-window [data-cc-sync].is-stale {
+  color: #ffd39a;
+}
+
 .admin-cc-tab-sync {
   margin-left: auto;
   flex: 0 0 auto;
