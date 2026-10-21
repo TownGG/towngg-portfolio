@@ -92,9 +92,41 @@
   line-height: 1.55;
 }
 
-/* Keep stale-sync warning legible after moving the timestamp into the day-window note. */
-.admin-dashboard-day-window [data-cc-sync].is-stale {
+/* Dashboard header status: show only the last update time.
+   At > 1h old the whole label turns orange with an orange exclamation icon. */
+.admin-dashboard.cc-focus-dashboard .admin-dashboard-last-updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 9px 0 0;
+  padding: 6px 10px;
+  border: 1px solid rgba(67, 199, 255, .22);
+  border-radius: 7px;
+  background: rgba(67, 199, 255, .065);
+  color: rgba(218, 239, 250, .76);
+  line-height: 1.45;
+}
+.admin-dashboard.cc-focus-dashboard .admin-dashboard-last-updated.is-stale {
+  border-color: rgba(255, 159, 47, .5);
+  background: rgba(255, 159, 47, .10);
   color: #ffd39a;
+}
+.admin-dashboard.cc-focus-dashboard .admin-dashboard-last-updated.is-stale::before {
+  content: '!';
+  display: grid;
+  place-items: center;
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  border: 1px solid #ff9f2f;
+  border-radius: 50%;
+  background: rgba(255, 159, 47, .1);
+  color: #ff9f2f;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .admin-cc-tab-sync {
