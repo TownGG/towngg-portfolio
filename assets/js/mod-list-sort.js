@@ -219,8 +219,6 @@
     setupModListSort();
     revealHeader();
     window.setTimeout(revealHeader, 120);
-    [120, 700, 1600, 2400].forEach((delay) => window.setTimeout(setupModListSort, delay));
-    window.setTimeout(applyActivePanelSort, 2600);
   }
 
   document.addEventListener("click", (event) => {
