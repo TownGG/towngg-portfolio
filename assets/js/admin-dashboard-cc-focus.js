@@ -1,12 +1,13 @@
 (() => {
   const SITE_DATA_URL = './assets/js/site-data.js';
   const DAILY_URL = './assets/data/creations-mod-daily.csv';
+  const PAID_LIBRARY_HISTORY_URL = './assets/data/paid-creations-library-history.csv';
   const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';
   const NEXUS_LATEST_URL = './assets/data/nexus-latest.json';
   const EARNINGS_URL = './assets/data/partner-earnings.json';
   const REFRESH_MS = 2 * 60 * 1000;
   const STALE_AFTER_MS = 60 * 60 * 1000;
-  const state = { mode: 'paid', range: 7, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], ready: false, refreshing: false, signature: '', lastSync: '' };
+  const state = { mode: 'paid', range: 7, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], paidLibraryHistory: [], ready: false, refreshing: false, signature: '', lastSync: '' };
 
   const copy = {
     en: {
@@ -63,6 +64,11 @@
       likes: 'Likes',
       views: 'Views',
       library: 'Library Adds',
+      todayLibrary: 'Library Adds Today',
+      weekLibrary: 'Library Adds This Week',
+      monthLibrary: 'Library Adds This Month',
+      librarySnapshot: 'Snapshot-based increase',
+      libraryUnavailable: 'Boundary snapshot missing',
       plays: 'Plays',
       uniqueDownloads: 'Unique Downloads',
       endorsements: 'Endorsements',
@@ -173,6 +179,11 @@
       likes: '点赞',
       views: '浏览',
       library: '加入库',
+      todayLibrary: '今日入库',
+      weekLibrary: '本周入库',
+      monthLibrary: '本月入库',
+      librarySnapshot: '按快照增量统计',
+      libraryUnavailable: '缺少起点数据',
       plays: '游玩',
       uniqueDownloads: '唯一下载',
       endorsements: 'Endorsements',
@@ -283,6 +294,11 @@
       likes: 'いいね',
       views: '閲覧',
       library: 'ライブラリ追加',
+      todayLibrary: '今日ライブラリ追加',
+      weekLibrary: '今週ライブラリ追加',
+      monthLibrary: '今月ライブラリ追加',
+      librarySnapshot: 'スナップショットの増加量',
+      libraryUnavailable: '開始時点のデータなし',
       plays: 'プレイ',
       uniqueDownloads: 'ユニークDL',
       endorsements: 'Endorsements',
@@ -555,6 +571,20 @@
     const days = mode === 'nexus' ? state.nexusDays : mode === 'earnings' ? state.earningsDays : state.days;
     return days.filter((day) => day.date >= bounds.start && day.date <= bounds.end)
       .reduce((sum, day) => sum + selectedValue(day, mode), 0);
+  }
+  // Paid-only Library Adds. Snapshots use UTC; Beijing noon = 04:00 UTC.
+  function paidLibraryIncrement(period) {
+    const key = period === 'today' ? todayKey() : metricPeriodBounds(period, 0, 'paid').start;
+    const boundary = Date.parse(key + 'T04:00:00Z');
+    const snapshots = state.paidLibraryHistory.map((row) => ({
+      time: utcDate(row.timestamp)?.getTime(),
+      value: Number(row.total_paid_library_adds)
+    })).filter((row) => Number.isFinite(row.time) && Number.isFinite(row.value) && row.value >= 0)
+      .sort((a, b) => a.time - b.time);
+    const baseline = snapshots.filter((row) => row.time <= boundary).at(-1);
+    const latest = snapshots.at(-1);
+    if (!baseline || !latest || boundary - baseline.time > 2 * 60 * 60 * 1000 || latest.time < boundary) return null;
+    return Math.max(0, latest.value - baseline.value);
   }
   function periodDays(count, offset = 0) {
     const eligible = activeDays().filter((day) => day.date <= activeTodayKey());
