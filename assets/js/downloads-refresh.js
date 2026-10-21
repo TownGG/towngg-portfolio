@@ -1,5 +1,5 @@
 (() => {
-  const POLL_INTERVAL_MS = 5 * 60 * 1000;
+  const POLL_INTERVAL_MS = 2 * 60 * 1000;
   const RELOAD_PARAM = "downloads_refresh";
   const RELOAD_LOCK_PREFIX = "townggDownloadsRefreshLock:";
   const SOURCES = [
