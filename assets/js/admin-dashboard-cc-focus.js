@@ -102,9 +102,9 @@
       ranking: 'Top Creations',
       conversion: 'Conversion Overview',
       detail: 'Creation Performance',
-      detailPaid: 'Paid works sorted by total downloads, with price and current-period activity.',
-      detailFree: 'Free works sorted by total downloads, with current-period activity.',
-      detailNexus: 'Nexus mods sorted by total downloads with daily, unique and endorsement data.',
+      detailPaid: 'Paid works sorted by today’s downloads (highest first), with price and other metrics.',
+      detailFree: 'Free works sorted by today’s downloads (highest first), with other metrics.',
+      detailNexus: 'Nexus mods sorted by today’s downloads (highest first), with unique and endorsement data.',
       uniqueRate: 'Unique / Total',
       endorsementRate: 'Endorsements / Unique',
       downloadRate: 'Downloads / Views',
@@ -212,9 +212,9 @@
       ranking: '作品下载排行',
       conversion: '转化概览',
       detail: '作品表现明细',
-      detailPaid: '按累计下载排序查看付费作品价格、今日增长及各项核心数据。',
-      detailFree: '按累计下载排序查看免费作品今日增长及各项核心数据。',
-      detailNexus: '按累计下载排序查看 Nexus 模组今日下载、唯一下载与 Endorsements。',
+      detailPaid: '按今日下载量从高到低排序，今日相同时按累计下载量排序；查看价格及各项核心数据。',
+      detailFree: '按今日下载量从高到低排序，今日相同时按累计下载量排序；查看各项核心数据。',
+      detailNexus: '按今日下载量从高到低排序，今日相同时按累计下载量排序；查看唯一下载与 Endorsements。',
       uniqueRate: '唯一下载 / 总下载',
       endorsementRate: 'Endorsements / 唯一下载',
       downloadRate: '下载 / 浏览',
@@ -322,9 +322,9 @@
       ranking: '作品ランキング',
       conversion: '転換概要',
       detail: '作品詳細',
-      detailPaid: '有料作品の価格、今日の増加、主要指標。',
-      detailFree: '無料作品の今日の増加と主要指標。',
-      detailNexus: 'Nexus Mod を累計DL順に表示し、日次・ユニークDL・Endorsement を確認。',
+      detailPaid: '有料作品を今日のDL数が多い順に表示。価格と主要指標を確認。',
+      detailFree: '無料作品を今日のDL数が多い順に表示。主要指標を確認。',
+      detailNexus: 'Nexus Mod を今日のDL数が多い順に表示。ユニークDLとEndorsementを確認。',
       uniqueRate: 'ユニーク / 総DL',
       endorsementRate: 'Endorsements / ユニーク',
       downloadRate: 'DL / 閲覧',
@@ -932,14 +932,14 @@
     }
     if (state.mode === 'nexus') {
       const daily = new Map(currentDay().rows.map((row) => [String(row.mod_id || ''), n(row.daily_downloads)]));
-      const items = nexusMods().map((item) => ({ ...item, daily: daily.get(String(item.mod_id || '')) || 0 })).sort((a,b) => n(b.total_downloads) - n(a.total_downloads));
+      const items = nexusMods().map((item) => ({ ...item, daily: daily.get(String(item.mod_id || '')) || 0 })).sort((a,b) => n(b.daily) - n(a.daily) || n(b.total_downloads) - n(a.total_downloads));
       head.innerHTML = '<tr><th>' + esc(t('creation')) + '</th><th>' + esc(t('daily')) + '</th><th>' + esc(t('total')) + '</th><th>' + esc(t('uniqueDownloads')) + '</th><th>' + esc(t('endorsements')) + '</th></tr>';
       body.innerHTML = items.length ? items.map((item) => '<tr><td title="' + esc(item.mod_name) + '">' + esc(item.mod_name) + '</td><td class="' + (item.daily > 0 ? 'admin-cc-daily-positive' : '') + '">' + fmt(item.daily) + '</td><td>' + fmt(item.total_downloads) + '</td><td>' + fmt(item.unique_downloads) + '</td><td>' + fmt(item.likes) + '</td></tr>').join('') : '<tr><td colspan="5">' + esc(t('noData')) + '</td></tr>';
       if (note) note.textContent = t('detailNexus');
       return;
     }
     const daily = dailyMap();
-    const items = modeCreations().map((item) => ({ ...item, daily: daily.get(normalizeTitle(item.title)) || 0 })).sort((a,b) => n(b.downloads) - n(a.downloads));
+    const items = modeCreations().map((item) => ({ ...item, daily: daily.get(normalizeTitle(item.title)) || 0 })).sort((a,b) => n(b.daily) - n(a.daily) || n(b.downloads) - n(a.downloads));
     head.innerHTML = '<tr><th>' + esc(t('creation')) + '</th>' + (state.mode === 'paid' ? '<th>' + esc(t('price')) + '</th>' : '') + '<th>' + esc(t('daily')) + '</th><th>' + esc(t('total')) + '</th><th>' + esc(t('likes')) + '</th><th>' + esc(t('views')) + '</th><th>' + esc(t('library')) + '</th><th>' + esc(t('plays')) + '</th></tr>';
     body.innerHTML = items.length ? items.map((item) => '<tr><td title="' + esc(item.title) + '">' + esc(item.title) + '</td>' + (state.mode === 'paid' ? '<td class="admin-cc-price">' + fmt(item.price) + ' CC</td>' : '') + '<td class="' + (item.daily > 0 ? 'admin-cc-daily-positive' : '') + '">' + fmt(item.daily) + '</td><td>' + fmt(item.downloads) + '</td><td>' + fmt(item.likes) + '</td><td>' + fmt(item.views) + '</td><td>' + fmt(item.libraryAdds) + '</td><td>' + fmt(item.plays) + '</td></tr>').join('') : '<tr><td colspan="' + (state.mode === 'paid' ? 8 : 7) + '">' + esc(t('noData')) + '</td></tr>';
     if (note) note.textContent = state.mode === 'paid' ? t('detailPaid') : t('detailFree');
