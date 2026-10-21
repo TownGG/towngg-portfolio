@@ -202,9 +202,6 @@
     });
 
     installCreationsMeta();
-    window.setTimeout(installCreationsMeta, 300);
-    window.setTimeout(installCreationsMeta, 1200);
-    window.setTimeout(installCreationsMeta, 2200);
   }
 
   window.addEventListener('towngg:creations-live-refreshed', updateCreationsTimestamp);
