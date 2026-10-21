@@ -142,6 +142,7 @@ jobs:
           const siteFile = 'assets/js/site-data.js';
           const historyFile = 'assets/data/creations-history.csv';
           const modDailyFile = 'assets/data/creations-mod-daily.csv';
+          const paidLibraryHistoryFile = 'assets/data/paid-creations-library-history.csv';
           const siteVersionFile = 'assets/data/site-version.json';
           const utcParts = Object.fromEntries(
             new Intl.DateTimeFormat('en-CA', {
@@ -279,6 +280,25 @@ jobs:
           ].join(','))];
           fs.writeFileSync(modDailyFile, `${modLines.join('\n')}\n`);
 
+          // Keep a separate paid-only Library Adds series. The existing
+          // creations-history.csv includes free creations and must not be
+          // used for paid-period KPI deltas.
+          const totalPaidLibraryAdds = creations
+            .filter((item) => item.isPaid === true || String(item.isPaid).toLowerCase() === 'true' || number(item.price) > 0)
+            .reduce((sum, item) => sum + number(item.libraryAdds), 0);
+          const paidLibraryHeader = 'timestamp,total_paid_library_adds';
+          let paidLibraryLines = fs.existsSync(paidLibraryHistoryFile)
+            ? fs.readFileSync(paidLibraryHistoryFile, 'utf8').split(/\r?\n/).filter(Boolean)
+            : [];
+          if (paidLibraryLines[0] !== paidLibraryHeader) {
+            paidLibraryLines = [paidLibraryHeader, ...paidLibraryLines.filter((line) => !line.startsWith('timestamp,'))];
+          }
+          const paidLibrarySnapshots = paidLibraryLines.slice(1)
+            .filter((line) => !line.startsWith(`${stamp},`) && line.slice(0, 10) >= cutoff);
+          paidLibrarySnapshots.push(`${stamp},${totalPaidLibraryAdds}`);
+          paidLibrarySnapshots.sort((a, b) => a.localeCompare(b));
+          fs.writeFileSync(paidLibraryHistoryFile, [paidLibraryHeader, ...paidLibrarySnapshots].join('\n') + '\n');
+
           const siteVersion = {
             version: `v2.05.${versionStamp}-preview`,
             label: `v2.05.${versionStamp} Preview`,
@@ -290,19 +310,20 @@ jobs:
           console.log(`Creations sync timestamp stamped: ${stamp}`);
           console.log(`Creations history snapshot recorded: ${row}`);
           console.log(`Creations per-mod daily downloads updated: ${todayRows.length} rows.`);
+          console.log(`Paid Creations Library Adds snapshot: ${totalPaidLibraryAdds}.`);
           console.log(`Site data version bumped: ${siteVersion.version}`);
           NODE
 
       - name: Commit and push changes
         run: |
-          if git diff --quiet -- assets/js/site-data.js assets/data/creations-history.csv assets/data/creations-mod-daily.csv assets/data/site-version.json; then
+          if git diff --quiet -- assets/js/site-data.js assets/data/creations-history.csv assets/data/creations-mod-daily.csv assets/data/paid-creations-library-history.csv assets/data/site-version.json; then
             echo "No Creations changes to commit."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/js/site-data.js assets/data/creations-history.csv assets/data/creations-mod-daily.csv assets/data/site-version.json
+          git add assets/js/site-data.js assets/data/creations-history.csv assets/data/creations-mod-daily.csv assets/data/paid-creations-library-history.csv assets/data/site-version.json
           git commit -m "Update Creations stats and covers"
           git pull --rebase origin main
           git push
