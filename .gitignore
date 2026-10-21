@@ -2,3 +2,6 @@ node_modules/
 .auth/
 .env
 .DS_Store
+
+# Private Microsoft Partner Center earnings; never commit to the public site.
+/assets/data/partner-earnings.json
