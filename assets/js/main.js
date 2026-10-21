@@ -31,17 +31,6 @@ async function checkSiteVersion() {
     const versionData = await response.json();
     siteVersion = versionData.version || "";
 
-    const stored = localStorage.getItem("townggSiteVersion");
-    const reloadKey = `townggVersionReloaded:${siteVersion}`;
-    if (stored && siteVersion && stored !== siteVersion && !sessionStorage.getItem(reloadKey)) {
-      localStorage.setItem("townggSiteVersion", siteVersion);
-      sessionStorage.setItem(reloadKey, "true");
-      const url = new URL(window.location.href);
-      url.searchParams.set("v", siteVersion);
-      window.location.replace(url.toString());
-      return false;
-    }
-
     if (siteVersion) localStorage.setItem("townggSiteVersion", siteVersion);
   } catch (error) {
     console.warn(error);
