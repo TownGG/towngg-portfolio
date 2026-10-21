@@ -375,6 +375,7 @@
   function boot() {
     window.setInterval(refreshLiveCreations, REFRESH_MS);
     window.addEventListener('focus', refreshLiveCreations);
+    window.addEventListener('towngg:downloads-data-updated', refreshLiveCreations);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshLiveCreations(); });
     document.addEventListener('click', (event) => { if (event.target.closest('.language-option[data-lang]')) window.setTimeout(applyAll, 120); });
     document.querySelector('[data-creations-ranking-metric]')?.addEventListener('change', updateRanking);
