@@ -41,6 +41,22 @@
       freeWorks: 'Free works',
       nexusWorks: 'Nexus mods',
       downloadsTrend: 'Downloads Trend',
+      dailySeries: 'Daily downloads',
+      rolling7: '7-day average',
+      performanceMatrix: 'Performance Matrix',
+      paidMatrix: 'Price vs Downloads',
+      freeMatrix: 'Views vs Downloads',
+      nexusMatrix: 'Unique vs Total Downloads',
+      growthSnapshot: 'Growth Snapshot',
+      bestDay: 'Best day',
+      avg7: '7-day average',
+      avg30: '30-day average',
+      momentum: '7-day momentum',
+      top3Share: 'Top 3 share',
+      priceAxis: 'Price (CC)',
+      viewsAxis: 'Views',
+      uniqueAxis: 'Unique downloads',
+      downloadsAxis: 'Downloads',
       ccShare: 'CC Download Share',
       shareCopyPaid: 'Paid downloads as a share of all CC downloads in the selected period.',
       shareCopyFree: 'Free downloads as a share of all CC downloads in the selected period.',
@@ -102,6 +118,22 @@
       freeWorks: '免费作品',
       nexusWorks: 'Nexus 模组',
       downloadsTrend: '下载趋势',
+      dailySeries: '每日下载',
+      rolling7: '7 日均线',
+      performanceMatrix: '表现矩阵',
+      paidMatrix: '价格 × 下载',
+      freeMatrix: '浏览 × 下载',
+      nexusMatrix: '唯一下载 × 总下载',
+      growthSnapshot: '增长概览',
+      bestDay: '最佳单日',
+      avg7: '7 日日均',
+      avg30: '30 日日均',
+      momentum: '7 日趋势',
+      top3Share: 'Top 3 下载占比',
+      priceAxis: '价格（CC）',
+      viewsAxis: '浏览',
+      uniqueAxis: '唯一下载',
+      downloadsAxis: '下载',
       ccShare: 'CC 下载占比',
       shareCopyPaid: '当前周期内，付费 CC 下载量占全部 CC 下载量的比例。',
       shareCopyFree: '当前周期内，免费 CC 下载量占全部 CC 下载量的比例。',
@@ -163,6 +195,22 @@
       freeWorks: '無料作品',
       nexusWorks: 'Nexus Mod',
       downloadsTrend: 'DL推移',
+      dailySeries: '日別DL',
+      rolling7: '7日平均',
+      performanceMatrix: 'パフォーマンスマトリクス',
+      paidMatrix: '価格 × DL',
+      freeMatrix: '閲覧 × DL',
+      nexusMatrix: 'ユニークDL × 総DL',
+      growthSnapshot: '成長サマリー',
+      bestDay: '最高日',
+      avg7: '7日平均',
+      avg30: '30日平均',
+      momentum: '7日モメンタム',
+      top3Share: 'Top 3 比率',
+      priceAxis: '価格 (CC)',
+      viewsAxis: '閲覧',
+      uniqueAxis: 'ユニークDL',
+      downloadsAxis: 'DL',
       ccShare: 'CC DL比率',
       shareCopyPaid: '選択期間における全 CC DL 中の有料 CC 比率。',
       shareCopyFree: '選択期間における全 CC DL 中の無料 CC 比率。',
@@ -467,34 +515,50 @@
     }
     target.innerHTML = cards.join('');
   }
+  function rollingAverage(values, index, size = 7) {
+    const start = Math.max(0, index - size + 1);
+    const slice = values.slice(start, index + 1);
+    return slice.length ? slice.reduce((sum, value) => sum + value, 0) / slice.length : 0;
+  }
   function lineChart(days) {
-    const values = days.map(selectedValue);
     if (!days.length) return '<div class="admin-cc-empty">' + esc(t('noData')) + '</div>';
+    const values = days.map((day) => selectedValue(day));
+    const averages = values.map((_, index) => rollingAverage(values, index, 7));
     const width = 900, height = 245, pl = 54, pr = 18, pt = 18, pb = 34;
     const chartW = width - pl - pr, chartH = height - pt - pb;
-    const max = Math.max(1, ...values);
-    const yMax = Math.max(4, Math.ceil(max / 4) * 4);
-    const points = days.map((day, index) => {
-      const x = pl + (chartW / Math.max(1, days.length - 1)) * index;
-      const y = pt + chartH - (selectedValue(day) / yMax) * chartH;
-      return { x, y, day };
+    const max = Math.max(1, ...values, ...averages);
+    const yStep = Math.max(1, Math.ceil(max / 4));
+    const yMax = yStep * 4;
+    const xy = (value, index) => ({
+      x: pl + (chartW / Math.max(1, days.length - 1)) * index,
+      y: pt + chartH - (value / yMax) * chartH
     });
+    const points = days.map((day, index) => ({ ...xy(values[index], index), day, value: values[index] }));
+    const avgPoints = days.map((day, index) => ({ ...xy(averages[index], index), day, value: averages[index] }));
     const grid = [0,1,2,3,4].map((step) => {
       const y = pt + chartH * (step / 4);
       const label = Math.round(yMax * (1 - step / 4));
       return '<line class="admin-chart-grid-line" x1="' + pl + '" y1="' + y + '" x2="' + (width-pr) + '" y2="' + y + '"></line><text class="admin-chart-axis-text" x="5" y="' + (y+4) + '">' + fmt(label) + '</text>';
     }).join('');
     const poly = points.map((p) => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
-    const dots = points.map((p) => '<circle class="admin-chart-point ' + state.mode + '" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4"><title>' + esc(dateLabel(p.day.date) + ' · ' + fmt(selectedValue(p.day))) + '</title></circle>').join('');
+    const avgPoly = avgPoints.map((p) => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+    const area = points.length ? [
+      points[0].x.toFixed(1) + ',' + (pt + chartH).toFixed(1),
+      ...points.map((p) => p.x.toFixed(1) + ',' + p.y.toFixed(1)),
+      points.at(-1).x.toFixed(1) + ',' + (pt + chartH).toFixed(1)
+    ].join(' ') : '';
+    const dots = points.map((p) => '<circle class="admin-chart-point ' + state.mode + '" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4"><title>' + esc(dateLabel(p.day.date) + ' · ' + fmt(p.value)) + '</title></circle>').join('');
     const labels = points.map((p, index) => {
       if (days.length > 12 && index % Math.ceil(days.length / 7) !== 0 && index !== days.length - 1) return '';
       return '<text class="admin-chart-axis-text" x="' + p.x.toFixed(1) + '" y="' + (height-8) + '" text-anchor="middle">' + esc(dateLabel(p.day.date)) + '</text>';
     }).join('');
-    return '<svg viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="none" aria-label="' + esc(t('downloadsTrend')) + '">' + grid + '<polyline class="admin-chart-line ' + state.mode + '" points="' + poly + '"></polyline>' + dots + labels + '</svg>';
+    return '<svg viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="xMidYMid meet" aria-label="' + esc(t('downloadsTrend')) + '"><polygon class="admin-chart-area" points="' + area + '"></polygon>' + grid + '<polyline class="admin-chart-line ' + state.mode + '" points="' + poly + '"></polyline><polyline class="admin-chart-line average" points="' + avgPoly + '"></polyline>' + dots + labels + '</svg>';
   }
   function renderTrend() {
     const target = document.querySelector('[data-cc-line-chart]');
     if (target) target.innerHTML = lineChart(periodDays(state.range));
+    const legend = document.querySelector('[data-cc-legend]');
+    if (legend) legend.innerHTML = '<span class="admin-cc-legend-item"><i></i>' + esc(t('dailySeries')) + '</span><span class="admin-cc-legend-item is-average"><i></i>' + esc(t('rolling7')) + '</span>';
   }
   function renderShare() {
     const ring = document.querySelector('[data-cc-share-ring]');
@@ -526,7 +590,7 @@
     const target = document.querySelector('[data-cc-bars]');
     if (!target) return;
     const days = periodDays(state.range).slice(-10);
-    const max = Math.max(1, ...days.map(selectedValue));
+    const max = Math.max(1, ...days.map((day) => selectedValue(day)));
     target.innerHTML = days.map((day) => '<div class="admin-bar-day" title="' + esc(dateLabel(day.date) + ' · ' + fmt(selectedValue(day))) + '"><div class="admin-bar-stack"><span class="admin-bar-seg ' + state.mode + '" style="height:' + (selectedValue(day)/max*100).toFixed(2) + '%"></span></div><label>' + esc(dateLabel(day.date)) + '</label></div>').join('');
   }
   function renderRanking() {
@@ -555,6 +619,81 @@
       const shown = suffix === '%' ? value.toFixed(1) + '%' : value.toFixed(1) + '×';
       return '<div class="admin-cc-conversion-row"><div class="admin-cc-conversion-head"><span>' + esc(label) + '</span><strong>' + esc(shown) + '</strong></div><div class="admin-cc-conversion-track"><i style="width:' + width.toFixed(1) + '%"></i></div></div>';
     }).join('');
+  }
+  function matrixDataset() {
+    if (state.mode === 'nexus') {
+      return nexusMods().map((item) => ({
+        title: item.mod_name || 'Unknown',
+        x: n(item.unique_downloads),
+        y: n(item.total_downloads)
+      })).filter((item) => item.x > 0 || item.y > 0).sort((a,b) => b.y - a.y).slice(0, 14);
+    }
+    return modeCreations().map((item) => ({
+      title: item.title || 'Unknown',
+      x: state.mode === 'paid' ? n(item.price) : n(item.views),
+      y: n(item.downloads)
+    })).filter((item) => item.x > 0 || item.y > 0).sort((a,b) => b.y - a.y).slice(0, 14);
+  }
+  function renderPerformanceMatrix() {
+    const target = document.querySelector('[data-cc-matrix]');
+    if (!target) return;
+    const items = matrixDataset();
+    if (!items.length) {
+      target.innerHTML = '<div class="admin-cc-empty">' + esc(t('noData')) + '</div>';
+      return;
+    }
+    const width = 680, height = 270, pl = 58, pr = 20, pt = 20, pb = 42;
+    const chartW = width - pl - pr, chartH = height - pt - pb;
+    const maxX = Math.max(1, ...items.map((item) => item.x));
+    const maxY = Math.max(1, ...items.map((item) => item.y));
+    const xMax = maxX * 1.08;
+    const yMax = maxY * 1.08;
+    const grid = [0,1,2,3,4].map((step) => {
+      const y = pt + chartH * step / 4;
+      const x = pl + chartW * step / 4;
+      const yLabel = Math.round(yMax * (1 - step / 4));
+      const xLabel = Math.round(xMax * step / 4);
+      return '<line class="admin-chart-grid-line" x1="' + pl + '" y1="' + y + '" x2="' + (width-pr) + '" y2="' + y + '"></line>' +
+        '<line class="admin-chart-grid-line" x1="' + x + '" y1="' + pt + '" x2="' + x + '" y2="' + (pt+chartH) + '"></line>' +
+        '<text class="admin-chart-axis-text" x="4" y="' + (y+4) + '">' + fmt(yLabel) + '</text>' +
+        '<text class="admin-chart-axis-text" x="' + x + '" y="' + (height-14) + '" text-anchor="middle">' + fmt(xLabel) + '</text>';
+    }).join('');
+    const points = items.map((item) => {
+      const x = pl + (item.x / xMax) * chartW;
+      const y = pt + chartH - (item.y / yMax) * chartH;
+      return '<circle class="admin-matrix-point ' + state.mode + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="6"><title>' + esc(item.title + ' · X ' + fmt(item.x) + ' · Y ' + fmt(item.y)) + '</title></circle>';
+    }).join('');
+    const xLabel = state.mode === 'paid' ? t('priceAxis') : state.mode === 'free' ? t('viewsAxis') : t('uniqueAxis');
+    return target.innerHTML = '<svg viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="xMidYMid meet">' + grid + points + '<text class="admin-chart-axis-title" x="' + (pl+chartW/2) + '" y="' + (height-1) + '" text-anchor="middle">' + esc(xLabel) + '</text><text class="admin-chart-axis-title" transform="translate(12 ' + (pt+chartH/2) + ') rotate(-90)" text-anchor="middle">' + esc(t('downloadsAxis')) + '</text></svg>';
+  }
+  function concentrationShare() {
+    let values = [];
+    if (state.mode === 'nexus') values = nexusMods().map((item) => n(item.total_downloads));
+    else values = modeCreations().map((item) => n(item.downloads));
+    values = values.filter((value) => value > 0).sort((a,b) => b-a);
+    const total = values.reduce((sum,value) => sum + value, 0);
+    return total ? values.slice(0,3).reduce((sum,value) => sum + value, 0) / total * 100 : 0;
+  }
+  function renderGrowthSnapshot() {
+    const target = document.querySelector('[data-cc-snapshot]');
+    if (!target) return;
+    const days = periodDays(Math.max(30, state.range));
+    const visible = periodDays(state.range);
+    const best = [...visible].sort((a,b) => selectedValue(b) - selectedValue(a))[0];
+    const avg7Days = periodDays(7);
+    const avg30Days = periodDays(30);
+    const avg7 = avg7Days.length ? avg7Days.reduce((sum,day) => sum + selectedValue(day),0) / avg7Days.length : 0;
+    const avg30 = avg30Days.length ? avg30Days.reduce((sum,day) => sum + selectedValue(day),0) / avg30Days.length : 0;
+    const momentumValue = percentChange(periodValue(7), periodValue(7,7));
+    const momentumText = momentumValue === null ? '—' : (momentumValue >= 0 ? '+' : '') + momentumValue.toFixed(1) + '%';
+    const rows = [
+      [t('bestDay'), best ? fmt(selectedValue(best)) + ' · ' + dateLabel(best.date) : '—'],
+      [t('avg7'), fmt(avg7, 1)],
+      [t('avg30'), fmt(avg30, 1)],
+      [t('momentum'), momentumText],
+      [t('top3Share'), pct(concentrationShare())]
+    ];
+    target.innerHTML = rows.map(([label,value], index) => '<div class="admin-cc-snapshot-row"><span>' + esc(label) + '</span><strong class="' + (index === 3 && momentumValue !== null ? (momentumValue >= 0 ? 'is-up' : 'is-down') : '') + '">' + esc(value) + '</strong></div>').join('');
   }
   function renderDetails() {
     const head = document.querySelector('[data-cc-detail-head]');
@@ -614,6 +753,8 @@
       '[data-cc-recent-title]': 'recent',
       '[data-cc-ranking-title]': 'ranking',
       '[data-cc-conversion-title]': 'conversion',
+      '[data-cc-matrix-title]': 'performanceMatrix',
+      '[data-cc-snapshot-title]': 'growthSnapshot',
       '[data-cc-detail-title]': 'detail'
     };
     Object.entries(map).forEach(([selector,key]) => {
@@ -622,6 +763,8 @@
     });
     const shareTitle = dashboard.querySelector('[data-cc-share-title]');
     if (shareTitle) shareTitle.textContent = state.mode === 'nexus' ? t('nexusShare') : t('ccShare');
+    const matrixTitle = dashboard.querySelector('[data-cc-matrix-subtitle]');
+    if (matrixTitle) matrixTitle.textContent = state.mode === 'paid' ? t('paidMatrix') : state.mode === 'free' ? t('freeMatrix') : t('nexusMatrix');
     dashboard.querySelectorAll('[data-cc-range-label]').forEach((node) => { node.textContent = state.range === 30 ? t('last30') : t('last7'); });
     const legend = dashboard.querySelector('[data-cc-legend]');
     if (legend) legend.lastChild.textContent = state.mode === 'paid' ? t('paid') : state.mode === 'free' ? t('free') : t('nexus');
@@ -637,6 +780,8 @@
     renderBars();
     renderRanking();
     renderConversion();
+    renderPerformanceMatrix();
+    renderGrowthSnapshot();
     renderDetails();
   }
   function markup() {
@@ -644,6 +789,7 @@
       '<div class="admin-cc-focus-strip"><div class="admin-cc-focus-tabs" role="tablist" aria-label="Mod data source"><button class="admin-cc-focus-tab is-active" type="button" role="tab" aria-selected="true" data-cc-tab="paid"><i></i><span>Paid Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="free"><i></i><span>Free Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="nexus"><i></i><span>Nexus Mods</span></button></div><span class="admin-dashboard-sync admin-cc-tab-sync" data-cc-sync></span></div>' +
       '<section class="admin-dashboard-metrics" data-cc-kpis></section>' +
       '<div class="admin-cc-focus-dashboard-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-trend-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-focus-legend" data-cc-legend><i></i><span></span></div><div class="admin-line-chart" data-cc-line-chart></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-share-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-share-card"><div class="admin-cc-share-ring" data-cc-share-ring><div class="admin-cc-share-center"><strong data-cc-share-center>0%</strong><span>MOD</span></div></div><div class="admin-cc-share-copy" data-cc-share-copy></div></div></section></div>' +
+      '<div class="admin-cc-analysis-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><div><h3 data-cc-matrix-title></h3><p class="admin-insight-caption" data-cc-matrix-subtitle></p></div><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-matrix" data-cc-matrix></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-snapshot-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-snapshot" data-cc-snapshot></div></section></div>' +
       '<div class="admin-cc-bottom-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-recent-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-bars" data-cc-bars></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-ranking-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-ranking-wrap"><table class="admin-ranking-table"><thead data-cc-ranking-head></thead><tbody data-cc-ranking></tbody></table></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-conversion-title></h3><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-conversion" data-cc-conversion></div></section></div>' +
       '<section class="admin-analytics-panel admin-cc-detail-panel admin-cc-panel-accent"><div class="admin-analytics-head"><div><h3 data-cc-detail-title></h3><p class="admin-insight-caption" data-cc-detail-note></p></div><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-detail-wrap"><table class="admin-cc-detail-table"><thead data-cc-detail-head></thead><tbody data-cc-detail-body></tbody></table></div></section>' +
       '<div class="admin-dashboard-loading" data-cc-loading>Loading mod analytics…</div>';
