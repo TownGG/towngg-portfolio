@@ -203,8 +203,8 @@
   function applyChromeLanguage() {
     const lang = currentLanguage();
     const c = copy();
-    document.documentElement.lang = lang;
-    document.documentElement.dataset.siteLang = lang;
+    if (document.documentElement.lang !== lang) document.documentElement.lang = lang;
+    if (document.documentElement.dataset.siteLang !== lang) document.documentElement.dataset.siteLang = lang;
 
     const setText = (selector, value) => {
       const node = document.querySelector(selector);
@@ -235,8 +235,10 @@
     setText('[data-polish-view-site]', c.viewWebsite);
     setText('[data-polish-lock]', c.lockAdmin);
 
-    document.querySelectorAll('.admin-dashboard-title h1').forEach((node) => { if (node.textContent !== c.dashboard) node.textContent = c.dashboard; });
-    document.querySelectorAll('[data-admin-dashboard-subtitle]').forEach((node) => { if (node.textContent !== c.dashboardSubtitle) node.textContent = c.dashboardSubtitle; });
+    if (!document.querySelector('.cc-focus-dashboard')) {
+      document.querySelectorAll('.admin-dashboard-title h1').forEach((node) => { if (node.textContent !== c.dashboard) node.textContent = c.dashboard; });
+      document.querySelectorAll('[data-admin-dashboard-subtitle]').forEach((node) => { if (node.textContent !== c.dashboardSubtitle) node.textContent = c.dashboardSubtitle; });
+    }
 
     if (lang === 'zh-CN') applyChineseSupplement();
   }
