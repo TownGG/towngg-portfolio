@@ -149,9 +149,8 @@
   }
 
   window.addEventListener("DOMContentLoaded", () => {
-    window.setTimeout(runHomeMetrics, 900);
-    window.setTimeout(runPlayerVoices, 1000);
-    window.setTimeout(runPlayerVoices, 1300);
+    runHomeMetrics();
+    window.setTimeout(runPlayerVoices, 250);
     watchLanguageChanges();
   });
 })();
