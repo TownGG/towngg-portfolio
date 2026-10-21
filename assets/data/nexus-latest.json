@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-21T04:30:47Z",
+  "updatedAt": "2026-10-21T05:00:51Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 3225,
+      "total_downloads": 3226,
       "unique_downloads": 2282,
-      "daily_downloads": 1,
+      "daily_downloads": 2,
       "likes": 53,
       "views": 0
     },
@@ -235,9 +235,9 @@
       "mod_name": "TGG Galaxy Fashion Lingerie-BLACK STOCKING",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17881",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17881/17881-1786193639-1201336401.png",
-      "total_downloads": 2944,
-      "unique_downloads": 2155,
-      "daily_downloads": 1,
+      "total_downloads": 2945,
+      "unique_downloads": 2156,
+      "daily_downloads": 2,
       "likes": 27,
       "views": 0
     },
@@ -259,9 +259,9 @@
       "mod_name": "POWER RANGER UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18049",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18049/18049-1787491919-946013974.png",
-      "total_downloads": 105,
+      "total_downloads": 106,
       "unique_downloads": 98,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 6,
       "views": 0
     }
