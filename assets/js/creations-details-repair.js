@@ -305,7 +305,6 @@
   function boot() {
     bindSort();
     scheduleRender(true, 40);
-    [250, 700, 1400, 2600].forEach((delay) => window.setTimeout(() => renderDetails(true), delay));
     window.addEventListener('towngg:creations-daily-ready', () => scheduleRender(true, 20));
     window.addEventListener('focus', () => scheduleRender(true, 80));
     const body = document.querySelector(TABLE_SELECTOR);
