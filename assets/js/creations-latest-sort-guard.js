@@ -423,11 +423,10 @@
     setupLanguageSwitcherGuard();
     installSummaryObserver();
     scheduleSummaryCorrection(0);
-    [120, 520, 920, 1500, 2600, 4200].forEach((delay) => window.setTimeout(() => {
+    window.setTimeout(() => {
       polishPills();
-      scheduleSummaryCorrection(0);
       setupLanguageSwitcherGuard();
-    }, delay));
+    }, 120);
     window.addEventListener('focus', () => { cachedDailyRows = null; cachedNexusRows = null; scheduleSummaryCorrection(0); });
     window.addEventListener('towngg:creations-live-refreshed', () => { cachedDailyRows = null; scheduleSummaryCorrection(0); });
     window.addEventListener('towngg:creations-daily-ready', () => scheduleSummaryCorrection(0));
