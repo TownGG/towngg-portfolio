@@ -68,6 +68,8 @@
       endorsements: 'Endorsements',
       vsYesterday: 'vs yesterday',
       vsPrevious: 'vs previous period',
+      vsLastWeek: 'vs last week (same days)',
+      vsLastMonth: 'vs last month (same days)',
       allTime: 'All-time',
       paidWorks: 'Paid works',
       freeWorks: 'Free works',
@@ -176,6 +178,8 @@
       endorsements: 'Endorsements',
       vsYesterday: '较昨日',
       vsPrevious: '较上一周期',
+      vsLastWeek: '较上周同期',
+      vsLastMonth: '较上月同期',
       allTime: '累计数据',
       paidWorks: '付费作品',
       freeWorks: '免费作品',
@@ -284,6 +288,8 @@
       endorsements: 'Endorsements',
       vsYesterday: '昨日比',
       vsPrevious: '前期間比',
+      vsLastWeek: '前週同期比',
+      vsLastMonth: '前月同期比',
       allTime: '累計',
       paidWorks: '有料作品',
       freeWorks: '無料作品',
@@ -652,8 +658,8 @@
       target.innerHTML = [
         card(t('totalEarnings'), money(totals.earningsUSD), '$', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'),
         card(t('currentMonthEarnings'), money(totals.currentMonthUSD), '◫', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(data.period?.to || '') + '</span>'),
-        card(t('sevenDayEarnings'), money(periodValue('week')), 'W', trend(percentChange(periodValue('week'), periodValue('week', 1)), t('vsPrevious'))),
-        card(t('thirtyDayEarnings'), money(periodValue('month')), 'M', trend(percentChange(periodValue('month'), periodValue('month', 1)), t('vsPrevious'))),
+        card(t('sevenDayEarnings'), money(periodValue('week')), 'W', trend(percentChange(periodValue('week'), periodValue('week', 1)), t('vsLastWeek'))),
+        card(t('thirtyDayEarnings'), money(periodValue('month')), 'M', trend(percentChange(periodValue('month'), periodValue('month', 1)), t('vsLastMonth'))),
         card(t('transactionCount'), fmt(totals.transactionRows), '#', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'),
         card(t('avgPerTransaction'), money(average), '÷', '<span class="admin-metric-trend is-flat">●</span><span>USD</span>'),
         card(t('productsCount'), fmt(totals.products), '▱', '<span class="admin-metric-trend is-flat">●</span><span>Bethesda Games</span>'),
@@ -674,8 +680,8 @@
       card(t('totalDownloads'), fmt(totals.downloads), '↓', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'),
       card(t('today'), fmt(current), '◫', trend(percentChange(current, previous), t('vsYesterday'))),
       card(t('yesterday'), fmt(previous), '◫', trend(percentChange(previous, selectedValue(beforeYesterday)), t('vsYesterday'))),
-      card(t('sevenDays'), fmt(p7), '↗', trend(percentChange(p7, prev7), t('vsPrevious'))),
-      card(t('thirtyDays'), fmt(p30), '∿', trend(percentChange(p30, prev30), t('vsPrevious'))),
+      card(t('sevenDays'), fmt(p7), '↗', trend(percentChange(p7, prev7), t('vsLastWeek'))),
+      card(t('thirtyDays'), fmt(p30), '∿', trend(percentChange(p30, prev30), t('vsLastMonth'))),
       card(t('works'), fmt(totals.count), '▱', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(state.mode === 'paid' ? t('paidWorks') : state.mode === 'free' ? t('freeWorks') : t('nexusWorks')) + '</span>')
     ];
     if (state.mode === 'paid') {
@@ -970,6 +976,12 @@
       const a = range.querySelector('option[value="week"]'), b = range.querySelector('option[value="month"]');
       if (a) a.textContent = t('last7');
       if (b) b.textContent = t('last30');
+      const { start } = periodBounds();
+      const end = keyDate(start);
+      if (state.range === 'month') end.setUTCMonth(end.getUTCMonth() + 1);
+      else end.setUTCDate(end.getUTCDate() + 7);
+      range.title = start + ' 12:00 — ' + dateKey(end) + ' 12:00 ' +
+        (lang() === 'zh-CN' ? '（北京时间）' : '(Beijing time)');
     }
     const map = {
       '[data-cc-trend-title]': 'downloadsTrend',
