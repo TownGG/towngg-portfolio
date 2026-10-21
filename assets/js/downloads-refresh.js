@@ -105,18 +105,13 @@
   }
 
   function forceCacheBustedReload(changedSources, token) {
-    if (reloading) return;
-
     const lockKey = `${RELOAD_LOCK_PREFIX}${location.pathname}:${token}`;
     if (sessionStorage.getItem(lockKey) === "1") return;
-
-    reloading = true;
     sessionStorage.setItem(lockKey, "1");
-    console.info(`[TownGG] ${changedSources.join(" and ")} downloads data changed. Forcing a cache-busted reload.`);
-
-    const url = new URL(window.location.href);
-    url.searchParams.set(RELOAD_PARAM, `${Date.now()}-${token}`);
-    window.location.replace(url.toString());
+    console.info(`[TownGG] ${changedSources.join(" and ")} downloads data changed. Update recorded without reloading the page.`);
+    window.dispatchEvent(new CustomEvent("towngg:downloads-data-updated", {
+      detail: { sources: changedSources, token }
+    }));
   }
 
   async function checkDownloadsUpdates() {
