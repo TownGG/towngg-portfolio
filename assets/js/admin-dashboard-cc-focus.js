@@ -6,7 +6,7 @@
   const EARNINGS_URL = './assets/data/partner-earnings.json';
   const REFRESH_MS = 2 * 60 * 1000;
   const STALE_AFTER_MS = 60 * 60 * 1000;
-  const state = { mode: 'paid', range: 'week', rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], ready: false, refreshing: false, signature: '', lastSync: '' };
+  const state = { mode: 'paid', range: 7, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], ready: false, refreshing: false, signature: '', lastSync: '' };
 
   const copy = {
     en: {
@@ -23,8 +23,8 @@
       earningsDayWindow: "Earnings dates shown in Beijing time · API sync runs hourly",
       totalEarnings: "Total Earnings",
       currentMonthEarnings: "This Month",
-      sevenDayEarnings: "This Week Earnings",
-      thirtyDayEarnings: "This Month Earnings",
+      sevenDayEarnings: "Last 7 Days",
+      thirtyDayEarnings: "Last 30 Days",
       transactionCount: "Transactions",
       avgPerTransaction: "Avg / Transaction",
       adjustments: "Adjustments",
@@ -51,8 +51,8 @@
       adjustmentRate: "Adjustment share",
       dayWindow: 'Daily statistics: Beijing 12:00–next day 12:00',
       lastSync: 'Last Updated',
-      last7: 'This Week',
-      last30: 'This Month',
+      last7: 'Last 7 days',
+      last30: 'Last 30 days',
       totalDownloads: 'Total Downloads',
       today: 'Today',
       yesterday: 'Yesterday',
@@ -83,9 +83,9 @@
       nexusMatrix: 'Unique vs Total Downloads',
       growthSnapshot: 'Growth Snapshot',
       bestDay: 'Best day',
-      avg7: 'Daily Avg · This Week',
-      avg30: 'Daily Avg · This Month',
-      momentum: 'Weekly Momentum',
+      avg7: '7-day average',
+      avg30: '30-day average',
+      momentum: '7-day momentum',
       top3Share: 'Top 3 share',
       priceAxis: 'Price (CC)',
       viewsAxis: 'Views',
@@ -133,8 +133,8 @@
       earningsDayWindow: "收益日期按北京时间展示 · API 每小时自动同步",
       totalEarnings: "累计收益",
       currentMonthEarnings: "本月收益",
-      sevenDayEarnings: "本周收益",
-      thirtyDayEarnings: "本月收益",
+      sevenDayEarnings: "近 7 日收益",
+      thirtyDayEarnings: "近 30 日收益",
       transactionCount: "交易笔数",
       avgPerTransaction: "单笔平均收益",
       adjustments: "调整项",
@@ -161,8 +161,8 @@
       adjustmentRate: "调整项占比",
       dayWindow: '每日统计口径：北京时间 12:00–次日 12:00',
       lastSync: '最后更新',
-      last7: '本周数据',
-      last30: '本月数据',
+      last7: '最近 7 天',
+      last30: '最近 30 天',
       totalDownloads: '累计下载',
       today: '今日下载',
       yesterday: '昨日下载',
@@ -193,9 +193,9 @@
       nexusMatrix: '唯一下载 × 总下载',
       growthSnapshot: '增长概览',
       bestDay: '最佳单日',
-      avg7: '本周日均',
-      avg30: '本月日均',
-      momentum: '本周趋势',
+      avg7: '7 日日均',
+      avg30: '30 日日均',
+      momentum: '7 日趋势',
       top3Share: 'Top 3 下载占比',
       priceAxis: '价格（CC）',
       viewsAxis: '浏览',
@@ -243,8 +243,8 @@
       earningsDayWindow: "収益日は北京時間表示 · API は毎時同期",
       totalEarnings: "累計収益",
       currentMonthEarnings: "今月",
-      sevenDayEarnings: "今週の収益",
-      thirtyDayEarnings: "今月の収益",
+      sevenDayEarnings: "直近7日",
+      thirtyDayEarnings: "直近30日",
       transactionCount: "取引数",
       avgPerTransaction: "平均 / 取引",
       adjustments: "調整額",
@@ -271,8 +271,8 @@
       adjustmentRate: "調整比率",
       dayWindow: '日次集計：北京時間 12:00–翌日 12:00',
       lastSync: '最終更新',
-      last7: '今週のデータ',
-      last30: '今月のデータ',
+      last7: '直近 7 日',
+      last30: '直近 30 日',
       totalDownloads: '累計DL',
       today: '今日',
       yesterday: '昨日',
@@ -303,9 +303,9 @@
       nexusMatrix: 'ユニークDL × 総DL',
       growthSnapshot: '成長サマリー',
       bestDay: '最高日',
-      avg7: '今週の日平均',
-      avg30: '今月の日平均',
-      momentum: '今週の増減',
+      avg7: '7日平均',
+      avg30: '30日平均',
+      momentum: '7日モメンタム',
       top3Share: 'Top 3 比率',
       priceAxis: '価格 (CC)',
       viewsAxis: '閲覧',
@@ -524,48 +524,48 @@
     return [...days].filter((day) => day.date < beforeDate).sort((a, b) => a.date.localeCompare(b.date)).at(-1)
       || (state.mode === 'nexus' ? { nexus: 0, rows: [] } : state.mode === 'earnings' ? { earnings: 0, transactions: 0, rows: [] } : { free: 0, paid: 0, rows: [] });
   }
-  // Each Bethesda CC daily row is keyed by its Beijing-noon start date.
-  // Consequently Monday's 12:00 opening of a week, or day 1's 12:00
-  // opening of a month, is represented by that calendar date's key.
-  // Nexus uses the existing daily date keys; no raw timestamps are rebucketed.
-  const DAY_MS = 24 * 60 * 60 * 1000;
-  function keyDate(key) {
-    return new Date(String(key) + 'T00:00:00Z');
-  }
-  function dateKey(date) {
-    return date.toISOString().slice(0, 10);
-  }
-  function periodBounds(period = state.range, mode = state.mode, offset = 0) {
-    const today = keyDate(activeTodayKey(mode));
-    const start = new Date(today.getTime());
+  // Used only by the two top-level "This Week / This Month" KPI cards.
+  // Day keys already represent Beijing 12:00 → next-day 12:00.
+  // Charts and other analytics intentionally keep their original rolling windows.
+  const METRIC_DAY_MS = 24 * 60 * 60 * 1000;
+  function metricPeriodBounds(period, offset = 0, mode = state.mode) {
+    const date = new Date(activeTodayKey(mode) + 'T00:00:00Z');
+    const start = new Date(date.getTime());
     if (period === 'month') {
       start.setUTCDate(1);
       start.setUTCMonth(start.getUTCMonth() - offset);
     } else {
       start.setUTCDate(start.getUTCDate() - ((start.getUTCDay() + 6) % 7) - 7 * offset);
     }
-    if (!offset) return { start: dateKey(start), end: dateKey(today) };
-
-    // Compare elapsed portions of equivalent calendar periods, not a partial
-    // current week/month against an entire previous week/month.
-    const currentStart = keyDate(periodBounds(period, mode, 0).start);
-    const elapsedDays = Math.floor((today.getTime() - currentStart.getTime()) / DAY_MS);
-    const candidateEnd = new Date(start.getTime() + elapsedDays * DAY_MS);
-    const following = new Date(start.getTime());
-    if (period === 'month') following.setUTCMonth(following.getUTCMonth() + 1);
-    else following.setUTCDate(following.getUTCDate() + 7);
-    const last = new Date(following.getTime() - DAY_MS);
-    return { start: dateKey(start), end: dateKey(candidateEnd < last ? candidateEnd : last) };
+    if (!offset) return { start: start.toISOString().slice(0, 10), end: date.toISOString().slice(0, 10) };
+    const currentStart = new Date(metricPeriodBounds(period, 0, mode).start + 'T00:00:00Z');
+    const elapsedDays = Math.floor((date.getTime() - currentStart.getTime()) / METRIC_DAY_MS);
+    const comparedEnd = new Date(start.getTime() + elapsedDays * METRIC_DAY_MS);
+    const next = new Date(start.getTime());
+    if (period === 'month') next.setUTCMonth(next.getUTCMonth() + 1);
+    else next.setUTCDate(next.getUTCDate() + 7);
+    const last = new Date(next.getTime() - METRIC_DAY_MS);
+    return {
+      start: start.toISOString().slice(0, 10),
+      end: new Date(Math.min(comparedEnd.getTime(), last.getTime())).toISOString().slice(0, 10)
+    };
   }
-  function modeDays(mode = state.mode) {
-    return mode === 'earnings' ? state.earningsDays : mode === 'nexus' ? state.nexusDays : state.days;
+  function metricPeriodValue(period, offset = 0, mode = state.mode) {
+    const bounds = metricPeriodBounds(period, offset, mode);
+    const days = mode === 'nexus' ? state.nexusDays : mode === 'earnings' ? state.earningsDays : state.days;
+    return days.filter((day) => day.date >= bounds.start && day.date <= bounds.end)
+      .reduce((sum, day) => sum + selectedValue(day, mode), 0);
   }
-  function periodDays(period = state.range, offset = 0, mode = state.mode) {
-    const { start, end } = periodBounds(period, mode, offset);
-    return modeDays(mode).filter((day) => day.date >= start && day.date <= end);
+  function periodDays(count, offset = 0) {
+    const eligible = activeDays().filter((day) => day.date <= activeTodayKey());
+    const end = Math.max(0, eligible.length - offset);
+    return eligible.slice(Math.max(0, end - count), end);
   }
-  function periodValue(period = state.range, offset = 0, mode = state.mode) {
-    return periodDays(period, offset, mode).reduce((sum, day) => sum + selectedValue(day, mode), 0);
+  function periodValue(count, offset = 0, mode = state.mode) {
+    const days = mode === 'earnings' ? state.earningsDays : mode === 'nexus' ? state.nexusDays : state.days;
+    const eligible = days.filter((day) => day.date <= activeTodayKey(mode));
+    const end = Math.max(0, eligible.length - offset);
+    return eligible.slice(Math.max(0, end - count), end).reduce((sum, day) => sum + selectedValue(day, mode), 0);
   }
   function nexusMods() {
     return Array.isArray(state.nexusLatest?.mods) ? state.nexusLatest.mods : [];
@@ -658,8 +658,8 @@
       target.innerHTML = [
         card(t('totalEarnings'), money(totals.earningsUSD), '$', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'),
         card(t('currentMonthEarnings'), money(totals.currentMonthUSD), '◫', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(data.period?.to || '') + '</span>'),
-        card(t('sevenDayEarnings'), money(periodValue('week')), 'W', trend(percentChange(periodValue('week'), periodValue('week', 1)), t('vsLastWeek'))),
-        card(t('thirtyDayEarnings'), money(periodValue('month')), 'M', trend(percentChange(periodValue('month'), periodValue('month', 1)), t('vsLastMonth'))),
+        card(t('sevenDayEarnings'), money(totals.last7DaysUSD), '7', trend(percentChange(periodValue(7), periodValue(7, 7)), t('vsPrevious'))),
+        card(t('thirtyDayEarnings'), money(totals.last30DaysUSD), '30', trend(percentChange(periodValue(30), periodValue(30, 30)), t('vsPrevious'))),
         card(t('transactionCount'), fmt(totals.transactionRows), '#', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'),
         card(t('avgPerTransaction'), money(average), '÷', '<span class="admin-metric-trend is-flat">●</span><span>USD</span>'),
         card(t('productsCount'), fmt(totals.products), '▱', '<span class="admin-metric-trend is-flat">●</span><span>Bethesda Games</span>'),
@@ -673,8 +673,8 @@
     const beforeYesterday = priorDay(yesterday.date || today.date);
     const current = selectedValue(today);
     const previous = selectedValue(yesterday);
-    const p7 = periodValue('week'), prev7 = periodValue('week', 1);
-    const p30 = periodValue('month'), prev30 = periodValue('month', 1);
+    const p7 = metricPeriodValue('week'), prev7 = metricPeriodValue('week', 1);
+    const p30 = metricPeriodValue('month'), prev30 = metricPeriodValue('month', 1);
     const totals = allTimeStats();
     const cards = [
       card(t('totalDownloads'), fmt(totals.downloads), '↓', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'),
@@ -900,13 +900,14 @@
   function renderGrowthSnapshot() {
     const target = document.querySelector('[data-cc-snapshot]');
     if (!target) return;
+    const days = periodDays(Math.max(30, state.range));
     const visible = periodDays(state.range);
     const best = [...visible].sort((a,b) => selectedValue(b) - selectedValue(a))[0];
-    const weekDays = periodDays('week');
-    const monthDays = periodDays('month');
-    const avg7 = weekDays.length ? weekDays.reduce((sum,day) => sum + selectedValue(day),0) / weekDays.length : 0;
-    const avg30 = monthDays.length ? monthDays.reduce((sum,day) => sum + selectedValue(day),0) / monthDays.length : 0;
-    const momentumValue = percentChange(periodValue('week'), periodValue('week', 1));
+    const avg7Days = periodDays(7);
+    const avg30Days = periodDays(30);
+    const avg7 = avg7Days.length ? avg7Days.reduce((sum,day) => sum + selectedValue(day),0) / avg7Days.length : 0;
+    const avg30 = avg30Days.length ? avg30Days.reduce((sum,day) => sum + selectedValue(day),0) / avg30Days.length : 0;
+    const momentumValue = percentChange(periodValue(7), periodValue(7,7));
     const momentumText = momentumValue === null ? '—' : (momentumValue >= 0 ? '+' : '') + momentumValue.toFixed(1) + '%';
     const rows = [
       [t('bestDay'), best ? metric(selectedValue(best)) + ' · ' + dateLabel(best.date) : '—'],
@@ -971,18 +972,6 @@
       const label = button.querySelector('span');
       if (label) label.textContent = button.dataset.ccTab === 'paid' ? t('paid') : button.dataset.ccTab === 'free' ? t('free') : t('nexus');
     });
-    const range = dashboard.querySelector('[data-cc-range]');
-    if (range) {
-      const a = range.querySelector('option[value="week"]'), b = range.querySelector('option[value="month"]');
-      if (a) a.textContent = t('last7');
-      if (b) b.textContent = t('last30');
-      const { start } = periodBounds();
-      const end = keyDate(start);
-      if (state.range === 'month') end.setUTCMonth(end.getUTCMonth() + 1);
-      else end.setUTCDate(end.getUTCDate() + 7);
-      range.title = start + ' 12:00 — ' + dateKey(end) + ' 12:00 ' +
-        (lang() === 'zh-CN' ? '（北京时间）' : '(Beijing time)');
-    }
     const map = {
       '[data-cc-trend-title]': 'downloadsTrend',
       '[data-cc-recent-title]': 'recent',
@@ -1000,7 +989,7 @@
     if (shareTitle) shareTitle.textContent = state.mode === 'nexus' ? t('nexusShare') : t('ccShare');
     const matrixTitle = dashboard.querySelector('[data-cc-matrix-subtitle]');
     if (matrixTitle) matrixTitle.textContent = state.mode === 'paid' ? t('paidMatrix') : state.mode === 'free' ? t('freeMatrix') : t('nexusMatrix');
-    dashboard.querySelectorAll('[data-cc-range-label]').forEach((node) => { node.textContent = state.range === 'month' ? t('last30') : t('last7'); });
+    dashboard.querySelectorAll('[data-cc-range-label]').forEach((node) => { node.textContent = state.range === 30 ? t('last30') : t('last7'); });
     const legend = dashboard.querySelector('[data-cc-legend]');
     if (legend) legend.lastChild.textContent = state.mode === 'paid' ? t('paid') : state.mode === 'free' ? t('free') : t('nexus');
     const rhead = dashboard.querySelector('[data-cc-ranking-head]');
@@ -1020,7 +1009,7 @@
     renderDetails();
   }
   function markup() {
-    return '<header class="admin-dashboard-header"><div class="admin-dashboard-title"><h1 data-cc-title>Mod Analytics</h1><p data-cc-subtitle></p><p class="admin-dashboard-day-window" data-cc-day-window></p></div><div class="admin-dashboard-tools"><select class="admin-dashboard-range" data-cc-range aria-label="Dashboard period"><option value="week">This Week</option><option value="month">This Month</option></select></div></header>' +
+    return '<header class="admin-dashboard-header"><div class="admin-dashboard-title"><h1 data-cc-title>Mod Analytics</h1><p data-cc-subtitle></p><p class="admin-dashboard-day-window" data-cc-day-window></p></div></header>' +
       '<div class="admin-cc-focus-strip"><div class="admin-cc-focus-tabs" role="tablist" aria-label="Mod data source"><button class="admin-cc-focus-tab is-active" type="button" role="tab" aria-selected="true" data-cc-tab="paid"><i></i><span>Paid Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="free"><i></i><span>Free Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="nexus"><i></i><span>Nexus Mods</span></button></div><span class="admin-dashboard-sync admin-cc-tab-sync" data-cc-sync></span></div>' +
       '<section class="admin-dashboard-metrics" data-cc-kpis></section>' +
       '<div class="admin-cc-focus-dashboard-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-trend-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-focus-legend" data-cc-legend><i></i><span></span></div><div class="admin-line-chart" data-cc-line-chart></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-share-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-share-card"><div class="admin-cc-share-ring" data-cc-share-ring><div class="admin-cc-share-center"><strong data-cc-share-center>0%</strong><span>MOD</span></div></div><div class="admin-cc-share-copy" data-cc-share-copy></div></div></section></div>' +
@@ -1053,9 +1042,6 @@
       const parsedSite = parseSiteData(siteSource);
       const creationStamp = latestCreationTimestamp(parsedSite?.creations || []);
       const signature = [
-        // Force a local chart update when the Beijing-noon day boundary changes.
-        todayKey(),
-        calendarTodayKey(),
         creationStamp,
         creationText.length,
         creationText.slice(-240),
@@ -1101,11 +1087,6 @@
       state.mode = ['paid', 'free', 'nexus'].includes(tab.dataset.ccTab) ? tab.dataset.ccTab : 'paid';
       renderAll();
     });
-    dashboard.querySelector('[data-cc-range]')?.addEventListener('change', (event) => {
-      state.range = event.target.value === 'month' ? 'month' : 'week';
-      renderAll();
-    });
-
     let observedLang = document.documentElement.lang;
     const langObserver = new MutationObserver(() => {
       const currentLang = document.documentElement.lang;
