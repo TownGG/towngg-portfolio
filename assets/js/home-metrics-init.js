@@ -14,6 +14,28 @@
     }
   }
 
+  function parseSiteData(source) {
+    const isolatedWindow = {};
+    return Function("window", source + "\n;return window.siteData;")(isolatedWindow);
+  }
+
+  async function refreshHomeMetricsData(event) {
+    if (document.body?.dataset?.page !== "home") return;
+    const sources = Array.isArray(event?.detail?.sources) ? event.detail.sources : [];
+    try {
+      if (sources.includes("Bethesda Creations")) {
+        const response = await fetch("./assets/js/site-data.js?t=" + Date.now(), { cache: "no-store" });
+        if (response.ok) {
+          const parsed = parseSiteData(await response.text());
+          if (parsed && window.siteData) Object.assign(window.siteData, parsed);
+        }
+      }
+    } catch (error) {
+      console.warn("Homepage data refresh skipped", error);
+    }
+    runHomeMetrics();
+  }
+
   function escapeHtml(value) {
     return String(value || "")
       .replace(/&/g, "&amp;")
@@ -152,5 +174,6 @@
     runHomeMetrics();
     window.setTimeout(runPlayerVoices, 250);
     watchLanguageChanges();
+    window.addEventListener("towngg:downloads-data-updated", refreshHomeMetricsData);
   });
 })();
