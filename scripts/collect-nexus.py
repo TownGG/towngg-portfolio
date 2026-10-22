@@ -17,7 +17,6 @@ from zoneinfo import ZoneInfo
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "assets" / "data" / "nexus-mods.json"
 HISTORY_PATH = ROOT / "assets" / "data" / "nexus-history.csv"
-BASELINE_PATH = ROOT / "assets" / "data" / "nexus-day-baselines.csv"
 LATEST_PATH = ROOT / "assets" / "data" / "nexus-latest.json"
 SITE_DATA_PATH = ROOT / "assets" / "js" / "site-data.js"
 BEIJING_TZ = ZoneInfo("Asia/Shanghai")
@@ -28,8 +27,6 @@ DEFAULT_DISCOVERY_PERIOD = "1m"
 DEFAULT_REQUEST_TIMEOUT = 12
 DEFAULT_REQUEST_ATTEMPTS = 2
 DEFAULT_MAX_WORKERS = 4
-
-BASELINE_FIELDS = ["date", "platform", "mod_id", "total_downloads", "sampled_at"]
 
 FIELDS = [
     "date",
@@ -52,7 +49,7 @@ def now_utc():
 
 
 def today():
-    return now_utc().astimezone(BEIJING_TZ).date().isoformat()
+    return (now_utc().astimezone(BEIJING_TZ) - dt.timedelta(hours=12)).date().isoformat()
 
 
 def iso_now():
@@ -141,67 +138,6 @@ def read_history():
         return list(csv.DictReader(handle))
 
 
-def read_baselines():
-    if not BASELINE_PATH.exists():
-        return []
-    with BASELINE_PATH.open("r", newline="", encoding="utf-8-sig") as handle:
-        return list(csv.DictReader(handle))
-
-
-def write_baselines(rows):
-    BASELINE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with BASELINE_PATH.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=BASELINE_FIELDS)
-        writer.writeheader()
-        writer.writerows(rows)
-
-
-def baseline_for(rows, date, platform, mod_id):
-    return next((
-        row for row in rows
-        if row.get("date") == date and row.get("platform") == platform
-        and str(row.get("mod_id")) == str(mod_id)
-    ), None)
-
-
-def update_baselines(rows, fresh_rows, date, sampled_at):
-    """Save the first observed cumulative count after Beijing midnight."""
-    existing = {(r["date"], r["platform"], str(r["mod_id"])) for r in rows}
-    for item in fresh_rows:
-        key = (date, item["platform"], str(item["mod_id"]))
-        if key not in existing:
-            rows.append({
-                "date": date,
-                "platform": item["platform"],
-                "mod_id": str(item["mod_id"]),
-                "total_downloads": number(item.get("total_downloads")),
-                "sampled_at": sampled_at,
-            })
-            existing.add(key)
-    # Retain only a rolling window; missing baseline dates are never made up.
-    earliest = (now_utc().astimezone(BEIJING_TZ).date() - dt.timedelta(days=75)).isoformat()
-    return [row for row in rows if row.get("date", "") >= earliest]
-
-
-def finish_previous_midnight_day(previous_rows, baselines, fresh_rows, date):
-    """Close yesterday at the next midnight sample, not at the noon refresh."""
-    if now_utc().astimezone(BEIJING_TZ).hour >= 2:
-        return previous_rows
-    previous_day = (dt.date.fromisoformat(date) - dt.timedelta(days=1)).isoformat()
-    by_mod = {(row["platform"], str(row["mod_id"])): row for row in fresh_rows}
-    for old in previous_rows:
-        if old.get("date") != previous_day:
-            continue
-        current = by_mod.get((old.get("platform"), str(old.get("mod_id"))))
-        base = baseline_for(baselines, previous_day, old.get("platform"), old.get("mod_id"))
-        if current is None or base is None:
-            continue
-        total = number(current.get("total_downloads"))
-        old["daily_downloads"] = max(0, total - number(base.get("total_downloads")))
-        old["total_downloads"] = total
-    return previous_rows
-
-
 def write_history(rows):
     HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
     with HISTORY_PATH.open("w", newline="", encoding="utf-8") as handle:
@@ -272,9 +208,9 @@ def latest_previous(rows, platform, mod_id, date):
     return sorted(candidates, key=lambda row: row["date"])[-1] if candidates else None
 
 
-def normalize(row, previous_rows, date, baselines=None):
-    base = baseline_for(baselines or [], date, row["platform"], row["mod_id"])
-    previous_total = number(base.get("total_downloads")) if base is not None else None
+def normalize(row, previous_rows, date):
+    previous = latest_previous(previous_rows, row["platform"], row["mod_id"], date)
+    previous_total = number(previous.get("total_downloads")) if previous else None
     total = number(row.get("total_downloads"))
     normalized = {field: "" for field in FIELDS}
     normalized.update(row)
@@ -573,10 +509,7 @@ def main():
         print("No fresh rows collected.")
         sys.exit(2)
 
-    baselines = update_baselines(read_baselines(), fresh_rows, date, updated_at)
-    write_baselines(baselines)
-    previous_rows = finish_previous_midnight_day(previous_rows, baselines, fresh_rows, date)
-    normalized = [normalize(row, previous_rows, date, baselines) for row in fresh_rows]
+    normalized = [normalize(row, previous_rows, date) for row in fresh_rows]
     kept = [
         row for row in previous_rows
         if not any(row.get("date") == date and row.get("platform") == new["platform"] and row.get("mod_id") == new["mod_id"] for new in normalized)
@@ -587,7 +520,6 @@ def main():
     card_count = write_missing_site_cards(mods, item_by_id)
     print(f"Saved {len(normalized)} rows to {HISTORY_PATH}")
     print(f"Saved latest snapshot to {LATEST_PATH}")
-    print(f"Saved Beijing-midnight baselines to {BASELINE_PATH}")
     if preserved:
         print(f"Preserved {preserved} previous Nexus snapshot row(s) after request failures.")
     if added:

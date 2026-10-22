@@ -51,7 +51,7 @@
       pendingRate: "Unprocessed share",
       failedRate: "Failed share",
       adjustmentRate: "Adjustment share",
-      dayWindow: 'Daily statistics: Beijing 00:00–24:00',
+      dayWindow: 'Daily statistics: Beijing 12:00–next day 12:00',
       lastSync: 'Last Updated',
       last7: 'Last 7 days',
       last30: 'Last 30 days',
@@ -89,9 +89,9 @@
       revenueAnalysis: 'Estimated Revenue Analytics',
       revenueAnalysisDesc: 'Library adds × ¥4.62 · Not actual payouts',
       revenueLine: 'Today’s Estimated Revenue Trend',
-      revenueLineSub: 'Since 00:00 Beijing time',
+      revenueLineSub: 'Since 12:00 Beijing time',
       revenueDaily: 'Recent 7-day Revenue Trend',
-      revenueDailySub: 'Beijing 00:00 to next day 00:00; missing data ≠ zero',
+      revenueDailySub: 'Beijing 12:00 to next day 12:00; missing data ≠ zero',
       revenueInsightsTitle: '7 Completed Days · Revenue Insights',
       revenueInsightsDesc: 'Excludes the current unfinished statistics day',
       revenueSevenTotal: '7-day Total',
@@ -114,7 +114,7 @@
       revenueNewGrowth: 'New growth',
       revenuePrior: 'Prior period',
       revenueEstimated: 'Estimate · snapshots',
-      revenueDateNote: 'Snapshots may be ~30 minutes from the cutoff · dashed bars indicate estimates interpolated from neighboring snapshots',
+      revenueDateNote: 'Snapshots may be ~30 minutes from the cutoff · dashed bars indicate interpolated values during the Oct 15–18 token outage',
       plays: 'Plays',
       uniqueDownloads: 'Unique Downloads',
       endorsements: 'Endorsements',
@@ -211,7 +211,7 @@
       pendingRate: "待结算占比",
       failedRate: "失败收益占比",
       adjustmentRate: "调整项占比",
-      dayWindow: '每日统计口径：北京时间 00:00–24:00',
+      dayWindow: '每日统计口径：北京时间 12:00–次日 12:00',
       lastSync: '最后更新',
       last7: '最近 7 天',
       last30: '最近 30 天',
@@ -249,9 +249,9 @@
       revenueAnalysis: '预估收入分析',
       revenueAnalysisDesc: '入库增量 × ¥4.62 · 非实际结算',
       revenueLine: '今日累计预估收入走势',
-      revenueLineSub: '北京时间 00:00 至最新快照',
+      revenueLineSub: '北京时间 12:00 至最新快照',
       revenueDaily: '近 7 个统计日预估收入',
-      revenueDailySub: '北京时间 00:00 至次日 00:00 · 缺失不等于零',
+      revenueDailySub: '北京时间 12:00 至次日 12:00 · 缺失不等于零',
       revenueInsightsTitle: '近 7 个完整统计日分析',
       revenueInsightsDesc: '不含尚未结束的当日统计',
       revenueSevenTotal: '7 日累计收入',
@@ -274,7 +274,7 @@
       revenueNewGrowth: '新增收入',
       revenuePrior: '上期同期',
       revenueEstimated: '估算 · 快照口径',
-      revenueDateNote: '快照与自然日边界可能相差约半小时 · 虚线柱表示缺少边界快照时的插值估算',
+      revenueDateNote: '快照采样与统计边界可能相差约半小时 · 虚线柱表示 10 月 15–18 日 Token 中断期间的插值估算',
       plays: '游玩',
       uniqueDownloads: '唯一下载',
       endorsements: 'Endorsements',
@@ -371,7 +371,7 @@
       pendingRate: "未処理比率",
       failedRate: "失敗比率",
       adjustmentRate: "調整比率",
-      dayWindow: '日次集計：北京時間 00:00–24:00',
+      dayWindow: '日次集計：北京時間 12:00–翌日 12:00',
       lastSync: '最終更新',
       last7: '直近 7 日',
       last30: '直近 30 日',
@@ -409,9 +409,9 @@
       revenueAnalysis: '推定収益分析',
       revenueAnalysisDesc: '追加数 × ¥4.62 · 実際の支払額ではありません',
       revenueLine: '本日の推定収益推移',
-      revenueLineSub: '北京時間00:00から最新データまで',
+      revenueLineSub: '北京時間12:00から最新データまで',
       revenueDaily: '直近7日間の推定収益',
-      revenueDailySub: '北京時間00:00〜翌00:00 · 欠測≠ゼロ',
+      revenueDailySub: '北京時間12:00〜翌12:00 · 欠測≠ゼロ',
       revenueInsightsTitle: '直近7完了日の収益分析',
       revenueInsightsDesc: '進行中の統計日は含みません',
       revenueSevenTotal: '7日間の合計',
@@ -434,7 +434,7 @@
       revenueNewGrowth: '新規増加',
       revenuePrior: '前期',
       revenueEstimated: '推定 · スナップショット',
-      revenueDateNote: 'スナップショットは日付境界と約30分ずれる場合があります · 破線は欠測補間の推定値です',
+      revenueDateNote: 'スナップショットには約30分の誤差があります · 破線の棒は10月15〜18日の欠測補間値です',
       plays: 'プレイ',
       uniqueDownloads: 'ユニークDL',
       endorsements: 'Endorsements',
@@ -574,7 +574,7 @@
   function todayKey() {
     const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
       timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit'
-    }).formatToParts(new Date(Date.now())).map((part) => [part.type, part.value]));
+    }).formatToParts(new Date(Date.now() - 12 * 60 * 60 * 1000)).map((part) => [part.type, part.value]));
     return parts.year + '-' + parts.month + '-' + parts.day;
   }
   function dateLabel(value) {
@@ -677,7 +677,7 @@
       || (state.mode === 'nexus' ? { nexus: 0, rows: [] } : state.mode === 'earnings' ? { earnings: 0, transactions: 0, rows: [] } : { free: 0, paid: 0, rows: [] });
   }
   // Used only by the two top-level "This Week / This Month" KPI cards.
-  // Day keys represent Beijing 00:00 → next-day 00:00 after the collection cutover.
+  // Day keys already represent Beijing 12:00 → next-day 12:00.
   // Charts and other analytics intentionally keep their original rolling windows.
   const METRIC_DAY_MS = 24 * 60 * 60 * 1000;
   function metricPeriodBounds(period, offset = 0, mode = state.mode) {
@@ -708,10 +708,10 @@
     return days.filter((day) => day.date >= bounds.start && day.date <= bounds.end)
       .reduce((sum, day) => sum + selectedValue(day, mode), 0);
   }
-  // Paid-only Library Adds. Beijing midnight is 16:00 UTC on the previous date.
+  // Paid-only Library Adds. Snapshots use UTC; Beijing noon = 04:00 UTC.
   function paidLibraryIncrement(period) {
     const key = period === 'today' ? todayKey() : metricPeriodBounds(period, 0, 'paid').start;
-    const boundary = Date.parse(key + 'T00:00:00+08:00');
+    const boundary = Date.parse(key + 'T04:00:00Z');
     const snapshots = state.paidLibraryHistory.map((row) => ({
       time: utcDate(row.timestamp)?.getTime(),
       value: Number(row.total_paid_library_adds)
@@ -750,7 +750,7 @@
       date.setUTCDate(1);
       date.setUTCMonth(date.getUTCMonth() - offset);
     }
-    return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), -8);
+    return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 4);
   }
   function paidRevenuePriorStart(period) {
     if (period === 'year') {
@@ -779,21 +779,20 @@
     if (!prevBase || !prevPoint || prevPoint.time <= prevBase.time) return { current, previous: null };
     return { current, previous: Math.max(0, prevPoint.count - prevBase.count) * PAID_RMB_PER_LIBRARY_ADD };
   }
-  // Historical gap-filling applies only to the daily chart; KPI baselines
-  // still require actual near-midnight observations rather than estimates.
+  // Only the daily income chart uses these estimates (not original data, KPIs or comparisons).
+  // GitHub historical source: Oct 16 01:40Z=828, 09:39Z=837; Oct 17 21:09Z=940, Oct 18 04:43Z=967.
+  // At the 04:00Z Beijing-noon boundaries, linear interpolation yields ≈831 and ≈964.
+  const PAID_REVENUE_ESTIMATED_BOUNDARIES = new Map([
+    [Date.parse('2026-10-16T04:00:00Z'), 831],
+    [Date.parse('2026-10-18T04:00:00Z'), 964]
+  ]);
   function paidRevenueDailyBoundary(snapshots, boundary) {
     const observed = paidRevenueAt(snapshots, boundary);
     if (observed) return { ...observed, estimated: false };
-    const before = snapshots.filter((point) => point.time < boundary).at(-1);
-    const after = snapshots.find((point) => point.time > boundary);
-    const maxGapMs = 72 * 60 * 60 * 1000;
-    if (!before || !after || after.time - before.time > maxGapMs) return null;
-    const ratio = (boundary - before.time) / (after.time - before.time);
-    return {
-      time: boundary,
-      count: before.count + (after.count - before.count) * ratio,
-      estimated: true
-    };
+    const interpolated = PAID_REVENUE_ESTIMATED_BOUNDARIES.get(boundary);
+    return Number.isFinite(interpolated)
+      ? { time: boundary, count: interpolated, estimated: true }
+      : null;
   }
   function paidRevenueDailyRows(snapshots, count = 7) {
     const latest = snapshots.at(-1);
@@ -987,12 +986,8 @@
       const libraryAdds = previous ? null : paidLibraryIncrement(period);
       const income = previous ? paidPreviousFullRevenue(snapshots, periodUnit)
         : libraryAdds === null ? null : libraryAdds * PAID_RMB_PER_LIBRARY_ADD;
-      // Today displays 0 before the first usable revenue snapshot; history stays unknown.
-      const money = income === null && period === 'today' ? revenueMoney(0)
-        : income === null ? '—' : revenueMoney(income);
-      let foot = income === null && period === 'today'
-        ? t('revenueComparedTo') + ' ' + t(compareLabel) + ' · ' + t('revenueNoHistory')
-        : income === null ? t('libraryUnavailable') : t('priorPeriodComplete');
+      const money = income === null ? '—' : revenueMoney(income);
+      let foot = income === null ? t('libraryUnavailable') : t('priorPeriodComplete');
       let changeClass = '';
       if (!previous && income !== null) {
         const comparison = paidRevenueComparison(snapshots, periodUnit);
@@ -1025,23 +1020,19 @@
     const latest = snapshots.at(-1);
     const start = paidRevenueStart('day');
     const baseline = paidRevenueAt(snapshots, start);
-    const hasTodaySamples = Boolean(latest && baseline && latest.time > start);
-    const chartEnd = hasTodaySamples ? latest.time
-      : Math.max(start + 60000, Math.min(Date.now(), start + PAID_REVENUE_DAY_MS));
-    // A no-data day gets a visible 0-yuan baseline, not a fabricated income series.
-    const points = hasTodaySamples
-      ? [{ time: start, value: 0 }].concat(snapshots
-          .filter((p) => p.time > start && p.time <= latest.time)
-          .map((p) => ({ time: p.time, value: Math.max(0, p.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD })))
-      : [{ time: start, value: 0 }, { time: chartEnd, value: 0 }];
+    let svg = '<div class="admin-cc-revenue-empty">' + esc(t('revenueNoHistory')) + '</div>';
+    if (latest && baseline && latest.time > start) {
+      const points = [{ time: start, value: 0 }].concat(snapshots
+        .filter((p) => p.time > start && p.time <= latest.time)
+        .map((p) => ({ time: p.time, value: Math.max(0, p.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD })));
       const W = 690, H = 240, L = 56, R = 16, T = 18, B = 37;
       const pw = W - L - R, ph = H - T - B;
       const maxValue = Math.max(10, ...points.map((p) => p.value));
-      const x = (p) => L + (p.time - start) / Math.max(1, chartEnd - start) * pw;
+      const x = (p) => L + (p.time - start) / Math.max(1, latest.time - start) * pw;
       const y = (p) => T + (1 - p.value / maxValue) * ph;
       const coord = (p) => x(p).toFixed(1) + ',' + y(p).toFixed(1);
       const path = points.map((p, i) => (i ? 'L' : 'M') + coord(p)).join(' ');
-      const area = path + ' L' + coord({ time: chartEnd, value: 0 }) + ' L' + coord({ time: start, value: 0 }) + ' Z';
+      const area = path + ' L' + coord({ time: latest.time, value: 0 }) + ' L' + coord({ time: start, value: 0 }) + ' Z';
       const marks = points.filter((p, i) => i === 0 || i === points.length - 1 || i % Math.max(1, Math.ceil(points.length / 14)) === 0)
         .map((p) => '<circle cx="' + x(p).toFixed(1) + '" cy="' + y(p).toFixed(1) +
           '" r="3.4" fill="#ffcb7e" stroke="#342515" stroke-width="1.5"><title>' +
@@ -1050,23 +1041,23 @@
         const yy = (T + (1 - fraction) * ph).toFixed(1);
         return '<line x1="' + L + '" y1="' + yy + '" x2="' + (W - R) + '" y2="' + yy +
           '" class="admin-cc-revenue-gridline"/><text x="' + (L - 10) + '" y="' + (+yy + 4) +
-          '" text-anchor="end" class="admin-cc-revenue-axis">' + esc(hasTodaySamples || fraction === 0 ? fmt(maxValue * fraction) : '') + '</text>';
+          '" text-anchor="end" class="admin-cc-revenue-axis">' + esc(fmt(maxValue * fraction)) + '</text>';
       }).join('');
-      const ticks = [start, start + (chartEnd - start) / 2, chartEnd].map((time, i) => {
+      const ticks = [start, start + (latest.time - start) / 2, latest.time].map((time, i) => {
         const xx = L + i / 2 * pw;
         return '<text x="' + xx.toFixed(1) + '" y="' + (H - 10) + '" text-anchor="' +
           (i === 0 ? 'start' : i === 2 ? 'end' : 'middle') + '" class="admin-cc-revenue-axis">' +
           esc(revenueBeijingTime(time)) + '</text>';
       }).join('');
-      const svg = '<svg class="admin-cc-revenue-chart" viewBox="0 0 ' + W + ' ' + H +
+      svg = '<svg class="admin-cc-revenue-chart" viewBox="0 0 ' + W + ' ' + H +
         '" role="img" aria-label="' + esc(t('revenueLine')) + '">' +
         '<defs><linearGradient id="ccEstimatedRevenueFill" x1="0" x2="0" y1="0" y2="1">' +
         '<stop offset="0%" stop-color="#ffbf72" stop-opacity=".3"/>' +
         '<stop offset="100%" stop-color="#ffbf72" stop-opacity="0"/></linearGradient></defs>' +
         axis + '<path d="' + area + '" fill="url(#ccEstimatedRevenueFill)"/>' +
         '<path d="' + path + '" fill="none" stroke="#ffc97a" stroke-width="3.3" ' +
-        (hasTodaySamples ? '' : 'stroke-dasharray="7 6" opacity=".72" ') +
         'stroke-linecap="round" stroke-linejoin="round"/>' + marks + ticks + '</svg>';
+    }
     const comparisons = [
       ['revenueVsDay', 'day'],
       ['revenueVsWeek', 'week'],
