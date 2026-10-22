@@ -817,3 +817,209 @@
     line-height: 1.35;
   }
 }
+
+/* Paid CC estimated revenue analytics: appears before the existing download charts. */
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-analysis {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-analysis[hidden] {
+  display: none !important;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-analysis-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 9px 16px;
+  padding: 4px 2px 0;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-analysis-heading h2 {
+  margin: 0 0 4px;
+  color: #f7e3bc;
+  font-size: 20px;
+  font-weight: 800;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-analysis-heading p {
+  margin: 0;
+  color: #aebdca;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-analysis-heading > span {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px solid rgba(246, 198, 117, .24);
+  border-radius: 7px;
+  background: rgba(246, 198, 117, .08);
+  color: #e8c88e;
+  font-size: 12px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-analysis-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(300px, 1fr);
+  gap: 12px;
+  min-width: 0;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-analysis .admin-analytics-panel {
+  padding: 18px;
+  border-color: rgba(246, 198, 117, .23) !important;
+  background: linear-gradient(145deg, rgba(28, 29, 36, .98), rgba(10, 17, 27, .96));
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-panel-heading h3 {
+  margin: 0 0 5px;
+  font-size: 16px;
+  color: #f4e6ca;
+  font-weight: 800;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-panel-heading p {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: #a8b6c2;
+  line-height: 1.45;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 270px;
+  overflow: visible;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-axis {
+  fill: #a4b3c1;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-gridline {
+  stroke: rgba(207, 223, 238, .12);
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-empty {
+  display: grid;
+  place-items: center;
+  min-height: 200px;
+  color: #a8b6c2;
+  font-size: 13px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-comparison-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 65px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(240, 211, 160, .1);
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-comparison-row:last-child { border-bottom: 0; }
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-comparison-row > div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-comparison-row strong {
+  color: #e7eaf0;
+  font-size: 13px;
+  font-weight: 700;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-comparison-row small {
+  color: #a5b3c2;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-change {
+  flex: 0 0 auto;
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-change.is-up { color: #67dd9f; }
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-change.is-down { color: #ff9c9d; }
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-change.is-neutral { color: #f4d59e; }
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-daily-bars {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  min-height: 225px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day-amount {
+  flex: 0 0 auto;
+  max-width: 100%;
+  margin-bottom: 8px;
+  overflow: hidden;
+  color: #e7d3ae;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day-track {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 90px;
+  height: 155px;
+  border-bottom: 1px solid rgba(226, 197, 143, .25);
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day-bar {
+  width: min(68%, 56px);
+  min-height: 2px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, #f7cc85, #c78d45);
+  box-shadow: 0 0 14px rgba(238, 170, 77, .16);
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day.is-current .admin-cc-revenue-day-bar {
+  background: linear-gradient(180deg, #ffdc98, #dba059);
+  box-shadow: 0 0 20px rgba(248, 194, 99, .30);
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day-missing {
+  align-self: center;
+  margin-bottom: 45px;
+  color: #718394;
+  font-size: 16px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day-label {
+  margin-top: 8px;
+  color: #b5c3d1;
+  font-size: 12px;
+  text-align: center;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day.is-current .admin-cc-revenue-day-label {
+  color: #f8d49a;
+  font-weight: 800;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-data-note {
+  margin: 12px 0 0;
+  color: #a6b5c2;
+  font-size: 12px;
+  line-height: 1.45;
+}
+@media (max-width: 1160px) {
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-analysis-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-analysis-heading h2 { font-size: 18px; }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-analysis .admin-analytics-panel { padding: 14px; }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day-amount { font-size: 11px; }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-daily-bars { gap: 4px; min-height: 200px; }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day-track { height: 140px; }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day-label { font-size: 11px; }
+}
+@media (max-width: 390px) {
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day-amount {
+    font-size: 10px;
+    letter-spacing: -.04em;
+  }
+}
