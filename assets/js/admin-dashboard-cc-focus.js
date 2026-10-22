@@ -6,6 +6,7 @@
   const NEXUS_LATEST_URL = './assets/data/nexus-latest.json';
   const EARNINGS_URL = './assets/data/partner-earnings.json';
   const REFRESH_MS = 2 * 60 * 1000;
+  const PAID_RMB_PER_LIBRARY_ADD = 4.62;
   const STALE_AFTER_MS = 60 * 60 * 1000;
   const state = { mode: 'paid', range: 7, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], paidLibraryHistory: [], ready: false, refreshing: false, signature: '', lastSync: '' };
 
@@ -69,6 +70,10 @@
       monthLibrary: 'Library Adds This Month',
       librarySnapshot: 'Snapshot-based increase',
       libraryUnavailable: 'Boundary snapshot missing',
+      estimatedTodayRmb: 'Estimated Revenue Today',
+      estimatedWeekRmb: 'Estimated Revenue This Week',
+      estimatedMonthRmb: 'Estimated Revenue This Month',
+      estimatedRevenueNote: 'Library Adds × 4.62 · estimate only',
       plays: 'Plays',
       uniqueDownloads: 'Unique Downloads',
       endorsements: 'Endorsements',
@@ -184,6 +189,10 @@
       monthLibrary: '本月入库数',
       librarySnapshot: '按快照增量统计',
       libraryUnavailable: '缺少起点数据',
+      estimatedTodayRmb: '今日预估收入',
+      estimatedWeekRmb: '本周预估收入',
+      estimatedMonthRmb: '本月预估收入',
+      estimatedRevenueNote: '入库数 × 4.62 · 非实际结算',
       plays: '游玩',
       uniqueDownloads: '唯一下载',
       endorsements: 'Endorsements',
@@ -299,6 +308,10 @@
       monthLibrary: '今月ライブラリ追加',
       librarySnapshot: 'スナップショットの増加量',
       libraryUnavailable: '開始時点のデータなし',
+      estimatedTodayRmb: '今日の推定収益',
+      estimatedWeekRmb: '今週の推定収益',
+      estimatedMonthRmb: '今月の推定収益',
+      estimatedRevenueNote: '追加数 × 4.62 · 推定値',
       plays: 'プレイ',
       uniqueDownloads: 'ユニークDL',
       endorsements: 'Endorsements',
@@ -677,6 +690,37 @@
     });
     return [...map.values()].sort((a, b) => b.downloads - a.downloads).slice(0, 8);
   }
+  function renderRevenueMetrics() {
+    const target = document.querySelector('[data-cc-revenue-kpis]');
+    if (!target) return;
+    const isPaid = state.mode === 'paid';
+    target.hidden = !isPaid;
+    if (!isPaid) {
+      target.innerHTML = '';
+      return;
+    }
+    const periods = [
+      ['estimatedTodayRmb', 'today'],
+      ['estimatedWeekRmb', 'week'],
+      ['estimatedMonthRmb', 'month']
+    ];
+    target.innerHTML = periods.map(([label, period]) => {
+      const libraryAdds = paidLibraryIncrement(period);
+      const money = libraryAdds === null
+        ? '—'
+        : '¥' + new Intl.NumberFormat('zh-CN', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(libraryAdds * PAID_RMB_PER_LIBRARY_ADD);
+      const foot = libraryAdds === null ? t('libraryUnavailable') : t('estimatedRevenueNote');
+      return '<article class="admin-cc-revenue-card">' +
+        '<div class="admin-cc-revenue-card-head"><span>' + esc(t(label)) +
+        '</span><span class="admin-cc-revenue-currency">CNY</span></div>' +
+        '<strong class="admin-cc-revenue-card-value">' + esc(money) + '</strong>' +
+        '<p class="admin-cc-revenue-card-foot">' + esc(foot) + '</p>' +
+        '</article>';
+    }).join('');
+  }
   function renderMetrics() {
     const target = document.querySelector('[data-cc-kpis]');
     if (!target) return;
@@ -1032,6 +1076,7 @@
   function renderAll() {
     if (!state.ready) return;
     updateText();
+    renderRevenueMetrics();
     renderMetrics();
     renderTrend();
     renderShare();
@@ -1045,6 +1090,7 @@
   function markup() {
     return '<header class="admin-dashboard-header"><div class="admin-dashboard-title"><h1 data-cc-title>Mod Analytics</h1><p data-cc-subtitle></p><p class="admin-dashboard-last-updated" data-cc-sync></p></div></header>' +
       '<div class="admin-cc-focus-strip"><div class="admin-cc-focus-tabs" role="tablist" aria-label="Mod data source"><button class="admin-cc-focus-tab is-active" type="button" role="tab" aria-selected="true" data-cc-tab="paid"><i></i><span>Paid Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="free"><i></i><span>Free Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="nexus"><i></i><span>Nexus Mods</span></button></div></div>' +
+      '<section class="admin-cc-revenue-metrics" data-cc-revenue-kpis hidden></section>' +
       '<section class="admin-dashboard-metrics" data-cc-kpis></section>' +
       '<div class="admin-cc-focus-dashboard-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-trend-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-focus-legend" data-cc-legend><i></i><span></span></div><div class="admin-line-chart" data-cc-line-chart></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-share-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-share-card"><div class="admin-cc-share-ring" data-cc-share-ring><div class="admin-cc-share-center"><strong data-cc-share-center>0%</strong><span>MOD</span></div></div><div class="admin-cc-share-copy" data-cc-share-copy></div></div></section></div>' +
       '<div class="admin-cc-analysis-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><div><h3 data-cc-matrix-title></h3><p class="admin-insight-caption" data-cc-matrix-subtitle></p></div><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-matrix" data-cc-matrix></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-snapshot-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-snapshot" data-cc-snapshot></div></section></div>' +
