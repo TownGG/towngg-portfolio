@@ -2,7 +2,7 @@
 /* Paid CC estimated RMB revenue: dedicated first row, separate from other KPIs. */
 .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics[hidden] {

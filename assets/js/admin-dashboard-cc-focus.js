@@ -890,10 +890,10 @@
     }
     const periods = [
       ['estimatedTodayRmb', 'today', 'day', 'revenueComparedYesterday', false],
-      ['estimatedWeekRmb', 'week', 'week', 'revenueComparedWeek', false],
-      ['estimatedMonthRmb', 'month', 'month', 'revenueComparedMonth', false],
       ['estimatedYesterdayRmb', null, 'day', null, true],
+      ['estimatedWeekRmb', 'week', 'week', 'revenueComparedWeek', false],
       ['estimatedLastWeekRmb', null, 'week', null, true],
+      ['estimatedMonthRmb', 'month', 'month', 'revenueComparedMonth', false],
       ['estimatedLastMonthRmb', null, 'month', null, true]
     ];
     const snapshots = paidRevenueSnapshots();
