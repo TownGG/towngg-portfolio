@@ -78,9 +78,9 @@
       estimatedLastMonthRmb: 'Estimated Revenue Last Month',
       priorPeriodComplete: 'Full previous period · estimate only',
       revenueComparedTo: 'vs',
-      revenueComparedYesterday: 'yesterday (same time)',
-      revenueComparedWeek: 'last week (same time)',
-      revenueComparedMonth: 'last month (same time)',
+      revenueComparedYesterday: 'yesterday (full day)',
+      revenueComparedWeek: 'last week (full week)',
+      revenueComparedMonth: 'last month (full month)',
       estimatedRevenueNote: 'Library Adds × 4.62 · estimate only',
       revenueSectionTitle: 'Estimated Revenue',
       revenueSectionSubtitle: 'Revenue estimates from paid Creation library additions',
@@ -105,14 +105,14 @@
       revenueDaysAvailable: 'Valid days',
       revenueInsightsMissing: '7 complete days of data needed',
       revenueCompare: 'Period-on-Period Comparison',
-      revenueCompareSub: 'Comparison to equally elapsed prior periods',
-      revenueVsDay: 'Today vs Yesterday',
-      revenueVsWeek: 'This Week vs Last Week',
-      revenueVsMonth: 'This Month vs Last Month',
+      revenueCompareSub: 'Current period to date vs the previous full period',
+      revenueVsDay: 'Today vs Yesterday (full day)',
+      revenueVsWeek: 'This Week vs Last Week (full week)',
+      revenueVsMonth: 'This Month vs Last Month (full month)',
       revenueVsYear: 'This Month vs Last Year',
       revenueNoHistory: 'Insufficient history',
       revenueNewGrowth: 'New growth',
-      revenuePrior: 'Prior period',
+      revenuePrior: 'Previous full period',
       revenueEstimated: 'Estimate · snapshots',
       revenueDateNote: 'Snapshots may be ~30 minutes from the cutoff · dashed bars indicate interpolated values during the Oct 15–18 token outage',
       plays: 'Plays',
@@ -238,9 +238,9 @@
       estimatedLastMonthRmb: '上月预估收入',
       priorPeriodComplete: '上一完整统计周期 · 预估',
       revenueComparedTo: '较',
-      revenueComparedYesterday: '昨日同期',
-      revenueComparedWeek: '上周同期',
-      revenueComparedMonth: '上月同期',
+      revenueComparedYesterday: '昨日全天',
+      revenueComparedWeek: '上周全周',
+      revenueComparedMonth: '上月全月',
       estimatedRevenueNote: '入库数 × 4.62 · 非实际结算',
       revenueSectionTitle: '预估收入',
       revenueSectionSubtitle: '基于付费 CC 入库量测算 · 不等同于实际结算',
@@ -264,15 +264,15 @@
       revenueDailyAverageGuide: '近 7 完整日均值',
       revenueDaysAvailable: '有效统计日',
       revenueInsightsMissing: '需要 7 个完整统计日数据',
-      revenueCompare: '收入环比与同比',
-      revenueCompareSub: '与上一周期相同已过时长比较',
-      revenueVsDay: '今日较昨日同期',
-      revenueVsWeek: '本周较上周同期',
-      revenueVsMonth: '本月较上月同期',
+      revenueCompare: '收入周期对比',
+      revenueCompareSub: '本周期截至目前与上一完整周期总额对比',
+      revenueVsDay: '今日较昨日全天',
+      revenueVsWeek: '本周较上周全周',
+      revenueVsMonth: '本月较上月全月',
       revenueVsYear: '本月较去年同期',
       revenueNoHistory: '历史快照不足',
       revenueNewGrowth: '新增收入',
-      revenuePrior: '上期同期',
+      revenuePrior: '上一完整周期',
       revenueEstimated: '估算 · 快照口径',
       revenueDateNote: '快照采样与统计边界可能相差约半小时 · 虚线柱表示 10 月 15–18 日 Token 中断期间的插值估算',
       plays: '游玩',
@@ -398,9 +398,9 @@
       estimatedLastMonthRmb: '先月の推定収益',
       priorPeriodComplete: '前の期間の合計 · 推定値',
       revenueComparedTo: '前期比',
-      revenueComparedYesterday: '昨日同時刻',
-      revenueComparedWeek: '先週同時刻',
-      revenueComparedMonth: '先月同時刻',
+      revenueComparedYesterday: '昨日全日',
+      revenueComparedWeek: '先週全体',
+      revenueComparedMonth: '先月全体',
       estimatedRevenueNote: '追加数 × 4.62 · 推定値',
       revenueSectionTitle: '推定収益',
       revenueSectionSubtitle: '有料 CC ライブラリ追加数に基づく推定値',
@@ -424,15 +424,15 @@
       revenueDailyAverageGuide: '直近7完了日の平均',
       revenueDaysAvailable: '有効な統計日',
       revenueInsightsMissing: '完了済み7日間のデータが必要',
-      revenueCompare: '前期・前年との比較',
-      revenueCompareSub: '同じ経過時間で比較',
-      revenueVsDay: '本日対前日',
-      revenueVsWeek: '今週対前週',
-      revenueVsMonth: '今月対前月',
+      revenueCompare: '期間別収益比較',
+      revenueCompareSub: '今期の累計と前の完全な期間を比較',
+      revenueVsDay: '本日対昨日全日',
+      revenueVsWeek: '今週対先週全体',
+      revenueVsMonth: '今月対先月全体',
       revenueVsYear: '今月対前年',
       revenueNoHistory: '履歴不足',
       revenueNewGrowth: '新規増加',
-      revenuePrior: '前期',
+      revenuePrior: '前の完全な期間',
       revenueEstimated: '推定 · スナップショット',
       revenueDateNote: 'スナップショットには約30分の誤差があります · 破線の棒は10月15〜18日の欠測補間値です',
       plays: 'プレイ',
@@ -773,7 +773,9 @@
     if (!latest || !curBase || latest.time < curStart) return null;
     const current = Math.max(0, latest.count - curBase.count) * PAID_RMB_PER_LIBRARY_ADD;
     const prevStart = paidRevenuePriorStart(period);
-    const prevEnd = Math.min(prevStart + latest.time - curStart, paidRevenueNextStart(period, prevStart) - 1);
+    // Compare this period's live running total against the ENTIRE previous period.
+    // Matching the same time of day is no longer required.
+    const prevEnd = paidRevenueNextStart(period, prevStart);
     const prevBase = paidRevenueAt(snapshots, prevStart);
     const prevPoint = paidRevenueAt(snapshots, prevEnd);
     if (!prevBase || !prevPoint || prevPoint.time <= prevBase.time) return { current, previous: null };
@@ -1061,8 +1063,7 @@
     const comparisons = [
       ['revenueVsDay', 'day'],
       ['revenueVsWeek', 'week'],
-      ['revenueVsMonth', 'month'],
-      ['revenueVsYear', 'year']
+      ['revenueVsMonth', 'month']
     ].map(([label, period]) => {
       const comparison = paidRevenueComparison(snapshots, period);
       const valid = comparison && comparison.previous !== null;
