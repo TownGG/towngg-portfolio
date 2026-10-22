@@ -74,6 +74,10 @@
       estimatedWeekRmb: 'Estimated Revenue This Week',
       estimatedMonthRmb: 'Estimated Revenue This Month',
       estimatedRevenueNote: 'Library Adds × 4.62 · estimate only',
+      revenueSectionTitle: 'Estimated Revenue',
+      revenueSectionSubtitle: 'Revenue estimates from paid Creation library additions',
+      downloadSectionTitle: 'Download Data',
+      downloadSectionSubtitle: 'Download performance, growth and engagement',
       revenueAnalysis: 'Estimated Revenue Analytics',
       revenueAnalysisDesc: 'Library adds × ¥4.62 · Not actual payouts',
       revenueLine: 'Today’s Estimated Revenue Trend',
@@ -90,7 +94,7 @@
       revenueNewGrowth: 'New growth',
       revenuePrior: 'Prior period',
       revenueEstimated: 'Estimate · snapshots',
-      revenueDateNote: 'Snapshots may be ~30 minutes from the cutoff',
+      revenueDateNote: 'Snapshots may be ~30 minutes from the cutoff · ≈ denotes interpolated data from the Oct 15–18 token outage',
       plays: 'Plays',
       uniqueDownloads: 'Unique Downloads',
       endorsements: 'Endorsements',
@@ -210,6 +214,10 @@
       estimatedWeekRmb: '本周预估收入',
       estimatedMonthRmb: '本月预估收入',
       estimatedRevenueNote: '入库数 × 4.62 · 非实际结算',
+      revenueSectionTitle: '预估收入',
+      revenueSectionSubtitle: '基于付费 CC 入库量测算 · 不等同于实际结算',
+      downloadSectionTitle: '下载数据',
+      downloadSectionSubtitle: '下载量、增长趋势与作品表现',
       revenueAnalysis: '预估收入分析',
       revenueAnalysisDesc: '入库增量 × ¥4.62 · 非实际结算',
       revenueLine: '今日累计预估收入走势',
@@ -226,7 +234,7 @@
       revenueNewGrowth: '新增收入',
       revenuePrior: '上期同期',
       revenueEstimated: '估算 · 快照口径',
-      revenueDateNote: '快照采样与统计边界可能相差约半小时',
+      revenueDateNote: '快照采样与统计边界可能相差约半小时 · ≈ 表示 10 月 15–18 日 Token 中断期间的插值估算',
       plays: '游玩',
       uniqueDownloads: '唯一下载',
       endorsements: 'Endorsements',
@@ -346,6 +354,10 @@
       estimatedWeekRmb: '今週の推定収益',
       estimatedMonthRmb: '今月の推定収益',
       estimatedRevenueNote: '追加数 × 4.62 · 推定値',
+      revenueSectionTitle: '推定収益',
+      revenueSectionSubtitle: '有料 CC ライブラリ追加数に基づく推定値',
+      downloadSectionTitle: 'ダウンロードデータ',
+      downloadSectionSubtitle: 'DL 数、成長率、作品パフォーマンス',
       revenueAnalysis: '推定収益分析',
       revenueAnalysisDesc: '追加数 × ¥4.62 · 実際の支払額ではありません',
       revenueLine: '本日の推定収益推移',
@@ -362,7 +374,7 @@
       revenueNewGrowth: '新規増加',
       revenuePrior: '前期',
       revenueEstimated: '推定 · スナップショット',
-      revenueDateNote: '境界時刻から約30分ずれる場合があります',
+      revenueDateNote: 'スナップショットには約30分の誤差があります · ≈ は10月15〜18日の欠測補間値',
       plays: 'プレイ',
       uniqueDownloads: 'ユニークDL',
       endorsements: 'Endorsements',
@@ -707,17 +719,33 @@
     if (!prevBase || !prevPoint || prevPoint.time <= prevBase.time) return { current, previous: null };
     return { current, previous: Math.max(0, prevPoint.count - prevBase.count) * PAID_RMB_PER_LIBRARY_ADD };
   }
+  // Only the daily income chart uses these estimates (not original data, KPIs or comparisons).
+  // GitHub historical source: Oct 16 01:40Z=828, 09:39Z=837; Oct 17 21:09Z=940, Oct 18 04:43Z=967.
+  // At the 04:00Z Beijing-noon boundaries, linear interpolation yields ≈831 and ≈964.
+  const PAID_REVENUE_ESTIMATED_BOUNDARIES = new Map([
+    [Date.parse('2026-10-16T04:00:00Z'), 831],
+    [Date.parse('2026-10-18T04:00:00Z'), 964]
+  ]);
+  function paidRevenueDailyBoundary(snapshots, boundary) {
+    const observed = paidRevenueAt(snapshots, boundary);
+    if (observed) return { ...observed, estimated: false };
+    const interpolated = PAID_REVENUE_ESTIMATED_BOUNDARIES.get(boundary);
+    return Number.isFinite(interpolated)
+      ? { time: boundary, count: interpolated, estimated: true }
+      : null;
+  }
   function paidRevenueDailyRows(snapshots, count = 7) {
     const latest = snapshots.at(-1);
     const dayStart = paidRevenueStart('day');
     return Array.from({ length: count }, (_, index) => {
       const start = dayStart - (count - 1 - index) * PAID_REVENUE_DAY_MS;
       const end = start === dayStart ? latest?.time : start + PAID_REVENUE_DAY_MS;
-      const baseline = paidRevenueAt(snapshots, start);
-      const endpoint = end >= start ? paidRevenueAt(snapshots, end) : null;
+      const baseline = paidRevenueDailyBoundary(snapshots, start);
+      const endpoint = end >= start ? paidRevenueDailyBoundary(snapshots, end) : null;
       const amount = baseline && endpoint && endpoint.time > baseline.time
         ? Math.max(0, endpoint.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD : null;
-      return { start, amount, current: start === dayStart };
+      return { start, amount, current: start === dayStart,
+        estimated: amount !== null && Boolean(baseline?.estimated || endpoint?.estimated) };
     });
   }
   function revenueBeijingTime(time, withDate = false) {
@@ -930,9 +958,9 @@
       const label = new Intl.DateTimeFormat(lang() === 'zh-CN' ? 'zh-CN' : lang() === 'ja' ? 'ja-JP' : 'en-US', {
         timeZone: 'Asia/Shanghai', month: 'numeric', day: 'numeric'
       }).format(new Date(row.start));
-      const amount = row.amount === null ? '—' : revenueMoney(row.amount);
+      const amount = row.amount === null ? '—' : (row.estimated ? '≈' : '') + revenueMoney(row.amount);
       return '<div class="admin-cc-revenue-day' + (row.current ? ' is-current' : '') +
-        (row.amount === null ? ' is-missing' : '') + '">' +
+        (row.amount === null ? ' is-missing' : '') + (row.estimated ? ' is-estimated' : '') + '">' +
         '<div class="admin-cc-revenue-day-amount">' + esc(amount) + '</div>' +
         '<div class="admin-cc-revenue-day-track">' +
         (row.amount === null ? '<span class="admin-cc-revenue-day-missing">—</span>' :
@@ -1265,6 +1293,19 @@
     const dashboard = document.querySelector('.cc-focus-dashboard');
     if (!dashboard) return;
     dashboard.dataset.ccMode = state.mode;
+    const revenueSection = dashboard.querySelector('[data-cc-revenue-section]');
+    if (revenueSection) revenueSection.hidden = state.mode !== 'paid';
+    const downloadHeading = dashboard.querySelector('[data-cc-download-heading]');
+    if (downloadHeading) downloadHeading.hidden = state.mode !== 'paid';
+    [
+      ['[data-cc-revenue-section-title]', 'revenueSectionTitle'],
+      ['[data-cc-revenue-section-subtitle]', 'revenueSectionSubtitle'],
+      ['[data-cc-download-section-title]', 'downloadSectionTitle'],
+      ['[data-cc-download-section-subtitle]', 'downloadSectionSubtitle']
+    ].forEach(([selector, key]) => {
+      const node = dashboard.querySelector(selector);
+      if (node) node.textContent = t(key);
+    });
     const title = dashboard.querySelector('[data-cc-title]');
     const subtitle = dashboard.querySelector('[data-cc-subtitle]');
     const sync = dashboard.querySelector('[data-cc-sync]');
@@ -1328,13 +1369,18 @@
   function markup() {
     return '<header class="admin-dashboard-header"><div class="admin-dashboard-title"><h1 data-cc-title>Mod Analytics</h1><p data-cc-subtitle></p><p class="admin-dashboard-last-updated" data-cc-sync></p></div></header>' +
       '<div class="admin-cc-focus-strip"><div class="admin-cc-focus-tabs" role="tablist" aria-label="Mod data source"><button class="admin-cc-focus-tab is-active" type="button" role="tab" aria-selected="true" data-cc-tab="paid"><i></i><span>Paid Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="free"><i></i><span>Free Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="nexus"><i></i><span>Nexus Mods</span></button></div></div>' +
+      '<section class="admin-cc-zone admin-cc-revenue-zone" data-cc-revenue-section>' +
+      '<header class="admin-cc-zone-heading"><span class="admin-cc-zone-icon" aria-hidden="true">¥</span><div><h2 data-cc-revenue-section-title>Estimated Revenue</h2><p data-cc-revenue-section-subtitle></p></div></header>' +
       '<section class="admin-cc-revenue-metrics" data-cc-revenue-kpis hidden></section>' +
+      '<section class="admin-cc-revenue-analysis" data-cc-revenue-analysis hidden></section></section>' +
+      '<section class="admin-cc-zone admin-cc-download-zone" data-cc-download-section>' +
+      '<header class="admin-cc-zone-heading" data-cc-download-heading><span class="admin-cc-zone-icon" aria-hidden="true">↓</span><div><h2 data-cc-download-section-title>Download Data</h2><p data-cc-download-section-subtitle></p></div></header>' +
       '<section class="admin-dashboard-metrics" data-cc-kpis></section>' +
-      '<section class="admin-cc-revenue-analysis" data-cc-revenue-analysis hidden></section>' +
       '<div class="admin-cc-focus-dashboard-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-trend-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-focus-legend" data-cc-legend><i></i><span></span></div><div class="admin-line-chart" data-cc-line-chart></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-share-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-share-card"><div class="admin-cc-share-ring" data-cc-share-ring><div class="admin-cc-share-center"><strong data-cc-share-center>0%</strong><span>MOD</span></div></div><div class="admin-cc-share-copy" data-cc-share-copy></div></div></section></div>' +
       '<div class="admin-cc-analysis-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><div><h3 data-cc-matrix-title></h3><p class="admin-insight-caption" data-cc-matrix-subtitle></p></div><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-matrix" data-cc-matrix></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-snapshot-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-snapshot" data-cc-snapshot></div></section></div>' +
       '<div class="admin-cc-bottom-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-recent-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-bars" data-cc-bars></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-ranking-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-ranking-wrap"><table class="admin-ranking-table"><thead data-cc-ranking-head></thead><tbody data-cc-ranking></tbody></table></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-conversion-title></h3><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-conversion" data-cc-conversion></div></section></div>' +
       '<section class="admin-analytics-panel admin-cc-detail-panel admin-cc-panel-accent"><div class="admin-analytics-head"><div><h3 data-cc-detail-title></h3><p class="admin-insight-caption" data-cc-detail-note></p></div><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-detail-wrap"><table class="admin-cc-detail-table"><thead data-cc-detail-head></thead><tbody data-cc-detail-body></tbody></table></div></section>' +
+      '</section>' +
       '<div class="admin-dashboard-loading" data-cc-loading>Loading mod analytics…</div>';
   }
   async function load(force = false) {
