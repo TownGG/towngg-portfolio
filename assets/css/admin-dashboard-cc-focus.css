@@ -1024,25 +1024,87 @@
   }
 }
 
-/* Paid CC: income first, download activity second. */
-.admin-dashboard.cc-focus-dashboard .admin-cc-zone { display: flex; flex-direction: column; gap: 16px; min-width: 0; padding: clamp(15px, 2vw, 24px); border-radius: 21px; border: 1px solid rgba(145,169,193,.17); background: linear-gradient(160deg, rgba(17,27,41,.82), rgba(10,17,29,.94)); box-shadow: 0 15px 38px rgba(0,0,0,.13); }
-.admin-dashboard.cc-focus-dashboard .admin-cc-zone[hidden], .admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading[hidden] { display: none !important; }
-.admin-dashboard.cc-focus-dashboard[data-cc-mode="paid"] .admin-cc-revenue-zone { border-color: rgba(237,190,111,.27); background: radial-gradient(ellipse at 6% 0%,rgba(213,153,76,.1),transparent 50%),linear-gradient(160deg,rgba(27,29,39,.97),rgba(15,22,33,.97)); }
-.admin-dashboard.cc-focus-dashboard[data-cc-mode="paid"] .admin-cc-download-zone { border-color: rgba(115,169,218,.24); background: radial-gradient(ellipse at 6% 0%,rgba(92,159,213,.09),transparent 48%),linear-gradient(160deg,rgba(17,29,45,.97),rgba(12,23,36,.97)); }
-.admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading { display: flex; align-items: center; gap: 14px; padding: 0 0 14px; border-bottom: 1px solid rgba(190,209,229,.12); }
-.admin-dashboard.cc-focus-dashboard .admin-cc-zone-icon { display: grid; place-items: center; flex: 0 0 44px; height: 44px; border: 1px solid rgba(245,197,116,.26); border-radius: 13px; background: rgba(225,159,83,.11); color: #f8d498; font: 700 25px 'Rajdhani','Inter',sans-serif; }
-.admin-dashboard.cc-focus-dashboard .admin-cc-download-zone .admin-cc-zone-icon { border-color: rgba(123,197,241,.25); background: rgba(87,162,222,.1); color: #8fd9fa; }
-.admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading h2 { margin: 0; color: #f3f7fc; font-size: clamp(19px,2vw,23px); font-weight: 800; letter-spacing: -.02em; }
-.admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading p { margin: 5px 0 0; color: #a4b5c8; font-size: 12px; line-height: 1.5; }
-.admin-dashboard.cc-focus-dashboard .admin-cc-zone .admin-cc-revenue-metrics, .admin-dashboard.cc-focus-dashboard .admin-cc-zone .admin-dashboard-metrics { margin: 0; }
-.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day.is-estimated .admin-cc-revenue-day-bar { border: 1px dashed rgba(255,238,185,.85); background: linear-gradient(180deg,rgba(247,204,133,.72),rgba(198,142,73,.64)); }
-.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day.is-estimated .admin-cc-revenue-day-amount { color: #ffdca7; }
+/* Paid CC: section labels only; no enclosing panels or inner width loss. */
+.admin-dashboard.cc-focus-dashboard .admin-cc-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-zone[hidden],
+.admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading[hidden] {
+  display: none !important;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 4px 0 0;
+  margin: 0;
+  border: 0;
+  background: none;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-zone-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 25px;
+  height: 25px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: #f6c982;
+  font: 700 23px 'Rajdhani', 'Inter', sans-serif;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-download-zone .admin-cc-zone-icon {
+  color: #85cffa;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading h2 {
+  margin: 0;
+  color: #f2f6fc;
+  font-size: clamp(16px, 1.6vw, 19px);
+  font-weight: 750;
+  line-height: 1.35;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading p {
+  display: none;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-zone .admin-cc-revenue-metrics,
+.admin-dashboard.cc-focus-dashboard .admin-cc-zone .admin-dashboard-metrics {
+  margin: 0;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day.is-estimated .admin-cc-revenue-day-bar {
+  border: 1px dashed rgba(255, 238, 185, .85);
+  background: linear-gradient(180deg, rgba(247, 204, 133, .72), rgba(198, 142, 73, .64));
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day.is-estimated .admin-cc-revenue-day-amount {
+  color: #ffdca7;
+}
 @media (max-width: 760px) {
-  .admin-dashboard.cc-focus-dashboard .admin-cc-zone { gap: 13px; padding: 14px 11px; border-radius: 16px; }
-  .admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading { gap: 10px; padding-bottom: 12px; }
-  .admin-dashboard.cc-focus-dashboard .admin-cc-zone-icon { flex-basis: 36px; height: 36px; font-size: 21px; border-radius: 11px; }
-  .admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading h2 { font-size: 19px; }
-  .admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading p { font-size: 11px; }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-zone {
+    gap: 13px;
+    padding: 0;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading {
+    gap: 8px;
+    padding: 3px 0 0;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-zone-icon {
+    width: 23px;
+    height: 23px;
+    font-size: 21px;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading h2 {
+    font-size: 17px;
+  }
 }
 
 /* Preserve the original free CC and Nexus dashboard layout. */
