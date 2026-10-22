@@ -75,10 +75,25 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 9px;
   }
-  /* Mobile: three side-by-side pairs in the original reading order. */
-  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics > .admin-cc-revenue-card {
+  /* Match the desktop nth-child specificity so six cards never create a
+     third implicit grid column on phones. Preserve Today/Yesterday,
+     Week/Last Week and Month/Last Month in DOM order. */
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics > .admin-cc-revenue-card:nth-child(n) {
     grid-column: auto;
     grid-row: auto;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics > .admin-cc-revenue-insights-wrap {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insights-grid > .admin-cc-revenue-insight {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
   .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card {
     padding: 14px 12px;
