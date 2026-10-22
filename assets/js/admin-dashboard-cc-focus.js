@@ -915,6 +915,55 @@
     return Math.max(0, endpoint.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD;
   }
 
+
+  // Shared by top revenue KPI analysis cards and the daily chart average guide.
+  // Exclude the ongoing day and never silently count missing boundaries as zero.
+  function paidRevenueSevenDayStats(snapshots) {
+    const fullDays = paidRevenueDailyRows(snapshots, 8).slice(0, 7);
+    const completeSeven = fullDays.length === 7 && fullDays.every(
+      (row) => row.amount !== null && Number.isFinite(row.amount)
+    );
+    if (!completeSeven) return { completeSeven: false, sevenTotal: null, sevenAverage: null, bestDay: null, momentum: null, momentumDirection: '' };
+    const sevenTotal = fullDays.reduce((sum, row) => sum + row.amount, 0);
+    const sevenAverage = sevenTotal / 7;
+    const bestDay = fullDays.reduce((best, row) => row.amount > best.amount ? row : best);
+    const lastThree = fullDays.slice(4).reduce((sum, row) => sum + row.amount, 0);
+    const precedingThree = fullDays.slice(1, 4).reduce((sum, row) => sum + row.amount, 0);
+    const change = precedingThree === 0 ? null : (lastThree - precedingThree) / precedingThree * 100;
+    const momentum = change === null
+      ? (lastThree > 0 ? t('revenueNewGrowth') : '0.0%')
+      : (change > 0 ? '+' : '') + change.toFixed(1) + '%';
+    const momentumDirection = lastThree > precedingThree ? 'is-up'
+      : lastThree < precedingThree ? 'is-down' : '';
+    return { completeSeven, sevenTotal, sevenAverage, bestDay, momentum, momentumDirection };
+  }
+  function renderRevenueInsights(snapshots) {
+    const { completeSeven, sevenTotal, sevenAverage, bestDay, momentum, momentumDirection } =
+      paidRevenueSevenDayStats(snapshots);
+    const bestLabel = completeSeven ? new Intl.DateTimeFormat(
+      lang() === 'zh-CN' ? 'zh-CN' : lang() === 'ja' ? 'ja-JP' : 'en-US',
+      { timeZone: 'Asia/Shanghai', month: 'numeric', day: 'numeric' }
+    ).format(new Date(bestDay.start)) : t('revenueInsightsMissing');
+    const items = [
+      [t('revenueSevenTotal'), completeSeven ? revenueMoney(sevenTotal) : '—',
+        completeSeven ? t('revenueSevenTotalFoot') : t('revenueInsightsMissing'), ''],
+      [t('revenueSevenAverage'), completeSeven ? revenueMoney(sevenAverage) : '—',
+        completeSeven ? t('revenueSevenAverageFoot') : t('revenueInsightsMissing'), ''],
+      [t('revenueSevenBest'), completeSeven ? revenueMoney(bestDay.amount) : '—', bestLabel, ''],
+      [t('revenueThreeDayMomentum'), momentum ?? '—',
+        completeSeven ? t('revenueThreeDayFoot') : t('revenueInsightsMissing'), momentumDirection]
+    ];
+    const cards = items.map(([label, value, foot, direction]) =>
+      '<article class="admin-cc-revenue-insight"><span>' + esc(label) + '</span>' +
+      '<strong class="' + esc(direction) + '">' + esc(value) + '</strong>' +
+      '<small>' + esc(foot) + '</small></article>'
+    ).join('');
+    return '<div class="admin-cc-revenue-insights-wrap">' +
+      '<div class="admin-cc-revenue-insights-head"><h4>' + esc(t('revenueInsightsTitle')) +
+      '</h4><small>' + esc(t('revenueInsightsDesc')) + '</small></div>' +
+      '<div class="admin-cc-revenue-insights-grid">' + cards + '</div></div>';
+  }
+
   function renderRevenueMetrics() {
     const target = document.querySelector('[data-cc-revenue-kpis]');
     if (!target) return;
@@ -957,7 +1006,7 @@
         '<strong class="admin-cc-revenue-card-value">' + esc(money) + '</strong>' +
         '<p class="admin-cc-revenue-card-foot' + changeClass + '">' + esc(foot) + '</p>' +
         '</article>';
-    }).join('');
+    }).join('') + renderRevenueInsights(snapshots);
   }
   function renderRevenueAnalysis() {
     const target = document.querySelector('[data-cc-revenue-analysis]');
@@ -1034,44 +1083,13 @@
         esc(textValue) + '</span></div>';
     }).join('');
     const daily = paidRevenueDailyRows(snapshots);
-    // Seven COMPLETE statistical days: exclude the currently accumulating day.
-    // Null days never enter the mean as zero; all seven must be available.
-    const fullDays = paidRevenueDailyRows(snapshots, 8).slice(0, 7);
-    const completeSeven = fullDays.length === 7 && fullDays.every((row) => row.amount !== null && Number.isFinite(row.amount));
-    const sevenTotal = completeSeven ? fullDays.reduce((sum, row) => sum + row.amount, 0) : null;
-    const sevenAverage = completeSeven ? sevenTotal / 7 : null;
-    const bestDay = completeSeven ? fullDays.reduce((best, row) => row.amount > best.amount ? row : best) : null;
-    const lastThree = completeSeven ? fullDays.slice(4).reduce((sum, row) => sum + row.amount, 0) : null;
-    const precedingThree = completeSeven ? fullDays.slice(1, 4).reduce((sum, row) => sum + row.amount, 0) : null;
-    const momentum = completeSeven
-      ? precedingThree === 0 ? (lastThree > 0 ? t('revenueNewGrowth') : '0.0%')
-        : ((lastThree - precedingThree) / precedingThree * 100 >= 0 ? '+' : '') +
-          ((lastThree - precedingThree) / precedingThree * 100).toFixed(1) + '%'
-      : null;
-    const momentumDirection = completeSeven
-      ? (lastThree > precedingThree ? ' is-up' : lastThree < precedingThree ? ' is-down' : '') : '';
+    const { completeSeven, sevenAverage } = paidRevenueSevenDayStats(snapshots);
     const maxDaily = Math.max(10, ...daily.map((row) => row.amount ?? 0), sevenAverage ?? 0);
     const averageHeight = completeSeven ? (sevenAverage / maxDaily * 100).toFixed(2) : null;
     const averageGuide = completeSeven
       ? '<div class="admin-cc-revenue-average-legend"><span aria-hidden="true"></span>' +
         esc(t('revenueDailyAverageGuide') + ': ' + revenueMoney(sevenAverage)) + '</div>'
       : '';
-    const fullDayLabel = (start) => new Intl.DateTimeFormat(
-      lang() === 'zh-CN' ? 'zh-CN' : lang() === 'ja' ? 'ja-JP' : 'en-US',
-      { timeZone: 'Asia/Shanghai', month: 'numeric', day: 'numeric' }
-    ).format(new Date(start));
-    const insightCards = [
-      [t('revenueSevenTotal'), completeSeven ? revenueMoney(sevenTotal) : '—',
-        completeSeven ? t('revenueSevenTotalFoot') : t('revenueInsightsMissing'), ''],
-      [t('revenueSevenAverage'), completeSeven ? revenueMoney(sevenAverage) : '—',
-        completeSeven ? t('revenueSevenAverageFoot') : t('revenueInsightsMissing'), ''],
-      [t('revenueSevenBest'), completeSeven ? revenueMoney(bestDay.amount) : '—',
-        completeSeven ? fullDayLabel(bestDay.start) : t('revenueInsightsMissing'), ''],
-      [t('revenueThreeDayMomentum'), momentum ?? '—',
-        completeSeven ? t('revenueThreeDayFoot') : t('revenueInsightsMissing'), momentumDirection]
-    ].map(([label, value, foot, direction]) => '<div class="admin-cc-revenue-insight">' +
-      '<span>' + esc(label) + '</span><strong class="' + direction.trim() + '">' + esc(value) +
-      '</strong><small>' + esc(foot) + '</small></div>').join('');
     const dailyBars = daily.map((row) => {
       const height = row.amount === null ? 0 : Math.max(row.amount === 0 ? 2 : 5, row.amount / maxDaily * 100);
       const label = new Intl.DateTimeFormat(lang() === 'zh-CN' ? 'zh-CN' : lang() === 'ja' ? 'ja-JP' : 'en-US', {
@@ -1104,9 +1122,6 @@
       '<div class="admin-cc-revenue-daily-bars' + (completeSeven ? ' has-average' : '') +
       '"' + (completeSeven ? ' style="--cc-revenue-average-height:' + averageHeight + '%"' : '') +
       '>' + dailyBars + '</div>' + averageGuide +
-      '<div class="admin-cc-revenue-insights-head"><h4>' + esc(t('revenueInsightsTitle')) +
-      '</h4><small>' + esc(t('revenueInsightsDesc')) + '</small></div>' +
-      '<div class="admin-cc-revenue-insights-grid">' + insightCards + '</div>' +
       '<p class="admin-cc-revenue-data-note">' + esc(t('revenueDateNote')) +
       '</p></article>';
   }
