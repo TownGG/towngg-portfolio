@@ -2,9 +2,17 @@
 /* Paid CC estimated RMB revenue: dedicated first row, separate from other KPIs. */
 .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
+/* Desktop: each column compares the current period directly above its previous period.
+   Source order remains Today, Yesterday, This Week, Last Week, This Month, Last Month. */
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics > .admin-cc-revenue-card:nth-child(1) { grid-column: 1; grid-row: 1; }
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics > .admin-cc-revenue-card:nth-child(2) { grid-column: 1; grid-row: 2; }
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics > .admin-cc-revenue-card:nth-child(3) { grid-column: 2; grid-row: 1; }
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics > .admin-cc-revenue-card:nth-child(4) { grid-column: 2; grid-row: 2; }
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics > .admin-cc-revenue-card:nth-child(5) { grid-column: 3; grid-row: 1; }
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics > .admin-cc-revenue-card:nth-child(6) { grid-column: 3; grid-row: 2; }
 .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics[hidden] {
   display: none !important;
 }
@@ -66,6 +74,11 @@
   .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 9px;
+  }
+  /* Mobile: three side-by-side pairs in the original reading order. */
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics > .admin-cc-revenue-card {
+    grid-column: auto;
+    grid-row: auto;
   }
   .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card {
     padding: 14px 12px;
