@@ -650,6 +650,83 @@
     if (!baseline || !latest || boundary - baseline.time > 2 * 60 * 60 * 1000 || latest.time < boundary) return null;
     return Math.max(0, latest.value - baseline.value);
   }
+  const PAID_REVENUE_DAY_MS = 86400000;
+  const PAID_REVENUE_SAMPLE_TOLERANCE = 2 * 60 * 60 * 1000;
+  function revenueMoney(value) {
+    return '¥' + new Intl.NumberFormat('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+  }
+  function paidRevenueSnapshots() {
+    return state.paidLibraryHistory.map((row) => ({
+      time: utcDate(row.timestamp)?.getTime(),
+      count: Number(row.total_paid_library_adds)
+    })).filter((point) => Number.isFinite(point.time) && Number.isFinite(point.count) && point.count >= 0)
+      .sort((a, b) => a.time - b.time);
+  }
+  function paidRevenueAt(snapshots, at) {
+    let found = null;
+    for (const point of snapshots) {
+      if (point.time > at) break;
+      found = point;
+    }
+    return found && at - found.time <= PAID_REVENUE_SAMPLE_TOLERANCE ? found : null;
+  }
+  function paidRevenueStart(period, offset = 0) {
+    const date = new Date(todayKey() + 'T00:00:00Z');
+    if (period === 'day') date.setUTCDate(date.getUTCDate() - offset);
+    else if (period === 'week') date.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7) - 7 * offset);
+    else {
+      date.setUTCDate(1);
+      date.setUTCMonth(date.getUTCMonth() - offset);
+    }
+    return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 4);
+  }
+  function paidRevenuePriorStart(period) {
+    if (period === 'year') {
+      const cur = new Date(paidRevenueStart('month'));
+      return Date.UTC(cur.getUTCFullYear() - 1, cur.getUTCMonth(), 1, 4);
+    }
+    return paidRevenueStart(period, 1);
+  }
+  function paidRevenueNextStart(period, start) {
+    const d = new Date(start);
+    if (period === 'day') d.setUTCDate(d.getUTCDate() + 1);
+    else if (period === 'week') d.setUTCDate(d.getUTCDate() + 7);
+    else d.setUTCMonth(d.getUTCMonth() + 1);
+    return d.getTime();
+  }
+  function paidRevenueComparison(snapshots, period) {
+    const latest = snapshots.at(-1);
+    const curStart = paidRevenueStart(period === 'year' ? 'month' : period);
+    const curBase = paidRevenueAt(snapshots, curStart);
+    if (!latest || !curBase || latest.time < curStart) return null;
+    const current = Math.max(0, latest.count - curBase.count) * PAID_RMB_PER_LIBRARY_ADD;
+    const prevStart = paidRevenuePriorStart(period);
+    const prevEnd = Math.min(prevStart + latest.time - curStart, paidRevenueNextStart(period, prevStart) - 1);
+    const prevBase = paidRevenueAt(snapshots, prevStart);
+    const prevPoint = paidRevenueAt(snapshots, prevEnd);
+    if (!prevBase || !prevPoint || prevPoint.time <= prevBase.time) return { current, previous: null };
+    return { current, previous: Math.max(0, prevPoint.count - prevBase.count) * PAID_RMB_PER_LIBRARY_ADD };
+  }
+  function paidRevenueDailyRows(snapshots, count = 7) {
+    const latest = snapshots.at(-1);
+    const dayStart = paidRevenueStart('day');
+    return Array.from({ length: count }, (_, index) => {
+      const start = dayStart - (count - 1 - index) * PAID_REVENUE_DAY_MS;
+      const end = start === dayStart ? latest?.time : start + PAID_REVENUE_DAY_MS;
+      const baseline = paidRevenueAt(snapshots, start);
+      const endpoint = end >= start ? paidRevenueAt(snapshots, end) : null;
+      const amount = baseline && endpoint && endpoint.time > baseline.time
+        ? Math.max(0, endpoint.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD : null;
+      return { start, amount, current: start === dayStart };
+    });
+  }
+  function revenueBeijingTime(time, withDate = false) {
+    return new Intl.DateTimeFormat(lang() === 'zh-CN' ? 'zh-CN' : lang() === 'ja' ? 'ja-JP' : 'en-GB', {
+      timeZone: 'Asia/Shanghai',
+      ...(withDate ? { month: '2-digit', day: '2-digit' } : {}),
+      hour: '2-digit', minute: '2-digit', hour12: false
+    }).format(new Date(time));
+  }
   function periodDays(count, offset = 0) {
     const eligible = activeDays().filter((day) => day.date <= activeTodayKey());
     const end = Math.max(0, eligible.length - offset);
