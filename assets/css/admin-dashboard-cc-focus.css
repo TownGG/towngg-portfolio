@@ -1,4 +1,89 @@
 /* CC-focused dashboard tabs: paid-first, free-second. */
+/* Paid CC estimated RMB revenue: dedicated first row, separate from other KPIs. */
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics[hidden] {
+  display: none !important;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card {
+  position: relative;
+  min-width: 0;
+  padding: 18px 20px 17px;
+  overflow: hidden;
+  border: 1px solid rgba(238, 189, 100, .32);
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at 93% 7%, rgba(244, 190, 91, .18), transparent 42%),
+    linear-gradient(145deg, rgba(42, 36, 41, .96), rgba(18, 24, 36, .98));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 32px rgba(0,0,0,.16);
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(246, 199, 117, .75), transparent);
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  color: #e6d8bd;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-currency {
+  flex: 0 0 auto;
+  color: #e3bc79;
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-value {
+  display: block;
+  min-width: 0;
+  margin-top: 12px;
+  overflow: hidden;
+  color: #fff0cc;
+  font-family: 'Rajdhani', 'Inter', sans-serif;
+  font-size: clamp(27px, 2.8vw, 37px);
+  font-weight: 700;
+  line-height: 1.12;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-foot {
+  margin: 10px 0 0;
+  color: #bcb3a5;
+  font-size: 12px;
+  line-height: 1.45;
+}
+@media (max-width: 760px) {
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card {
+    padding: 14px 12px;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-head { font-size: 12px; }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-value {
+    font-size: clamp(22px, 6.3vw, 29px);
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-foot { font-size: 11px; }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card:last-child {
+    grid-column: span 2;
+  }
+}
+@media (max-width: 520px) {
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-currency { font-size: 10px; }
+}
+
+
 .admin-dashboard.cc-focus-dashboard {
   --cc-accent: #9b6cff;
   --cc-accent-rgb: 155, 108, 255;
