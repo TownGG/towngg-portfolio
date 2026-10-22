@@ -1113,3 +1113,94 @@
 /* Six paid revenue KPI tiles: current periods above complete previous periods. */
 .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-foot.is-up { color: #67dd9f; }
 .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-foot.is-down { color: #ff9c9d; }
+
+/* Compact supporting analysis inside the existing paid revenue chart (no outer zone padding). */
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-daily-bars.has-average .admin-cc-revenue-day-track::after {
+  content: '';
+  position: absolute;
+  bottom: var(--cc-revenue-average-height);
+  left: 0;
+  right: 0;
+  z-index: 2;
+  border-top: 1px dashed rgba(122, 222, 228, .78);
+  pointer-events: none;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-average-legend {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 10px 0 4px;
+  color: #8fd7dd;
+  font-size: 11px;
+  font-weight: 600;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-average-legend > span {
+  display: inline-block;
+  flex: 0 0 20px;
+  height: 0;
+  border-top: 1px dashed rgba(122, 222, 228, .78);
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insights-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 5px 12px;
+  margin: 19px 0 11px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(233, 202, 149, .12);
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insights-head h4 {
+  margin: 0;
+  color: #f4e4c6;
+  font-size: 14px;
+  font-weight: 750;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insights-head small {
+  color: #91a7b8;
+  font-size: 11px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insight {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 12px 12px 11px;
+  border: 1px solid rgba(225, 193, 135, .1);
+  border-radius: 10px;
+  background: rgba(247, 204, 133, .035);
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insight > span {
+  color: #adbccc;
+  font-size: 11px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insight > strong {
+  display: block;
+  margin-top: 8px;
+  color: #f7e8c8;
+  font: 750 clamp(18px, 2vw, 25px) / 1.15 'Rajdhani', 'Inter', sans-serif;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insight > strong.is-up { color: #69e6ac; }
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insight > strong.is-down { color: #ff9f9e; }
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insight > small {
+  display: block;
+  margin-top: 7px;
+  color: #859bae;
+  font-size: 10px;
+  line-height: 1.35;
+}
+@media (max-width: 760px) {
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insights-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insight { padding: 11px 10px; }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insight > strong { font-size: 21px; }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insights-head { margin-top: 15px; }
+}

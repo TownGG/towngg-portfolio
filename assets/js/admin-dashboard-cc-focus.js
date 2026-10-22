@@ -92,6 +92,18 @@
       revenueLineSub: 'Since 12:00 Beijing time',
       revenueDaily: 'Recent 7-day Revenue Trend',
       revenueDailySub: 'Beijing 12:00 to next day 12:00; missing data ≠ zero',
+      revenueInsightsTitle: '7 Completed Days · Revenue Insights',
+      revenueInsightsDesc: 'Excludes the current unfinished statistics day',
+      revenueSevenTotal: '7-day Total',
+      revenueSevenAverage: 'Daily Average',
+      revenueSevenBest: 'Highest Day',
+      revenueThreeDayMomentum: '3-day Momentum',
+      revenueSevenTotalFoot: 'Last 7 completed days',
+      revenueSevenAverageFoot: 'Reference line on chart',
+      revenueThreeDayFoot: 'Latest 3 vs previous 3 days',
+      revenueDailyAverageGuide: '7 completed-day average',
+      revenueDaysAvailable: 'Valid days',
+      revenueInsightsMissing: '7 complete days of data needed',
       revenueCompare: 'Period-on-Period Comparison',
       revenueCompareSub: 'Comparison to equally elapsed prior periods',
       revenueVsDay: 'Today vs Yesterday',
@@ -240,6 +252,18 @@
       revenueLineSub: '北京时间 12:00 至最新快照',
       revenueDaily: '近 7 个统计日预估收入',
       revenueDailySub: '北京时间 12:00 至次日 12:00 · 缺失不等于零',
+      revenueInsightsTitle: '近 7 个完整统计日分析',
+      revenueInsightsDesc: '不含尚未结束的当日统计',
+      revenueSevenTotal: '7 日累计收入',
+      revenueSevenAverage: '7 日日均收入',
+      revenueSevenBest: '单日最高收入',
+      revenueThreeDayMomentum: '近 3 日增长趋势',
+      revenueSevenTotalFoot: '最近 7 个完整统计日',
+      revenueSevenAverageFoot: '柱状图中的日均参考线',
+      revenueThreeDayFoot: '最近 3 日较此前 3 日',
+      revenueDailyAverageGuide: '近 7 完整日均值',
+      revenueDaysAvailable: '有效统计日',
+      revenueInsightsMissing: '需要 7 个完整统计日数据',
       revenueCompare: '收入环比与同比',
       revenueCompareSub: '与上一周期相同已过时长比较',
       revenueVsDay: '今日较昨日同期',
@@ -388,6 +412,18 @@
       revenueLineSub: '北京時間12:00から最新データまで',
       revenueDaily: '直近7日間の推定収益',
       revenueDailySub: '北京時間12:00〜翌12:00 · 欠測≠ゼロ',
+      revenueInsightsTitle: '直近7完了日の収益分析',
+      revenueInsightsDesc: '進行中の統計日は含みません',
+      revenueSevenTotal: '7日間の合計',
+      revenueSevenAverage: '1日平均',
+      revenueSevenBest: '最高収益日',
+      revenueThreeDayMomentum: '直近3日の推移',
+      revenueSevenTotalFoot: '完了済みの直近7日',
+      revenueSevenAverageFoot: 'グラフの平均基準線',
+      revenueThreeDayFoot: '直近3日とその前の3日',
+      revenueDailyAverageGuide: '直近7完了日の平均',
+      revenueDaysAvailable: '有効な統計日',
+      revenueInsightsMissing: '完了済み7日間のデータが必要',
       revenueCompare: '前期・前年との比較',
       revenueCompareSub: '同じ経過時間で比較',
       revenueVsDay: '本日対前日',
@@ -998,7 +1034,44 @@
         esc(textValue) + '</span></div>';
     }).join('');
     const daily = paidRevenueDailyRows(snapshots);
-    const maxDaily = Math.max(10, ...daily.map((row) => row.amount ?? 0));
+    // Seven COMPLETE statistical days: exclude the currently accumulating day.
+    // Null days never enter the mean as zero; all seven must be available.
+    const fullDays = paidRevenueDailyRows(snapshots, 8).slice(0, 7);
+    const completeSeven = fullDays.length === 7 && fullDays.every((row) => row.amount !== null && Number.isFinite(row.amount));
+    const sevenTotal = completeSeven ? fullDays.reduce((sum, row) => sum + row.amount, 0) : null;
+    const sevenAverage = completeSeven ? sevenTotal / 7 : null;
+    const bestDay = completeSeven ? fullDays.reduce((best, row) => row.amount > best.amount ? row : best) : null;
+    const lastThree = completeSeven ? fullDays.slice(4).reduce((sum, row) => sum + row.amount, 0) : null;
+    const precedingThree = completeSeven ? fullDays.slice(1, 4).reduce((sum, row) => sum + row.amount, 0) : null;
+    const momentum = completeSeven
+      ? precedingThree === 0 ? (lastThree > 0 ? t('revenueNewGrowth') : '0.0%')
+        : ((lastThree - precedingThree) / precedingThree * 100 >= 0 ? '+' : '') +
+          ((lastThree - precedingThree) / precedingThree * 100).toFixed(1) + '%'
+      : null;
+    const momentumDirection = completeSeven
+      ? (lastThree > precedingThree ? ' is-up' : lastThree < precedingThree ? ' is-down' : '') : '';
+    const maxDaily = Math.max(10, ...daily.map((row) => row.amount ?? 0), sevenAverage ?? 0);
+    const averageHeight = completeSeven ? (sevenAverage / maxDaily * 100).toFixed(2) : null;
+    const averageGuide = completeSeven
+      ? '<div class="admin-cc-revenue-average-legend"><span aria-hidden="true"></span>' +
+        esc(t('revenueDailyAverageGuide') + ': ' + revenueMoney(sevenAverage)) + '</div>'
+      : '';
+    const fullDayLabel = (start) => new Intl.DateTimeFormat(
+      lang() === 'zh-CN' ? 'zh-CN' : lang() === 'ja' ? 'ja-JP' : 'en-US',
+      { timeZone: 'Asia/Shanghai', month: 'numeric', day: 'numeric' }
+    ).format(new Date(start));
+    const insightCards = [
+      [t('revenueSevenTotal'), completeSeven ? revenueMoney(sevenTotal) : '—',
+        completeSeven ? t('revenueSevenTotalFoot') : t('revenueInsightsMissing'), ''],
+      [t('revenueSevenAverage'), completeSeven ? revenueMoney(sevenAverage) : '—',
+        completeSeven ? t('revenueSevenAverageFoot') : t('revenueInsightsMissing'), ''],
+      [t('revenueSevenBest'), completeSeven ? revenueMoney(bestDay.amount) : '—',
+        completeSeven ? fullDayLabel(bestDay.start) : t('revenueInsightsMissing'), ''],
+      [t('revenueThreeDayMomentum'), momentum ?? '—',
+        completeSeven ? t('revenueThreeDayFoot') : t('revenueInsightsMissing'), momentumDirection]
+    ].map(([label, value, foot, direction]) => '<div class="admin-cc-revenue-insight">' +
+      '<span>' + esc(label) + '</span><strong class="' + direction.trim() + '">' + esc(value) +
+      '</strong><small>' + esc(foot) + '</small></div>').join('');
     const dailyBars = daily.map((row) => {
       const height = row.amount === null ? 0 : Math.max(row.amount === 0 ? 2 : 5, row.amount / maxDaily * 100);
       const label = new Intl.DateTimeFormat(lang() === 'zh-CN' ? 'zh-CN' : lang() === 'ja' ? 'ja-JP' : 'en-US', {
@@ -1028,7 +1101,12 @@
       '<article class="admin-analytics-panel admin-cc-revenue-daily-panel">' +
       '<div class="admin-cc-revenue-panel-heading"><h3>' + esc(t('revenueDaily')) +
       '</h3><p>' + esc(t('revenueDailySub')) + '</p></div>' +
-      '<div class="admin-cc-revenue-daily-bars">' + dailyBars + '</div>' +
+      '<div class="admin-cc-revenue-daily-bars' + (completeSeven ? ' has-average' : '') +
+      '"' + (completeSeven ? ' style="--cc-revenue-average-height:' + averageHeight + '%"' : '') +
+      '>' + dailyBars + '</div>' + averageGuide +
+      '<div class="admin-cc-revenue-insights-head"><h4>' + esc(t('revenueInsightsTitle')) +
+      '</h4><small>' + esc(t('revenueInsightsDesc')) + '</small></div>' +
+      '<div class="admin-cc-revenue-insights-grid">' + insightCards + '</div>' +
       '<p class="admin-cc-revenue-data-note">' + esc(t('revenueDateNote')) +
       '</p></article>';
   }
