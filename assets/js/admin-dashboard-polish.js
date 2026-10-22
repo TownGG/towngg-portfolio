@@ -10,19 +10,19 @@
       dashboard: 'Dashboard', upload: 'Upload Images', manage: 'Image Management', community: 'Community Ops', messageBoard: 'Message Board',
       dashboardSubtitle: 'Download analytics overview', lastSync: 'Last Sync', admin: 'Admin', superAdmin: 'Super Admin',
       systemStatus: 'System Status', systemCopy: 'Worker connected · data feeds available', dataFeed: 'Data Feed', healthy: 'Healthy',
-      adminSession: 'Admin Session', active: 'Active', viewWebsite: 'View Website', lockAdmin: 'Lock Admin'
+      adminSession: 'Admin Session', active: 'Active', viewWebsite: 'View Website', lockAdmin: 'Lock Admin', refreshCache: 'Force Refresh Cache', refreshingCache: 'Refreshing…'
     },
     'zh-CN': {
       dashboard: '首页看板', upload: '上传图片', manage: '图片管理', community: '社区运营', messageBoard: '留言板',
       dashboardSubtitle: '平台下载数据分析总览', lastSync: '最后同步', admin: '管理员', superAdmin: '超级管理员',
       systemStatus: '系统状态', systemCopy: 'Worker 已连接 · 数据源可用', dataFeed: '数据源', healthy: '正常',
-      adminSession: '后台会话', active: '已激活', viewWebsite: '返回官网', lockAdmin: '锁定后台'
+      adminSession: '后台会话', active: '已激活', viewWebsite: '返回官网', lockAdmin: '锁定后台', refreshCache: '强制刷新缓存', refreshingCache: '正在刷新…'
     },
     ja: {
       dashboard: 'ダッシュボード', upload: '画像アップロード', manage: '画像管理', community: 'コミュニティ運用', messageBoard: 'メッセージボード',
       dashboardSubtitle: 'プラットフォーム別ダウンロード分析', lastSync: '最終同期', admin: '管理者', superAdmin: 'スーパー管理者',
       systemStatus: 'システム状態', systemCopy: 'Worker 接続済み · データ利用可能', dataFeed: 'データフィード', healthy: '正常',
-      adminSession: '管理セッション', active: '有効', viewWebsite: 'サイトを見る', lockAdmin: '管理画面をロック'
+      adminSession: '管理セッション', active: '有効', viewWebsite: 'サイトを見る', lockAdmin: '管理画面をロック', refreshCache: 'キャッシュを強制更新', refreshingCache: '更新中…'
     }
   };
 
@@ -210,6 +210,14 @@
       drawerHead.innerHTML = '<strong>TownGG <span>MOD</span></strong><button class="admin-mobile-drawer-close" type="button" aria-label="Close menu">×</button>';
       sidebarTabs.prepend(drawerHead);
     }
+    if (sidebarTabs && !sidebarTabs.querySelector('[data-polish-refresh-cache]')) {
+      const refreshButton = document.createElement('button');
+      refreshButton.type = 'button';
+      refreshButton.className = 'admin-refresh-cache-btn';
+      refreshButton.setAttribute('data-polish-refresh-cache', '');
+      refreshButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.5 9a7 7 0 0 1 12.2-2L20 12M4 12l2.3 5A7 7 0 0 0 18.5 15"/></svg><span data-polish-refresh-label></span>';
+      sidebarTabs.appendChild(refreshButton);
+    }
     if (!document.querySelector('.admin-mobile-drawer-backdrop')) {
       const backdrop = document.createElement('button');
       backdrop.type = 'button';
@@ -259,6 +267,12 @@
     setText('[data-polish-active]', c.active);
     setText('[data-polish-view-site]', c.viewWebsite);
     setText('[data-polish-lock]', c.lockAdmin);
+    setText('[data-polish-refresh-label]', c.refreshCache);
+    const refreshCacheButton = document.querySelector('[data-polish-refresh-cache]');
+    if (refreshCacheButton) {
+      refreshCacheButton.title = c.refreshCache;
+      refreshCacheButton.setAttribute('aria-label', c.refreshCache);
+    }
 
     if (!document.querySelector('.cc-focus-dashboard')) {
       document.querySelectorAll('.admin-dashboard-title h1').forEach((node) => { if (node.textContent !== c.dashboard) node.textContent = c.dashboard; });
@@ -284,6 +298,26 @@
     });
   }
 
+  async function forceRefreshCache() {
+    // Preserve login/session and language preferences. Only evict origin caches,
+    // refresh same-origin assets over the network and reload the document with a nonce.
+    try {
+      if ('caches' in window) {
+        const names = await window.caches.keys();
+        await Promise.all(names.map((name) => window.caches.delete(name)));
+      }
+    } catch (error) { console.warn('[TownGG] Cache Storage cleanup skipped:', error); }
+    const urls = [...document.querySelectorAll('link[rel="stylesheet"][href],script[src]')]
+      .map((node) => new URL(node.href || node.src, location.href))
+      .filter((url) => url.origin === location.origin);
+    await Promise.allSettled(urls.map((url) => fetch(url.href, {
+      method: 'GET', cache: 'reload', credentials: 'same-origin'
+    })));
+    const target = new URL(location.href);
+    target.searchParams.set('_force_refresh', String(Date.now()));
+    location.replace(target.href);
+  }
+
   function bindChrome() {
     const mobileQuery = window.matchMedia('(max-width: 760px)');
     const drawerToggle = document.querySelector('.admin-topbar-toggle');
@@ -299,6 +333,20 @@
     }
 
     document.addEventListener('click', (event) => {
+      const refreshCache = event.target.closest('[data-polish-refresh-cache]');
+      if (refreshCache) {
+        if (refreshCache.disabled) return;
+        refreshCache.disabled = true;
+        const label = refreshCache.querySelector('[data-polish-refresh-label]');
+        if (label) label.textContent = copy().refreshingCache;
+        forceRefreshCache().catch((error) => {
+          console.error('[TownGG] Force refresh failed:', error);
+          const target = new URL(location.href);
+          target.searchParams.set('_force_refresh', String(Date.now()));
+          location.replace(target.href);
+        });
+        return;
+      }
       const toggle = event.target.closest('.admin-topbar-toggle');
       if (toggle) {
         if (mobileQuery.matches) setMobileDrawer(!body.classList.contains('admin-mobile-drawer-open'));

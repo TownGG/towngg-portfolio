@@ -73,6 +73,14 @@
       estimatedTodayRmb: 'Estimated Revenue Today',
       estimatedWeekRmb: 'Estimated Revenue This Week',
       estimatedMonthRmb: 'Estimated Revenue This Month',
+      estimatedYesterdayRmb: 'Estimated Revenue Yesterday',
+      estimatedLastWeekRmb: 'Estimated Revenue Last Week',
+      estimatedLastMonthRmb: 'Estimated Revenue Last Month',
+      priorPeriodComplete: 'Full previous period · estimate only',
+      revenueComparedTo: 'vs',
+      revenueComparedYesterday: 'yesterday (same time)',
+      revenueComparedWeek: 'last week (same time)',
+      revenueComparedMonth: 'last month (same time)',
       estimatedRevenueNote: 'Library Adds × 4.62 · estimate only',
       revenueSectionTitle: 'Estimated Revenue',
       revenueSectionSubtitle: 'Revenue estimates from paid Creation library additions',
@@ -213,6 +221,14 @@
       estimatedTodayRmb: '今日预估收入',
       estimatedWeekRmb: '本周预估收入',
       estimatedMonthRmb: '本月预估收入',
+      estimatedYesterdayRmb: '昨日预估收入',
+      estimatedLastWeekRmb: '上周预估收入',
+      estimatedLastMonthRmb: '上月预估收入',
+      priorPeriodComplete: '上一完整统计周期 · 预估',
+      revenueComparedTo: '较',
+      revenueComparedYesterday: '昨日同期',
+      revenueComparedWeek: '上周同期',
+      revenueComparedMonth: '上月同期',
       estimatedRevenueNote: '入库数 × 4.62 · 非实际结算',
       revenueSectionTitle: '预估收入',
       revenueSectionSubtitle: '基于付费 CC 入库量测算 · 不等同于实际结算',
@@ -353,6 +369,14 @@
       estimatedTodayRmb: '今日の推定収益',
       estimatedWeekRmb: '今週の推定収益',
       estimatedMonthRmb: '今月の推定収益',
+      estimatedYesterdayRmb: '昨日の推定収益',
+      estimatedLastWeekRmb: '先週の推定収益',
+      estimatedLastMonthRmb: '先月の推定収益',
+      priorPeriodComplete: '前の期間の合計 · 推定値',
+      revenueComparedTo: '前期比',
+      revenueComparedYesterday: '昨日同時刻',
+      revenueComparedWeek: '先週同時刻',
+      revenueComparedMonth: '先月同時刻',
       estimatedRevenueNote: '追加数 × 4.62 · 推定値',
       revenueSectionTitle: '推定収益',
       revenueSectionSubtitle: '有料 CC ライブラリ追加数に基づく推定値',
@@ -846,6 +870,15 @@
     });
     return [...map.values()].sort((a, b) => b.downloads - a.downloads).slice(0, 8);
   }
+  function paidPreviousFullRevenue(snapshots, period) {
+    const start = paidRevenueStart(period, 1);
+    const end = paidRevenueStart(period);
+    const baseline = paidRevenueAt(snapshots, start);
+    const endpoint = paidRevenueAt(snapshots, end);
+    if (!baseline || !endpoint || endpoint.time <= baseline.time) return null;
+    return Math.max(0, endpoint.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD;
+  }
+
   function renderRevenueMetrics() {
     const target = document.querySelector('[data-cc-revenue-kpis]');
     if (!target) return;
@@ -856,24 +889,37 @@
       return;
     }
     const periods = [
-      ['estimatedTodayRmb', 'today'],
-      ['estimatedWeekRmb', 'week'],
-      ['estimatedMonthRmb', 'month']
+      ['estimatedTodayRmb', 'today', 'day', 'revenueComparedYesterday', false],
+      ['estimatedWeekRmb', 'week', 'week', 'revenueComparedWeek', false],
+      ['estimatedMonthRmb', 'month', 'month', 'revenueComparedMonth', false],
+      ['estimatedYesterdayRmb', null, 'day', null, true],
+      ['estimatedLastWeekRmb', null, 'week', null, true],
+      ['estimatedLastMonthRmb', null, 'month', null, true]
     ];
-    target.innerHTML = periods.map(([label, period]) => {
-      const libraryAdds = paidLibraryIncrement(period);
-      const money = libraryAdds === null
-        ? '—'
-        : '¥' + new Intl.NumberFormat('zh-CN', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        }).format(libraryAdds * PAID_RMB_PER_LIBRARY_ADD);
-      const foot = libraryAdds === null ? t('libraryUnavailable') : t('estimatedRevenueNote');
+    const snapshots = paidRevenueSnapshots();
+    target.innerHTML = periods.map(([label, period, periodUnit, compareLabel, previous]) => {
+      const libraryAdds = previous ? null : paidLibraryIncrement(period);
+      const income = previous ? paidPreviousFullRevenue(snapshots, periodUnit)
+        : libraryAdds === null ? null : libraryAdds * PAID_RMB_PER_LIBRARY_ADD;
+      const money = income === null ? '—' : revenueMoney(income);
+      let foot = income === null ? t('libraryUnavailable') : t('priorPeriodComplete');
+      let changeClass = '';
+      if (!previous && income !== null) {
+        const comparison = paidRevenueComparison(snapshots, periodUnit);
+        const change = comparison?.previous == null ? null : percentChange(income, comparison.previous);
+        if (Number.isFinite(change)) {
+          const sign = change > 0 ? '+' : '';
+          foot = t('revenueComparedTo') + ' ' + t(compareLabel) + ' ' + sign + change.toFixed(1) + '%';
+          changeClass = change > 0 ? ' is-up' : change < 0 ? ' is-down' : '';
+        } else {
+          foot = t('revenueComparedTo') + ' ' + t(compareLabel) + ' · ' + t('revenueNoHistory');
+        }
+      }
       return '<article class="admin-cc-revenue-card">' +
         '<div class="admin-cc-revenue-card-head"><span>' + esc(t(label)) +
         '</span><span class="admin-cc-revenue-currency">CNY</span></div>' +
         '<strong class="admin-cc-revenue-card-value">' + esc(money) + '</strong>' +
-        '<p class="admin-cc-revenue-card-foot">' + esc(foot) + '</p>' +
+        '<p class="admin-cc-revenue-card-foot' + changeClass + '">' + esc(foot) + '</p>' +
         '</article>';
     }).join('');
   }

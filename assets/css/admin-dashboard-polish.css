@@ -582,3 +582,54 @@
   .admin-upload-page .admin-module-tabs,
   .admin-mobile-drawer-backdrop { transition-duration: 0s !important; }
 }
+
+
+/* Refresh action: last entry in the existing desktop menu and mobile drawer. */
+.admin-upload-page .admin-module-tabs .admin-refresh-cache-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  margin: 14px 0 0;
+  border: 1px solid rgba(103, 190, 242, .16);
+  border-radius: 11px;
+  background: rgba(67, 199, 255, .035);
+  color: #a0c6df;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: background .18s, color .18s, border-color .18s;
+}
+.admin-upload-page .admin-module-tabs .admin-refresh-cache-btn:hover,
+.admin-upload-page .admin-module-tabs .admin-refresh-cache-btn:focus-visible {
+  color: #edfaff;
+  border-color: rgba(103, 190, 242, .38);
+  background: rgba(67, 199, 255, .09);
+}
+.admin-upload-page .admin-module-tabs .admin-refresh-cache-btn:disabled { opacity: .64; cursor: progress; }
+.admin-upload-page .admin-module-tabs .admin-refresh-cache-btn svg { flex: 0 0 19px; width: 19px; height: 19px; }
+.admin-sidebar-collapsed .admin-module-tabs .admin-refresh-cache-btn,
+.admin-upload-page .admin-module-tabs .admin-refresh-cache-btn:focus-visible { outline-offset: 2px; }
+.admin-sidebar-collapsed .admin-module-tabs .admin-refresh-cache-btn { justify-content: center; padding-inline: 0; }
+.admin-sidebar-collapsed .admin-module-tabs .admin-refresh-cache-btn span { display: none; }
+@media (min-width: 761px) and (max-width: 1100px) {
+  .admin-upload-page .admin-module-tabs .admin-refresh-cache-btn { justify-content: center; gap: 0; padding-inline: 0; }
+  .admin-upload-page .admin-module-tabs .admin-refresh-cache-btn span { display: none; }
+}
+@media (max-width: 760px) {
+  .admin-upload-page .admin-module-tabs .admin-refresh-cache-btn {
+    display: flex;
+    justify-content: flex-start;
+    gap: 12px;
+    min-height: 48px;
+    padding: 11px 13px;
+    margin-top: 16px;
+    font-size: 12px;
+  }
+  .admin-upload-page .admin-module-tabs .admin-refresh-cache-btn span { display: inline; }
+}
