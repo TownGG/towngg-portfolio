@@ -1006,7 +1006,7 @@
         '<strong class="admin-cc-revenue-card-value">' + esc(money) + '</strong>' +
         '<p class="admin-cc-revenue-card-foot' + changeClass + '">' + esc(foot) + '</p>' +
         '</article>';
-    }).join('') + renderRevenueInsights(snapshots);
+    }).join('');
   }
   function renderRevenueAnalysis() {
     const target = document.querySelector('[data-cc-revenue-analysis]');
@@ -1121,7 +1121,7 @@
       '</h3><p>' + esc(t('revenueDailySub')) + '</p></div>' +
       '<div class="admin-cc-revenue-daily-bars' + (completeSeven ? ' has-average' : '') +
       '"' + (completeSeven ? ' style="--cc-revenue-average-height:' + averageHeight + '%"' : '') +
-      '>' + dailyBars + '</div>' + averageGuide +
+      '>' + dailyBars + '</div>' + averageGuide + renderRevenueInsights(snapshots) +
       '<p class="admin-cc-revenue-data-note">' + esc(t('revenueDateNote')) +
       '</p></article>';
   }

@@ -1232,28 +1232,3 @@
   .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insight > strong { font-size: 21px; }
   .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insights-head { margin-top: 15px; }
 }
-
-/* The 7-day summary lives WITH the six revenue KPI cards, not below the bar chart. */
-.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics > .admin-cc-revenue-insights-wrap {
-  grid-column: 1 / -1;
-  min-width: 0;
-  margin: 1px 0 0;
-}
-.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics .admin-cc-revenue-insights-head {
-  margin-top: 6px;
-  padding-top: 16px;
-}
-.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics .admin-cc-revenue-insight {
-  padding: 16px 14px 14px;
-  border-color: rgba(229, 193, 129, .15);
-  background: linear-gradient(145deg, rgba(38, 37, 39, .82), rgba(18, 26, 37, .94));
-}
-@media (max-width: 760px) {
-  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics .admin-cc-revenue-insights-head {
-    margin-top: 3px;
-    padding-top: 13px;
-  }
-  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-metrics .admin-cc-revenue-insight {
-    padding: 12px 10px;
-  }
-}
