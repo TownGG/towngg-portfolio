@@ -1232,3 +1232,17 @@
   .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insight > strong { font-size: 21px; }
   .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insights-head { margin-top: 15px; }
 }
+
+/* Yuan symbol and fractional cents are quieter than the whole-yuan amount. */
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-value .admin-cc-revenue-amount-symbol,
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insight > strong .admin-cc-revenue-amount-symbol {
+  font-size: .58em;
+  font-weight: 600;
+  vertical-align: baseline;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-value .admin-cc-revenue-amount-cents,
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-insight > strong .admin-cc-revenue-amount-cents {
+  font-size: .63em;
+  font-weight: 600;
+  vertical-align: baseline;
+}

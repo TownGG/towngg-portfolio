@@ -727,6 +727,13 @@
   function revenueMoney(value) {
     return '¥' + new Intl.NumberFormat('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
   }
+  // Preserve the monetary value, but render symbol and fractional cents smaller in cards.
+  function revenueCardMoneyMarkup(formatted) {
+    const match = /^¥([0-9,]+)(\.[0-9]{2})$/.exec(String(formatted));
+    if (!match) return esc(formatted);
+    return '<span class="admin-cc-revenue-amount-symbol">¥</span>' +
+      esc(match[1]) + '<span class="admin-cc-revenue-amount-cents">' + esc(match[2]) + '</span>';
+  }
   function paidRevenueSnapshots() {
     return state.paidLibraryHistory.map((row) => ({
       time: utcDate(row.timestamp)?.getTime(),
@@ -957,7 +964,7 @@
     ];
     const cards = items.map(([label, value, foot, direction]) =>
       '<article class="admin-cc-revenue-insight"><span>' + esc(label) + '</span>' +
-      '<strong class="' + esc(direction) + '">' + esc(value) + '</strong>' +
+      '<strong class="' + esc(direction) + '">' + revenueCardMoneyMarkup(value) + '</strong>' +
       '<small>' + esc(foot) + '</small></article>'
     ).join('');
     return '<div class="admin-cc-revenue-insights-wrap">' +
@@ -1005,7 +1012,7 @@
       return '<article class="admin-cc-revenue-card">' +
         '<div class="admin-cc-revenue-card-head"><span>' + esc(t(label)) +
         '</span><span class="admin-cc-revenue-currency">CNY</span></div>' +
-        '<strong class="admin-cc-revenue-card-value">' + esc(money) + '</strong>' +
+        '<strong class="admin-cc-revenue-card-value">' + revenueCardMoneyMarkup(money) + '</strong>' +
         '<p class="admin-cc-revenue-card-foot' + changeClass + '">' + esc(foot) + '</p>' +
         '</article>';
     }).join('');
