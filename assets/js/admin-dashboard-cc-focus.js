@@ -94,7 +94,7 @@
       revenueNewGrowth: 'New growth',
       revenuePrior: 'Prior period',
       revenueEstimated: 'Estimate · snapshots',
-      revenueDateNote: 'Snapshots may be ~30 minutes from the cutoff · ≈ denotes interpolated data from the Oct 15–18 token outage',
+      revenueDateNote: 'Snapshots may be ~30 minutes from the cutoff · dashed bars indicate interpolated values during the Oct 15–18 token outage',
       plays: 'Plays',
       uniqueDownloads: 'Unique Downloads',
       endorsements: 'Endorsements',
@@ -234,7 +234,7 @@
       revenueNewGrowth: '新增收入',
       revenuePrior: '上期同期',
       revenueEstimated: '估算 · 快照口径',
-      revenueDateNote: '快照采样与统计边界可能相差约半小时 · ≈ 表示 10 月 15–18 日 Token 中断期间的插值估算',
+      revenueDateNote: '快照采样与统计边界可能相差约半小时 · 虚线柱表示 10 月 15–18 日 Token 中断期间的插值估算',
       plays: '游玩',
       uniqueDownloads: '唯一下载',
       endorsements: 'Endorsements',
@@ -374,7 +374,7 @@
       revenueNewGrowth: '新規増加',
       revenuePrior: '前期',
       revenueEstimated: '推定 · スナップショット',
-      revenueDateNote: 'スナップショットには約30分の誤差があります · ≈ は10月15〜18日の欠測補間値',
+      revenueDateNote: 'スナップショットには約30分の誤差があります · 破線の棒は10月15〜18日の欠測補間値です',
       plays: 'プレイ',
       uniqueDownloads: 'ユニークDL',
       endorsements: 'Endorsements',
@@ -958,7 +958,7 @@
       const label = new Intl.DateTimeFormat(lang() === 'zh-CN' ? 'zh-CN' : lang() === 'ja' ? 'ja-JP' : 'en-US', {
         timeZone: 'Asia/Shanghai', month: 'numeric', day: 'numeric'
       }).format(new Date(row.start));
-      const amount = row.amount === null ? '—' : (row.estimated ? '≈' : '') + revenueMoney(row.amount);
+      const amount = row.amount === null ? '—' : revenueMoney(row.amount);
       return '<div class="admin-cc-revenue-day' + (row.current ? ' is-current' : '') +
         (row.amount === null ? ' is-missing' : '') + (row.estimated ? ' is-estimated' : '') + '">' +
         '<div class="admin-cc-revenue-day-amount">' + esc(amount) + '</div>' +
