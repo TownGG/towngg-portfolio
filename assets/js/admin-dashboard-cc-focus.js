@@ -849,6 +849,115 @@
         '</article>';
     }).join('');
   }
+  function renderRevenueAnalysis() {
+    const target = document.querySelector('[data-cc-revenue-analysis]');
+    if (!target) return;
+    target.hidden = state.mode !== 'paid';
+    if (state.mode !== 'paid') {
+      target.innerHTML = '';
+      return;
+    }
+    const snapshots = paidRevenueSnapshots();
+    const latest = snapshots.at(-1);
+    const start = paidRevenueStart('day');
+    const baseline = paidRevenueAt(snapshots, start);
+    let svg = '<div class="admin-cc-revenue-empty">' + esc(t('revenueNoHistory')) + '</div>';
+    if (latest && baseline && latest.time > start) {
+      const points = [{ time: start, value: 0 }].concat(snapshots
+        .filter((p) => p.time > start && p.time <= latest.time)
+        .map((p) => ({ time: p.time, value: Math.max(0, p.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD })));
+      const W = 690, H = 240, L = 56, R = 16, T = 18, B = 37;
+      const pw = W - L - R, ph = H - T - B;
+      const maxValue = Math.max(10, ...points.map((p) => p.value));
+      const x = (p) => L + (p.time - start) / Math.max(1, latest.time - start) * pw;
+      const y = (p) => T + (1 - p.value / maxValue) * ph;
+      const coord = (p) => x(p).toFixed(1) + ',' + y(p).toFixed(1);
+      const path = points.map((p, i) => (i ? 'L' : 'M') + coord(p)).join(' ');
+      const area = path + ' L' + coord({ time: latest.time, value: 0 }) + ' L' + coord({ time: start, value: 0 }) + ' Z';
+      const marks = points.filter((p, i) => i === 0 || i === points.length - 1 || i % Math.max(1, Math.ceil(points.length / 14)) === 0)
+        .map((p) => '<circle cx="' + x(p).toFixed(1) + '" cy="' + y(p).toFixed(1) +
+          '" r="3.4" fill="#ffcb7e" stroke="#342515" stroke-width="1.5"><title>' +
+          esc(revenueBeijingTime(p.time, true) + ' · ' + revenueMoney(p.value)) + '</title></circle>').join('');
+      const axis = [0, .5, 1].map((fraction) => {
+        const yy = (T + (1 - fraction) * ph).toFixed(1);
+        return '<line x1="' + L + '" y1="' + yy + '" x2="' + (W - R) + '" y2="' + yy +
+          '" class="admin-cc-revenue-gridline"/><text x="' + (L - 10) + '" y="' + (+yy + 4) +
+          '" text-anchor="end" class="admin-cc-revenue-axis">' + esc(fmt(maxValue * fraction)) + '</text>';
+      }).join('');
+      const ticks = [start, start + (latest.time - start) / 2, latest.time].map((time, i) => {
+        const xx = L + i / 2 * pw;
+        return '<text x="' + xx.toFixed(1) + '" y="' + (H - 10) + '" text-anchor="' +
+          (i === 0 ? 'start' : i === 2 ? 'end' : 'middle') + '" class="admin-cc-revenue-axis">' +
+          esc(revenueBeijingTime(time)) + '</text>';
+      }).join('');
+      svg = '<svg class="admin-cc-revenue-chart" viewBox="0 0 ' + W + ' ' + H +
+        '" role="img" aria-label="' + esc(t('revenueLine')) + '">' +
+        '<defs><linearGradient id="ccEstimatedRevenueFill" x1="0" x2="0" y1="0" y2="1">' +
+        '<stop offset="0%" stop-color="#ffbf72" stop-opacity=".3"/>' +
+        '<stop offset="100%" stop-color="#ffbf72" stop-opacity="0"/></linearGradient></defs>' +
+        axis + '<path d="' + area + '" fill="url(#ccEstimatedRevenueFill)"/>' +
+        '<path d="' + path + '" fill="none" stroke="#ffc97a" stroke-width="3.3" ' +
+        'stroke-linecap="round" stroke-linejoin="round"/>' + marks + ticks + '</svg>';
+    }
+    const comparisons = [
+      ['revenueVsDay', 'day'],
+      ['revenueVsWeek', 'week'],
+      ['revenueVsMonth', 'month'],
+      ['revenueVsYear', 'year']
+    ].map(([label, period]) => {
+      const comparison = paidRevenueComparison(snapshots, period);
+      const valid = comparison && comparison.previous !== null;
+      let textValue = '—', valueClass = 'is-neutral';
+      if (valid) {
+        const change = percentChange(comparison.current, comparison.previous);
+        if (change === null) {
+          textValue = comparison.current > 0 ? t('revenueNewGrowth') : '0.0%';
+        } else {
+          textValue = (change > 0 ? '+' : '') + change.toFixed(1) + '%';
+          valueClass = change > 0 ? 'is-up' : change < 0 ? 'is-down' : 'is-neutral';
+        }
+      }
+      return '<div class="admin-cc-revenue-comparison-row">' +
+        '<div><strong>' + esc(t(label)) + '</strong><small>' +
+        esc(valid ? t('revenuePrior') + ': ' + revenueMoney(comparison.previous) : t('revenueNoHistory')) +
+        '</small></div><span class="admin-cc-revenue-change ' + valueClass + '">' +
+        esc(textValue) + '</span></div>';
+    }).join('');
+    const daily = paidRevenueDailyRows(snapshots);
+    const maxDaily = Math.max(10, ...daily.map((row) => row.amount ?? 0));
+    const dailyBars = daily.map((row) => {
+      const height = row.amount === null ? 0 : Math.max(row.amount === 0 ? 2 : 5, row.amount / maxDaily * 100);
+      const label = new Intl.DateTimeFormat(lang() === 'zh-CN' ? 'zh-CN' : lang() === 'ja' ? 'ja-JP' : 'en-US', {
+        timeZone: 'Asia/Shanghai', month: 'numeric', day: 'numeric'
+      }).format(new Date(row.start));
+      const amount = row.amount === null ? '—' : revenueMoney(row.amount);
+      return '<div class="admin-cc-revenue-day' + (row.current ? ' is-current' : '') +
+        (row.amount === null ? ' is-missing' : '') + '">' +
+        '<div class="admin-cc-revenue-day-amount">' + esc(amount) + '</div>' +
+        '<div class="admin-cc-revenue-day-track">' +
+        (row.amount === null ? '<span class="admin-cc-revenue-day-missing">—</span>' :
+          '<div class="admin-cc-revenue-day-bar" style="height:' + height.toFixed(1) +
+          '%" title="' + esc(label + ' · ' + amount) + '"></div>') +
+        '</div><div class="admin-cc-revenue-day-label">' + esc(label) + '</div></div>';
+    }).join('');
+    target.innerHTML =
+      '<header class="admin-cc-revenue-analysis-heading"><div><h2>' + esc(t('revenueAnalysis')) +
+      '</h2><p>' + esc(t('revenueAnalysisDesc')) +
+      '</p></div><span>' + esc(t('revenueEstimated')) + '</span></header>' +
+      '<div class="admin-cc-revenue-analysis-grid">' +
+      '<article class="admin-analytics-panel admin-cc-revenue-trend-panel">' +
+      '<div class="admin-cc-revenue-panel-heading"><h3>' + esc(t('revenueLine')) +
+      '</h3><p>' + esc(t('revenueLineSub')) + '</p></div>' + svg + '</article>' +
+      '<article class="admin-analytics-panel admin-cc-revenue-compare-panel">' +
+      '<div class="admin-cc-revenue-panel-heading"><h3>' + esc(t('revenueCompare')) +
+      '</h3><p>' + esc(t('revenueCompareSub')) + '</p></div>' + comparisons + '</article></div>' +
+      '<article class="admin-analytics-panel admin-cc-revenue-daily-panel">' +
+      '<div class="admin-cc-revenue-panel-heading"><h3>' + esc(t('revenueDaily')) +
+      '</h3><p>' + esc(t('revenueDailySub')) + '</p></div>' +
+      '<div class="admin-cc-revenue-daily-bars">' + dailyBars + '</div>' +
+      '<p class="admin-cc-revenue-data-note">' + esc(t('revenueDateNote')) +
+      '</p></article>';
+  }
   function renderMetrics() {
     const target = document.querySelector('[data-cc-kpis]');
     if (!target) return;
@@ -1206,6 +1315,7 @@
     updateText();
     renderRevenueMetrics();
     renderMetrics();
+    renderRevenueAnalysis();
     renderTrend();
     renderShare();
     renderBars();
@@ -1220,6 +1330,7 @@
       '<div class="admin-cc-focus-strip"><div class="admin-cc-focus-tabs" role="tablist" aria-label="Mod data source"><button class="admin-cc-focus-tab is-active" type="button" role="tab" aria-selected="true" data-cc-tab="paid"><i></i><span>Paid Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="free"><i></i><span>Free Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="nexus"><i></i><span>Nexus Mods</span></button></div></div>' +
       '<section class="admin-cc-revenue-metrics" data-cc-revenue-kpis hidden></section>' +
       '<section class="admin-dashboard-metrics" data-cc-kpis></section>' +
+      '<section class="admin-cc-revenue-analysis" data-cc-revenue-analysis hidden></section>' +
       '<div class="admin-cc-focus-dashboard-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-trend-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-focus-legend" data-cc-legend><i></i><span></span></div><div class="admin-line-chart" data-cc-line-chart></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-share-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-share-card"><div class="admin-cc-share-ring" data-cc-share-ring><div class="admin-cc-share-center"><strong data-cc-share-center>0%</strong><span>MOD</span></div></div><div class="admin-cc-share-copy" data-cc-share-copy></div></div></section></div>' +
       '<div class="admin-cc-analysis-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><div><h3 data-cc-matrix-title></h3><p class="admin-insight-caption" data-cc-matrix-subtitle></p></div><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-matrix" data-cc-matrix></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-snapshot-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-snapshot" data-cc-snapshot></div></section></div>' +
       '<div class="admin-cc-bottom-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-recent-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-bars" data-cc-bars></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-ranking-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-ranking-wrap"><table class="admin-ranking-table"><thead data-cc-ranking-head></thead><tbody data-cc-ranking></tbody></table></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-conversion-title></h3><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-conversion" data-cc-conversion></div></section></div>' +
