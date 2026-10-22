@@ -1044,3 +1044,9 @@
   .admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading h2 { font-size: 19px; }
   .admin-dashboard.cc-focus-dashboard .admin-cc-zone-heading p { font-size: 11px; }
 }
+
+/* Preserve the original free CC and Nexus dashboard layout. */
+.admin-dashboard.cc-focus-dashboard[data-cc-mode="free"] .admin-cc-download-zone,
+.admin-dashboard.cc-focus-dashboard[data-cc-mode="nexus"] .admin-cc-download-zone {
+  display: contents;
+}
