@@ -94,7 +94,7 @@
       revenueDailySub: 'Monday–Sunday · statistical days run from Beijing 12:00 to next day 12:00',
       revenueMonthWeekly: 'This Month’s Estimated Revenue by Week',
       revenueMonthWeeklySub: 'Calendar weeks (Mon–Sun); weeks crossing month boundaries count only days in this month',
-      revenueMonthWeeklyNote: 'Ongoing weeks include snapshots received so far · — means missing or not yet started, not zero',
+      revenueMonthWeeklyNote: 'Dashed bars represent interpolated estimates · — means missing or not yet started, not zero',
       revenueMonthWeekLabel: 'Week {n}',
       revenueNotStarted: 'Not started',
       revenueWeekdayNames: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
@@ -142,7 +142,7 @@
       revenueNewGrowth: 'New growth',
       revenuePrior: 'Previous full period',
       revenueEstimated: 'Estimate · snapshots',
-      revenueDateNote: 'Snapshots may be ~30 minutes from the cutoff · dashed bars indicate interpolated values during the Oct 15–18 token outage',
+      revenueDateNote: 'Missing boundaries are estimated from neighboring snapshots · dashed bars indicate estimates · long gaps remain unavailable',
       plays: 'Plays',
       uniqueDownloads: 'Unique Downloads',
       endorsements: 'Endorsements',
@@ -282,7 +282,7 @@
       revenueDailySub: '周一至周日 · 每个统计日为北京时间 12:00 至次日 12:00',
       revenueMonthWeekly: '本月预估收入（按周）',
       revenueMonthWeeklySub: '横坐标按周一至周日分组 · 跨月周只计算本月内的天数',
-      revenueMonthWeeklyNote: '进行中的周统计至最新快照 · — 表示缺失或尚未开始，并非零收入',
+      revenueMonthWeeklyNote: '虚线柱为相邻快照插值估算 · — 表示缺失或尚未开始，并非零收入',
       revenueMonthWeekLabel: '第{n}周',
       revenueNotStarted: '待统计',
       revenueWeekdayNames: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
@@ -330,7 +330,7 @@
       revenueNewGrowth: '新增收入',
       revenuePrior: '上一完整周期',
       revenueEstimated: '估算 · 快照口径',
-      revenueDateNote: '快照采样与统计边界可能相差约半小时 · 虚线柱表示 10 月 15–18 日 Token 中断期间的插值估算',
+      revenueDateNote: '边界缺少快照时按前后数据估算，虚线柱代表估算值 · 过长空档仍显示缺失',
       plays: '游玩',
       uniqueDownloads: '唯一下载',
       endorsements: 'Endorsements',
@@ -470,7 +470,7 @@
       revenueDailySub: '月曜～日曜 · 集計日は北京時間12:00から翌12:00まで',
       revenueMonthWeekly: '今月の推定収益（週別）',
       revenueMonthWeeklySub: '月曜～日曜ごと · 月をまたぐ週は今月分のみ集計',
-      revenueMonthWeeklyNote: '進行中の週は最新スナップショットまで · — は未開始または欠測を示します',
+      revenueMonthWeeklyNote: '破線は前後の記録からの推定値 · — は欠測または未開始であり、収益ゼロではありません',
       revenueMonthWeekLabel: '第{n}週',
       revenueNotStarted: '未開始',
       revenueWeekdayNames: ['月', '火', '水', '木', '金', '土', '日'],
@@ -518,7 +518,7 @@
       revenueNewGrowth: '新規増加',
       revenuePrior: '前の完全な期間',
       revenueEstimated: '推定 · スナップショット',
-      revenueDateNote: 'スナップショットには約30分の誤差があります · 破線の棒は10月15〜18日の欠測補間値です',
+      revenueDateNote: '境界の欠測は前後のデータから推定します · 破線は推定値、長期欠測は未表示です',
       plays: 'プレイ',
       uniqueDownloads: 'ユニークDL',
       endorsements: 'Endorsements',
@@ -796,15 +796,11 @@
   function paidLibraryIncrement(period) {
     const key = period === 'today' ? todayKey() : metricPeriodBounds(period, 0, 'paid').start;
     const boundary = Date.parse(key + 'T04:00:00Z');
-    const snapshots = state.paidLibraryHistory.map((row) => ({
-      time: utcDate(row.timestamp)?.getTime(),
-      value: Number(row.total_paid_library_adds)
-    })).filter((row) => Number.isFinite(row.time) && Number.isFinite(row.value) && row.value >= 0)
-      .sort((a, b) => a.time - b.time);
-    const baseline = snapshots.filter((row) => row.time <= boundary).at(-1);
+    const snapshots = paidRevenueSnapshots();
     const latest = snapshots.at(-1);
-    if (!baseline || !latest || boundary - baseline.time > 2 * 60 * 60 * 1000 || latest.time < boundary) return null;
-    return Math.max(0, latest.value - baseline.value);
+    const baseline = paidRevenueBoundary(snapshots, boundary);
+    if (!baseline || !latest || latest.time < boundary) return null;
+    return Math.max(0, latest.count - baseline.count);
   }
   const PAID_REVENUE_DAY_MS = 86400000;
   const PAID_REVENUE_SAMPLE_TOLERANCE = 2 * 60 * 60 * 1000;
@@ -833,6 +829,31 @@
     }
     return found && at - found.time <= PAID_REVENUE_SAMPLE_TOLERANCE ? found : null;
   }
+  // Keep the established Beijing-noon cutoff, but do not require a noon sample.
+  // First use a nearby recorded baseline; otherwise interpolate between real
+  // snapshots over gaps up to 14 days. Raw CSV observations stay unchanged.
+  function paidRevenueBoundary(snapshots, at) {
+    if (!Number.isFinite(at) || !snapshots.length) return null;
+    const observed = paidRevenueAt(snapshots, at);
+    if (observed) return { ...observed, estimated: false };
+    let before = null, after = null;
+    for (const point of snapshots) {
+      if (point.time === at) return { ...point, estimated: false };
+      if (point.time < at) before = point;
+      else { after = point; break; }
+    }
+    if (before && after && after.time - before.time <= 14 * PAID_REVENUE_DAY_MS &&
+        after.time > before.time) {
+      const fraction = (at - before.time) / (after.time - before.time);
+      return { time: at, count: before.count + (after.count - before.count) * fraction, estimated: true };
+    }
+    const nearby = 12 * 60 * 60 * 1000;
+    if (before && at - before.time <= nearby)
+      return { time: at, count: before.count, estimated: true };
+    if (after && after.time - at <= nearby)
+      return { time: at, count: after.count, estimated: true };
+    return null;
+  }
   function paidRevenueStart(period, offset = 0) {
     const date = new Date(todayKey() + 'T00:00:00Z');
     if (period === 'day') date.setUTCDate(date.getUTCDate() - offset);
@@ -860,32 +881,21 @@
   function paidRevenueComparison(snapshots, period) {
     const latest = snapshots.at(-1);
     const curStart = paidRevenueStart(period === 'year' ? 'month' : period);
-    const curBase = paidRevenueAt(snapshots, curStart);
+    const curBase = paidRevenueBoundary(snapshots, curStart);
     if (!latest || !curBase || latest.time < curStart) return null;
     const current = Math.max(0, latest.count - curBase.count) * PAID_RMB_PER_LIBRARY_ADD;
     const prevStart = paidRevenuePriorStart(period);
     // Compare this period's live running total against the ENTIRE previous period.
     // Matching the same time of day is no longer required.
     const prevEnd = paidRevenueNextStart(period, prevStart);
-    const prevBase = paidRevenueAt(snapshots, prevStart);
-    const prevPoint = paidRevenueAt(snapshots, prevEnd);
+    const prevBase = paidRevenueBoundary(snapshots, prevStart);
+    const prevPoint = paidRevenueBoundary(snapshots, prevEnd);
     if (!prevBase || !prevPoint || prevPoint.time <= prevBase.time) return { current, previous: null };
     return { current, previous: Math.max(0, prevPoint.count - prevBase.count) * PAID_RMB_PER_LIBRARY_ADD };
   }
-  // Only the daily income chart uses these estimates (not original data, KPIs or comparisons).
-  // GitHub historical source: Oct 16 01:40Z=828, 09:39Z=837; Oct 17 21:09Z=940, Oct 18 04:43Z=967.
-  // At the 04:00Z Beijing-noon boundaries, linear interpolation yields ≈831 and ≈964.
-  const PAID_REVENUE_ESTIMATED_BOUNDARIES = new Map([
-    [Date.parse('2026-10-16T04:00:00Z'), 831],
-    [Date.parse('2026-10-18T04:00:00Z'), 964]
-  ]);
+  // Daily and weekly charts use the same flexible, transparent estimate.
   function paidRevenueDailyBoundary(snapshots, boundary) {
-    const observed = paidRevenueAt(snapshots, boundary);
-    if (observed) return { ...observed, estimated: false };
-    const interpolated = PAID_REVENUE_ESTIMATED_BOUNDARIES.get(boundary);
-    return Number.isFinite(interpolated)
-      ? { time: boundary, count: interpolated, estimated: true }
-      : null;
+    return paidRevenueBoundary(snapshots, boundary);
   }
   function paidRevenueDailyRows(snapshots, count = 7) {
     const latest = snapshots.at(-1);
@@ -1002,8 +1012,8 @@
   function paidPreviousFullRevenue(snapshots, period) {
     const start = paidRevenueStart(period, 1);
     const end = paidRevenueStart(period);
-    const baseline = paidRevenueAt(snapshots, start);
-    const endpoint = paidRevenueAt(snapshots, end);
+    const baseline = paidRevenueBoundary(snapshots, start);
+    const endpoint = paidRevenueBoundary(snapshots, end);
     if (!baseline || !endpoint || endpoint.time <= baseline.time) return null;
     return Math.max(0, endpoint.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD;
   }
@@ -1174,7 +1184,7 @@
     const snapshots = paidRevenueSnapshots();
     const latest = snapshots.at(-1);
     const start = paidRevenueStart('day');
-    const baseline = paidRevenueAt(snapshots, start);
+    const baseline = paidRevenueBoundary(snapshots, start);
     let svg = '<div class="admin-cc-revenue-empty">' + esc(t('revenueNoHistory')) + '</div>';
     if (latest && baseline && latest.time > start) {
       const points = [{ time: start, value: 0 }].concat(snapshots
