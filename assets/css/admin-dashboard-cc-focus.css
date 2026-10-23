@@ -1246,3 +1246,46 @@
   font-weight: 600;
   vertical-align: baseline;
 }
+
+/* This-week daily income: one fixed slot for each weekday; future slots stay empty. */
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day-label small {
+  color: #8199ac;
+  font-size: 10px;
+  font-weight: 500;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day.is-future .admin-cc-revenue-day-amount,
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day.is-future .admin-cc-revenue-day-label {
+  opacity: .45;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day.is-future .admin-cc-revenue-day-missing {
+  opacity: .35;
+}
+/* This-month income: 4–6 calendar-week buckets (Monday–Sunday), clipped to month. */
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-daily-bars.admin-cc-revenue-month-bars {
+  grid-template-columns: repeat(var(--cc-month-week-count, 5), minmax(0, 1fr));
+  gap: 10px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-month-bars .admin-cc-revenue-day-track {
+  max-width: 125px;
+}
+@media (max-width: 760px) {
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-daily-bars.admin-cc-revenue-month-bars {
+    gap: 6px;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-day-label small {
+    font-size: 9px;
+    letter-spacing: -.025em;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-month-bars .admin-cc-revenue-day-amount {
+    font-size: 10px;
+    letter-spacing: -.025em;
+  }
+}
