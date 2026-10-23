@@ -1289,3 +1289,12 @@
     letter-spacing: -.025em;
   }
 }
+
+/* Independent income analyses follow their corresponding weekly/monthly chart. */
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-daily-panel .admin-cc-revenue-insights-wrap,
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-month-panel .admin-cc-revenue-insights-wrap { min-width: 0; }
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-month-panel .admin-cc-revenue-insights-head { margin-top: 17px; }
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-month-panel .admin-cc-revenue-insight {
+  border-color: rgba(130,187,212,.14);
+  background: rgba(123,176,211,.035);
+}

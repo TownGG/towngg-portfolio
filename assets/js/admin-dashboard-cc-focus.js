@@ -110,6 +110,28 @@
       revenueDailyAverageGuide: '7 completed-day average',
       revenueDaysAvailable: 'Valid days',
       revenueInsightsMissing: '7 complete days of data needed',
+      revenueWeekInsightsTitle: "This Week · Revenue Analysis",
+      revenueWeekInsightsDesc: "Week to date; including today's unfinished statistics",
+      revenueMonthInsightsTitle: "This Month · Full Statistical Analysis",
+      revenueMonthInsightsDesc: "Month to date; includes ongoing week",
+      revenueWeekTotal: "Week-to-date Revenue",
+      revenueWeekAverage: "Daily Average",
+      revenueWeekBest: "Highest Recorded Day",
+      revenueWeekGrowth: "vs Full Last Week",
+      revenueMonthTotal: "Month-to-date Revenue",
+      revenueMonthAverage: "Weekly Average",
+      revenueMonthBest: "Highest Recorded Week",
+      revenueMonthGrowth: "vs Full Last Month",
+      revenueWeekTotalFoot: "Through latest snapshot",
+      revenueWeekAverageFoot: "Total ÷ {n} started days (incl. today)",
+      revenueWeekBestFoot: "{date} · {n} recorded days",
+      revenueMonthTotalFoot: "Through latest snapshot",
+      revenueMonthAverageFoot: "Total ÷ {n} started calendar-week segments",
+      revenueMonthBestFoot: "{week} · {n} recorded weeks",
+      revenueWeekGrowthFoot: "Week-to-date vs last full week",
+      revenueMonthGrowthFoot: "Month-to-date vs last full month",
+      revenueStatMissing: "Insufficient snapshots",
+      revenueDailyAverageGuide: "Week-to-date daily average",
       revenueCompare: 'Period-on-Period Comparison',
       revenueCompareSub: 'Current period to date vs the previous full period',
       revenueVsDay: 'Today vs Yesterday (full day)',
@@ -276,6 +298,28 @@
       revenueDailyAverageGuide: '近 7 完整日均值',
       revenueDaysAvailable: '有效统计日',
       revenueInsightsMissing: '需要 7 个完整统计日数据',
+      revenueWeekInsightsTitle: "本周收入分析",
+      revenueWeekInsightsDesc: "本周至今 · 包含尚未结束的今日统计",
+      revenueMonthInsightsTitle: "本月完整统计分析",
+      revenueMonthInsightsDesc: "本月至今 · 包含进行中周；缺失周不参与最高值",
+      revenueWeekTotal: "本周累计收入",
+      revenueWeekAverage: "本周日均收入",
+      revenueWeekBest: "已记录最高单日",
+      revenueWeekGrowth: "较上周全周",
+      revenueMonthTotal: "本月累计收入",
+      revenueMonthAverage: "本月周均收入",
+      revenueMonthBest: "已记录最高单周",
+      revenueMonthGrowth: "较上月全月",
+      revenueWeekTotalFoot: "截至最新有效快照",
+      revenueWeekAverageFoot: "累计 ÷ 已开始的 {n} 天（含今日）",
+      revenueWeekBestFoot: "{date} · 已记录 {n} 天",
+      revenueMonthTotalFoot: "截至最新有效快照",
+      revenueMonthAverageFoot: "累计 ÷ 已开始的 {n} 个自然周段",
+      revenueMonthBestFoot: "{week} · 已记录 {n} 个周段",
+      revenueWeekGrowthFoot: "本周至今 vs 上周全周",
+      revenueMonthGrowthFoot: "本月至今 vs 上月全月",
+      revenueStatMissing: "历史快照不足",
+      revenueDailyAverageGuide: "本周截至今日的日均",
       revenueCompare: '收入周期对比',
       revenueCompareSub: '本周期截至目前与上一完整周期总额对比',
       revenueVsDay: '今日较昨日全天',
@@ -442,6 +486,28 @@
       revenueDailyAverageGuide: '直近7完了日の平均',
       revenueDaysAvailable: '有効な統計日',
       revenueInsightsMissing: '完了済み7日間のデータが必要',
+      revenueWeekInsightsTitle: "今週の収益分析",
+      revenueWeekInsightsDesc: "今週の累計 · 進行中の本日を含む",
+      revenueMonthInsightsTitle: "今月の総合収益分析",
+      revenueMonthInsightsDesc: "今月の累計 · 進行中の週を含み、欠測週は最高値の対象外",
+      revenueWeekTotal: "今週の累計収益",
+      revenueWeekAverage: "今週の日平均収益",
+      revenueWeekBest: "記録済み最高日",
+      revenueWeekGrowth: "前週全体比",
+      revenueMonthTotal: "今月の累計収益",
+      revenueMonthAverage: "今月の週平均収益",
+      revenueMonthBest: "記録済み最高週",
+      revenueMonthGrowth: "前月全体比",
+      revenueWeekTotalFoot: "最新スナップショットまで",
+      revenueWeekAverageFoot: "累計 ÷ 開始済み{n}日（本日含む）",
+      revenueWeekBestFoot: "{date} · 記録済み{n}日",
+      revenueMonthTotalFoot: "最新スナップショットまで",
+      revenueMonthAverageFoot: "累計 ÷ 開始済み{n}週区間",
+      revenueMonthBestFoot: "{week} · 記録済み{n}週区間",
+      revenueWeekGrowthFoot: "今週と前週全体を比較",
+      revenueMonthGrowthFoot: "今月と前月全体を比較",
+      revenueStatMissing: "履歴データ不足",
+      revenueDailyAverageGuide: "今週の日平均（本日含む）",
       revenueCompare: '期間別収益比較',
       revenueCompareSub: '今期の累計と前の完全な期間を比較',
       revenueVsDay: '本日対昨日全日',
@@ -943,52 +1009,67 @@
   }
 
 
-  // Shared by top revenue KPI analysis cards and the daily chart average guide.
-  // Exclude the ongoing day and never silently count missing boundaries as zero.
-  function paidRevenueSevenDayStats(snapshots) {
-    const fullDays = paidRevenueDailyRows(snapshots, 8).slice(0, 7);
-    const completeSeven = fullDays.length === 7 && fullDays.every(
-      (row) => row.amount !== null && Number.isFinite(row.amount)
-    );
-    if (!completeSeven) return { completeSeven: false, sevenTotal: null, sevenAverage: null, bestDay: null, momentum: null, momentumDirection: '' };
-    const sevenTotal = fullDays.reduce((sum, row) => sum + row.amount, 0);
-    const sevenAverage = sevenTotal / 7;
-    const bestDay = fullDays.reduce((best, row) => row.amount > best.amount ? row : best);
-    const lastThree = fullDays.slice(4).reduce((sum, row) => sum + row.amount, 0);
-    const precedingThree = fullDays.slice(1, 4).reduce((sum, row) => sum + row.amount, 0);
-    const change = precedingThree === 0 ? null : (lastThree - precedingThree) / precedingThree * 100;
-    const momentum = change === null
-      ? (lastThree > 0 ? t('revenueNewGrowth') : '0.0%')
+
+  // Calculate true week/month totals from cumulative boundary snapshots,
+  // not the sum of potentially missing chart bars.
+  function revenueSummaryPeriodData(snapshots, period, days, weeks) {
+    const comparison = paidRevenueComparison(snapshots, period);
+    const total = comparison?.current ?? null;
+    const count = period === 'week'
+      ? 1 + Math.round((paidRevenueStart('day') - paidRevenueStart('week')) / PAID_REVENUE_DAY_MS)
+      : weeks.filter((row) => !row.future).length;
+    const observed = (period === 'week' ? days : weeks)
+      .map((row, index) => ({ ...row, index }))
+      .filter((row) => !row.future && row.amount !== null && Number.isFinite(row.amount));
+    const best = observed.length
+      ? observed.reduce((prev, row) => row.amount > prev.amount ? row : prev) : null;
+    const change = comparison && comparison.previous !== null
+      ? percentChange(comparison.current, comparison.previous) : null;
+    const growth = !comparison || comparison.previous === null ? '—'
+      : change === null ? (comparison.current > 0 ? t('revenueNewGrowth') : '0.0%')
       : (change > 0 ? '+' : '') + change.toFixed(1) + '%';
-    const momentumDirection = lastThree > precedingThree ? 'is-up'
-      : lastThree < precedingThree ? 'is-down' : '';
-    return { completeSeven, sevenTotal, sevenAverage, bestDay, momentum, momentumDirection };
+    const direction = Number.isFinite(change)
+      ? change > 0 ? 'is-up' : change < 0 ? 'is-down' : '' : '';
+    return { total, count, best, observedCount: observed.length, growth, direction };
   }
-  function renderRevenueInsights(snapshots) {
-    const { completeSeven, sevenTotal, sevenAverage, bestDay, momentum, momentumDirection } =
-      paidRevenueSevenDayStats(snapshots);
-    const bestLabel = completeSeven ? new Intl.DateTimeFormat(
-      lang() === 'zh-CN' ? 'zh-CN' : lang() === 'ja' ? 'ja-JP' : 'en-US',
-      { timeZone: 'Asia/Shanghai', month: 'numeric', day: 'numeric' }
-    ).format(new Date(bestDay.start)) : t('revenueInsightsMissing');
-    const items = [
-      [t('revenueSevenTotal'), completeSeven ? revenueMoney(sevenTotal) : '—',
-        completeSeven ? t('revenueSevenTotalFoot') : t('revenueInsightsMissing'), ''],
-      [t('revenueSevenAverage'), completeSeven ? revenueMoney(sevenAverage) : '—',
-        completeSeven ? t('revenueSevenAverageFoot') : t('revenueInsightsMissing'), ''],
-      [t('revenueSevenBest'), completeSeven ? revenueMoney(bestDay.amount) : '—', bestLabel, ''],
-      [t('revenueThreeDayMomentum'), momentum ?? '—',
-        completeSeven ? t('revenueThreeDayFoot') : t('revenueInsightsMissing'), momentumDirection]
+  function renderRevenueInsights(snapshots, period, days, weeks) {
+    const isMonth = period === 'month';
+    const result = revenueSummaryPeriodData(snapshots, period, days, weeks);
+    const valid = result.total !== null && Number.isFinite(result.total);
+    const total = valid ? revenueMoney(result.total) : '—';
+    const average = valid && result.count > 0 ? revenueMoney(result.total / result.count) : '—';
+    const maximum = result.best ? revenueMoney(result.best.amount) : '—';
+    const peakLabel = result.best ? isMonth
+      ? t('revenueMonthWeekLabel').replace('{n}', String(result.best.index + 1))
+      : new Intl.DateTimeFormat(
+          lang() === 'zh-CN' ? 'zh-CN' : lang() === 'ja' ? 'ja-JP' : 'en-US',
+          { timeZone: 'Asia/Shanghai', month: 'numeric', day: 'numeric' }
+        ).format(new Date(result.best.start))
+      : '';
+    const interpolate = (key, fields) =>
+      Object.entries(fields).reduce((s, [k, v]) => s.replace('{' + k + '}', String(v)), t(key));
+    const missing = t('revenueStatMissing');
+    const entries = isMonth ? [
+      [t('revenueMonthTotal'), total, valid ? t('revenueMonthTotalFoot') : missing, ''],
+      [t('revenueMonthAverage'), average, valid ? interpolate('revenueMonthAverageFoot', { n: result.count }) : missing, ''],
+      [t('revenueMonthBest'), maximum, result.best ? interpolate('revenueMonthBestFoot', { week: peakLabel, n: result.observedCount }) : missing, ''],
+      [t('revenueMonthGrowth'), result.growth, t('revenueMonthGrowthFoot'), result.direction]
+    ] : [
+      [t('revenueWeekTotal'), total, valid ? t('revenueWeekTotalFoot') : missing, ''],
+      [t('revenueWeekAverage'), average, valid ? interpolate('revenueWeekAverageFoot', { n: result.count }) : missing, ''],
+      [t('revenueWeekBest'), maximum, result.best ? interpolate('revenueWeekBestFoot', { date: peakLabel, n: result.observedCount }) : missing, ''],
+      [t('revenueWeekGrowth'), result.growth, t('revenueWeekGrowthFoot'), result.direction]
     ];
-    const cards = items.map(([label, value, foot, direction]) =>
+    const cards = entries.map(([label, value, note, direction]) =>
       '<article class="admin-cc-revenue-insight"><span>' + esc(label) + '</span>' +
       '<strong class="' + esc(direction) + '">' + revenueCardMoneyMarkup(value) + '</strong>' +
-      '<small>' + esc(foot) + '</small></article>'
+      '<small>' + esc(note) + '</small></article>'
     ).join('');
     return '<div class="admin-cc-revenue-insights-wrap">' +
-      '<div class="admin-cc-revenue-insights-head"><h4>' + esc(t('revenueInsightsTitle')) +
-      '</h4><small>' + esc(t('revenueInsightsDesc')) + '</small></div>' +
-      '<div class="admin-cc-revenue-insights-grid">' + cards + '</div></div>';
+      '<div class="admin-cc-revenue-insights-head"><h4>' +
+      esc(t(isMonth ? 'revenueMonthInsightsTitle' : 'revenueWeekInsightsTitle')) +
+      '</h4><small>' + esc(t(isMonth ? 'revenueMonthInsightsDesc' : 'revenueWeekInsightsDesc')) +
+      '</small></div><div class="admin-cc-revenue-insights-grid">' + cards + '</div></div>';
   }
 
   function renderRevenueMetrics() {
@@ -1157,13 +1238,15 @@
     }).join('');
     const daily = paidRevenueThisWeekRows(snapshots);
     const monthlyWeeks = paidRevenueThisMonthWeekRows(snapshots);
-    const { completeSeven, sevenAverage } = paidRevenueSevenDayStats(snapshots);
-    const maxDaily = Math.max(10, ...daily.map((row) => row.amount ?? 0), sevenAverage ?? 0);
+    const weekSummary = revenueSummaryPeriodData(snapshots, 'week', daily, monthlyWeeks);
+    const weekAverage = weekSummary.total !== null && weekSummary.count > 0
+      ? weekSummary.total / weekSummary.count : null;
+    const maxDaily = Math.max(10, ...daily.map((row) => row.amount ?? 0), weekAverage ?? 0);
     const maxMonthly = Math.max(10, ...monthlyWeeks.map((row) => row.amount ?? 0));
-    const averageHeight = completeSeven ? (sevenAverage / maxDaily * 100).toFixed(2) : null;
-    const averageGuide = completeSeven
+    const averageHeight = weekAverage !== null ? (weekAverage / maxDaily * 100).toFixed(2) : null;
+    const averageGuide = weekAverage !== null
       ? '<div class="admin-cc-revenue-average-legend"><span aria-hidden="true"></span>' +
-        esc(t('revenueDailyAverageGuide') + ': ' + revenueMoney(sevenAverage)) + '</div>'
+        esc(t('revenueDailyAverageGuide') + ': ' + revenueMoney(weekAverage)) + '</div>'
       : '';
     const shortDate = (time) => new Intl.DateTimeFormat(
       lang() === 'zh-CN' ? 'zh-CN' : lang() === 'ja' ? 'ja-JP' : 'en-US',
@@ -1215,9 +1298,9 @@
       '<article class="admin-analytics-panel admin-cc-revenue-daily-panel">' +
       '<div class="admin-cc-revenue-panel-heading"><h3>' + esc(t('revenueDaily')) +
       '</h3><p>' + esc(t('revenueDailySub')) + '</p></div>' +
-      '<div class="admin-cc-revenue-daily-bars' + (completeSeven ? ' has-average' : '') +
-      '"' + (completeSeven ? ' style="--cc-revenue-average-height:' + averageHeight + '%"' : '') +
-      '>' + dailyBars + '</div>' + averageGuide + renderRevenueInsights(snapshots) +
+      '<div class="admin-cc-revenue-daily-bars' + (weekAverage !== null ? ' has-average' : '') +
+      '"' + (weekAverage !== null ? ' style="--cc-revenue-average-height:' + averageHeight + '%"' : '') +
+      '>' + dailyBars + '</div>' + averageGuide + renderRevenueInsights(snapshots, 'week', daily, monthlyWeeks) +
       '<p class="admin-cc-revenue-data-note">' + esc(t('revenueDateNote')) +
       '</p></article>' +
       '<article class="admin-analytics-panel admin-cc-revenue-month-panel">' +
@@ -1225,6 +1308,7 @@
       '</h3><p>' + esc(t('revenueMonthWeeklySub')) + '</p></div>' +
       '<div class="admin-cc-revenue-daily-bars admin-cc-revenue-month-bars" style="--cc-month-week-count:' +
       monthlyWeeks.length + '">' + monthlyBars + '</div>' +
+      renderRevenueInsights(snapshots, 'month', daily, monthlyWeeks) +
       '<p class="admin-cc-revenue-data-note">' + esc(t('revenueMonthWeeklyNote')) +
       '</p></article>';
   }
