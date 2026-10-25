@@ -1909,9 +1909,9 @@
       '<div class="admin-cc-focus-strip"><div class="admin-cc-focus-tabs" role="tablist" aria-label="Mod data source"><button class="admin-cc-focus-tab is-active" type="button" role="tab" aria-selected="true" data-cc-tab="paid"><i></i><span>Paid Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="free"><i></i><span>Free Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="nexus"><i></i><span>Nexus Mods</span></button></div></div>' +
       '<section class="admin-cc-zone admin-cc-revenue-zone" data-cc-revenue-section>' +
       '<header class="admin-cc-zone-heading"><span class="admin-cc-zone-icon" aria-hidden="true">¥</span><div><h2 data-cc-revenue-section-title>Estimated Revenue</h2><p data-cc-revenue-section-subtitle></p></div></header>' +
-      '<section class="admin-cc-revenue-goal" data-cc-revenue-goal></section>' +
       '<section class="admin-cc-revenue-metrics" data-cc-revenue-kpis hidden></section>' +
-      '<section class="admin-cc-revenue-analysis" data-cc-revenue-analysis hidden></section></section>' +
+      '<section class="admin-cc-revenue-analysis" data-cc-revenue-analysis hidden></section>' +
+      '<section class="admin-cc-revenue-goal" data-cc-revenue-goal></section></section>' +
       '<section class="admin-cc-zone admin-cc-download-zone" data-cc-download-section>' +
       '<header class="admin-cc-zone-heading" data-cc-download-heading><span class="admin-cc-zone-icon" aria-hidden="true">↓</span><div><h2 data-cc-download-section-title>Download Data</h2><p data-cc-download-section-subtitle></p></div></header>' +
       '<section class="admin-dashboard-metrics" data-cc-kpis></section>' +
