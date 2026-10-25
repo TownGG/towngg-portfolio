@@ -7,8 +7,10 @@
   const EARNINGS_URL = './assets/data/partner-earnings.json';
   const REFRESH_MS = 2 * 60 * 1000;
   const PAID_RMB_PER_LIBRARY_ADD = 4.62;
+  const REVENUE_GOAL_RMB = 200000;
+  const REVENUE_GOAL_STEP = 10000;
   const STALE_AFTER_MS = 60 * 60 * 1000;
-  const state = { mode: 'paid', range: 7, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], paidLibraryHistory: [], ready: false, refreshing: false, signature: '', lastSync: '' };
+  const state = { mode: 'paid', range: 7, goalRange: 'day', rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], paidLibraryHistory: [], ready: false, refreshing: false, signature: '', lastSync: '' };
 
   const copy = {
     en: {
@@ -83,6 +85,29 @@
       revenueComparedMonth: 'last month (full month)',
       estimatedRevenueNote: 'Library Adds × 4.62 · estimate only',
       revenueSectionTitle: 'Estimated Revenue',
+      goalTitle: "REVENUE GOAL",
+      goalSubtitle: "Paid Creations · cumulative estimated revenue",
+      goalCurrent: "Estimated revenue to date",
+      goalTarget: "Goal",
+      goalProgress: "Completed",
+      goalRemaining: "Remaining to goal",
+      goalNext: "Next milestone",
+      goalNextRemaining: "To next milestone",
+      goalAchievedCount: "Milestones unlocked",
+      goalTrend: "Cumulative Revenue",
+      goalTrendDesc: "Paid library additions × ¥4.62 · not actual payouts",
+      goalDay: "Day",
+      goalMonth: "Month",
+      goalYear: "Year",
+      goalOneYear: "Only one year of recorded data",
+      goalNoData: "No revenue snapshots yet",
+      goalLatest: "Latest snapshot",
+      goalMilestones: "¥10,000 Milestones",
+      goalMilestonesDesc: "Each milestone uses the first snapshot recording its achievement",
+      goalDone: "First observed",
+      goalPending: "Pending",
+      goalFinished: "Goal reached",
+      goalNote: "Estimates based on cumulative paid Creation library additions. No invented history or payout claims.",
       revenueSectionSubtitle: 'Revenue estimates from paid Creation library additions',
       downloadSectionTitle: 'Download Data',
       downloadSectionSubtitle: 'Download performance, growth and engagement',
@@ -271,6 +296,29 @@
       revenueComparedMonth: '上月全月',
       estimatedRevenueNote: '入库数 × 4.62 · 非实际结算',
       revenueSectionTitle: '预估收入',
+      goalTitle: "收入目标",
+      goalSubtitle: "付费 CC · 累计预估人民币收入",
+      goalCurrent: "累计预估收入",
+      goalTarget: "目标金额",
+      goalProgress: "完成进度",
+      goalRemaining: "距离目标还差",
+      goalNext: "下一个里程碑",
+      goalNextRemaining: "距离下一万元还差",
+      goalAchievedCount: "已解锁里程碑",
+      goalTrend: "累计收入走势",
+      goalTrendDesc: "付费入库累计 × ¥4.62 · 非实际到账",
+      goalDay: "按日",
+      goalMonth: "按月",
+      goalYear: "按年",
+      goalOneYear: "目前只有一个年份的记录",
+      goalNoData: "暂无预估收入快照",
+      goalLatest: "最新快照",
+      goalMilestones: "万元里程碑 · 每达成 1 万记录一次",
+      goalMilestonesDesc: "达成时间为历史快照首次观测到收入达到门槛的日期",
+      goalDone: "首次记录",
+      goalPending: "未达成",
+      goalFinished: "目标已达成",
+      goalNote: "收入基于付费 CC 入库量估算，非真实结算；历史空档不虚构，后续快照会自动更新。",
       revenueSectionSubtitle: '基于付费 CC 入库量测算 · 不等同于实际结算',
       downloadSectionTitle: '下载数据',
       downloadSectionSubtitle: '下载量、增长趋势与作品表现',
@@ -459,6 +507,29 @@
       revenueComparedMonth: '先月全体',
       estimatedRevenueNote: '追加数 × 4.62 · 推定値',
       revenueSectionTitle: '推定収益',
+      goalTitle: "収益目標",
+      goalSubtitle: "有料 CC · 累計推定人民元収益",
+      goalCurrent: "累計推定収益",
+      goalTarget: "目標金額",
+      goalProgress: "達成率",
+      goalRemaining: "目標まで",
+      goalNext: "次のマイルストーン",
+      goalNextRemaining: "次までの残額",
+      goalAchievedCount: "達成済みマイルストーン",
+      goalTrend: "累計収益推移",
+      goalTrendDesc: "ライブラリ追加 × ¥4.62 · 実際の入金ではありません",
+      goalDay: "日別",
+      goalMonth: "月別",
+      goalYear: "年別",
+      goalOneYear: "現在は1年分のみ記録",
+      goalNoData: "履歴データがありません",
+      goalLatest: "最新スナップショット",
+      goalMilestones: "¥10,000ごとの達成記録",
+      goalMilestonesDesc: "初めて基準額以上を記録した日を表示",
+      goalDone: "初回観測",
+      goalPending: "未達成",
+      goalFinished: "目標達成",
+      goalNote: "有料CCの累計ライブラリ追加数に基づく推定です。実際の支払額ではありません。",
       revenueSectionSubtitle: '有料 CC ライブラリ追加数に基づく推定値',
       downloadSectionTitle: 'ダウンロードデータ',
       downloadSectionSubtitle: 'DL 数、成長率、作品パフォーマンス',
@@ -1082,6 +1153,136 @@
       '</small></div><div class="admin-cc-revenue-insights-grid">' + cards + '</div></div>';
   }
 
+
+  function revenueGoalSeries(snapshots, by) {
+    const granularity = ['day', 'month', 'year'].includes(by) ? by : 'day';
+    const options = {timeZone:'Asia/Shanghai',year:'numeric',
+      ...(granularity === 'year' ? {} : {month:'2-digit'}),
+      ...(granularity === 'day' ? {day:'2-digit'} : {})};
+    const formatter = new Intl.DateTimeFormat('en-CA', options);
+    const series = new Map();
+    snapshots.forEach((point) => {
+      const parts = Object.fromEntries(formatter.formatToParts(new Date(point.time))
+        .map((x) => [x.type, x.value]));
+      const key = parts.year + (granularity === 'year' ? '' : '-' + parts.month) +
+        (granularity === 'day' ? '-' + parts.day : '');
+      const old = series.get(key);
+      if (!old || point.time >= old.time) series.set(key, {...point,key});
+    });
+    return [...series.values()].sort((a,b) => a.time - b.time).map((point) => ({
+      ...point,
+      amount: point.count * PAID_RMB_PER_LIBRARY_ADD,
+      label: granularity === 'year' ? point.key :
+        granularity === 'month' ? point.key.replace('-', '/') : point.key.slice(5).replace('-', '/')
+    }));
+  }
+  function revenueGoalChart(snapshots) {
+    const values = revenueGoalSeries(snapshots, state.goalRange);
+    if (!values.length) return '<div class="admin-cc-revenue-empty">' +
+      esc(t('goalNoData')) + '</div>';
+    const W=660,H=252,L=54,R=16,T=18,B=36,pW=W-L-R,pH=H-T-B;
+    const max=Math.max(10000,Math.ceil(Math.max(...values.map(x=>x.amount))/5000)*5000);
+    const x=(i)=>L+(values.length===1?pW/2:i*pW/(values.length-1));
+    const y=(v)=>T+(1-Math.max(0,Math.min(1,v/max)))*pH;
+    const px=(i)=>x(i).toFixed(1),py=(v)=>y(v).toFixed(1);
+    const line=values.map((p,i)=>(i?'L':'M')+px(i)+' '+py(p.amount)).join(' ');
+    const base=(T+pH).toFixed(1);
+    const area=line+' L'+px(values.length-1)+' '+base+' L'+px(0)+' '+base+' Z';
+    const axisValue=(v)=>v>=10000?(v/10000).toFixed(v%10000?1:0)+'万':fmt(v);
+    const grid=[0,.5,1].map(frac=>'<line class="admin-cc-revenue-gridline" x1="'+L+
+      '" y1="'+py(max*frac)+'" x2="'+(W-R)+'" y2="'+py(max*frac)+'"/>'+
+      '<text class="admin-cc-revenue-axis" x="'+(L-8)+'" y="'+(y(max*frac)+4).toFixed(1)+
+      '" text-anchor="end">'+esc(axisValue(max*frac))+'</text>').join('');
+    const samples=[...new Set([0,Math.round((values.length-1)/4),Math.round((values.length-1)/2),
+      Math.round(3*(values.length-1)/4),values.length-1])];
+    const ticks=samples.map(i=>'<text class="admin-cc-revenue-axis" x="'+px(i)+
+      '" y="'+(H-10)+'" text-anchor="'+(i===0?'start':i===values.length-1?'end':'middle')+
+      '">'+esc(values[i].label)+'</text>').join('');
+    const dots=values.map((p,i)=>{
+      const label=p.key+' · '+revenueMoney(p.amount);
+      return '<circle cx="'+px(i)+'" cy="'+py(p.amount)+
+        '" r="9" fill="transparent" tabindex="0" aria-label="'+esc(label)+'"><title>'+
+        esc(label)+'</title></circle>';
+    }).join('');
+    const last=values.at(-1);
+    return '<svg class="admin-cc-goal-svg" viewBox="0 0 '+W+' '+H+
+      '" role="img" aria-label="'+esc(t('goalTrend'))+'">'+
+      '<defs><linearGradient id="ccGoalIncomeArea" x1="0" x2="0" y1="0" y2="1">'+
+      '<stop offset="0%" stop-color="#ebbd70" stop-opacity=".23"/>'+
+      '<stop offset="100%" stop-color="#ebbd70" stop-opacity="0"/></linearGradient></defs>'+
+      grid+(values.length>1?'<path d="'+area+'" fill="url(#ccGoalIncomeArea)"/>':'')+
+      '<path d="'+line+'" fill="none" stroke="#edc47e" stroke-width="3.2" '+
+      'stroke-linecap="round" stroke-linejoin="round"/>'+dots+
+      '<circle cx="'+px(values.length-1)+'" cy="'+py(last.amount)+
+      '" r="5.5" fill="#ffe6a4" stroke="#704b28" stroke-width="2"/>'+
+      ticks+'</svg>'+(values.length===1?'<p class="admin-cc-goal-graph-hint">'+
+      esc(t('goalOneYear'))+'</p>':'');
+  }
+  function renderRevenueGoal() {
+    const node=document.querySelector('[data-cc-revenue-goal]');
+    if (!node) return;
+    node.hidden=state.mode!=='paid';
+    if (node.hidden) {node.innerHTML='';return;}
+    const snapshots=paidRevenueSnapshots();
+    const latest=snapshots.at(-1);
+    const total=latest?Math.max(0,latest.count*PAID_RMB_PER_LIBRARY_ADD):null;
+    const ready=total!==null&&Number.isFinite(total);
+    const ratio=ready?Math.min(100,total/REVENUE_GOAL_RMB*100):0;
+    const reached=ready?Math.min(20,Math.floor(total/REVENUE_GOAL_STEP)):0;
+    const nextThreshold=Math.min(REVENUE_GOAL_RMB,(reached+1)*REVENUE_GOAL_STEP);
+    const date=(time)=>new Intl.DateTimeFormat('en-CA',
+      {timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'})
+      .format(new Date(time));
+    const milestones=Array.from({length:20},(_,index)=>{
+      const amount=(index+1)*REVENUE_GOAL_STEP;
+      const first=snapshots.find(p=>p.count*PAID_RMB_PER_LIBRARY_ADD>=amount);
+      const done=Boolean(first),next=!done&&index===reached;
+      return '<div class="admin-cc-goal-milestone'+(done?' is-achieved':next?' is-next':'')+'">'+
+        '<span class="admin-cc-goal-milestone-mark" aria-hidden="true">'+(done?'✓':next?'◆':'·')+
+        '</span><strong>'+(index+1)+'万</strong><small>'+
+        esc(done?t('goalDone')+' '+date(first.time):t('goalPending'))+'</small></div>';
+    }).join('');
+    const switches=['day','month','year'].map(unit=>
+      '<button type="button" data-cc-goal-range="'+unit+'" class="admin-cc-goal-range'+
+      (state.goalRange===unit?' is-active':'')+'" aria-pressed="'+
+      (state.goalRange===unit)+'">'+esc(t('goal'+unit[0].toUpperCase()+unit.slice(1)))+
+      '</button>').join('');
+    const remaining=ready?Math.max(0,REVENUE_GOAL_RMB-total):null;
+    node.innerHTML='<div class="admin-cc-goal-main">'+
+      '<section class="admin-cc-goal-overview">'+
+      '<div class="admin-cc-goal-eyebrow"><span class="admin-cc-goal-spark">✦</span>'+
+      esc(t('goalTitle'))+'</div><p class="admin-cc-goal-subtitle">'+esc(t('goalSubtitle'))+
+      '</p><div class="admin-cc-goal-stat-label">'+esc(t('goalCurrent'))+'</div>'+
+      '<div class="admin-cc-goal-current">'+(ready?revenueCardMoneyMarkup(revenueMoney(total)):'—')+
+      '</div><div class="admin-cc-goal-target">'+esc(t('goalTarget'))+
+      '<strong>'+esc(revenueMoney(REVENUE_GOAL_RMB))+'</strong></div>'+
+      '<div class="admin-cc-goal-progress-track" role="progressbar" aria-label="'+esc(t('goalProgress'))+
+      '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+ratio.toFixed(2)+'">'+
+      '<div class="admin-cc-goal-progress-fill" style="width:'+ratio.toFixed(3)+'%"></div>'+
+      '</div><div class="admin-cc-goal-progress-meta"><strong>'+(ready?ratio.toFixed(2)+'%':'—')+
+      '</strong><span>'+esc(t('goalProgress'))+'</span></div>'+
+      '<div class="admin-cc-goal-summary"><div><span>'+esc(t('goalRemaining'))+
+      '</span><strong>'+(ready?esc(revenueMoney(remaining)):'—')+'</strong></div>'+
+      '<div><span>'+esc(t('goalNext'))+'</span><strong>'+
+      (reached===20?esc(t('goalFinished')):esc(revenueMoney(nextThreshold)))+
+      '</strong><small>'+(ready&&reached<20?esc(t('goalNextRemaining')+': '+
+        revenueMoney(Math.max(0,nextThreshold-total))):'')+'</small></div>'+
+      '<div><span>'+esc(t('goalAchievedCount'))+'</span><strong>'+reached+
+      ' / 20</strong></div></div></section>'+
+      '<section class="admin-cc-goal-graph"><div class="admin-cc-goal-graph-head">'+
+      '<div><h3>'+esc(t('goalTrend'))+'</h3><p>'+esc(t('goalTrendDesc'))+
+      '</p></div><div class="admin-cc-goal-range-switch" role="group" aria-label="'+
+      esc(t('goalTrend'))+'">'+switches+'</div></div>'+
+      '<div class="admin-cc-goal-plot">'+revenueGoalChart(snapshots)+'</div>'+
+      '<div class="admin-cc-goal-graph-foot">'+esc(t('goalLatest'))+': '+
+      (latest?esc(date(latest.time)):'—')+'</div></section></div>'+
+      '<div class="admin-cc-goal-milestone-section">'+
+      '<div class="admin-cc-goal-milestone-header"><h3>'+esc(t('goalMilestones'))+
+      '</h3><p>'+esc(t('goalMilestonesDesc'))+'</p></div>'+
+      '<div class="admin-cc-goal-milestone-grid">'+milestones+'</div></div>'+
+      '<p class="admin-cc-goal-note">'+esc(t('goalNote'))+'</p>';
+  }
+
   function renderRevenueMetrics() {
     const target = document.querySelector('[data-cc-revenue-kpis]');
     if (!target) return;
@@ -1690,6 +1891,7 @@
   function renderAll() {
     if (!state.ready) return;
     updateText();
+    renderRevenueGoal();
     renderRevenueMetrics();
     renderMetrics();
     renderRevenueAnalysis();
@@ -1707,6 +1909,7 @@
       '<div class="admin-cc-focus-strip"><div class="admin-cc-focus-tabs" role="tablist" aria-label="Mod data source"><button class="admin-cc-focus-tab is-active" type="button" role="tab" aria-selected="true" data-cc-tab="paid"><i></i><span>Paid Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="free"><i></i><span>Free Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="nexus"><i></i><span>Nexus Mods</span></button></div></div>' +
       '<section class="admin-cc-zone admin-cc-revenue-zone" data-cc-revenue-section>' +
       '<header class="admin-cc-zone-heading"><span class="admin-cc-zone-icon" aria-hidden="true">¥</span><div><h2 data-cc-revenue-section-title>Estimated Revenue</h2><p data-cc-revenue-section-subtitle></p></div></header>' +
+      '<section class="admin-cc-revenue-goal" data-cc-revenue-goal></section>' +
       '<section class="admin-cc-revenue-metrics" data-cc-revenue-kpis hidden></section>' +
       '<section class="admin-cc-revenue-analysis" data-cc-revenue-analysis hidden></section></section>' +
       '<section class="admin-cc-zone admin-cc-download-zone" data-cc-download-section>' +
@@ -1789,6 +1992,15 @@
     dashboard.innerHTML = markup();
 
     dashboard.addEventListener('click', (event) => {
+      const goalSwitch = event.target.closest('[data-cc-goal-range]');
+      if (goalSwitch) {
+        const unit = goalSwitch.dataset.ccGoalRange;
+        if (['day','month','year'].includes(unit)) {
+          state.goalRange = unit;
+          if (state.ready) renderRevenueGoal();
+        }
+        return;
+      }
       const tab = event.target.closest('[data-cc-tab]');
       if (!tab) return;
       state.mode = ['paid', 'free', 'nexus'].includes(tab.dataset.ccTab) ? tab.dataset.ccTab : 'paid';
