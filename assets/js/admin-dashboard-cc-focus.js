@@ -1236,9 +1236,11 @@
     const milestones=Array.from({length:20},(_,index)=>{
       const amount=(index+1)*REVENUE_GOAL_STEP;
       const first=snapshots.find(p=>p.count*PAID_RMB_PER_LIBRARY_ADD>=amount);
-      const done=Boolean(first),next=!done&&index===reached;
-      return '<div class="admin-cc-goal-milestone'+(done?' is-achieved':next?' is-next':'')+'">'+
-        '<span class="admin-cc-goal-milestone-mark" aria-hidden="true">'+(done?'✓':next?'◆':'·')+
+      // A milestone only lights up when its threshold was actually observed.
+      // The upcoming milestone is listed in the overview, but stays gray here.
+      const done=Boolean(first);
+      return '<div class="admin-cc-goal-milestone'+(done?' is-achieved':'')+'">'+
+        '<span class="admin-cc-goal-milestone-mark" aria-hidden="true">'+(done?'✓':'·')+
         '</span><strong>'+(index+1)+'万</strong><small>'+
         esc(done?t('goalDone')+' '+date(first.time):t('goalPending'))+'</small></div>';
     }).join('');
