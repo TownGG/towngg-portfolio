@@ -1497,3 +1497,104 @@
 @media(prefers-reduced-motion:reduce){
   .admin-dashboard.cc-focus-dashboard .admin-cc-goal-progress-fill{transition:none}
 }
+
+/* Estimated creator withholding: never alter original gross-revenue data. */
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax {
+  min-width:0;padding:18px;border-radius:15px;
+  border:1px solid rgba(119,187,192,.23);
+  background:linear-gradient(150deg,rgba(24,32,42,.99),rgba(13,23,33,.98));
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax[hidden]{display:none!important}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-top {
+  display:flex;align-items:start;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax h3,
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax h4 {
+  margin:0;color:#e7f0e8;font-size:16px;font-weight:800;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-top p{
+  margin:5px 0 0;color:#a4b7c6;font-size:12px;line-height:1.45;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-config{
+  display:flex;align-items:center;gap:9px;color:#b8ced3;font-size:12px;font-weight:700;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-input{
+  display:flex;align-items:center;gap:5px;padding:5px 8px;border-radius:9px;
+  border:1px solid rgba(130,215,197,.3);background:rgba(5,14,22,.45);color:#b6e9dc;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-input input{
+  width:55px;max-width:100%;font-size:15px;font-weight:750;color:#e2fff3;
+  border:0;outline:none;background:transparent;text-align:right;font-variant-numeric:tabular-nums;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-input:focus-within{
+  outline:2px solid rgba(130,215,197,.55);outline-offset:2px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-config-note{
+  margin-top:5px;color:#809bab;font-size:10px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-cards{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:15px 0 17px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-card{
+  min-width:0;padding:12px 13px;border-radius:10px;background:rgba(255,255,255,.032);
+  border:1px solid rgba(183,212,218,.1);display:grid;gap:7px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-card span{
+  color:#a1bac5;font-size:11px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-card strong{
+  font-size:clamp(18px,2.15vw,27px);font-family:'Rajdhani','Inter',sans-serif;
+  color:#f3dec1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-card.is-net{
+  background:rgba(130,215,197,.055);border-color:rgba(130,215,197,.22);
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-card.is-net strong{color:#9de7d6}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-chart-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  flex-wrap:wrap;margin-bottom:7px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-chart-head h4{font-size:14px}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-legend{
+  display:flex;gap:12px;color:#b4c6c9;font-size:11px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-legend span{
+  display:inline-flex;align-items:center;gap:6px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-legend span::before{
+  content:'';width:14px;height:3px;border-radius:4px;background:#eec57e;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-legend .is-net::before{background:#82d7c5}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-chart-scroll{
+  overflow-x:auto;max-width:100%;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-chart{
+  display:block;min-width:490px;width:100%;height:auto;max-height:245px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-note,
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-disclaimer{
+  margin:8px 0 0;color:#8ca6b6;font-size:11px;line-height:1.5;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-disclaimer{
+  color:#cbb89a;border-top:1px solid rgba(255,255,255,.075);padding-top:9px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-tax{
+  display:flex;gap:5px 12px;flex-wrap:wrap;margin:8px 0 0;
+  color:#c7bbc0;font-size:11px;line-height:1.35;font-variant-numeric:tabular-nums;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-tax .is-net{
+  color:#91e2cd;font-weight:750;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-gross{
+  display:block;color:#938c81;font-size:10px;margin-top:3px;
+}
+@media(max-width:760px){
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax{padding:13px}
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-cards{
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-card:first-child{grid-column:1/-1}
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-card{padding:10px}
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-card strong{font-size:22px}
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-card-tax{font-size:10px;gap:3px 8px}
+}

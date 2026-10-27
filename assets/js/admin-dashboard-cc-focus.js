@@ -9,8 +9,10 @@
   const PAID_RMB_PER_LIBRARY_ADD = 4.62;
   const REVENUE_GOAL_RMB = 200000;
   const REVENUE_GOAL_STEP = 10000;
+  const DEFAULT_REVENUE_TAX_RATE = 10;
+  const REVENUE_TAX_STORAGE_KEY = 'townggPaidRevenueTaxRatePct';
   const STALE_AFTER_MS = 60 * 60 * 1000;
-  const state = { mode: 'paid', range: 7, goalRange: 'day', rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], paidLibraryHistory: [], ready: false, refreshing: false, signature: '', lastSync: '' };
+  const state = { mode: 'paid', range: 7, goalRange: 'day', taxRatePct: DEFAULT_REVENUE_TAX_RATE, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], paidLibraryHistory: [], ready: false, refreshing: false, signature: '', lastSync: '' };
 
   const copy = {
     en: {
@@ -87,7 +89,7 @@
       revenueSectionTitle: 'Estimated Revenue',
       goalTitle: "REVENUE GOAL",
       goalSubtitle: "Paid Creations · cumulative estimated revenue",
-      goalCurrent: "Estimated revenue to date",
+      goalCurrent: "Cumulative pre-withholding revenue",
       goalTarget: "Goal",
       goalProgress: "Completed",
       goalRemaining: "Remaining to goal",
@@ -109,6 +111,23 @@
       goalFinished: "Goal reached",
       goalNote: "Estimates based on cumulative paid Creation library additions. No invented history or payout claims.",
       revenueSectionSubtitle: 'Revenue estimates from paid Creation library additions',
+      taxPanelTitle: "Estimated withholding tax",
+      taxPanelSubtitle: "Scenario based on a configurable withholding rate · not an actual tax statement",
+      taxRateLabel: "Estimated withholding rate",
+      taxRateHelp: "Saved only in this browser; enter 0–100%. Default 10%.",
+      taxGross: "Before withholding",
+      taxWithheld: "Estimated withholding",
+      taxNet: "After withholding (estimate)",
+      taxNetShort: "After withholding",
+      taxWithheldShort: "Withholding",
+      taxGrossShort: "Before withholding",
+      taxMonthTax: "This month · estimated withholding",
+      taxMonthNet: "This month · after withholding",
+      taxTrend: "Last 7 statistical days · before / after withholding",
+      taxTrendNote: "Beijing noon-to-noon days · missing snapshots are not zero · dashed estimates reuse the existing boundary model",
+      taxDisclaimer: "10% is a provisional assumption. Bank payment differences may also involve intermediary charges; official payout and bank receipt amounts are separate.",
+      taxSummaryMissing: "Insufficient snapshots",
+      taxActualSeparate: "Not actual bank receipts",
       downloadSectionTitle: 'Download Data',
       downloadSectionSubtitle: 'Download performance, growth and engagement',
       revenueAnalysis: 'Estimated Revenue Analytics',
@@ -298,7 +317,7 @@
       revenueSectionTitle: '预估收入',
       goalTitle: "收入目标",
       goalSubtitle: "付费 CC · 累计预估人民币收入",
-      goalCurrent: "累计预估收入",
+      goalCurrent: "累计税前预估收入",
       goalTarget: "目标金额",
       goalProgress: "完成进度",
       goalRemaining: "距离目标还差",
@@ -320,6 +339,23 @@
       goalFinished: "目标已达成",
       goalNote: "收入基于付费 CC 入库量估算，非真实结算；历史空档不虚构，后续快照会自动更新。",
       revenueSectionSubtitle: '基于付费 CC 入库量测算 · 不等同于实际结算',
+      taxPanelTitle: "预扣税与税后预估",
+      taxPanelSubtitle: "按可调整税率测算 · 不等同于实际税额或到账金额",
+      taxRateLabel: "预估预扣税率",
+      taxRateHelp: "仅保存在当前浏览器，允许 0–100%，默认 10%",
+      taxGross: "税前预估",
+      taxWithheld: "预估预扣税",
+      taxNet: "税后预估",
+      taxNetShort: "税后预估",
+      taxWithheldShort: "预扣税",
+      taxGrossShort: "税前预估",
+      taxMonthTax: "本月预估预扣税",
+      taxMonthNet: "本月税后预估",
+      taxTrend: "近 7 个统计日 · 税前 / 税后收入趋势",
+      taxTrendNote: "北京时间 12:00 至次日 12:00 · 缺失不当零 · 插值沿用现有统计口径",
+      taxDisclaimer: "10% 为暂用测算比例；银行到账差额也可能包含中转行费用等，不代表已核实的实际扣税。",
+      taxSummaryMissing: "历史快照不足",
+      taxActualSeparate: "与实际银行到账金额分开统计",
       downloadSectionTitle: '下载数据',
       downloadSectionSubtitle: '下载量、增长趋势与作品表现',
       revenueAnalysis: '预估收入分析',
@@ -509,7 +545,7 @@
       revenueSectionTitle: '推定収益',
       goalTitle: "収益目標",
       goalSubtitle: "有料 CC · 累計推定人民元収益",
-      goalCurrent: "累計推定収益",
+      goalCurrent: "累計税引前推定収益",
       goalTarget: "目標金額",
       goalProgress: "達成率",
       goalRemaining: "目標まで",
@@ -531,6 +567,23 @@
       goalFinished: "目標達成",
       goalNote: "有料CCの累計ライブラリ追加数に基づく推定です。実際の支払額ではありません。",
       revenueSectionSubtitle: '有料 CC ライブラリ追加数に基づく推定値',
+      taxPanelTitle: "源泉徴収・税引後見込",
+      taxPanelSubtitle: "変更可能な税率による試算 · 実際の納税額や入金額とは異なります",
+      taxRateLabel: "推定源泉徴収率",
+      taxRateHelp: "このブラウザ内で保存 · 0～100% · 初期値 10%",
+      taxGross: "税引前見込",
+      taxWithheld: "推定源泉徴収",
+      taxNet: "税引後見込",
+      taxNetShort: "税引後",
+      taxWithheldShort: "源泉徴収",
+      taxGrossShort: "税引前",
+      taxMonthTax: "今月の推定源泉徴収",
+      taxMonthNet: "今月の税引後見込",
+      taxTrend: "直近7集計日 · 税引前/税引後の推移",
+      taxTrendNote: "北京時間の正午区切り · 欠測はゼロ扱いせず既存の補間方式を利用",
+      taxDisclaimer: "10% は暫定的な仮定です。銀行の着金差額には中継銀行手数料なども含まれる場合があります。",
+      taxSummaryMissing: "履歴データ不足",
+      taxActualSeparate: "銀行の実際の着金とは別に表示",
       downloadSectionTitle: 'ダウンロードデータ',
       downloadSectionSubtitle: 'DL 数、成長率、作品パフォーマンス',
       revenueAnalysis: '推定収益分析',
@@ -1285,6 +1338,108 @@
       '<p class="admin-cc-goal-note">'+esc(t('goalNote'))+'</p>';
   }
 
+
+  function revenueTaxRateFraction() {
+    return Math.max(0, Math.min(100, state.taxRatePct)) / 100;
+  }
+  function revenueTaxBreakdown(gross) {
+    if (gross === null || !Number.isFinite(gross)) return null;
+    const rate = revenueTaxRateFraction();
+    return { gross, withholding: gross * rate, net: gross * (1 - rate) };
+  }
+  // Split missing data into separate line segments so an outage does not
+  // appear as a fabricated continuous seven-day revenue series.
+  function revenueTaxTrendChart(snapshots) {
+    const days = paidRevenueDailyRows(snapshots, 7);
+    const W = 690, H = 248, L = 60, R = 18, T = 16, B = 43, pw = W-L-R, ph = H-T-B;
+    const maximum = Math.max(10, ...days.map(day => day.amount ?? 0));
+    const x = i => L + i * pw / 6;
+    const y = value => T + (1 - Math.max(0, value) / maximum) * ph;
+    const line = factor => {
+      let path = '';
+      let active = false;
+      days.forEach((day,i) => {
+        if (day.amount === null) { active = false; return; }
+        path += (active ? ' L ' : (path ? ' M ' : 'M ')) +
+          x(i).toFixed(1) + ' ' + y(day.amount * factor).toFixed(1);
+        active = true;
+      });
+      return path;
+    };
+    const grid = [0, 0.5, 1].map(frac => {
+      const pos = y(maximum * frac).toFixed(1);
+      return '<line class="admin-cc-revenue-gridline" x1="'+L+'" x2="'+(W-R)+
+        '" y1="'+pos+'" y2="'+pos+'"/><text class="admin-cc-revenue-axis" x="'+
+        (L-8)+'" y="'+(+pos+4)+'" text-anchor="end">'+esc(fmt(maximum*frac))+'</text>';
+    }).join('');
+    const formatDate = time => new Intl.DateTimeFormat(
+      lang()==='zh-CN'?'zh-CN':lang()==='ja'?'ja-JP':'en-US',
+      {timeZone:'Asia/Shanghai',month:'numeric',day:'numeric'}
+    ).format(new Date(time));
+    const labels = days.map((day,i) => '<text class="admin-cc-revenue-axis" x="'+
+      x(i).toFixed(1)+'" y="'+(H-11)+'" text-anchor="middle">'+
+      esc(formatDate(day.start))+'</text>').join('');
+    const grossPath = line(1), netPath = line(1-revenueTaxRateFraction());
+    const circles = days.map((day,i) => {
+      if (day.amount === null) return '';
+      const before = revenueMoney(day.amount);
+      const after = revenueMoney(day.amount*(1-revenueTaxRateFraction()));
+      const title = formatDate(day.start)+' · '+t('taxGrossShort')+': '+before+
+        ' · '+t('taxNetShort')+': '+after;
+      return '<circle cx="'+x(i).toFixed(1)+'" cy="'+y(day.amount).toFixed(1)+
+        '" r="5" fill="#eec57e"><title>'+esc(title)+'</title></circle>'+
+        '<circle cx="'+x(i).toFixed(1)+'" cy="'+
+        y(day.amount*(1-revenueTaxRateFraction())).toFixed(1)+
+        '" r="4" fill="#82d7c5"><title>'+esc(title)+'</title></circle>';
+    }).join('');
+    return '<div class="admin-cc-revenue-tax-chart-scroll"><svg class="admin-cc-revenue-tax-chart"'+
+      ' viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(t('taxTrend'))+'">'+
+      grid+
+      (grossPath?'<path d="'+grossPath+'" fill="none" stroke="#eec57e" stroke-width="3" '+
+        'stroke-linecap="round" stroke-linejoin="round"/>':'')+
+      (netPath?'<path d="'+netPath+'" fill="none" stroke="#82d7c5" stroke-width="3" '+
+        'stroke-linecap="round" stroke-linejoin="round"/>':'')+
+      circles+labels+'</svg></div>';
+  }
+  function renderRevenueTax() {
+    const target = document.querySelector('[data-cc-revenue-tax]');
+    if (!target) return;
+    target.hidden = state.mode !== 'paid';
+    if (target.hidden) { target.innerHTML = ''; return; }
+    const snapshots = paidRevenueSnapshots();
+    const monthIncome = paidLibraryIncrement('month');
+    const tax = revenueTaxBreakdown(
+      monthIncome === null ? null : monthIncome * PAID_RMB_PER_LIBRARY_ADD
+    );
+    const value = amount => amount === null ? '—' : revenueCardMoneyMarkup(revenueMoney(amount));
+    target.innerHTML =
+      '<div class="admin-cc-revenue-tax-top">'+
+      '<div><h3>'+esc(t('taxPanelTitle'))+'</h3><p>'+
+      esc(t('taxPanelSubtitle'))+'</p></div>'+
+      '<label class="admin-cc-revenue-tax-config">'+
+      '<span>'+esc(t('taxRateLabel'))+'</span>'+
+      '<span class="admin-cc-revenue-tax-input"><input data-cc-tax-rate type="number"'+
+      ' min="0" max="100" step="0.5" inputmode="decimal" value="'+
+      state.taxRatePct.toFixed(1)+'" aria-label="'+esc(t('taxRateLabel'))+'">'+
+      '<span>%</span></span></label></div>'+
+      '<div class="admin-cc-revenue-tax-config-note">'+esc(t('taxRateHelp'))+'</div>'+
+      '<div class="admin-cc-revenue-tax-cards">'+
+      '<div class="admin-cc-revenue-tax-card"><span>'+esc(t('taxGross'))+
+      '</span><strong>'+value(tax?.gross ?? null)+'</strong></div>'+
+      '<div class="admin-cc-revenue-tax-card"><span>'+esc(t('taxMonthTax'))+
+      '</span><strong>'+value(tax?.withholding ?? null)+'</strong></div>'+
+      '<div class="admin-cc-revenue-tax-card is-net"><span>'+esc(t('taxMonthNet'))+
+      '</span><strong>'+value(tax?.net ?? null)+'</strong></div></div>'+
+      '<div class="admin-cc-revenue-tax-chart-head"><h4>'+
+      esc(t('taxTrend'))+'</h4><div class="admin-cc-revenue-tax-legend">'+
+      '<span class="is-gross">'+esc(t('taxGrossShort'))+'</span>'+
+      '<span class="is-net">'+esc(t('taxNetShort'))+'</span></div></div>'+
+      revenueTaxTrendChart(snapshots)+
+      '<p class="admin-cc-revenue-tax-note">'+esc(t('taxTrendNote'))+'</p>'+
+      '<p class="admin-cc-revenue-tax-disclaimer">'+esc(t('taxDisclaimer'))+
+      ' '+esc(t('taxActualSeparate'))+'</p>';
+  }
+
   function renderRevenueMetrics() {
     const target = document.querySelector('[data-cc-revenue-kpis]');
     if (!target) return;
@@ -1308,6 +1463,12 @@
       const income = previous ? paidPreviousFullRevenue(snapshots, periodUnit)
         : libraryAdds === null ? null : libraryAdds * PAID_RMB_PER_LIBRARY_ADD;
       const money = income === null ? '—' : revenueMoney(income);
+      const deduction = revenueTaxBreakdown(income);
+      const breakdown = deduction
+        ? '<div class="admin-cc-revenue-card-tax"><span>'+esc(t('taxWithheldShort'))+
+          ' '+esc(revenueMoney(deduction.withholding))+'</span><span class="is-net">'+
+          esc(t('taxNetShort'))+' '+esc(revenueMoney(deduction.net))+'</span></div>'
+        : '';
       let foot = income === null ? t('libraryUnavailable') : t('priorPeriodComplete');
       let changeClass = '';
       if (!previous && income !== null) {
@@ -1325,6 +1486,8 @@
         '<div class="admin-cc-revenue-card-head"><span>' + esc(t(label)) +
         '</span><span class="admin-cc-revenue-currency">CNY</span></div>' +
         '<strong class="admin-cc-revenue-card-value">' + revenueCardMoneyMarkup(money) + '</strong>' +
+        '<span class="admin-cc-revenue-card-gross">'+esc(t('taxGrossShort'))+'</span>' +
+        breakdown +
         '<p class="admin-cc-revenue-card-foot' + changeClass + '">' + esc(foot) + '</p>' +
         '</article>';
     }).join('');
@@ -1895,6 +2058,7 @@
     updateText();
     renderRevenueGoal();
     renderRevenueMetrics();
+    renderRevenueTax();
     renderMetrics();
     renderRevenueAnalysis();
     renderTrend();
@@ -1912,6 +2076,7 @@
       '<section class="admin-cc-zone admin-cc-revenue-zone" data-cc-revenue-section>' +
       '<header class="admin-cc-zone-heading"><span class="admin-cc-zone-icon" aria-hidden="true">¥</span><div><h2 data-cc-revenue-section-title>Estimated Revenue</h2><p data-cc-revenue-section-subtitle></p></div></header>' +
       '<section class="admin-cc-revenue-metrics" data-cc-revenue-kpis hidden></section>' +
+      '<section class="admin-cc-revenue-tax" data-cc-revenue-tax hidden></section>' +
       '<section class="admin-cc-revenue-analysis" data-cc-revenue-analysis hidden></section>' +
       '<section class="admin-cc-revenue-goal" data-cc-revenue-goal></section></section>' +
       '<section class="admin-cc-zone admin-cc-download-zone" data-cc-download-section>' +
@@ -1991,8 +2156,30 @@
     dashboard.dataset.ccFocusReady = 'true';
     dashboard.classList.add('cc-focus-dashboard');
     dashboard.dataset.ccMode = 'paid';
+    try {
+      const savedRate = localStorage.getItem(REVENUE_TAX_STORAGE_KEY);
+      if (savedRate !== null && savedRate.trim() !== '') {
+        const numericRate = Number(savedRate);
+        if (Number.isFinite(numericRate) && numericRate >= 0 && numericRate <= 100)
+          state.taxRatePct = numericRate;
+      }
+    } catch (error) { console.warn('[admin-cc-focus] Tax rate defaulted', error); }
     dashboard.innerHTML = markup();
 
+    dashboard.addEventListener('change', (event) => {
+      const rateInput = event.target.closest('[data-cc-tax-rate]');
+      if (!rateInput) return;
+      const proposed = Number(rateInput.value);
+      if (!rateInput.value.trim() || !Number.isFinite(proposed) ||
+          proposed < 0 || proposed > 100) {
+        rateInput.value = state.taxRatePct.toFixed(1);
+        return;
+      }
+      state.taxRatePct = proposed;
+      try { localStorage.setItem(REVENUE_TAX_STORAGE_KEY, String(proposed)); }
+      catch (error) { console.warn('[admin-cc-focus] Tax rate not persisted', error); }
+      if (state.ready) { renderRevenueMetrics(); renderRevenueTax(); }
+    });
     dashboard.addEventListener('click', (event) => {
       const goalSwitch = event.target.closest('[data-cc-goal-range]');
       if (goalSwitch) {
