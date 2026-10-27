@@ -74,30 +74,30 @@
       monthLibrary: 'Library Adds This Month',
       librarySnapshot: 'Snapshot-based increase',
       libraryUnavailable: 'Boundary snapshot missing',
-      estimatedTodayRmb: 'Estimated Revenue Today',
-      estimatedWeekRmb: 'Estimated Revenue This Week',
-      estimatedMonthRmb: 'Estimated Revenue This Month',
-      estimatedYesterdayRmb: 'Estimated Revenue Yesterday',
-      estimatedLastWeekRmb: 'Estimated Revenue Last Week',
-      estimatedLastMonthRmb: 'Estimated Revenue Last Month',
+      estimatedTodayRmb: "Today · Est. After Withholding",
+      estimatedWeekRmb: "This Week · Est. After Withholding",
+      estimatedMonthRmb: "This Month · Est. After Withholding",
+      estimatedYesterdayRmb: "Yesterday · Est. After Withholding",
+      estimatedLastWeekRmb: "Last Week · Est. After Withholding",
+      estimatedLastMonthRmb: "Last Month · Est. After Withholding",
       priorPeriodComplete: 'Full previous period · estimate only',
       revenueComparedTo: 'vs',
       revenueComparedYesterday: 'yesterday (full day)',
       revenueComparedWeek: 'last week (full week)',
       revenueComparedMonth: 'last month (full month)',
       estimatedRevenueNote: 'Library Adds × 4.62 · estimate only',
-      revenueSectionTitle: 'Estimated Revenue',
+      revenueSectionTitle: "Estimated Net Revenue",
       goalTitle: "REVENUE GOAL",
-      goalSubtitle: "Paid Creations · cumulative estimated revenue",
-      goalCurrent: "Cumulative pre-withholding revenue",
+      goalSubtitle: "Paid Creations · cumulative estimated net revenue",
+      goalCurrent: "Cumulative after-withholding estimate",
       goalTarget: "Goal",
       goalProgress: "Completed",
       goalRemaining: "Remaining to goal",
       goalNext: "Next milestone",
       goalNextRemaining: "To next milestone",
       goalAchievedCount: "Milestones unlocked",
-      goalTrend: "Cumulative Revenue",
-      goalTrendDesc: "Paid library additions × ¥4.62 · not actual payouts",
+      goalTrend: "Cumulative Estimated Net Revenue",
+      goalTrendDesc: "After configurable estimated withholding · not actual bank receipts",
       goalDay: "Day",
       goalMonth: "Month",
       goalYear: "Year",
@@ -105,14 +105,14 @@
       goalNoData: "No revenue snapshots yet",
       goalLatest: "Latest snapshot",
       goalMilestones: "¥10,000 Milestones",
-      goalMilestonesDesc: "Each milestone uses the first snapshot recording its achievement",
+      goalMilestonesDesc: "¥10,000 net-estimate milestones; first snapshot reaching each threshold at the selected rate",
       goalDone: "First observed",
       goalPending: "Pending",
       goalFinished: "Goal reached",
-      goalNote: "Estimates based on cumulative paid Creation library additions. No invented history or payout claims.",
-      revenueSectionSubtitle: 'Revenue estimates from paid Creation library additions',
-      taxPanelTitle: "Estimated withholding tax",
-      taxPanelSubtitle: "Scenario based on a configurable withholding rate · not an actual tax statement",
+      goalNote: "Goal, milestones and their dates use the current withholding-rate assumption. Changing that rate recalculates them. Actual payouts and bank receipts may differ.",
+      revenueSectionSubtitle: "After estimated withholding · original gross estimate remains available · not actual bank receipts",
+      taxPanelTitle: "After-Withholding Estimate & Breakdown",
+      taxPanelSubtitle: "Net estimate is primary · gross and withholding retained for reference",
       taxRateLabel: "Estimated withholding rate",
       taxRateHelp: "Saved only in this browser; enter 0–100%. Default 10%.",
       taxGross: "Before withholding",
@@ -123,20 +123,20 @@
       taxGrossShort: "Before withholding",
       taxMonthTax: "This month · estimated withholding",
       taxMonthNet: "This month · after withholding",
-      taxTrend: "Last 7 statistical days · before / after withholding",
+      taxTrend: "Last 7 Days · After Withholding vs Gross",
       taxTrendNote: "Beijing noon-to-noon days · missing snapshots are not zero · dashed estimates reuse the existing boundary model",
       taxDisclaimer: "10% is a provisional assumption. Bank payment differences may also involve intermediary charges; official payout and bank receipt amounts are separate.",
       taxSummaryMissing: "Insufficient snapshots",
       taxActualSeparate: "Not actual bank receipts",
       downloadSectionTitle: 'Download Data',
       downloadSectionSubtitle: 'Download performance, growth and engagement',
-      revenueAnalysis: 'Estimated Revenue Analytics',
-      revenueAnalysisDesc: 'Library adds × ¥4.62 · Not actual payouts',
-      revenueLine: 'Today’s Estimated Revenue Trend',
+      revenueAnalysis: "After-Withholding Revenue Analytics",
+      revenueAnalysisDesc: "After estimated withholding · snapshots from library additions · not actual bank receipts",
+      revenueLine: "Today's After-Withholding Trend",
       revenueLineSub: 'Since 12:00 Beijing time',
-      revenueDaily: 'This Week’s Estimated Revenue',
+      revenueDaily: "This Week · Estimated After Withholding",
       revenueDailySub: 'Monday–Sunday · statistical days run from Beijing 12:00 to next day 12:00',
-      revenueMonthWeekly: 'This Month’s Estimated Revenue by Week',
+      revenueMonthWeekly: "This Month · Estimated After Withholding by Week",
       revenueMonthWeeklySub: 'Calendar weeks (Mon–Sun); weeks crossing month boundaries count only days in this month',
       revenueMonthWeeklyNote: 'Dashed bars represent interpolated estimates · — means missing or not yet started, not zero',
       revenueMonthWeekLabel: 'Week {n}',
@@ -151,12 +151,12 @@
       revenueSevenTotalFoot: 'Last 7 completed days',
       revenueSevenAverageFoot: 'Reference line on chart',
       revenueThreeDayFoot: 'Latest 3 vs previous 3 days',
-      revenueDailyAverageGuide: '7 completed-day average',
+      revenueDailyAverageGuide: "Week-to-date after-withholding daily average",
       revenueDaysAvailable: 'Valid days',
       revenueInsightsMissing: '7 complete days of data needed',
-      revenueWeekInsightsTitle: "This Week · Revenue Analysis",
+      revenueWeekInsightsTitle: "This Week · After-Withholding Analysis",
       revenueWeekInsightsDesc: "Week to date; including today's unfinished statistics",
-      revenueMonthInsightsTitle: "This Month · Full Statistical Analysis",
+      revenueMonthInsightsTitle: "This Month · After-Withholding Analysis",
       revenueMonthInsightsDesc: "Month to date; includes ongoing week",
       revenueWeekTotal: "Week-to-date Revenue",
       revenueWeekAverage: "Daily Average",
@@ -302,30 +302,30 @@
       monthLibrary: '本月入库数',
       librarySnapshot: '按快照增量统计',
       libraryUnavailable: '缺少起点数据',
-      estimatedTodayRmb: '今日预估收入',
-      estimatedWeekRmb: '本周预估收入',
-      estimatedMonthRmb: '本月预估收入',
-      estimatedYesterdayRmb: '昨日预估收入',
-      estimatedLastWeekRmb: '上周预估收入',
-      estimatedLastMonthRmb: '上月预估收入',
+      estimatedTodayRmb: "今日税后预估",
+      estimatedWeekRmb: "本周税后预估",
+      estimatedMonthRmb: "本月税后预估",
+      estimatedYesterdayRmb: "昨日税后预估",
+      estimatedLastWeekRmb: "上周税后预估",
+      estimatedLastMonthRmb: "上月税后预估",
       priorPeriodComplete: '上一完整统计周期 · 预估',
       revenueComparedTo: '较',
       revenueComparedYesterday: '昨日全天',
       revenueComparedWeek: '上周全周',
       revenueComparedMonth: '上月全月',
       estimatedRevenueNote: '入库数 × 4.62 · 非实际结算',
-      revenueSectionTitle: '预估收入',
+      revenueSectionTitle: "税后预估收入",
       goalTitle: "收入目标",
-      goalSubtitle: "付费 CC · 累计预估人民币收入",
-      goalCurrent: "累计税前预估收入",
+      goalSubtitle: "付费 CC · 累计税后预估收入",
+      goalCurrent: "累计税后预估收入",
       goalTarget: "目标金额",
       goalProgress: "完成进度",
       goalRemaining: "距离目标还差",
       goalNext: "下一个里程碑",
       goalNextRemaining: "距离下一万元还差",
       goalAchievedCount: "已解锁里程碑",
-      goalTrend: "累计收入走势",
-      goalTrendDesc: "付费入库累计 × ¥4.62 · 非实际到账",
+      goalTrend: "累计税后预估收入走势",
+      goalTrendDesc: "入库量 × ¥4.62 扣除预估预扣税 · 非实际到账",
       goalDay: "按日",
       goalMonth: "按月",
       goalYear: "按年",
@@ -333,14 +333,14 @@
       goalNoData: "暂无预估收入快照",
       goalLatest: "最新快照",
       goalMilestones: "万元里程碑 · 每达成 1 万记录一次",
-      goalMilestonesDesc: "达成时间为历史快照首次观测到收入达到门槛的日期",
+      goalMilestonesDesc: "每满 1 万元税后预估收入解锁 · 日期为当前税率下历史快照首次达标日",
       goalDone: "首次记录",
       goalPending: "未达成",
       goalFinished: "目标已达成",
-      goalNote: "收入基于付费 CC 入库量估算，非真实结算；历史空档不虚构，后续快照会自动更新。",
-      revenueSectionSubtitle: '基于付费 CC 入库量测算 · 不等同于实际结算',
-      taxPanelTitle: "预扣税与税后预估",
-      taxPanelSubtitle: "按可调整税率测算 · 不等同于实际税额或到账金额",
+      goalNote: "20 万目标、进度与里程碑均按当前预估预扣税率测算；修改税率会重新计算达成状态及历史日期。非实际到账。",
+      revenueSectionSubtitle: "以预扣税后估算为主 · 保留税前数据 · 非实际银行到账",
+      taxPanelTitle: "税后预估与预扣税明细",
+      taxPanelSubtitle: "税后金额重点展示，税前和预扣税仅作参考",
       taxRateLabel: "预估预扣税率",
       taxRateHelp: "仅保存在当前浏览器，允许 0–100%，默认 10%",
       taxGross: "税前预估",
@@ -351,20 +351,20 @@
       taxGrossShort: "税前预估",
       taxMonthTax: "本月预估预扣税",
       taxMonthNet: "本月税后预估",
-      taxTrend: "近 7 个统计日 · 税前 / 税后收入趋势",
+      taxTrend: "近 7 日 · 税后与税前收入对照",
       taxTrendNote: "北京时间 12:00 至次日 12:00 · 缺失不当零 · 插值沿用现有统计口径",
       taxDisclaimer: "10% 为暂用测算比例；银行到账差额也可能包含中转行费用等，不代表已核实的实际扣税。",
       taxSummaryMissing: "历史快照不足",
       taxActualSeparate: "与实际银行到账金额分开统计",
       downloadSectionTitle: '下载数据',
       downloadSectionSubtitle: '下载量、增长趋势与作品表现',
-      revenueAnalysis: '预估收入分析',
-      revenueAnalysisDesc: '入库增量 × ¥4.62 · 非实际结算',
-      revenueLine: '今日累计预估收入走势',
+      revenueAnalysis: "税后预估收入分析",
+      revenueAnalysisDesc: "以税后预估收入为主 · 付费入库量测算 · 非实际到账",
+      revenueLine: "今日税后预估收入走势",
       revenueLineSub: '北京时间 12:00 至最新快照',
-      revenueDaily: '本周预估收入（按日）',
+      revenueDaily: "本周税后预估收入（按日）",
       revenueDailySub: '周一至周日 · 每个统计日为北京时间 12:00 至次日 12:00',
-      revenueMonthWeekly: '本月预估收入（按周）',
+      revenueMonthWeekly: "本月税后预估收入（按周）",
       revenueMonthWeeklySub: '横坐标按周一至周日分组 · 跨月周只计算本月内的天数',
       revenueMonthWeeklyNote: '虚线柱为相邻快照插值估算 · — 表示缺失或尚未开始，并非零收入',
       revenueMonthWeekLabel: '第{n}周',
@@ -379,12 +379,12 @@
       revenueSevenTotalFoot: '最近 7 个完整统计日',
       revenueSevenAverageFoot: '柱状图中的日均参考线',
       revenueThreeDayFoot: '最近 3 日较此前 3 日',
-      revenueDailyAverageGuide: '近 7 完整日均值',
+      revenueDailyAverageGuide: "本周税后预估日均",
       revenueDaysAvailable: '有效统计日',
       revenueInsightsMissing: '需要 7 个完整统计日数据',
-      revenueWeekInsightsTitle: "本周收入分析",
+      revenueWeekInsightsTitle: "本周税后预估收入分析",
       revenueWeekInsightsDesc: "本周至今 · 包含尚未结束的今日统计",
-      revenueMonthInsightsTitle: "本月完整统计分析",
+      revenueMonthInsightsTitle: "本月税后预估收入分析",
       revenueMonthInsightsDesc: "本月至今 · 包含进行中周；缺失周不参与最高值",
       revenueWeekTotal: "本周累计收入",
       revenueWeekAverage: "本周日均收入",
@@ -530,30 +530,30 @@
       monthLibrary: '今月ライブラリ追加',
       librarySnapshot: 'スナップショットの増加量',
       libraryUnavailable: '開始時点のデータなし',
-      estimatedTodayRmb: '今日の推定収益',
-      estimatedWeekRmb: '今週の推定収益',
-      estimatedMonthRmb: '今月の推定収益',
-      estimatedYesterdayRmb: '昨日の推定収益',
-      estimatedLastWeekRmb: '先週の推定収益',
-      estimatedLastMonthRmb: '先月の推定収益',
+      estimatedTodayRmb: "本日 · 税引後見込",
+      estimatedWeekRmb: "今週 · 税引後見込",
+      estimatedMonthRmb: "今月 · 税引後見込",
+      estimatedYesterdayRmb: "昨日 · 税引後見込",
+      estimatedLastWeekRmb: "先週 · 税引後見込",
+      estimatedLastMonthRmb: "先月 · 税引後見込",
       priorPeriodComplete: '前の期間の合計 · 推定値',
       revenueComparedTo: '前期比',
       revenueComparedYesterday: '昨日全日',
       revenueComparedWeek: '先週全体',
       revenueComparedMonth: '先月全体',
       estimatedRevenueNote: '追加数 × 4.62 · 推定値',
-      revenueSectionTitle: '推定収益',
+      revenueSectionTitle: "税引後推定収益",
       goalTitle: "収益目標",
-      goalSubtitle: "有料 CC · 累計推定人民元収益",
-      goalCurrent: "累計税引前推定収益",
+      goalSubtitle: "有料 CC · 累計税引後推定収益",
+      goalCurrent: "累計税引後推定収益",
       goalTarget: "目標金額",
       goalProgress: "達成率",
       goalRemaining: "目標まで",
       goalNext: "次のマイルストーン",
       goalNextRemaining: "次までの残額",
       goalAchievedCount: "達成済みマイルストーン",
-      goalTrend: "累計収益推移",
-      goalTrendDesc: "ライブラリ追加 × ¥4.62 · 実際の入金ではありません",
+      goalTrend: "累計税引後推定収益の推移",
+      goalTrendDesc: "ライブラリ追加数 × ¥4.62 から推定源泉徴収を差引 · 入金額ではありません",
       goalDay: "日別",
       goalMonth: "月別",
       goalYear: "年別",
@@ -561,14 +561,14 @@
       goalNoData: "履歴データがありません",
       goalLatest: "最新スナップショット",
       goalMilestones: "¥10,000ごとの達成記録",
-      goalMilestonesDesc: "初めて基準額以上を記録した日を表示",
+      goalMilestonesDesc: "税引後の推定額が1万元ごとに達成 · 選択税率で初めて観測された日",
       goalDone: "初回観測",
       goalPending: "未達成",
       goalFinished: "目標達成",
-      goalNote: "有料CCの累計ライブラリ追加数に基づく推定です。実際の支払額ではありません。",
-      revenueSectionSubtitle: '有料 CC ライブラリ追加数に基づく推定値',
-      taxPanelTitle: "源泉徴収・税引後見込",
-      taxPanelSubtitle: "変更可能な税率による試算 · 実際の納税額や入金額とは異なります",
+      goalNote: "目標と達成日には現在の推定税率を適用。税率変更により再計算されます。実際の入金とは異なります。",
+      revenueSectionSubtitle: "推定源泉徴収後を優先表示 · 税引前記録も保存 · 実際の入金額ではありません",
+      taxPanelTitle: "税引後見込と源泉徴収内訳",
+      taxPanelSubtitle: "税引後を大きく表示し、税引前と源泉徴収は参考として表示",
       taxRateLabel: "推定源泉徴収率",
       taxRateHelp: "このブラウザ内で保存 · 0～100% · 初期値 10%",
       taxGross: "税引前見込",
@@ -579,20 +579,20 @@
       taxGrossShort: "税引前",
       taxMonthTax: "今月の推定源泉徴収",
       taxMonthNet: "今月の税引後見込",
-      taxTrend: "直近7集計日 · 税引前/税引後の推移",
+      taxTrend: "直近7日 · 税引後と税引前の推移",
       taxTrendNote: "北京時間の正午区切り · 欠測はゼロ扱いせず既存の補間方式を利用",
       taxDisclaimer: "10% は暫定的な仮定です。銀行の着金差額には中継銀行手数料なども含まれる場合があります。",
       taxSummaryMissing: "履歴データ不足",
       taxActualSeparate: "銀行の実際の着金とは別に表示",
       downloadSectionTitle: 'ダウンロードデータ',
       downloadSectionSubtitle: 'DL 数、成長率、作品パフォーマンス',
-      revenueAnalysis: '推定収益分析',
-      revenueAnalysisDesc: '追加数 × ¥4.62 · 実際の支払額ではありません',
-      revenueLine: '本日の推定収益推移',
+      revenueAnalysis: "税引後推定収益分析",
+      revenueAnalysisDesc: "税引後見込を主に表示 · 実際の入金額ではありません",
+      revenueLine: "本日の税引後収益推移",
       revenueLineSub: '北京時間12:00から最新データまで',
-      revenueDaily: '今週の推定収益（日別）',
+      revenueDaily: "今週の税引後推定収益（日別）",
       revenueDailySub: '月曜～日曜 · 集計日は北京時間12:00から翌12:00まで',
-      revenueMonthWeekly: '今月の推定収益（週別）',
+      revenueMonthWeekly: "今月の税引後推定収益（週別）",
       revenueMonthWeeklySub: '月曜～日曜ごと · 月をまたぐ週は今月分のみ集計',
       revenueMonthWeeklyNote: '破線は前後の記録からの推定値 · — は欠測または未開始であり、収益ゼロではありません',
       revenueMonthWeekLabel: '第{n}週',
@@ -607,12 +607,12 @@
       revenueSevenTotalFoot: '完了済みの直近7日',
       revenueSevenAverageFoot: 'グラフの平均基準線',
       revenueThreeDayFoot: '直近3日とその前の3日',
-      revenueDailyAverageGuide: '直近7完了日の平均',
+      revenueDailyAverageGuide: "今週の税引後日平均",
       revenueDaysAvailable: '有効な統計日',
       revenueInsightsMissing: '完了済み7日間のデータが必要',
-      revenueWeekInsightsTitle: "今週の収益分析",
+      revenueWeekInsightsTitle: "今週の税引後収益分析",
       revenueWeekInsightsDesc: "今週の累計 · 進行中の本日を含む",
-      revenueMonthInsightsTitle: "今月の総合収益分析",
+      revenueMonthInsightsTitle: "今月の税引後収益分析",
       revenueMonthInsightsDesc: "今月の累計 · 進行中の週を含み、欠測週は最高値の対象外",
       revenueWeekTotal: "今週の累計収益",
       revenueWeekAverage: "今週の日平均収益",
@@ -1148,7 +1148,7 @@
   // not the sum of potentially missing chart bars.
   function revenueSummaryPeriodData(snapshots, period, days, weeks) {
     const comparison = paidRevenueComparison(snapshots, period);
-    const total = comparison?.current ?? null;
+    const total = revenueNetAmount(comparison?.current ?? null);
     const count = period === 'week'
       ? 1 + Math.round((paidRevenueStart('day') - paidRevenueStart('week')) / PAID_REVENUE_DAY_MS)
       : weeks.filter((row) => !row.future).length;
@@ -1158,9 +1158,9 @@
     const best = observed.length
       ? observed.reduce((prev, row) => row.amount > prev.amount ? row : prev) : null;
     const change = comparison && comparison.previous !== null
-      ? percentChange(comparison.current, comparison.previous) : null;
+      ? percentChange(revenueNetAmount(comparison.current), revenueNetAmount(comparison.previous)) : null;
     const growth = !comparison || comparison.previous === null ? '—'
-      : change === null ? (comparison.current > 0 ? t('revenueNewGrowth') : '0.0%')
+      : change === null ? (total > 0 ? t('revenueNewGrowth') : '0.0%')
       : (change > 0 ? '+' : '') + change.toFixed(1) + '%';
     const direction = Number.isFinite(change)
       ? change > 0 ? 'is-up' : change < 0 ? 'is-down' : '' : '';
@@ -1184,12 +1184,14 @@
       Object.entries(fields).reduce((s, [k, v]) => s.replace('{' + k + '}', String(v)), t(key));
     const missing = t('revenueStatMissing');
     const entries = isMonth ? [
-      [t('revenueMonthTotal'), total, valid ? t('revenueMonthTotalFoot') : missing, ''],
+      [t('revenueMonthTotal'), total, valid ? t('revenueMonthTotalFoot')+' · '+t('taxGrossShort')+' '+
+          revenueMoney(paidRevenueComparison(snapshots, period).current) : missing, ''],
       [t('revenueMonthAverage'), average, valid ? interpolate('revenueMonthAverageFoot', { n: result.count }) : missing, ''],
       [t('revenueMonthBest'), maximum, result.best ? interpolate('revenueMonthBestFoot', { week: peakLabel, n: result.observedCount }) : missing, ''],
       [t('revenueMonthGrowth'), result.growth, t('revenueMonthGrowthFoot'), result.direction]
     ] : [
-      [t('revenueWeekTotal'), total, valid ? t('revenueWeekTotalFoot') : missing, ''],
+      [t('revenueWeekTotal'), total, valid ? t('revenueWeekTotalFoot')+' · '+
+        t('taxGrossShort')+' '+revenueMoney(paidRevenueComparison(snapshots, period).current) : missing, ''],
       [t('revenueWeekAverage'), average, valid ? interpolate('revenueWeekAverageFoot', { n: result.count }) : missing, ''],
       [t('revenueWeekBest'), maximum, result.best ? interpolate('revenueWeekBestFoot', { date: peakLabel, n: result.observedCount }) : missing, ''],
       [t('revenueWeekGrowth'), result.growth, t('revenueWeekGrowthFoot'), result.direction]
@@ -1224,7 +1226,8 @@
     });
     return [...series.values()].sort((a,b) => a.time - b.time).map((point) => ({
       ...point,
-      amount: point.count * PAID_RMB_PER_LIBRARY_ADD,
+      grossAmount: point.count * PAID_RMB_PER_LIBRARY_ADD,
+      amount: revenueNetAmount(point.count * PAID_RMB_PER_LIBRARY_ADD),
       label: granularity === 'year' ? point.key :
         granularity === 'month' ? point.key.replace('-', '/') : point.key.slice(5).replace('-', '/')
     }));
@@ -1252,7 +1255,8 @@
       '" y="'+(H-10)+'" text-anchor="'+(i===0?'start':i===values.length-1?'end':'middle')+
       '">'+esc(values[i].label)+'</text>').join('');
     const dots=values.map((p,i)=>{
-      const label=p.key+' · '+revenueMoney(p.amount);
+      const label=p.key+' · '+t('taxNetShort')+': '+revenueMoney(p.amount)+
+        ' · '+t('taxGrossShort')+': '+revenueMoney(p.grossAmount);
       return '<circle cx="'+px(i)+'" cy="'+py(p.amount)+
         '" r="9" fill="transparent" tabindex="0" aria-label="'+esc(label)+'"><title>'+
         esc(label)+'</title></circle>';
@@ -1278,7 +1282,8 @@
     if (node.hidden) {node.innerHTML='';return;}
     const snapshots=paidRevenueSnapshots();
     const latest=snapshots.at(-1);
-    const total=latest?Math.max(0,latest.count*PAID_RMB_PER_LIBRARY_ADD):null;
+    const grossTotal=latest?Math.max(0,latest.count*PAID_RMB_PER_LIBRARY_ADD):null;
+    const total=revenueNetAmount(grossTotal);
     const ready=total!==null&&Number.isFinite(total);
     const ratio=ready?Math.min(100,total/REVENUE_GOAL_RMB*100):0;
     const reached=ready?Math.min(20,Math.floor(total/REVENUE_GOAL_STEP)):0;
@@ -1288,7 +1293,7 @@
       .format(new Date(time));
     const milestones=Array.from({length:20},(_,index)=>{
       const amount=(index+1)*REVENUE_GOAL_STEP;
-      const first=snapshots.find(p=>p.count*PAID_RMB_PER_LIBRARY_ADD>=amount);
+      const first=snapshots.find(p=>revenueNetAmount(p.count*PAID_RMB_PER_LIBRARY_ADD)>=amount);
       // A milestone only lights up when its threshold was actually observed.
       // The upcoming milestone is listed in the overview, but stays gray here.
       const done=Boolean(first);
@@ -1309,7 +1314,9 @@
       esc(t('goalTitle'))+'</div><p class="admin-cc-goal-subtitle">'+esc(t('goalSubtitle'))+
       '</p><div class="admin-cc-goal-stat-label">'+esc(t('goalCurrent'))+'</div>'+
       '<div class="admin-cc-goal-current">'+(ready?revenueCardMoneyMarkup(revenueMoney(total)):'—')+
-      '</div><div class="admin-cc-goal-target">'+esc(t('goalTarget'))+
+      '</div><div class="admin-cc-goal-gross">'+esc(t('taxGrossShort'))+': '+
+      (grossTotal===null?'—':esc(revenueMoney(grossTotal)))+'</div>'+
+      '<div class="admin-cc-goal-target">'+esc(t('goalTarget'))+
       '<strong>'+esc(revenueMoney(REVENUE_GOAL_RMB))+'</strong></div>'+
       '<div class="admin-cc-goal-progress-track" role="progressbar" aria-label="'+esc(t('goalProgress'))+
       '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+ratio.toFixed(2)+'">'+
@@ -1346,6 +1353,11 @@
     if (gross === null || !Number.isFinite(gross)) return null;
     const rate = revenueTaxRateFraction();
     return { gross, withholding: gross * rate, net: gross * (1 - rate) };
+  }
+  // Presentation-only view of the unchanged gross revenue model.
+  function revenueNetAmount(gross) {
+    return gross === null || !Number.isFinite(gross)
+      ? null : gross * (1 - revenueTaxRateFraction());
   }
   // Split missing data into separate line segments so an outage does not
   // appear as a fabricated continuous seven-day revenue series.
@@ -1424,12 +1436,12 @@
       '<span>%</span></span></label></div>'+
       '<div class="admin-cc-revenue-tax-config-note">'+esc(t('taxRateHelp'))+'</div>'+
       '<div class="admin-cc-revenue-tax-cards">'+
-      '<div class="admin-cc-revenue-tax-card"><span>'+esc(t('taxGross'))+
-      '</span><strong>'+value(tax?.gross ?? null)+'</strong></div>'+
-      '<div class="admin-cc-revenue-tax-card"><span>'+esc(t('taxMonthTax'))+
-      '</span><strong>'+value(tax?.withholding ?? null)+'</strong></div>'+
       '<div class="admin-cc-revenue-tax-card is-net"><span>'+esc(t('taxMonthNet'))+
-      '</span><strong>'+value(tax?.net ?? null)+'</strong></div></div>'+
+      '</span><strong>'+value(tax?.net ?? null)+'</strong></div>'+
+      '<div class="admin-cc-revenue-tax-card is-secondary"><span>'+esc(t('taxGross'))+
+      '</span><strong>'+value(tax?.gross ?? null)+'</strong></div>'+
+      '<div class="admin-cc-revenue-tax-card is-secondary"><span>'+esc(t('taxMonthTax'))+
+      '</span><strong>'+value(tax?.withholding ?? null)+'</strong></div></div>'+
       '<div class="admin-cc-revenue-tax-chart-head"><h4>'+
       esc(t('taxTrend'))+'</h4><div class="admin-cc-revenue-tax-legend">'+
       '<span class="is-gross">'+esc(t('taxGrossShort'))+'</span>'+
@@ -1462,12 +1474,13 @@
       const libraryAdds = previous ? null : paidLibraryIncrement(period);
       const income = previous ? paidPreviousFullRevenue(snapshots, periodUnit)
         : libraryAdds === null ? null : libraryAdds * PAID_RMB_PER_LIBRARY_ADD;
-      const money = income === null ? '—' : revenueMoney(income);
       const deduction = revenueTaxBreakdown(income);
+      const money = deduction ? revenueMoney(deduction.net) : '—';
       const breakdown = deduction
-        ? '<div class="admin-cc-revenue-card-tax"><span>'+esc(t('taxWithheldShort'))+
-          ' '+esc(revenueMoney(deduction.withholding))+'</span><span class="is-net">'+
-          esc(t('taxNetShort'))+' '+esc(revenueMoney(deduction.net))+'</span></div>'
+        ? '<div class="admin-cc-revenue-card-tax"><span class="is-gross">'+
+          esc(t('taxGrossShort'))+' '+esc(revenueMoney(deduction.gross))+
+          '</span><span>'+esc(t('taxWithheldShort'))+
+          ' '+esc(revenueMoney(deduction.withholding))+'</span></div>'
         : '';
       let foot = income === null ? t('libraryUnavailable') : t('priorPeriodComplete');
       let changeClass = '';
@@ -1486,7 +1499,7 @@
         '<div class="admin-cc-revenue-card-head"><span>' + esc(t(label)) +
         '</span><span class="admin-cc-revenue-currency">CNY</span></div>' +
         '<strong class="admin-cc-revenue-card-value">' + revenueCardMoneyMarkup(money) + '</strong>' +
-        '<span class="admin-cc-revenue-card-gross">'+esc(t('taxGrossShort'))+'</span>' +
+        '<span class="admin-cc-revenue-card-gross">'+esc(t('taxNetShort'))+'</span>' +
         breakdown +
         '<p class="admin-cc-revenue-card-foot' + changeClass + '">' + esc(foot) + '</p>' +
         '</article>';
@@ -1555,7 +1568,7 @@
     if (latest && baseline && latest.time > start) {
       const points = [{ time: start, value: 0 }].concat(snapshots
         .filter((p) => p.time > start && p.time <= latest.time)
-        .map((p) => ({ time: p.time, value: Math.max(0, p.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD })));
+        .map((p) => ({ time: p.time, value: revenueNetAmount(Math.max(0, p.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD) })));
       const W = 690, H = 240, L = 56, R = 16, T = 18, B = 37;
       const pw = W - L - R, ph = H - T - B;
       const maxValue = Math.max(10, ...points.map((p) => p.value));
@@ -1598,9 +1611,9 @@
       const valid = comparison && comparison.previous !== null;
       let textValue = '—', valueClass = 'is-neutral';
       if (valid) {
-        const change = percentChange(comparison.current, comparison.previous);
+        const change = percentChange(revenueNetAmount(comparison.current), revenueNetAmount(comparison.previous));
         if (change === null) {
-          textValue = comparison.current > 0 ? t('revenueNewGrowth') : '0.0%';
+          textValue = revenueNetAmount(comparison.current) > 0 ? t('revenueNewGrowth') : '0.0%';
         } else {
           textValue = (change > 0 ? '+' : '') + change.toFixed(1) + '%';
           valueClass = change > 0 ? 'is-up' : change < 0 ? 'is-down' : 'is-neutral';
@@ -1608,12 +1621,17 @@
       }
       return '<div class="admin-cc-revenue-comparison-row">' +
         '<div><strong>' + esc(t(label)) + '</strong><small>' +
-        esc(valid ? t('revenuePrior') + ': ' + revenueMoney(comparison.previous) : t('revenueNoHistory')) +
+        esc(valid ? t('revenuePrior') + ': ' + revenueMoney(revenueNetAmount(comparison.previous)) +
+          ' · '+t('taxGrossShort')+' '+revenueMoney(comparison.previous) : t('revenueNoHistory')) +
         '</small></div><span class="admin-cc-revenue-change ' + valueClass + '">' +
         esc(textValue) + '</span></div>';
     }).join('');
-    const daily = paidRevenueThisWeekRows(snapshots);
-    const monthlyWeeks = paidRevenueThisMonthWeekRows(snapshots);
+    const daily = paidRevenueThisWeekRows(snapshots).map(row => ({
+      ...row, grossAmount: row.amount, amount: revenueNetAmount(row.amount)
+    }));
+    const monthlyWeeks = paidRevenueThisMonthWeekRows(snapshots).map(row => ({
+      ...row, grossAmount: row.amount, amount: revenueNetAmount(row.amount)
+    }));
     const weekSummary = revenueSummaryPeriodData(snapshots, 'week', daily, monthlyWeeks);
     const weekAverage = weekSummary.total !== null && weekSummary.count > 0
       ? weekSummary.total / weekSummary.count : null;
@@ -1632,17 +1650,19 @@
       const height = row.amount === null ? 0
         : Math.max(row.amount === 0 ? 2 : 5, row.amount / maximum * 100);
       const amount = row.amount === null ? '—' : revenueMoney(row.amount);
+      const grossHint = row.grossAmount === null ? '' :
+        ' · '+t('taxGrossShort')+': '+revenueMoney(row.grossAmount);
       return '<div class="admin-cc-revenue-day' +
         (row.current ? ' is-current' : '') + (row.future ? ' is-future' : '') +
         (row.amount === null ? ' is-missing' : '') +
         (row.estimated ? ' is-estimated' : '') + '">' +
         '<div class="admin-cc-revenue-day-amount" title="' + esc(title + ' · ' +
-          (row.future ? t('revenueNotStarted') : amount)) + '">' + esc(amount) + '</div>' +
+          (row.future ? t('revenueNotStarted') : amount + grossHint)) + '">' + esc(amount) + '</div>' +
         '<div class="admin-cc-revenue-day-track">' +
         (row.amount === null
           ? '<span class="admin-cc-revenue-day-missing">' + esc(row.future ? '·' : '—') + '</span>'
           : '<div class="admin-cc-revenue-day-bar" style="height:' + height.toFixed(1) +
-            '%" title="' + esc(title + ' · ' + amount) + '"></div>') +
+            '%" title="' + esc(title + ' · ' + amount + grossHint) + '"></div>') +
         '</div><div class="admin-cc-revenue-day-label">' + nameHtml + '</div></div>';
     };
     const weekdayNames = t('revenueWeekdayNames');
@@ -2178,7 +2198,12 @@
       state.taxRatePct = proposed;
       try { localStorage.setItem(REVENUE_TAX_STORAGE_KEY, String(proposed)); }
       catch (error) { console.warn('[admin-cc-focus] Tax rate not persisted', error); }
-      if (state.ready) { renderRevenueMetrics(); renderRevenueTax(); }
+      if (state.ready) {
+        renderRevenueMetrics();
+        renderRevenueTax();
+        renderRevenueAnalysis();
+        renderRevenueGoal();
+      }
     });
     dashboard.addEventListener('click', (event) => {
       const goalSwitch = event.target.closest('[data-cc-goal-range]');
