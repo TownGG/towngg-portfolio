@@ -152,8 +152,23 @@ function mergeJson(file,base,remote,local){
   if(!Array.isArray(b.mods)||!Array.isArray(c.mods)||!Array.isArray(a.mods))
     throw Error('Expected mods array in '+file);
   const value={...b,mods:mergeRecords(a.mods,b.mods,c.mods,'nexus')};
-  if(file.endsWith('nexus-latest.json'))
-    value.updatedAt=dateMs(b.updatedAt)>=dateMs(c.updatedAt)?b.updatedAt:c.updatedAt;
+  if(file.endsWith('nexus-latest.json')){
+    const currentNewer=dateMs(b.updatedAt)>=dateMs(c.updatedAt);
+    value.updatedAt=currentNewer?b.updatedAt:c.updatedAt;
+    // Daily downloads are per-day, NOT lifetime counters. Across different
+    // statistical days they must reset rather than taking the lifetime max.
+    const statisticalDay=stamp=>new Date(dateMs(stamp)-4*3600000)
+      .toISOString().slice(0,10);
+    if(statisticalDay(b.updatedAt)!==statisticalDay(c.updatedAt)){
+      const currentById=new Map(b.mods.map(x=>[String(x.mod_id),x]));
+      const freshById=new Map(c.mods.map(x=>[String(x.mod_id),x]));
+      for(const item of value.mods){
+        const latest=(currentNewer?currentById:freshById).get(String(item.mod_id));
+        if(latest&&Object.hasOwn(latest,'daily_downloads'))
+          item.daily_downloads=latest.daily_downloads;
+      }
+    }
+  }
   return JSON.stringify(value,null,2)+'\n';
 }
 function mergeFile(mode,file,base,remote,local){
@@ -192,6 +207,12 @@ function selfTest(){
   const data=JSON.parse(mergeJson('nexus-latest.json',o,n,f));
   assert.equal(data.mods[0].total_downloads,15);
   assert.equal(data.mods.length,2);
+  const overnightRemote=JSON.stringify({updatedAt:'2026-10-29T04:20:00Z',
+    mods:[{mod_id:'1',total_downloads:16,daily_downloads:0}]});
+  const overnightLocal=JSON.stringify({updatedAt:'2026-10-28T08:20:00Z',
+    mods:[{mod_id:'1',total_downloads:15,daily_downloads:8}]});
+  const overnight=JSON.parse(mergeJson('nexus-latest.json',o,overnightRemote,overnightLocal));
+  assert.equal(overnight.mods[0].daily_downloads,0);
   console.log('[SYNC_PUBLISH] All merge self-tests passed');
 }
 async function publish(mode){
