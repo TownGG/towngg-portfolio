@@ -74,12 +74,12 @@
       monthLibrary: 'Library Adds This Month',
       librarySnapshot: 'Snapshot-based increase',
       libraryUnavailable: 'Boundary snapshot missing',
-      estimatedTodayRmb: "Today · Est. After Withholding",
-      estimatedWeekRmb: "This Week · Est. After Withholding",
-      estimatedMonthRmb: "This Month · Est. After Withholding",
-      estimatedYesterdayRmb: "Yesterday · Est. After Withholding",
-      estimatedLastWeekRmb: "Last Week · Est. After Withholding",
-      estimatedLastMonthRmb: "Last Month · Est. After Withholding",
+      estimatedTodayRmb: "Today",
+      estimatedWeekRmb: "This Week",
+      estimatedMonthRmb: "This Month",
+      estimatedYesterdayRmb: "Yesterday",
+      estimatedLastWeekRmb: "Last Week",
+      estimatedLastMonthRmb: "Last Month",
       priorPeriodComplete: 'Full previous period · estimate only',
       revenueComparedTo: 'vs',
       revenueComparedYesterday: 'vs yesterday',
@@ -302,12 +302,12 @@
       monthLibrary: '本月入库数',
       librarySnapshot: '按快照增量统计',
       libraryUnavailable: '缺少起点数据',
-      estimatedTodayRmb: "今日税后预估",
-      estimatedWeekRmb: "本周税后预估",
-      estimatedMonthRmb: "本月税后预估",
-      estimatedYesterdayRmb: "昨日税后预估",
-      estimatedLastWeekRmb: "上周税后预估",
-      estimatedLastMonthRmb: "上月税后预估",
+      estimatedTodayRmb: "今日收入",
+      estimatedWeekRmb: "本周收入",
+      estimatedMonthRmb: "本月收入",
+      estimatedYesterdayRmb: "昨日收入",
+      estimatedLastWeekRmb: "上周收入",
+      estimatedLastMonthRmb: "上月收入",
       priorPeriodComplete: '上一完整统计周期 · 预估',
       revenueComparedTo: '较',
       revenueComparedYesterday: '较昨日',
@@ -530,12 +530,12 @@
       monthLibrary: '今月ライブラリ追加',
       librarySnapshot: 'スナップショットの増加量',
       libraryUnavailable: '開始時点のデータなし',
-      estimatedTodayRmb: "本日 · 税引後見込",
-      estimatedWeekRmb: "今週 · 税引後見込",
-      estimatedMonthRmb: "今月 · 税引後見込",
-      estimatedYesterdayRmb: "昨日 · 税引後見込",
-      estimatedLastWeekRmb: "先週 · 税引後見込",
-      estimatedLastMonthRmb: "先月 · 税引後見込",
+      estimatedTodayRmb: "本日の収益",
+      estimatedWeekRmb: "今週の収益",
+      estimatedMonthRmb: "今月の収益",
+      estimatedYesterdayRmb: "昨日の収益",
+      estimatedLastWeekRmb: "先週の収益",
+      estimatedLastMonthRmb: "先月の収益",
       priorPeriodComplete: '前の期間の合計 · 推定値',
       revenueComparedTo: '前期比',
       revenueComparedYesterday: '昨日比',
@@ -1359,78 +1359,79 @@
     return gross === null || !Number.isFinite(gross)
       ? null : gross * (1 - revenueTaxRateFraction());
   }
+  // All revenue figures retain the configurable after-withholding calculation.
+  function revenueCompactComparison(snapshots, unit, label, gross) {
+    if (gross === null) return null;
+    const data = paidRevenueComparison(snapshots, unit);
+    const change = data?.previous == null ? null : percentChange(gross, data.previous);
+    if (!Number.isFinite(change)) return null;
+    return {
+      label: t(label) + ' ' + (change > 0 ? '+' : '') + change.toFixed(1) + '%',
+      tone: change > 0 ? ' is-up' : change < 0 ? ' is-down' : ''
+    };
+  }
   function renderRevenueTax() {
     const target = document.querySelector('[data-cc-revenue-tax]');
     if (!target) return;
     target.hidden = state.mode !== 'paid';
     if (target.hidden) { target.innerHTML = ''; return; }
-    const monthIncome = paidLibraryIncrement('month');
-    const tax = revenueTaxBreakdown(
-      monthIncome === null ? null : monthIncome * PAID_RMB_PER_LIBRARY_ADD
-    );
-    const value = amount => amount === null ? '—' : revenueCardMoneyMarkup(revenueMoney(amount));
-    target.innerHTML =
-      '<div class="admin-cc-revenue-tax-top">'+
-      '<div><h3>'+esc(t('taxPanelTitle'))+'</h3><p>'+
-      esc(t('taxPanelSubtitle'))+'</p></div>'+
-      '<label class="admin-cc-revenue-tax-config">'+
-      '<span>'+esc(t('taxRateLabel'))+'</span>'+
-      '<span class="admin-cc-revenue-tax-input"><input data-cc-tax-rate type="number"'+
-      ' min="0" max="100" step="0.5" inputmode="decimal" value="'+
-      state.taxRatePct.toFixed(1)+'" aria-label="'+esc(t('taxRateLabel'))+'">'+
-      '<span>%</span></span></label></div>'+
-      '<div class="admin-cc-revenue-tax-config-note">'+esc(t('taxRateHelp'))+'</div>'+
-      '<div class="admin-cc-revenue-tax-cards">'+
-      '<div class="admin-cc-revenue-tax-card is-net"><span>'+esc(t('taxMonthNet'))+
-      '</span><strong>'+value(tax?.net ?? null)+'</strong></div>'+
-      '<div class="admin-cc-revenue-tax-card is-secondary"><span>'+esc(t('taxGross'))+
-      '</span><strong>'+value(tax?.gross ?? null)+'</strong></div>'+
-      '<div class="admin-cc-revenue-tax-card is-secondary"><span>'+esc(t('taxMonthTax'))+
-      '</span><strong>'+value(tax?.withholding ?? null)+'</strong></div></div>'+
-      '<p class="admin-cc-revenue-tax-disclaimer">'+esc(t('taxDisclaimer'))+
-      ' '+esc(t('taxActualSeparate'))+'</p>';
+    const snapshots = paidRevenueSnapshots();
+    const periods = [
+      ['estimatedTodayRmb', 'today', 'day', 'revenueComparedYesterday', 'today'],
+      ['estimatedMonthRmb', 'month', 'month', 'revenueComparedMonth', 'month']
+    ];
+    const cards = periods.map(([label, period, unit, comparisonLabel, variant]) => {
+      const adds = paidLibraryIncrement(period);
+      const gross = adds === null ? null : adds * PAID_RMB_PER_LIBRARY_ADD;
+      const net = revenueNetAmount(gross);
+      const money = net === null ? '—' : revenueCardMoneyMarkup(revenueMoney(net));
+      const change = revenueCompactComparison(snapshots, unit, comparisonLabel, gross);
+      return '<article class="admin-cc-revenue-hero-card is-' + variant + '">' +
+        '<span class="admin-cc-revenue-hero-label">' + esc(t(label)) + '</span>' +
+        '<strong class="admin-cc-revenue-hero-value">' + money + '</strong>' +
+        (change ? '<p class="admin-cc-revenue-hero-compare' + change.tone + '">' +
+          esc(change.label) + '</p>' : '') + '</article>';
+    }).join('');
+    target.innerHTML = '<div class="admin-cc-revenue-hero-grid">' + cards + '</div>' +
+      '<details class="admin-cc-revenue-hero-settings">' +
+      '<summary title="' + esc(t('taxRateLabel')) + '" aria-label="' +
+      esc(t('taxRateLabel')) + '">⚙</summary>' +
+      '<div class="admin-cc-revenue-hero-settings-panel">' +
+      '<label class="admin-cc-revenue-tax-config">' +
+      '<span>' + esc(t('taxRateLabel')) + '</span>' +
+      '<span class="admin-cc-revenue-tax-input"><input data-cc-tax-rate type="number"' +
+      ' min="0" max="100" step="0.5" inputmode="decimal" value="' +
+      state.taxRatePct.toFixed(1) + '" aria-label="' + esc(t('taxRateLabel')) + '">' +
+      '<span>%</span></span></label>' +
+      '<p>' + esc(t('taxRateHelp')) + '</p></div></details>';
   }
-
   function renderRevenueMetrics() {
     const target = document.querySelector('[data-cc-revenue-kpis]');
     if (!target) return;
-    const isPaid = state.mode === 'paid';
-    target.hidden = !isPaid;
-    if (!isPaid) {
-      target.innerHTML = '';
-      return;
-    }
+    target.hidden = state.mode !== 'paid';
+    if (target.hidden) { target.innerHTML = ''; return; }
+    // Today and this month are already present in the large summary cards.
     const periods = [
-      ['estimatedTodayRmb', 'today', 'day', 'revenueComparedYesterday', false],
       ['estimatedYesterdayRmb', null, 'day', null, true],
       ['estimatedWeekRmb', 'week', 'week', 'revenueComparedWeek', false],
       ['estimatedLastWeekRmb', null, 'week', null, true],
-      ['estimatedMonthRmb', 'month', 'month', 'revenueComparedMonth', false],
       ['estimatedLastMonthRmb', null, 'month', null, true]
     ];
     const snapshots = paidRevenueSnapshots();
-    target.innerHTML = periods.map(([label, period, periodUnit, compareLabel, previous]) => {
-      const libraryAdds = previous ? null : paidLibraryIncrement(period);
-      const income = previous ? paidPreviousFullRevenue(snapshots, periodUnit)
-        : libraryAdds === null ? null : libraryAdds * PAID_RMB_PER_LIBRARY_ADD;
-      const deduction = revenueTaxBreakdown(income);
-      const money = deduction ? revenueMoney(deduction.net) : '—';
-      let foot = '';
-      let changeClass = '';
-      if (!previous && income !== null) {
-        const comparison = paidRevenueComparison(snapshots, periodUnit);
-        const change = comparison?.previous == null ? null : percentChange(income, comparison.previous);
-        if (Number.isFinite(change)) {
-          const sign = change > 0 ? '+' : '';
-          foot = t(compareLabel) + ' ' + sign + change.toFixed(1) + '%';
-          changeClass = change > 0 ? ' is-up' : change < 0 ? ' is-down' : '';
-        }
-      }
+    target.innerHTML = periods.map(([label, period, unit, comparisonLabel, previous]) => {
+      const adds = previous ? null : paidLibraryIncrement(period);
+      const gross = previous ? paidPreviousFullRevenue(snapshots, unit)
+        : adds === null ? null : adds * PAID_RMB_PER_LIBRARY_ADD;
+      const net = revenueNetAmount(gross);
+      const money = net === null ? '—' : revenueMoney(net);
+      const change = previous ? null :
+        revenueCompactComparison(snapshots, unit, comparisonLabel, gross);
       return '<article class="admin-cc-revenue-card">' +
-        '<div class="admin-cc-revenue-card-head"><span>' + esc(t(label)) +
-        '</span></div>' +
-        '<strong class="admin-cc-revenue-card-value">' + revenueCardMoneyMarkup(money) + '</strong>' +
-        (foot ? '<p class="admin-cc-revenue-card-foot' + changeClass + '">' + esc(foot) + '</p>' : '') +
+        '<div class="admin-cc-revenue-card-head"><span>' + esc(t(label)) + '</span></div>' +
+        '<strong class="admin-cc-revenue-card-value">' +
+          revenueCardMoneyMarkup(money) + '</strong>' +
+        (change ? '<p class="admin-cc-revenue-card-foot' + change.tone + '">' +
+          esc(change.label) + '</p>' : '') +
         '</article>';
     }).join('');
   }
