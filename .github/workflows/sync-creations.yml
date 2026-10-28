@@ -1,9 +1,10 @@
 name: Sync Bethesda Creations
 
-# The existing 30-minute external workflow_dispatch schedule stays unchanged.
-# GitHub does not emit an Actions event when a Secret is edited in the web UI.
-# Secret update tooling sends this dispatch immediately AFTER a successful upload.
+# Keep external half-hour workflow_dispatch; native backup runs at :15/:45 UTC.
+# Secret publishing tooling triggers repository_dispatch after upload.
 on:
+  schedule:
+    - cron: '15,45 * * * *'
   repository_dispatch:
     types: [bethesda-storage-state-updated]
   workflow_dispatch:
@@ -25,7 +26,22 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  freshness-gate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Check whether scheduled backup is needed
+        id: check
+        env:
+          SYNC_EVENT_NAME: ${{ github.event_name }}
+        run: node scripts/check-sync-freshness.mjs assets/data/site-version.json
+
   sync-creations:
+    needs: freshness-gate
+    if: needs.freshness-gate.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

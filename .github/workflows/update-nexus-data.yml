@@ -1,6 +1,9 @@
 name: Update Nexus dashboard data
 
+# External half-hour workflow_dispatch retained; native backup at :15/:45 UTC.
 on:
+  schedule:
+    - cron: '15,45 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -11,7 +14,22 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  freshness-gate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Check whether scheduled backup is needed
+        id: check
+        env:
+          SYNC_EVENT_NAME: ${{ github.event_name }}
+        run: node scripts/check-sync-freshness.mjs assets/data/nexus-latest.json
+
   update:
+    needs: freshness-gate
+    if: needs.freshness-gate.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
