@@ -1638,6 +1638,37 @@
       '<p class="admin-cc-revenue-data-note">' + esc(t('revenueMonthWeeklyNote')) +
       '</p></article>';
   }
+  function renderDownloadHighlights() {
+    const target = document.querySelector('[data-cc-download-highlights]');
+    if (!target) return;
+    const active = state.mode === 'free' || state.mode === 'nexus';
+    target.hidden = !active;
+    if (!active) { target.innerHTML = ''; return; }
+    const today = currentDay();
+    const currentDownloads = selectedValue(today);
+    const previousDownloads = selectedValue(priorDay(today.date));
+    const monthDownloads = metricPeriodValue('month');
+    const previousMonthDownloads = metricPeriodValue('month', 1);
+    const periods = [
+      { label: t('today'), amount: currentDownloads, prior: previousDownloads,
+        compare: t('vsYesterday'), variant: 'today' },
+      { label: t('thirtyDays'), amount: monthDownloads, prior: previousMonthDownloads,
+        compare: t('vsLastMonth'), variant: 'month' }
+    ];
+    target.innerHTML = '<div class="admin-cc-revenue-hero-grid">' +
+      periods.map((item) => {
+        const change = percentChange(item.amount, item.prior);
+        const diff = Number.isFinite(change) ?
+          '<p class="admin-cc-revenue-hero-compare' +
+          (change > 0 ? ' is-up' : change < 0 ? ' is-down' : '') + '">' +
+          esc(item.compare) + ' ' + (change > 0 ? '+' : '') + change.toFixed(1) + '%</p>' : '';
+        return '<article class="admin-cc-revenue-hero-card is-' + item.variant +
+          ' is-download"><span class="admin-cc-revenue-hero-label">' +
+          esc(item.label) + '</span><strong class="admin-cc-revenue-hero-value">' +
+          esc(fmt(item.amount)) + '</strong>' + diff + '</article>';
+      }).join('') + '</div>';
+  }
+
   function renderMetrics() {
     const target = document.querySelector('[data-cc-kpis]');
     if (!target) return;
@@ -1669,10 +1700,14 @@
     const totals = allTimeStats();
     const cards = [
       card(t('totalDownloads'), fmt(totals.downloads), '↓', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(t('allTime')) + '</span>'),
-      card(t('today'), fmt(current), '◫', trend(percentChange(current, previous), t('vsYesterday'))),
+      ...(state.mode === 'paid' ? [
+        card(t('today'), fmt(current), '◫', trend(percentChange(current, previous), t('vsYesterday')))
+      ] : []),
       card(t('yesterday'), fmt(previous), '◫', trend(percentChange(previous, selectedValue(beforeYesterday)), t('vsYesterday'))),
       card(t('sevenDays'), fmt(p7), '↗', trend(percentChange(p7, prev7), t('vsLastWeek'))),
-      card(t('thirtyDays'), fmt(p30), '∿', trend(percentChange(p30, prev30), t('vsLastMonth'))),
+      ...(state.mode === 'paid' ? [
+        card(t('thirtyDays'), fmt(p30), '∿', trend(percentChange(p30, prev30), t('vsLastMonth')))
+      ] : []),
       card(t('works'), fmt(totals.count), '▱', '<span class="admin-metric-trend is-flat">●</span><span>' + esc(state.mode === 'paid' ? t('paidWorks') : state.mode === 'free' ? t('freeWorks') : t('nexusWorks')) + '</span>')
     ];
     if (state.mode === 'paid') {
@@ -2009,6 +2044,7 @@
     renderRevenueGoal();
     renderRevenueMetrics();
     renderRevenueTax();
+    renderDownloadHighlights();
     renderMetrics();
     renderRevenueAnalysis();
     renderTrend();
@@ -2031,6 +2067,7 @@
       '<section class="admin-cc-revenue-goal" data-cc-revenue-goal></section></section>' +
       '<section class="admin-cc-zone admin-cc-download-zone" data-cc-download-section>' +
       '<header class="admin-cc-zone-heading" data-cc-download-heading><span class="admin-cc-zone-icon" aria-hidden="true">↓</span><div><h2 data-cc-download-section-title>Download Data</h2><p data-cc-download-section-subtitle></p></div></header>' +
+      '<section class="admin-cc-download-highlights" data-cc-download-highlights hidden></section>' +
       '<section class="admin-dashboard-metrics" data-cc-kpis></section>' +
       '<div class="admin-cc-focus-dashboard-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-trend-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-focus-legend" data-cc-legend><i></i><span></span></div><div class="admin-line-chart" data-cc-line-chart></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-share-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-share-card"><div class="admin-cc-share-ring" data-cc-share-ring><div class="admin-cc-share-center"><strong data-cc-share-center>0%</strong><span>MOD</span></div></div><div class="admin-cc-share-copy" data-cc-share-copy></div></div></section></div>' +
       '<div class="admin-cc-analysis-grid"><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><div><h3 data-cc-matrix-title></h3><p class="admin-insight-caption" data-cc-matrix-subtitle></p></div><span class="admin-analytics-period">' + esc(t('allTime')) + '</span></div><div class="admin-cc-matrix" data-cc-matrix></div></section><section class="admin-analytics-panel admin-cc-panel-accent"><div class="admin-analytics-head"><h3 data-cc-snapshot-title></h3><span class="admin-analytics-period" data-cc-range-label></span></div><div class="admin-cc-snapshot" data-cc-snapshot></div></section></div>' +

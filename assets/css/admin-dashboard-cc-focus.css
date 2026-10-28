@@ -1793,3 +1793,46 @@
   .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-hero-label{font-size:14px}
   .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-hero-compare{font-size:12px}
 }
+
+/* Free Creations and Nexus headline download totals: same visual hierarchy as paid income. */
+.admin-dashboard.cc-focus-dashboard .admin-cc-download-highlights[hidden]{display:none!important}
+.admin-dashboard.cc-focus-dashboard .admin-cc-download-highlights{min-width:0}
+.admin-dashboard.cc-focus-dashboard .admin-cc-download-highlights .admin-cc-revenue-hero-value{
+  font-size:clamp(60px,6.5vw,100px);
+  margin:12px 0 8px;
+}
+.admin-dashboard.cc-focus-dashboard[data-cc-mode="free"] .admin-cc-download-highlights .is-today{
+  border-color:rgba(110,208,252,.5);
+  background:radial-gradient(ellipse at 88% 5%,rgba(125,208,255,.38),transparent 53%),
+    linear-gradient(124deg,#1256b0 0%,#267cb2 51%,#194d83 100%);
+}
+.admin-dashboard.cc-focus-dashboard[data-cc-mode="free"] .admin-cc-download-highlights .is-month{
+  border-color:rgba(255,209,139,.5);
+  background:radial-gradient(ellipse at 90% 8%,rgba(255,226,159,.36),transparent 49%),
+    linear-gradient(122deg,#a75c19 0%,#c78328 49%,#743d38 100%);
+}
+.admin-dashboard.cc-focus-dashboard[data-cc-mode="nexus"] .admin-cc-download-highlights .is-today{
+  border-color:rgba(192,160,255,.5);
+  background:radial-gradient(ellipse at 88% 5%,rgba(216,180,255,.36),transparent 53%),
+    linear-gradient(126deg,#5638be 0%,#8050bb 49%,#383184 100%);
+}
+.admin-dashboard.cc-focus-dashboard[data-cc-mode="nexus"] .admin-cc-download-highlights .is-month{
+  border-color:rgba(255,178,179,.5);
+  background:radial-gradient(ellipse at 90% 8%,rgba(255,211,205,.34),transparent 51%),
+    linear-gradient(123deg,#a3416b 0%,#b35c83 48%,#653b83 100%);
+}
+.admin-dashboard.cc-focus-dashboard[data-cc-mode="free"] .admin-dashboard-metrics{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+.admin-dashboard.cc-focus-dashboard[data-cc-mode="nexus"] .admin-dashboard-metrics{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+@media(max-width:760px){
+  .admin-dashboard.cc-focus-dashboard .admin-cc-download-highlights .admin-cc-revenue-hero-value{
+    font-size:clamp(46px,11vw,74px);
+  }
+  .admin-dashboard.cc-focus-dashboard[data-cc-mode="free"] .admin-dashboard-metrics,
+  .admin-dashboard.cc-focus-dashboard[data-cc-mode="nexus"] .admin-dashboard-metrics{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
