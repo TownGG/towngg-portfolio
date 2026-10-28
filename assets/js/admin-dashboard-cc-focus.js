@@ -1359,66 +1359,11 @@
     return gross === null || !Number.isFinite(gross)
       ? null : gross * (1 - revenueTaxRateFraction());
   }
-  // Split missing data into separate line segments so an outage does not
-  // appear as a fabricated continuous seven-day revenue series.
-  function revenueTaxTrendChart(snapshots) {
-    const days = paidRevenueDailyRows(snapshots, 7);
-    const W = 690, H = 248, L = 60, R = 18, T = 16, B = 43, pw = W-L-R, ph = H-T-B;
-    const maximum = Math.max(10, ...days.map(day => day.amount ?? 0));
-    const x = i => L + i * pw / 6;
-    const y = value => T + (1 - Math.max(0, value) / maximum) * ph;
-    const line = factor => {
-      let path = '';
-      let active = false;
-      days.forEach((day,i) => {
-        if (day.amount === null) { active = false; return; }
-        path += (active ? ' L ' : (path ? ' M ' : 'M ')) +
-          x(i).toFixed(1) + ' ' + y(day.amount * factor).toFixed(1);
-        active = true;
-      });
-      return path;
-    };
-    const grid = [0, 0.5, 1].map(frac => {
-      const pos = y(maximum * frac).toFixed(1);
-      return '<line class="admin-cc-revenue-gridline" x1="'+L+'" x2="'+(W-R)+
-        '" y1="'+pos+'" y2="'+pos+'"/><text class="admin-cc-revenue-axis" x="'+
-        (L-8)+'" y="'+(+pos+4)+'" text-anchor="end">'+esc(fmt(maximum*frac))+'</text>';
-    }).join('');
-    const formatDate = time => new Intl.DateTimeFormat(
-      lang()==='zh-CN'?'zh-CN':lang()==='ja'?'ja-JP':'en-US',
-      {timeZone:'Asia/Shanghai',month:'numeric',day:'numeric'}
-    ).format(new Date(time));
-    const labels = days.map((day,i) => '<text class="admin-cc-revenue-axis" x="'+
-      x(i).toFixed(1)+'" y="'+(H-11)+'" text-anchor="middle">'+
-      esc(formatDate(day.start))+'</text>').join('');
-    const grossPath = line(1), netPath = line(1-revenueTaxRateFraction());
-    const circles = days.map((day,i) => {
-      if (day.amount === null) return '';
-      const before = revenueMoney(day.amount);
-      const after = revenueMoney(day.amount*(1-revenueTaxRateFraction()));
-      const title = formatDate(day.start)+' · '+t('taxGrossShort')+': '+before+
-        ' · '+t('taxNetShort')+': '+after;
-      return '<circle cx="'+x(i).toFixed(1)+'" cy="'+y(day.amount).toFixed(1)+
-        '" r="5" fill="#eec57e"><title>'+esc(title)+'</title></circle>'+
-        '<circle cx="'+x(i).toFixed(1)+'" cy="'+
-        y(day.amount*(1-revenueTaxRateFraction())).toFixed(1)+
-        '" r="4" fill="#82d7c5"><title>'+esc(title)+'</title></circle>';
-    }).join('');
-    return '<div class="admin-cc-revenue-tax-chart-scroll"><svg class="admin-cc-revenue-tax-chart"'+
-      ' viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(t('taxTrend'))+'">'+
-      grid+
-      (grossPath?'<path d="'+grossPath+'" fill="none" stroke="#eec57e" stroke-width="3" '+
-        'stroke-linecap="round" stroke-linejoin="round"/>':'')+
-      (netPath?'<path d="'+netPath+'" fill="none" stroke="#82d7c5" stroke-width="3" '+
-        'stroke-linecap="round" stroke-linejoin="round"/>':'')+
-      circles+labels+'</svg></div>';
-  }
   function renderRevenueTax() {
     const target = document.querySelector('[data-cc-revenue-tax]');
     if (!target) return;
     target.hidden = state.mode !== 'paid';
     if (target.hidden) { target.innerHTML = ''; return; }
-    const snapshots = paidRevenueSnapshots();
     const monthIncome = paidLibraryIncrement('month');
     const tax = revenueTaxBreakdown(
       monthIncome === null ? null : monthIncome * PAID_RMB_PER_LIBRARY_ADD
@@ -1442,12 +1387,6 @@
       '</span><strong>'+value(tax?.gross ?? null)+'</strong></div>'+
       '<div class="admin-cc-revenue-tax-card is-secondary"><span>'+esc(t('taxMonthTax'))+
       '</span><strong>'+value(tax?.withholding ?? null)+'</strong></div></div>'+
-      '<div class="admin-cc-revenue-tax-chart-head"><h4>'+
-      esc(t('taxTrend'))+'</h4><div class="admin-cc-revenue-tax-legend">'+
-      '<span class="is-gross">'+esc(t('taxGrossShort'))+'</span>'+
-      '<span class="is-net">'+esc(t('taxNetShort'))+'</span></div></div>'+
-      revenueTaxTrendChart(snapshots)+
-      '<p class="admin-cc-revenue-tax-note">'+esc(t('taxTrendNote'))+'</p>'+
       '<p class="admin-cc-revenue-tax-disclaimer">'+esc(t('taxDisclaimer'))+
       ' '+esc(t('taxActualSeparate'))+'</p>';
   }
@@ -2095,8 +2034,8 @@
       '<div class="admin-cc-focus-strip"><div class="admin-cc-focus-tabs" role="tablist" aria-label="Mod data source"><button class="admin-cc-focus-tab is-active" type="button" role="tab" aria-selected="true" data-cc-tab="paid"><i></i><span>Paid Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="free"><i></i><span>Free Creations</span></button><button class="admin-cc-focus-tab" type="button" role="tab" aria-selected="false" data-cc-tab="nexus"><i></i><span>Nexus Mods</span></button></div></div>' +
       '<section class="admin-cc-zone admin-cc-revenue-zone" data-cc-revenue-section>' +
       '<header class="admin-cc-zone-heading"><span class="admin-cc-zone-icon" aria-hidden="true">¥</span><div><h2 data-cc-revenue-section-title>Estimated Revenue</h2><p data-cc-revenue-section-subtitle></p></div></header>' +
-      '<section class="admin-cc-revenue-metrics" data-cc-revenue-kpis hidden></section>' +
       '<section class="admin-cc-revenue-tax" data-cc-revenue-tax hidden></section>' +
+      '<section class="admin-cc-revenue-metrics" data-cc-revenue-kpis hidden></section>' +
       '<section class="admin-cc-revenue-analysis" data-cc-revenue-analysis hidden></section>' +
       '<section class="admin-cc-revenue-goal" data-cc-revenue-goal></section></section>' +
       '<section class="admin-cc-zone admin-cc-download-zone" data-cc-download-section>' +

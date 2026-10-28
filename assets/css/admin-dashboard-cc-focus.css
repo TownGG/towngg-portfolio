@@ -1655,3 +1655,39 @@
     font-size:16px;
   }
 }
+
+/* Monthly net-income hero sits before all six unchanged income KPI cards.
+   The standalone gross/net comparison chart has been retired. */
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax {
+  border-color:rgba(130,215,197,.32);
+  background:
+    radial-gradient(ellipse at 8% 5%,rgba(112,222,193,.12),transparent 49%),
+    linear-gradient(145deg,rgba(24,37,46,.99),rgba(12,23,33,.99));
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-cards {
+  margin:18px 0 8px;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-card.is-net {
+  padding:25px 27px 24px;
+  border-color:rgba(138,230,207,.35);
+  background:linear-gradient(110deg,rgba(120,219,192,.13),rgba(120,219,192,.025));
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-card.is-net span {
+  font-size:14px;
+  font-weight:750;
+  color:#b8f3df;
+}
+.admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-card.is-net strong {
+  font-size:clamp(44px,5.6vw,68px);
+  font-weight:800;
+  letter-spacing:-.035em;
+  line-height:1.1;
+}
+@media(max-width:760px){
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-card.is-net{
+    padding:18px 16px;
+  }
+  .admin-dashboard.cc-focus-dashboard .admin-cc-revenue-tax-card.is-net strong{
+    font-size:clamp(35px,9.8vw,52px);
+  }
+}
