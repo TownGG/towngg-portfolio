@@ -6,6 +6,7 @@ on:
   push:
     paths:
       - '.github/sync-requests/**'
+      - '.github/nexus-sync-requests/**'
   schedule:
     - cron: '15,45 * * * *'
   workflow_dispatch:
