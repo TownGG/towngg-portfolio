@@ -82,9 +82,9 @@
       estimatedLastMonthRmb: "Last Month · Est. After Withholding",
       priorPeriodComplete: 'Full previous period · estimate only',
       revenueComparedTo: 'vs',
-      revenueComparedYesterday: 'yesterday (full day)',
-      revenueComparedWeek: 'last week (full week)',
-      revenueComparedMonth: 'last month (full month)',
+      revenueComparedYesterday: 'vs yesterday',
+      revenueComparedWeek: 'vs last week',
+      revenueComparedMonth: 'vs last month',
       estimatedRevenueNote: 'Library Adds × 4.62 · estimate only',
       revenueSectionTitle: "Estimated Net Revenue",
       goalTitle: "REVENUE GOAL",
@@ -310,9 +310,9 @@
       estimatedLastMonthRmb: "上月税后预估",
       priorPeriodComplete: '上一完整统计周期 · 预估',
       revenueComparedTo: '较',
-      revenueComparedYesterday: '昨日全天',
-      revenueComparedWeek: '上周全周',
-      revenueComparedMonth: '上月全月',
+      revenueComparedYesterday: '较昨日',
+      revenueComparedWeek: '较上周',
+      revenueComparedMonth: '较上月',
       estimatedRevenueNote: '入库数 × 4.62 · 非实际结算',
       revenueSectionTitle: "税后预估收入",
       goalTitle: "收入目标",
@@ -538,9 +538,9 @@
       estimatedLastMonthRmb: "先月 · 税引後見込",
       priorPeriodComplete: '前の期間の合計 · 推定値',
       revenueComparedTo: '前期比',
-      revenueComparedYesterday: '昨日全日',
-      revenueComparedWeek: '先週全体',
-      revenueComparedMonth: '先月全体',
+      revenueComparedYesterday: '昨日比',
+      revenueComparedWeek: '先週比',
+      revenueComparedMonth: '先月比',
       estimatedRevenueNote: '追加数 × 4.62 · 推定値',
       revenueSectionTitle: "税引後推定収益",
       goalTitle: "収益目標",
@@ -1415,32 +1415,22 @@
         : libraryAdds === null ? null : libraryAdds * PAID_RMB_PER_LIBRARY_ADD;
       const deduction = revenueTaxBreakdown(income);
       const money = deduction ? revenueMoney(deduction.net) : '—';
-      const breakdown = deduction
-        ? '<div class="admin-cc-revenue-card-tax"><span class="is-gross">'+
-          esc(t('taxGrossShort'))+' '+esc(revenueMoney(deduction.gross))+
-          '</span><span>'+esc(t('taxWithheldShort'))+
-          ' '+esc(revenueMoney(deduction.withholding))+'</span></div>'
-        : '';
-      let foot = income === null ? t('libraryUnavailable') : t('priorPeriodComplete');
+      let foot = '';
       let changeClass = '';
       if (!previous && income !== null) {
         const comparison = paidRevenueComparison(snapshots, periodUnit);
         const change = comparison?.previous == null ? null : percentChange(income, comparison.previous);
         if (Number.isFinite(change)) {
           const sign = change > 0 ? '+' : '';
-          foot = t('revenueComparedTo') + ' ' + t(compareLabel) + ' ' + sign + change.toFixed(1) + '%';
+          foot = t(compareLabel) + ' ' + sign + change.toFixed(1) + '%';
           changeClass = change > 0 ? ' is-up' : change < 0 ? ' is-down' : '';
-        } else {
-          foot = t('revenueComparedTo') + ' ' + t(compareLabel) + ' · ' + t('revenueNoHistory');
         }
       }
       return '<article class="admin-cc-revenue-card">' +
         '<div class="admin-cc-revenue-card-head"><span>' + esc(t(label)) +
-        '</span><span class="admin-cc-revenue-currency">CNY</span></div>' +
+        '</span></div>' +
         '<strong class="admin-cc-revenue-card-value">' + revenueCardMoneyMarkup(money) + '</strong>' +
-        '<span class="admin-cc-revenue-card-gross">'+esc(t('taxNetShort'))+'</span>' +
-        breakdown +
-        '<p class="admin-cc-revenue-card-foot' + changeClass + '">' + esc(foot) + '</p>' +
+        (foot ? '<p class="admin-cc-revenue-card-foot' + changeClass + '">' + esc(foot) + '</p>' : '') +
         '</article>';
     }).join('');
   }
