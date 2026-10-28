@@ -1,6 +1,6 @@
 /**
  * Check both data sync workflows every half hour. If a workflow has not
- * triggered in 40 minutes, dispatch a single run (unless running/queued).
+ * triggered in 35 minutes, dispatch a single run (unless running/queued).
  * Keep the existing scheduler and authentication mechanisms untouched.
  */
 import { appendFileSync } from 'node:fs';
@@ -12,7 +12,7 @@ const targets = [
 const repo = String(process.env.GITHUB_REPOSITORY || '');
 const token = String(process.env.GITHUB_TOKEN || '');
 const dryRun = String(process.env.WATCHDOG_DRY_RUN || '').toLowerCase() === 'true';
-const maxAgeMs = 40 * 60 * 1000;
+const maxAgeMs = 35 * 60 * 1000;
 const active = new Set(['queued', 'in_progress', 'waiting', 'requested', 'pending']);
 const results = [];
 if (!/^[a-z0-9_.-]+\/[a-z0-9_.-]+$/i.test(repo) || !token) {
@@ -58,7 +58,7 @@ async function checkOne(file, name) {
     return;
   }
   if (dryRun) {
-    console.log('[WATCHDOG] ' + name + ': no trigger in 40 minutes (dry run)');
+    console.log('[WATCHDOG] ' + name + ': no trigger in 35 minutes (dry run)');
     results.push([name, 'missing; dry run']);
     return;
   }

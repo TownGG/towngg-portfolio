@@ -2,7 +2,7 @@ name: Update download milestones
 
 on:
   schedule:
-    - cron: "50 * * * *"
+    - cron: "20,50 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -43,3 +43,28 @@ jobs:
           git commit -m "Update download milestones"
           git pull --rebase origin main
           git push origin HEAD:main
+
+  # Independent backup: this established scheduled workflow was firing even
+  # when the newly added CC/Nexus schedules were not. Keep its existing
+  # milestone job intact, and use a separate scoped-token job for dispatch.
+  check-sync-health:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Setup Node.js for sync watchdog
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Detect and recover missing CC and Nexus sync triggers
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/watch-cc-nexus-triggers.mjs
