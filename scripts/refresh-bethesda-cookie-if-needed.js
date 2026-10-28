@@ -20,6 +20,7 @@ const argSet = new Set(process.argv.slice(2));
 const flags = {
   dryRun: argSet.has('--dry-run'),
   skipUpload: argSet.has('--skip-upload'),
+  skipSync: argSet.has('--skip-sync'),
   force: argSet.has('--force'),
   yes: argSet.has('--yes')
 };
@@ -321,3 +322,23 @@ if (postUploadValidationCode !== 0) {
 }
 
 console.log(`${PREFIX} Success. Local storage validated and GitHub Secret ${SECRET_NAME} is updated.`);
+
+if (flags.skipSync) {
+  console.log(`${PREFIX} --skip-sync enabled: CC workflow not triggered.`);
+} else {
+  // GitHub emits no "secret changed" webhook: dispatch is part of this
+  // verified secret-update transaction. The existing 30m trigger is untouched.
+  console.log(`${PREFIX} Triggering Sync Bethesda Creations immediately after Secret update.`);
+  const dispatchCode = await runGhCommand([
+    'api', '--method', 'POST', `repos/${REPO}/dispatches`,
+    '-f', 'event_type=bethesda-storage-state-updated'
+  ]);
+  if (dispatchCode !== 0) {
+    // Do not roll back a successfully validated Secret just because an
+    // independent workflow trigger failed. Allow a manual workflow_dispatch.
+    console.error(`${PREFIX} Secret updated, but workflow dispatch failed. Run: gh workflow run sync-creations.yml --repo ${REPO} --ref main`);
+    process.exitCode = 1;
+  } else {
+    console.log(`${PREFIX} CC workflow dispatch accepted. Existing 30-minute runs are preserved.`);
+  }
+}

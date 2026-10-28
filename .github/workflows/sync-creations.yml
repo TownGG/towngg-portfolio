@@ -1,6 +1,11 @@
 name: Sync Bethesda Creations
 
+# The existing 30-minute external workflow_dispatch schedule stays unchanged.
+# GitHub does not emit an Actions event when a Secret is edited in the web UI.
+# Secret update tooling sends this dispatch immediately AFTER a successful upload.
 on:
+  repository_dispatch:
+    types: [bethesda-storage-state-updated]
   workflow_dispatch:
     inputs:
       debug:
