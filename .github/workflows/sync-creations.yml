@@ -3,6 +3,10 @@ name: Sync Bethesda Creations
 # Keep external half-hour workflow_dispatch; native backup runs at :15/:45 UTC.
 # Secret publishing tooling triggers repository_dispatch after upload.
 on:
+  # An explicit no-secret commit can immediately request a fresh run.
+  push:
+    paths:
+      - '.github/sync-requests/**'
   schedule:
     - cron: '15,45 * * * *'
   repository_dispatch:

@@ -2,6 +2,10 @@ name: Update Nexus dashboard data
 
 # External half-hour workflow_dispatch retained; native backup at :15/:45 UTC.
 on:
+  # An explicit no-secret commit can immediately request a fresh run.
+  push:
+    paths:
+      - '.github/sync-requests/**'
   schedule:
     - cron: '15,45 * * * *'
   workflow_dispatch:
