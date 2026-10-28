@@ -21,8 +21,9 @@ on:
 permissions:
   contents: write
 
+# Serialize CC + Nexus data writers; both update assets/js/site-data.js.
 concurrency:
-  group: sync-bethesda-creations
+  group: sync-portfolio-data-writers
   cancel-in-progress: false
 
 jobs:
@@ -33,6 +34,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: main
       - name: Check whether scheduled backup is needed
         id: check
         env:
@@ -46,6 +49,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

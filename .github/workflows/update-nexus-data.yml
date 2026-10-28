@@ -9,8 +9,9 @@ on:
 permissions:
   contents: write
 
+# Serialize CC + Nexus data writers; both update assets/js/site-data.js.
 concurrency:
-  group: sync-nexus
+  group: sync-portfolio-data-writers
   cancel-in-progress: false
 
 jobs:
@@ -37,6 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
