@@ -58,15 +58,10 @@ jobs:
           NEXUS_REQUEST_ATTEMPTS: "2"
           NEXUS_MAX_WORKERS: "4"
         run: python -u scripts/collect-nexus.py
-      - name: Commit updated stats
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add assets/data/nexus-mods.json assets/data/nexus-history.csv assets/data/nexus-latest.json assets/js/site-data.js
-          if git diff --cached --quiet; then
-            echo "No Nexus data changes to commit."
-          else
-            git commit -m "Update Nexus dashboard data"
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check safe publishing merge rules
+        run: node scripts/publish-sync-data.mjs --self-test
+      - name: Merge and publish Nexus data (retry on concurrent commits)
+        run: node scripts/publish-sync-data.mjs nexus

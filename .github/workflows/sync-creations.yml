@@ -344,19 +344,11 @@ jobs:
           console.log(`Site data version bumped: ${siteVersion.version}`);
           NODE
 
-      - name: Commit and push changes
-        run: |
-          if git diff --quiet -- assets/js/site-data.js assets/data/creations-history.csv assets/data/creations-mod-daily.csv assets/data/paid-creations-library-history.csv assets/data/site-version.json; then
-            echo "No Creations changes to commit."
-            exit 0
-          fi
+      - name: Check safe publishing merge rules
+        run: node scripts/publish-sync-data.mjs --self-test
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/js/site-data.js assets/data/creations-history.csv assets/data/creations-mod-daily.csv assets/data/paid-creations-library-history.csv assets/data/site-version.json
-          git commit -m "Update Creations stats and covers"
-          git pull --rebase origin main
-          git push
+      - name: Merge and publish CC data (retry on concurrent commits)
+        run: node scripts/publish-sync-data.mjs cc
 
       - name: Trigger external site deploy hook
         env:
