@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-30T05:10:23Z",
+  "updatedAt": "2026-10-30T05:31:02Z",
   "mods": [
     {
       "platform": "nexus",
@@ -82,7 +82,7 @@
       "total_downloads": 3667,
       "unique_downloads": 2555,
       "daily_downloads": 0,
-      "likes": 43,
+      "likes": 44,
       "views": 0
     },
     {
@@ -106,7 +106,7 @@
       "total_downloads": 2731,
       "unique_downloads": 2042,
       "daily_downloads": 0,
-      "likes": 22,
+      "likes": 23,
       "views": 0
     },
     {
@@ -118,7 +118,7 @@
       "total_downloads": 2710,
       "unique_downloads": 2007,
       "daily_downloads": 0,
-      "likes": 21,
+      "likes": 22,
       "views": 0
     },
     {
@@ -202,7 +202,7 @@
       "total_downloads": 3439,
       "unique_downloads": 2594,
       "daily_downloads": 0,
-      "likes": 63,
+      "likes": 64,
       "views": 0
     },
     {
@@ -214,7 +214,7 @@
       "total_downloads": 2608,
       "unique_downloads": 1919,
       "daily_downloads": 0,
-      "likes": 20,
+      "likes": 21,
       "views": 0
     },
     {
@@ -271,9 +271,9 @@
       "mod_name": "TGG Silk Lingerie Deluxe Edition",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18668",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18668/18668-1793322854-1298655200.png",
-      "total_downloads": 11,
-      "unique_downloads": 11,
-      "daily_downloads": 2,
+      "total_downloads": 12,
+      "unique_downloads": 12,
+      "daily_downloads": 3,
       "likes": 0,
       "views": 0
     }
