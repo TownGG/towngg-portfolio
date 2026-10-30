@@ -2,17 +2,20 @@
   const SITE_DATA_URL = './assets/js/site-data.js';
   const DAILY_URL = './assets/data/creations-mod-daily.csv';
   const PAID_LIBRARY_HISTORY_URL = './assets/data/paid-creations-library-history.csv';
+  const PAID_ITEM_HISTORY_URL = './assets/data/paid-creations-item-history.csv';
   const NEXUS_HISTORY_URL = './assets/data/nexus-history.csv';
   const NEXUS_LATEST_URL = './assets/data/nexus-latest.json';
   const EARNINGS_URL = './assets/data/partner-earnings.json';
   const REFRESH_MS = 2 * 60 * 1000;
-  const PAID_RMB_PER_LIBRARY_ADD = 4.62;
+  const DEFAULT_USD_CNY_RATE = 6.66; // 2026-10-30 USD/CNY reference; editable in settings.
+  const USD_PER_CREATION_BY_CC_TIER = Object.freeze({100:0.40,200:0.70,300:1.10});
   const REVENUE_GOAL_RMB = 200000;
   const REVENUE_GOAL_STEP = 10000;
   const DEFAULT_REVENUE_TAX_RATE = 10;
   const REVENUE_TAX_STORAGE_KEY = 'townggPaidRevenueTaxRatePct';
+  const USD_CNY_STORAGE_KEY = 'townggEstimatedUsdCnyRate';
   const STALE_AFTER_MS = 60 * 60 * 1000;
-  const state = { mode: 'paid', range: 7, goalRange: 'day', taxRatePct: DEFAULT_REVENUE_TAX_RATE, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], paidLibraryHistory: [], ready: false, refreshing: false, signature: '', lastSync: '' };
+  const state = { mode: 'paid', range: 7, goalRange: 'day', taxRatePct: DEFAULT_REVENUE_TAX_RATE, usdCnyRate: DEFAULT_USD_CNY_RATE, rows: [], days: [], nexusRows: [], nexusDays: [], nexusLatest: null, earnings: null, earningsDays: [], paidLibraryHistory: [], paidItemHistory: [], ready: false, refreshing: false, signature: '', lastSync: '' };
 
   const copy = {
     en: {
@@ -114,6 +117,7 @@
       taxPanelTitle: "After-Withholding Estimate & Breakdown",
       taxPanelSubtitle: "Net estimate is primary · gross and withholding retained for reference",
       taxRateLabel: "Estimated withholding rate",
+      fxRateLabel: "USD to CNY reference rate",
       taxRateHelp: "Saved only in this browser; enter 0–100%. Default 10%.",
       taxGross: "Before withholding",
       taxWithheld: "Estimated withholding",
@@ -342,6 +346,7 @@
       taxPanelTitle: "税后预估与预扣税明细",
       taxPanelSubtitle: "税后金额重点展示，税前和预扣税仅作参考",
       taxRateLabel: "预估预扣税率",
+      fxRateLabel: "美元兑人民币参考汇率",
       taxRateHelp: "仅保存在当前浏览器，允许 0–100%，默认 10%",
       taxGross: "税前预估",
       taxWithheld: "预估预扣税",
@@ -570,6 +575,7 @@
       taxPanelTitle: "税引後見込と源泉徴収内訳",
       taxPanelSubtitle: "税引後を大きく表示し、税引前と源泉徴収は参考として表示",
       taxRateLabel: "推定源泉徴収率",
+      fxRateLabel: "米ドル・人民元参考レート",
       taxRateHelp: "このブラウザ内で保存 · 0～100% · 初期値 10%",
       taxGross: "税引前見込",
       taxWithheld: "推定源泉徴収",
@@ -938,12 +944,35 @@
     return '<span class="admin-cc-revenue-amount-symbol">¥</span>' +
       esc(match[1]) + '<span class="admin-cc-revenue-amount-cents">' + esc(match[2]) + '</span>';
   }
+  // The historical file stores each Creation's CC tier + cumulative Library Adds.
+  // Do not multiply total paid adds by one price: 100/200/300 CC have distinct returns.
   function paidRevenueSnapshots() {
-    return state.paidLibraryHistory.map((row) => ({
-      time: utcDate(row.timestamp)?.getTime(),
-      count: Number(row.total_paid_library_adds)
-    })).filter((point) => Number.isFinite(point.time) && Number.isFinite(point.count) && point.count >= 0)
-      .sort((a, b) => a.time - b.time);
+    const points = new Map();
+    for (const row of state.paidItemHistory) {
+      const time = utcDate(row.timestamp)?.getTime();
+      const tier = Number(row.price_cc);
+      const adds = Number(row.library_adds);
+      if (!Number.isFinite(time) || !Number.isFinite(adds) || adds < 0) continue;
+      const key = time;
+      const point = points.get(key) || {time, count:0, grossUsd:0, unsupported:false};
+      const dollars = USD_PER_CREATION_BY_CC_TIER[tier];
+      if (!Number.isFinite(dollars)) point.unsupported = true;
+      else {
+        point.grossUsd += adds * dollars;
+        point.count += adds;
+      }
+      points.set(key,point);
+    }
+    return [...points.values()].filter(point => !point.unsupported)
+      .sort((a,b)=>a.time-b.time);
+  }
+  function paidGrossCny(grossUsd) {
+    return grossUsd === null || !Number.isFinite(grossUsd)
+      ? null : grossUsd * state.usdCnyRate;
+  }
+  function paidRevenueDifference(start,end) {
+    return start && end && Number.isFinite(start.grossUsd) && Number.isFinite(end.grossUsd)
+      ? paidGrossCny(Math.max(0,end.grossUsd-start.grossUsd)) : null;
   }
   function paidRevenueAt(snapshots, at) {
     let found = null;
@@ -969,7 +998,8 @@
     if (before && after && after.time - before.time <= 14 * PAID_REVENUE_DAY_MS &&
         after.time > before.time) {
       const fraction = (at - before.time) / (after.time - before.time);
-      return { time: at, count: before.count + (after.count - before.count) * fraction, estimated: true };
+      return { time: at, count: before.count + (after.count - before.count) * fraction,
+        grossUsd: before.grossUsd + (after.grossUsd - before.grossUsd) * fraction, estimated: true };
     }
     const nearby = 12 * 60 * 60 * 1000;
     if (before && at - before.time <= nearby)
@@ -1007,7 +1037,7 @@
     const curStart = paidRevenueStart(period === 'year' ? 'month' : period);
     const curBase = paidRevenueBoundary(snapshots, curStart);
     if (!latest || !curBase || latest.time < curStart) return null;
-    const current = Math.max(0, latest.count - curBase.count) * PAID_RMB_PER_LIBRARY_ADD;
+    const current = paidRevenueDifference(curBase,latest);
     const prevStart = paidRevenuePriorStart(period);
     // Compare this period's live running total against the ENTIRE previous period.
     // Matching the same time of day is no longer required.
@@ -1015,7 +1045,7 @@
     const prevBase = paidRevenueBoundary(snapshots, prevStart);
     const prevPoint = paidRevenueBoundary(snapshots, prevEnd);
     if (!prevBase || !prevPoint || prevPoint.time <= prevBase.time) return { current, previous: null };
-    return { current, previous: Math.max(0, prevPoint.count - prevBase.count) * PAID_RMB_PER_LIBRARY_ADD };
+    return { current, previous: paidRevenueDifference(prevBase,prevPoint) };
   }
   // Daily and weekly charts use the same flexible, transparent estimate.
   function paidRevenueDailyBoundary(snapshots, boundary) {
@@ -1030,7 +1060,7 @@
       const baseline = paidRevenueDailyBoundary(snapshots, start);
       const endpoint = end >= start ? paidRevenueDailyBoundary(snapshots, end) : null;
       const amount = baseline && endpoint && endpoint.time > baseline.time
-        ? Math.max(0, endpoint.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD : null;
+        ? paidRevenueDifference(baseline,endpoint) : null;
       return { start, amount, current: start === dayStart,
         estimated: amount !== null && Boolean(baseline?.estimated || endpoint?.estimated) };
     });
@@ -1139,7 +1169,7 @@
     const baseline = paidRevenueBoundary(snapshots, start);
     const endpoint = paidRevenueBoundary(snapshots, end);
     if (!baseline || !endpoint || endpoint.time <= baseline.time) return null;
-    return Math.max(0, endpoint.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD;
+    return paidRevenueDifference(baseline,endpoint);
   }
 
 
@@ -1226,8 +1256,8 @@
     });
     return [...series.values()].sort((a,b) => a.time - b.time).map((point) => ({
       ...point,
-      grossAmount: point.count * PAID_RMB_PER_LIBRARY_ADD,
-      amount: revenueNetAmount(point.count * PAID_RMB_PER_LIBRARY_ADD),
+      grossAmount: paidGrossCny(point.grossUsd),
+      amount: revenueNetAmount(paidGrossCny(point.grossUsd)),
       label: granularity === 'year' ? point.key :
         granularity === 'month' ? point.key.replace('-', '/') : point.key.slice(5).replace('-', '/')
     }));
@@ -1282,7 +1312,7 @@
     if (node.hidden) {node.innerHTML='';return;}
     const snapshots=paidRevenueSnapshots();
     const latest=snapshots.at(-1);
-    const grossTotal=latest?Math.max(0,latest.count*PAID_RMB_PER_LIBRARY_ADD):null;
+    const grossTotal=latest?paidGrossCny(latest.grossUsd):null;
     const total=revenueNetAmount(grossTotal);
     const ready=total!==null&&Number.isFinite(total);
     const ratio=ready?Math.min(100,total/REVENUE_GOAL_RMB*100):0;
@@ -1293,7 +1323,7 @@
       .format(new Date(time));
     const milestones=Array.from({length:20},(_,index)=>{
       const amount=(index+1)*REVENUE_GOAL_STEP;
-      const first=snapshots.find(p=>revenueNetAmount(p.count*PAID_RMB_PER_LIBRARY_ADD)>=amount);
+      const first=snapshots.find(p=>revenueNetAmount(paidGrossCny(p.grossUsd))>=amount);
       // A milestone only lights up when its threshold was actually observed.
       // The upcoming milestone is listed in the overview, but stays gray here.
       const done=Boolean(first);
@@ -1382,7 +1412,7 @@
     ];
     const cards = periods.map(([label, period, unit, comparisonLabel, variant]) => {
       const adds = paidLibraryIncrement(period);
-      const gross = adds === null ? null : adds * PAID_RMB_PER_LIBRARY_ADD;
+      const gross = paidRevenueComparison(snapshots,unit)?.current ?? null;
       const net = revenueNetAmount(gross);
       const money = net === null ? '—' : revenueCardMoneyMarkup(revenueMoney(net));
       const change = revenueCompactComparison(snapshots, unit, comparisonLabel, gross);
@@ -1403,6 +1433,12 @@
       ' min="0" max="100" step="0.5" inputmode="decimal" value="' +
       state.taxRatePct.toFixed(1) + '" aria-label="' + esc(t('taxRateLabel')) + '">' +
       '<span>%</span></span></label>' +
+      '<label class="admin-cc-revenue-tax-config">' +
+      '<span>' + esc(t('fxRateLabel')) + '</span>' +
+      '<span class="admin-cc-revenue-tax-input"><input data-cc-usd-cny-rate type="number"' +
+      ' min="1" max="20" step="0.0001" inputmode="decimal" value="' +
+      state.usdCnyRate.toFixed(4) + '" aria-label="' + esc(t('fxRateLabel')) + '">' +
+      '<span>¥/$</span></span></label>' +
       '<p>' + esc(t('taxRateHelp')) + '</p></div></details>';
   }
   function renderRevenueMetrics() {
@@ -1421,7 +1457,7 @@
     target.innerHTML = periods.map(([label, period, unit, comparisonLabel, previous]) => {
       const adds = previous ? null : paidLibraryIncrement(period);
       const gross = previous ? paidPreviousFullRevenue(snapshots, unit)
-        : adds === null ? null : adds * PAID_RMB_PER_LIBRARY_ADD;
+        : paidRevenueComparison(snapshots,unit)?.current ?? null;
       const net = revenueNetAmount(gross);
       const money = net === null ? '—' : revenueMoney(net);
       const change = previous ? null :
@@ -1473,7 +1509,7 @@
         ? (latest && latest.time >= start ? latest : null)
         : paidRevenueDailyBoundary(snapshots, end);
       const amount = baseline && endpoint && endpoint.time > baseline.time
-        ? Math.max(0, endpoint.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD
+        ? paidRevenueDifference(baseline,endpoint)
         : null;
       result.push({
         start, end, amount, current, future,
@@ -1498,7 +1534,7 @@
     if (latest && baseline && latest.time > start) {
       const points = [{ time: start, value: 0 }].concat(snapshots
         .filter((p) => p.time > start && p.time <= latest.time)
-        .map((p) => ({ time: p.time, value: revenueNetAmount(Math.max(0, p.count - baseline.count) * PAID_RMB_PER_LIBRARY_ADD) })));
+        .map((p) => ({ time: p.time, value: revenueNetAmount(paidRevenueDifference(baseline,p)) })));
       const W = 690, H = 240, L = 56, R = 16, T = 18, B = 37;
       const pw = W - L - R, ph = H - T - B;
       const maxValue = Math.max(10, ...points.map((p) => p.value));
@@ -2080,24 +2116,26 @@
     if (state.refreshing) return;
     state.refreshing = true;
     try {
-      const [siteResponse, creationResponse, nexusHistoryResponse, nexusLatestResponse, paidLibraryResponse] = await Promise.all([
+      const [siteResponse, creationResponse, nexusHistoryResponse, nexusLatestResponse, paidLibraryResponse, paidItemResponse] = await Promise.all([
         fetch(SITE_DATA_URL + '?v=' + Date.now(), { cache: 'no-store' }),
         fetch(DAILY_URL + '?v=' + Date.now(), { cache: 'no-store' }),
         fetch(NEXUS_HISTORY_URL + '?v=' + Date.now(), { cache: 'no-store' }),
         fetch(NEXUS_LATEST_URL + '?v=' + Date.now(), { cache: 'no-store' }),
-        fetch(PAID_LIBRARY_HISTORY_URL + '?v=' + Date.now(), { cache: 'no-store' }).catch(() => null)
+        fetch(PAID_LIBRARY_HISTORY_URL + '?v=' + Date.now(), { cache: 'no-store' }).catch(() => null),
+        fetch(PAID_ITEM_HISTORY_URL + '?v=' + Date.now(), { cache: 'no-store' }).catch(() => null)
       ]);
       if (!siteResponse.ok) throw new Error('Site data HTTP ' + siteResponse.status);
       if (!creationResponse.ok) throw new Error('CC data HTTP ' + creationResponse.status);
       if (!nexusHistoryResponse.ok) throw new Error('Nexus history HTTP ' + nexusHistoryResponse.status);
       if (!nexusLatestResponse.ok) throw new Error('Nexus latest HTTP ' + nexusLatestResponse.status);
 
-      const [siteSource, creationText, nexusHistoryText, nexusLatest, paidLibraryText] = await Promise.all([
+      const [siteSource, creationText, nexusHistoryText, nexusLatest, paidLibraryText, paidItemText] = await Promise.all([
         siteResponse.text(),
         creationResponse.text(),
         nexusHistoryResponse.text(),
         nexusLatestResponse.json(),
-        paidLibraryResponse?.ok ? paidLibraryResponse.text() : Promise.resolve('')
+        paidLibraryResponse?.ok ? paidLibraryResponse.text() : Promise.resolve(''),
+        paidItemResponse?.ok ? paidItemResponse.text() : Promise.resolve('')
       ]);
       const parsedSite = parseSiteData(siteSource);
       const creationStamp = latestCreationTimestamp(parsedSite?.creations || []);
@@ -2110,7 +2148,9 @@
         nexusHistoryText.length,
         nexusHistoryText.slice(-240),
         paidLibraryText.length,
-        paidLibraryText.slice(-240)
+        paidLibraryText.slice(-240),
+        paidItemText.length,
+        paidItemText.slice(-240)
       ].join('|');
 
       if (!force && state.ready && signature === state.signature) {
@@ -2127,6 +2167,7 @@
       state.nexusDays = buildNexusDays(state.nexusRows);
       state.nexusLatest = nexusLatest;
       state.paidLibraryHistory = paidLibraryText ? parseCSV(paidLibraryText) : [];
+      state.paidItemHistory = paidItemText ? parseCSV(paidItemText) : [];
       state.lastSync = latestCreationTimestamp();
       state.signature = signature;
       state.ready = true;
@@ -2150,10 +2191,31 @@
         if (Number.isFinite(numericRate) && numericRate >= 0 && numericRate <= 100)
           state.taxRatePct = numericRate;
       }
-    } catch (error) { console.warn('[admin-cc-focus] Tax rate defaulted', error); }
+      const savedFx = localStorage.getItem(USD_CNY_STORAGE_KEY);
+      if (savedFx !== null && savedFx.trim()) {
+        const value = Number(savedFx);
+        if (Number.isFinite(value) && value >= 1 && value <= 20)
+          state.usdCnyRate = value;
+      }
+    } catch (error) { console.warn('[admin-cc-focus] Revenue settings defaulted', error); }
     dashboard.innerHTML = markup();
 
     dashboard.addEventListener('change', (event) => {
+      const fxInput = event.target.closest('[data-cc-usd-cny-rate]');
+      if (fxInput) {
+        const rate = Number(fxInput.value);
+        if (!fxInput.value.trim() || !Number.isFinite(rate) || rate < 1 || rate > 20) {
+          fxInput.value = state.usdCnyRate.toFixed(4);
+          return;
+        }
+        state.usdCnyRate = rate;
+        try { localStorage.setItem(USD_CNY_STORAGE_KEY, String(rate)); } catch {}
+        if (state.ready) {
+          renderRevenueMetrics(); renderRevenueTax();
+          renderRevenueAnalysis(); renderRevenueGoal();
+        }
+        return;
+      }
       const rateInput = event.target.closest('[data-cc-tax-rate]');
       if (!rateInput) return;
       const proposed = Number(rateInput.value);
