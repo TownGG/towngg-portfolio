@@ -8,6 +8,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 const FILES = {
   cc: ['assets/js/site-data.js','assets/data/creations-history.csv',
     'assets/data/creations-mod-daily.csv','assets/data/paid-creations-library-history.csv',
+    'assets/data/paid-creations-item-history.csv',
     'assets/data/site-version.json'],
   nexus: ['assets/data/nexus-mods.json','assets/data/nexus-history.csv',
     'assets/data/nexus-latest.json','assets/js/site-data.js']
@@ -16,11 +17,12 @@ const CSV_KEY = {
   'creations-history.csv':['timestamp'],
   'creations-mod-daily.csv':['date','title'],
   'paid-creations-library-history.csv':['timestamp'],
+  'paid-creations-item-history.csv':['timestamp','creation_id'],
   'nexus-history.csv':['date','platform','mod_id']
 };
 const METRICS = new Set(['views','likes','bookmarks','downloads','plays',
   'libraryAdds','endorsements','total_downloads','unique_downloads','daily_downloads',
-  'total_likes','total_plays','total_library_adds','total_paid_library_adds']);
+  'library_adds','total_likes','total_plays','total_library_adds','total_paid_library_adds']);
 const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 const number=x=>Number(String(x??0).replace(/,/g,''))||0;
 const maxMetric=(a,b)=>Math.max(number(a),number(b));

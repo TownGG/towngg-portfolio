@@ -173,6 +173,7 @@ jobs:
           const historyFile = 'assets/data/creations-history.csv';
           const modDailyFile = 'assets/data/creations-mod-daily.csv';
           const paidLibraryHistoryFile = 'assets/data/paid-creations-library-history.csv';
+          const paidItemHistoryFile = 'assets/data/paid-creations-item-history.csv';
           const siteVersionFile = 'assets/data/site-version.json';
           const utcParts = Object.fromEntries(
             new Intl.DateTimeFormat('en-CA', {
@@ -328,6 +329,40 @@ jobs:
           paidLibrarySnapshots.push(`${stamp},${totalPaidLibraryAdds}`);
           paidLibrarySnapshots.sort((a, b) => a.localeCompare(b));
           fs.writeFileSync(paidLibraryHistoryFile, [paidLibraryHeader, ...paidLibrarySnapshots].join('\n') + '\n');
+
+          // Per-creation revenue source-of-truth: preserve each priced item's
+          // cumulative Library Adds and CC tier independently. A single
+          // aggregate paid-library count is insufficient for tiered earnings.
+          const itemHeader = 'timestamp,creation_id,title,price_cc,library_adds';
+          const oldPaidRows = fs.existsSync(paidItemHistoryFile)
+            ? parseCSV(fs.readFileSync(paidItemHistoryFile, 'utf8'))
+            : [];
+          const past = oldPaidRows.filter((item) => item.timestamp?.slice(0, 10) >= cutoff &&
+            item.timestamp !== stamp);
+          const paidItems = creations.filter((item) =>
+            item.isPaid === true || String(item.isPaid).toLowerCase() === 'true' || number(item.price) > 0);
+          for (const item of paidItems) {
+            const url = item.links?.find((link) =>
+              String(link.url || '').includes('creations.bethesda.net'))?.url || '';
+            const id = url.match(/\/details\/([0-9a-f-]+)/i)?.[1];
+            if (!id) throw new Error('Paid Creation is missing its stable Bethesda ID: ' + item.title);
+            past.push({
+              timestamp: stamp,
+              creation_id: id,
+              title: item.title || '',
+              price_cc: number(item.price),
+              library_adds: number(item.libraryAdds)
+            });
+          }
+          past.sort((a, b) =>
+            a.timestamp.localeCompare(b.timestamp) ||
+            a.creation_id.localeCompare(b.creation_id));
+          const itemLines = [itemHeader, ...past.map((item) => [
+            item.timestamp, item.creation_id, csvCell(item.title),
+            number(item.price_cc), number(item.library_adds)
+          ].join(','))];
+          fs.writeFileSync(paidItemHistoryFile, itemLines.join('\n') + '\n');
+          console.log('Paid CC item revenue snapshots:', paidItems.length, 'current paid items.');
 
           const siteVersion = {
             version: `v2.05.${versionStamp}-preview`,
