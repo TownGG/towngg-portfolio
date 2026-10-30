@@ -1,0 +1,9 @@
+# Tiered Bethesda Creation income model
+
+Creator-supplied USD revenue per Library Add: 100 CC = USD 0.40; 200 CC = USD 0.70; 300 CC = USD 1.10. The dashboard uses a reference USD/CNY rate of 6.66 (2026-10-30), editable in the income section settings, saved in browser storage. Apply the existing estimated withholding percentage to CNY values after converting from USD (default 10%). This is not a Partner Center settlement statement, and actual withholding and bank exchange rates may differ.
+
+The CC scraper now saves each paid Creation separately in `assets/data/paid-creations-item-history.csv` with fields `timestamp,creation_id,title,price_cc,library_adds`. It preserves 2026-09 and 2026-10 snapshots recovered from historical repository commits. New successful CC runs add snapshots; the safe publisher merges rows on timestamp plus Creation UUID. Unknown price tiers are not invented: such snapshots are excluded until the payout can be configured.
+
+At any snapshot: gross USD = sum of (each priced Creation's cumulative libraryAdds × its tier USD payout). Period gross CNY = max(0, gross USD at end − gross USD at period start) × user reference USD/CNY rate. As in the former analytics implementation, cutoffs between snapshots may be interpolated, so results remain estimates. Income cards, comparisons, charts and the revenue goal use the same tiered cumulative income source. The legacy aggregate paid-library history CSV is retained for separate Library Adds counts.
+
+Backfilled reference example: at 2026-10-30 06:10 UTC, 200-CC additions total 1474 and 300-CC additions total 41, making gross total USD 1076.90 (RMB 7172.15 at 6.66); the 2026-10-01 03:53 UTC beginning balance was USD 143.90. October to date gross is USD 933.00 / RMB 6213.78, and estimated net after the default 10% withholding is RMB 5592.40.

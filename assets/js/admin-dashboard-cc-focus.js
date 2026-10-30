@@ -118,6 +118,7 @@
       taxPanelSubtitle: "Net estimate is primary · gross and withholding retained for reference",
       taxRateLabel: "Estimated withholding rate",
       fxRateLabel: "USD to CNY reference rate",
+      tierEarningsHelp: "100 CC $0.40 · 200 CC $0.70 · 300 CC $1.10 per Library Add.",
       taxRateHelp: "Saved only in this browser; enter 0–100%. Default 10%.",
       taxGross: "Before withholding",
       taxWithheld: "Estimated withholding",
@@ -347,6 +348,7 @@
       taxPanelSubtitle: "税后金额重点展示，税前和预扣税仅作参考",
       taxRateLabel: "预估预扣税率",
       fxRateLabel: "美元兑人民币参考汇率",
+      tierEarningsHelp: "每次入库：100 CC＝$0.40 · 200 CC＝$0.70 · 300 CC＝$1.10。",
       taxRateHelp: "仅保存在当前浏览器，允许 0–100%，默认 10%",
       taxGross: "税前预估",
       taxWithheld: "预估预扣税",
@@ -576,6 +578,7 @@
       taxPanelSubtitle: "税引後を大きく表示し、税引前と源泉徴収は参考として表示",
       taxRateLabel: "推定源泉徴収率",
       fxRateLabel: "米ドル・人民元参考レート",
+      tierEarningsHelp: "100 CC＝$0.40 · 200 CC＝$0.70 · 300 CC＝$1.10／追加。",
       taxRateHelp: "このブラウザ内で保存 · 0～100% · 初期値 10%",
       taxGross: "税引前見込",
       taxWithheld: "推定源泉徴収",
@@ -1439,6 +1442,7 @@
       ' min="1" max="20" step="0.0001" inputmode="decimal" value="' +
       state.usdCnyRate.toFixed(4) + '" aria-label="' + esc(t('fxRateLabel')) + '">' +
       '<span>¥/$</span></span></label>' +
+      '<p>' + esc(t('tierEarningsHelp')) + '</p>' +
       '<p>' + esc(t('taxRateHelp')) + '</p></div></details>';
   }
   function renderRevenueMetrics() {
