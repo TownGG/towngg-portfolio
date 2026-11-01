@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-01T09:39:44Z",
+  "updatedAt": "2026-11-01T10:00:29Z",
   "mods": [
     {
       "platform": "nexus",
@@ -55,9 +55,9 @@
       "mod_name": "TGG Cloth-DVA bodysuit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17362",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17362/17362-1780583435-1843506797.png",
-      "total_downloads": 3595,
-      "unique_downloads": 2539,
-      "daily_downloads": 9,
+      "total_downloads": 3596,
+      "unique_downloads": 2540,
+      "daily_downloads": 10,
       "likes": 53,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 3747,
+      "total_downloads": 3748,
       "unique_downloads": 2605,
-      "daily_downloads": 17,
+      "daily_downloads": 18,
       "likes": 44,
       "views": 0
     },
@@ -274,7 +274,7 @@
       "total_downloads": 74,
       "unique_downloads": 57,
       "daily_downloads": 10,
-      "likes": 2,
+      "likes": 3,
       "views": 0
     }
   ]
