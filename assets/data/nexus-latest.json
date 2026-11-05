@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-05T14:00:45Z",
+  "updatedAt": "2026-11-05T14:33:46Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1921,
+      "total_downloads": 1922,
       "unique_downloads": 1083,
-      "daily_downloads": 1,
+      "daily_downloads": 2,
       "likes": 52,
       "views": 0
     },
@@ -271,9 +271,9 @@
       "mod_name": "TGG Silk Lingerie Deluxe Edition",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18668",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18668/18668-1793322854-1298655200.png",
-      "total_downloads": 103,
-      "unique_downloads": 81,
-      "daily_downloads": 1,
+      "total_downloads": 104,
+      "unique_downloads": 82,
+      "daily_downloads": 2,
       "likes": 5,
       "views": 0
     }
