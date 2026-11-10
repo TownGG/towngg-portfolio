@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-10T22:30:49Z",
+  "updatedAt": "2026-11-10T23:00:41Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 1002,
+      "total_downloads": 1003,
       "unique_downloads": 849,
-      "daily_downloads": 2,
+      "daily_downloads": 3,
       "likes": 36,
       "views": 0
     },
@@ -151,9 +151,9 @@
       "mod_name": "Realistic Helmet 1st Person Vision",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17575",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17575/17575-1782455739-853488750.png",
-      "total_downloads": 1926,
-      "unique_downloads": 1000,
-      "daily_downloads": 2,
+      "total_downloads": 1927,
+      "unique_downloads": 1001,
+      "daily_downloads": 3,
       "likes": 43,
       "views": 0
     },
@@ -271,9 +271,9 @@
       "mod_name": "TGG Silk Lingerie Deluxe Edition",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18668",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18668/18668-1793322854-1298655200.png",
-      "total_downloads": 131,
-      "unique_downloads": 100,
-      "daily_downloads": 7,
+      "total_downloads": 132,
+      "unique_downloads": 101,
+      "daily_downloads": 8,
       "likes": 5,
       "views": 0
     }
