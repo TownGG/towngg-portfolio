@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-17T14:34:19Z",
+  "updatedAt": "2026-11-17T15:03:50Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1946,
+      "total_downloads": 1947,
       "unique_downloads": 1099,
-      "daily_downloads": 1,
+      "daily_downloads": 2,
       "likes": 53,
       "views": 0
     },
@@ -259,9 +259,9 @@
       "mod_name": "POWER RANGER UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/18049",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/18049/18049-1787491919-946013974.png",
-      "total_downloads": 115,
+      "total_downloads": 116,
       "unique_downloads": 106,
-      "daily_downloads": 2,
+      "daily_downloads": 3,
       "likes": 6,
       "views": 0
     },
