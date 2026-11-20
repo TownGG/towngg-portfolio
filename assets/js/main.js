@@ -124,13 +124,18 @@ function sortedCreatorNotes() {
   return [...creatorNotes].sort((a, b) => String(b.date).localeCompare(String(a.date)));
 }
 
+function localizedNoteField(note, field) {
+  const language = document.documentElement.lang || localStorage.getItem("townggSiteLang") || "en";
+  return note?.translations?.[language]?.[field] || note?.[field] || "";
+}
+
 function noteCard(note, compact = false) {
   return `
     <article class="note-card" data-category="${note.category}">
       <div class="note-category">${note.category}</div>
-      <h3>${note.title}</h3>
+      <h3>${localizedNoteField(note, "title")}</h3>
       <time datetime="${note.date}">${note.date}</time>
-      ${compact ? "" : `<p>${note.excerpt}</p>`}
+      ${compact ? "" : `<p>${localizedNoteField(note, "excerpt")}</p>`}
       <a class="note-link" href="./note.html?id=${encodeURIComponent(note.id)}">Read More</a>
     </article>
   `;
@@ -260,14 +265,14 @@ function renderNoteDetail() {
     return;
   }
 
-  document.title = `${note.title} | TownGG Personal Logs`;
+  document.title = `${localizedNoteField(note, "title")} | TownGG Personal Logs`;
   target.innerHTML = `
     <a class="note-back" href="./dev-log.html">Back to Personal Logs</a>
     <div class="note-category">${note.category}</div>
-    <h1>${note.title}</h1>
+    <h1>${localizedNoteField(note, "title")}</h1>
     <time datetime="${note.date}">${note.date}</time>
-    ${note.cover ? `<img class="note-cover" src="${note.cover}" alt="${note.title}" loading="lazy">` : ""}
-    <div class="article-content">${renderArticleContent(note.content)}</div>
+    ${note.cover ? `<img class="note-cover" src="${note.cover}" alt="${localizedNoteField(note, "title")}" loading="lazy">` : ""}
+    <div class="article-content">${renderArticleContent(localizedNoteField(note, "content"))}</div>
   `;
 
   const neighbors = document.querySelector("[data-note-neighbors]");
@@ -275,8 +280,8 @@ function renderNoteDetail() {
     const previous = notes[index + 1];
     const next = notes[index - 1];
     neighbors.innerHTML = `
-      ${previous ? `<a class="neighbor-card" href="./note.html?id=${encodeURIComponent(previous.id)}"><span>Previous Article</span><strong>${previous.title}</strong></a>` : "<span></span>"}
-      ${next ? `<a class="neighbor-card" href="./note.html?id=${encodeURIComponent(next.id)}"><span>Next Article</span><strong>${next.title}</strong></a>` : "<span></span>"}
+      ${previous ? `<a class="neighbor-card" href="./note.html?id=${encodeURIComponent(previous.id)}"><span>Previous Article</span><strong>${localizedNoteField(previous, "title")}</strong></a>` : "<span></span>"}
+      ${next ? `<a class="neighbor-card" href="./note.html?id=${encodeURIComponent(next.id)}"><span>Next Article</span><strong>${localizedNoteField(next, "title")}</strong></a>` : "<span></span>"}
     `;
   }
 
@@ -1271,6 +1276,19 @@ async function init() {
   setupDiscussionEmbed();
   setupLowRiskMotion();
   setupChartMotion();
+}
+
+// Keep localized Personal Log content in sync with the existing site language switcher.
+if (typeof MutationObserver !== "undefined") {
+  let renderedNoteLanguage = document.documentElement.lang || "en";
+  new MutationObserver(() => {
+    const nextLanguage = document.documentElement.lang || "en";
+    if (nextLanguage === renderedNoteLanguage || !creatorNotes.length) return;
+    renderedNoteLanguage = nextLanguage;
+    renderLatestNotes();
+    renderNotesPage();
+    renderNoteDetail();
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
 }
 
 enableSiteMotion();
