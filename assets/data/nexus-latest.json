@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-21T08:33:33Z",
+  "updatedAt": "2026-11-21T09:00:35Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1964,
+      "total_downloads": 1965,
       "unique_downloads": 1109,
-      "daily_downloads": 0,
+      "daily_downloads": 1,
       "likes": 53,
       "views": 0
     },
