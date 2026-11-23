@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-23T16:10:35Z",
+  "updatedAt": "2026-11-23T17:01:10Z",
   "mods": [
     {
       "platform": "nexus",
@@ -79,10 +79,10 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 4407,
+      "total_downloads": 4409,
       "unique_downloads": 3062,
-      "daily_downloads": 6,
-      "likes": 45,
+      "daily_downloads": 8,
+      "likes": 46,
       "views": 0
     },
     {
@@ -91,10 +91,10 @@
       "mod_name": "CPF-UC VANGUARD POWER FIST MK2",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17479",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17479/17479-1781621856-615818030.png",
-      "total_downloads": 3298,
-      "unique_downloads": 2408,
-      "daily_downloads": 6,
-      "likes": 17,
+      "total_downloads": 3300,
+      "unique_downloads": 2409,
+      "daily_downloads": 8,
+      "likes": 18,
       "views": 0
     },
     {
@@ -130,7 +130,7 @@
       "total_downloads": 3279,
       "unique_downloads": 2374,
       "daily_downloads": 9,
-      "likes": 16,
+      "likes": 17,
       "views": 0
     },
     {
