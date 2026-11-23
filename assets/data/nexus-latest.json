@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-23T17:31:10Z",
+  "updatedAt": "2026-11-23T18:03:59Z",
   "mods": [
     {
       "platform": "nexus",
@@ -19,9 +19,9 @@
       "mod_name": "THE TERMINUS",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17126",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17126/17126-1779071888-668213181.png",
-      "total_downloads": 1974,
-      "unique_downloads": 1117,
-      "daily_downloads": 2,
+      "total_downloads": 1975,
+      "unique_downloads": 1118,
+      "daily_downloads": 3,
       "likes": 53,
       "views": 0
     },
@@ -79,9 +79,9 @@
       "mod_name": "CASSILIAs POWER FIST",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17461",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17461/17461-1781423403-782378004.png",
-      "total_downloads": 4409,
-      "unique_downloads": 3062,
-      "daily_downloads": 8,
+      "total_downloads": 4410,
+      "unique_downloads": 3063,
+      "daily_downloads": 9,
       "likes": 46,
       "views": 0
     },
@@ -106,7 +106,7 @@
       "total_downloads": 3434,
       "unique_downloads": 2536,
       "daily_downloads": 8,
-      "likes": 23,
+      "likes": 24,
       "views": 0
     },
     {
@@ -115,10 +115,10 @@
       "mod_name": "CPF-STARBORN  POWER FIST OMEGA",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17500",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17500/17500-1781842553-1785018540.png",
-      "total_downloads": 3397,
+      "total_downloads": 3398,
       "unique_downloads": 2489,
-      "daily_downloads": 8,
-      "likes": 22,
+      "daily_downloads": 9,
+      "likes": 23,
       "views": 0
     },
     {
@@ -175,10 +175,10 @@
       "mod_name": "CPF-RYUJIN DEATH CLAW",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17632",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17632/17632-1783125559-925033020.png",
-      "total_downloads": 3320,
-      "unique_downloads": 2425,
-      "daily_downloads": 7,
-      "likes": 16,
+      "total_downloads": 3322,
+      "unique_downloads": 2426,
+      "daily_downloads": 9,
+      "likes": 17,
       "views": 0
     },
     {
@@ -211,9 +211,9 @@
       "mod_name": "CPF-MANTIS BLADE",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17753",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17753/17753-1784809939-2078300811.png",
-      "total_downloads": 3301,
-      "unique_downloads": 2407,
-      "daily_downloads": 6,
+      "total_downloads": 3302,
+      "unique_downloads": 2408,
+      "daily_downloads": 7,
       "likes": 21,
       "views": 0
     },
