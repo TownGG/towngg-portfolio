@@ -25,7 +25,16 @@
     .slide.champagne { background:radial-gradient(circle at 75% 44%,#fffdf6 0%,#f8f0e3 46%,#f2e8dc 100%); }
     .slide.night { color:#fff7f2; background:radial-gradient(ellipse at 70% 48%,#715969 0%,#514452 48%,#342e3e 100%); }
     .slide.night:before,.slide.night:after { border-color:rgba(249,223,204,.12); }
-    .slide.cover { text-align:center; }
+    .slide.cover { text-align:center; background:radial-gradient(ellipse at 50% 38%,#fffaf8 0%,#f9f0ed 44%,#f2e6e4 100%); }
+    .slide.cover:before { width:66vw; height:66vw; right:-28vw; top:-33vw; border-color:rgba(186,133,142,.2); }
+    .slide.cover:after { width:65vw; height:65vw; right:auto; left:-31vw; bottom:-42vw; border-color:rgba(185,147,114,.18); }
+    .cover-frame { position:absolute; inset:38px 48px 43px; border:1px solid rgba(179,137,131,.2); border-radius:3px; pointer-events:none; z-index:1; }
+    .cover-frame:before,.cover-frame:after { content:""; position:absolute; width:48px; height:48px; border-color:rgba(176,117,129,.53); border-style:solid; }
+    .cover-frame:before { top:-1px; left:-1px; border-width:2px 0 0 2px; }
+    .cover-frame:after { bottom:-1px; right:-1px; border-width:0 2px 2px 0; }
+    .cover-bloom { position:absolute; z-index:1; pointer-events:none; width:280px; height:280px; color:#c99ca1; opacity:.31; }
+    .cover-bloom.left { bottom:4%; left:0; transform:rotate(-21deg); }
+    .cover-bloom.right { top:7%; right:1%; transform:scaleX(-1) rotate(-15deg); }
     .slide.cover .inner { width:100%; max-width:1600px; flex-direction:column; justify-content:center; align-items:center; gap:0; text-align:center; }
     .inner { position:relative; z-index:2; display:flex; width:min(100%,2000px); align-items:center; justify-content:space-between; gap:clamp(35px,5vw,125px); }
     .copy { max-width:960px; flex:1 1 57%; min-width:0; }
@@ -47,9 +56,16 @@
     .subtle { font-size:clamp(20px,1.35vw,28px); letter-spacing:.08em; color:var(--rose); }
     .night .subtle { color:#ecc9bf; }
     .cover .description { margin-inline:auto; }
-    .cover .english { margin:0 0 30px; }
-    .cover h1 { margin:24px auto 21px; }
+    .cover .english { margin:0 0 21px; }
+    .cover h1 { margin:14px auto 16px; text-shadow:0 10px 50px rgba(116,69,69,.05); }
+    .cover h1 em { background:linear-gradient(120deg,#cfa6a5,#ab747e 58%,#c59b7d); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
     .cover .symbol-heart { font-family:Georgia,serif; font-size:47px; color:var(--rose); margin-bottom:3px; }
+    .cover-crest { width:100px; height:75px; color:#b98790; margin:0 auto 2px; filter:drop-shadow(0 7px 12px rgba(172,119,127,.12)); animation:breathe 8s ease-in-out infinite; }
+    .cover-crest .crest-stroke { fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+    .cover-divider { display:flex; align-items:center; justify-content:center; gap:16px; margin:0 auto 21px; color:#b99189; font-family:Georgia,serif; font-size:14px; letter-spacing:.26em; }
+    .cover-divider:before,.cover-divider:after { content:""; width:78px; height:1px; background:linear-gradient(90deg,transparent,#cdaeb0); }
+    .cover-divider:after { transform:rotate(180deg); }
+    .cover .launch { background:linear-gradient(135deg,rgba(255,255,255,.74),rgba(248,227,228,.7)); box-shadow:0 13px 35px rgba(162,106,113,.1),inset 0 1px rgba(255,255,255,.9); padding:16px 34px; }
     .ornament { position:relative; flex:0 1 43%; aspect-ratio:1; min-width:340px; max-width:780px; display:grid; place-items:center; }
     .ornament:before,.ornament:after { content:""; position:absolute; border-radius:50%; inset:7%; border:1px solid rgba(188,143,133,.32); animation:orbit 26s linear infinite; }
     .ornament:before { border-style:dashed; inset:0; animation-duration:39s; animation-direction:reverse; }
@@ -166,6 +182,13 @@
       .cover .inner { text-align:center; }
       .cover .description { max-width:330px; }
       .cover .symbol-heart { font-size:36px; }
+      .cover-frame { inset:66px 13px 74px; opacity:.6; }
+      .cover-bloom { width:150px; height:150px; opacity:.18; }
+      .cover-crest { width:74px; height:62px; }
+      .cover h1 { margin:12px auto 16px; }
+      .cover .english { font-size:17px; margin-bottom:14px; }
+      .cover-divider { font-size:10px; gap:9px; margin-bottom:16px; }
+      .cover-divider:before,.cover-divider:after { width:30px; }
       .hint { bottom:100px; font-size:10px; }
       .controls { bottom:max(12px,env(safe-area-inset-bottom)); gap:5px; padding:6px 8px; }
       .controls button { width:38px; height:38px; }
@@ -181,15 +204,19 @@
 </head>
 <body>
   <div class="progress" id="progress" aria-hidden="true"></div>
-  <div class="topbar"><span class="brand">TANG❤LI</span><span class="side-date" id="chapterYear">2026 — 2030</span></div>
+  <div class="topbar"><span class="brand">TANG ❤ LI</span><span class="side-date" id="chapterYear">2026 — 2030</span></div>
   <main class="story" id="story" aria-label="我们的幸福里程碑，共十三屏">
     <section class="slide cover is-active" aria-label="封面">
       <span class="float a" aria-hidden="true">✦</span><span class="float b" aria-hidden="true">♡</span><span class="float c" aria-hidden="true">✧</span>
+      <div class="cover-frame" aria-hidden="true"></div>
+      <svg class="cover-bloom left" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M-9 280C54 231 83 169 99 53M98 144C58 135 44 101 47 76c36 3 54 25 51 68Zm-17 62c50-12 71-44 68-75-40 9-65 36-68 75Zm18-112c40-11 61-35 60-65-32 8-55 27-60 65Z"/><path d="M36 269c73-26 116-64 147-125M144 182c-4-31 9-54 30-62 9 30-1 51-30 62Zm-43 41c26 7 49-1 63-22-27-9-45-4-63 22Z"/></g><circle cx="102" cy="53" r="5" fill="currentColor"/></svg>
+      <svg class="cover-bloom right" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M-9 280C54 231 83 169 99 53M98 144C58 135 44 101 47 76c36 3 54 25 51 68Zm-17 62c50-12 71-44 68-75-40 9-65 36-68 75Zm18-112c40-11 61-35 60-65-32 8-55 27-60 65Z"/><path d="M36 269c73-26 116-64 147-125M144 182c-4-31 9-54 30-62 9 30-1 51-30 62Zm-43 41c26 7 49-1 63-22-27-9-45-4-63 22Z"/></g><circle cx="102" cy="53" r="5" fill="currentColor"/></svg>
       <div class="inner">
         <div class="kicker">OUR FOREVER STORY · 2026—2030</div>
-        <div class="symbol-heart" aria-hidden="true">♡</div>
+        <svg class="cover-crest" viewBox="0 0 110 90" aria-hidden="true"><g class="crest-stroke"><path d="M55 76C34 58 13 45 13 27c0-12 9-20 20-20 10 0 17 6 22 13 6-7 13-13 23-13 11 0 20 8 20 20 0 18-21 31-43 49Z"/><path d="M55 64C39 51 26 41 26 29c0-6 4-10 10-10 8 0 14 8 19 14 5-6 11-14 19-14 6 0 10 4 10 10 0 12-13 22-29 35Z"/><path d="M55 20V3M5 40l-5 3m105-3 5 3M17 70l-7 8m83-8 7 8"/></g><circle cx="55" cy="20" r="3" fill="#c59b7d"/><circle cx="55" cy="82" r="2.5" fill="#c59b7d"/></svg>
         <h1>我们的<em>幸福</em><br>里程碑</h1>
         <p class="english">From the first hello, to forever.</p>
+        <div class="cover-divider">TANG & LI · SINCE 2026</div>
         <p class="description">从青藤上的第一句话，到穿上婚纱、走进属于我们的小家。<br>我们的每一天，都在写下一段新的故事。</p>
         <button class="launch" id="begin" type="button">开始我们的故事　♡</button>
       </div>
@@ -202,7 +229,7 @@
         <div class="kicker">TO MY FAVORITE PERSON</div>
         <h2 class="ending-title"><span class="ending-line">往后余生<span class="ending-punct">，</span></span><span class="ending-line"><em>都是我们<span class="ending-punct">。</span></em></span></h2>
         <p class="description">不必着急，我们一步一步来。<br>把平凡的每一天，过成彼此最珍贵的纪念日。<br>未来的路很长，幸好，身边的人是你。</p>
-        <div class="signature">唐宇❤李静怡</div>
+        <div class="signature">唐宇 ❤ 李静怡</div>
         <span class="tiny-note">OUR STORY CONTINUES · ∞</span>
       </div>
     </section>
