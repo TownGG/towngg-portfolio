@@ -56,6 +56,18 @@
     .ornament:after { inset:12%; border-width:1.5px; }
     .ornament .ring { width:75%; aspect-ratio:1; border-radius:50%; background:radial-gradient(circle at 32% 27%,rgba(255,255,255,.83),rgba(242,210,208,.25) 56%,rgba(205,153,144,.1) 72%); box-shadow:inset 0 0 70px rgba(255,255,255,.6),0 22px 80px rgba(149,107,96,.09); display:grid; place-items:center; }
     .ornament .glyph { font-family:Georgia,"Songti SC",serif; font-weight:400; font-size:clamp(115px,13vw,280px); line-height:1; color:rgba(180,117,122,.73); text-shadow:0 8px 35px rgba(187,136,138,.1); animation:breathe 6s ease-in-out infinite; }
+    .ornament .illustration { width:91%; height:91%; overflow:visible; color:#ad7781; filter:drop-shadow(0 12px 15px rgba(150,99,104,.08)); animation:breathe 7s ease-in-out infinite; }
+    .illustration .line { fill:none; stroke:currentColor; stroke-width:3.1; stroke-linecap:round; stroke-linejoin:round; }
+    .illustration .fine { stroke-width:1.7; }
+    .illustration .soft { fill:#efd2d0; fill-opacity:.58; stroke:currentColor; stroke-width:2.5; stroke-linejoin:round; }
+    .illustration .cream { fill:#fff9f1; stroke:currentColor; stroke-width:2.5; stroke-linejoin:round; }
+    .illustration .gold { fill:#eed6b0; stroke:#ba9870; stroke-width:2.5; stroke-linejoin:round; }
+    .illustration .goldline { fill:none; stroke:#ba9870; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; }
+    .illustration .spark { fill:#c79b86; stroke:none; }
+    .night .ornament .illustration { color:#f1c9c6; }
+    .night .illustration .soft { fill:#bd7f8a; fill-opacity:.3; }
+    .night .illustration .cream { fill:#56424c; }
+    .night .illustration .gold { fill:#a98769; }
     .night .ornament .ring { background:radial-gradient(circle at 30% 25%,rgba(255,237,227,.19),rgba(238,189,177,.06)); box-shadow:0 25px 90px rgba(0,0,0,.14); }
     .night .ornament .glyph { color:#f5cfc5; }
     .night .ornament:before,.night .ornament:after { border-color:rgba(247,217,199,.33); }
@@ -143,6 +155,7 @@
       .english { font-size:21px; }
       .ornament { position:absolute; top:12%; right:-20%; width:65vw; height:65vw; min-width:0; max-width:280px; opacity:.18!important; z-index:0; }
       .ornament .glyph { font-size:90px; }
+      .ornament .illustration { width:96%; height:96%; }
       .orbit-note { display:none; }
       .cover .inner { text-align:center; }
       .cover .description { max-width:330px; }
@@ -212,6 +225,63 @@
         {date:'2029—2030 · 计划中',year:'2029—2030 · 筑家',title:'一起装修',accent:'我们的家',description:'暖白色地板、现代意式极简风。一起选灯、挑家具，把喜欢的生活一点点装进家里。',note:'一点点，把梦想变成现实',symbol:'✦',tone:'rose'},
         {date:'2030 · 我们的新生活',year:'2030 · 幸福生活',title:'搬进新家',accent:'幸福生活',description:'清晨一起吃早餐，夜晚窝在沙发里。两个人、一盏灯、一间家，往后的日子都慢慢过。',note:'余生请多指教 ♡',symbol:'∞',tone:'champagne'}
       ];
+      // Each milestone has its own hand-drawn, resolution-independent story vignette.
+      // Shared strokes and muted fills keep all eleven scenes in one illustrated family.
+      const artScenes = [
+        // The very first QingTeng message — two overlapping chat windows and a growing vine.
+        `<rect class="cream" x="85" y="84" width="217" height="236" rx="23"/><path class="line fine" d="M85 125h217"/><circle class="soft" cx="110" cy="105" r="6"/><path class="line fine" d="M129 105h67"/>
+         <rect class="soft" x="111" y="147" width="117" height="38" rx="16"/><path class="line fine" d="M128 166h79"/><rect class="cream" x="168" y="199" width="111" height="40" rx="16"/><path class="line fine" d="M185 220h74"/>
+         <path class="line" d="M131 287c14-30 9-57-5-75"/><path class="soft" d="M128 244c-24-7-30-24-27-35 20-1 35 9 27 35ZM132 265c24-17 28-36 23-46-20 7-30 22-23 46Z"/>
+         <path class="line" d="M305 85c8-15 25-14 29-3 7-11 24-8 27 4 5 20-26 37-26 37s-38-21-30-38Z"/><path class="goldline" d="M54 265l12-14m-6 7-10-5m10 5 8 9"/>`,
+        // First meeting — a cinema marquee, two people approaching and a shared heart.
+        `<path class="line" d="M77 118h246l-15-35H92Z"/><path class="line fine" d="M99 118v30m200-30v30"/><path class="soft" d="M124 118h152l-8-20H132Z"/><path class="line fine" d="M156 105h88"/>
+         <circle class="cream" cx="142" cy="183" r="26"/><path class="line" d="M113 272v-51c0-16 13-26 29-26s29 10 29 26v51m-58-40-23 26m81-26 28 26"/>
+         <circle class="cream" cx="258" cy="183" r="26"/><path class="line" d="M229 272v-51c0-16 13-26 29-26s29 10 29 26v51m-58-40-29 26m87-26 23 26"/>
+         <path class="line" d="M187 145c5-11 16-10 20-2 5-8 17-7 20 3 3 12-20 24-20 24s-25-13-20-25Z"/><path class="goldline" d="M87 295h226m-213 15h200"/><path class="line fine" d="M77 72l8-8m238 2 9 9"/>`,
+        // Became a couple — intertwined silhouettes inside a ribbon-like heart.
+        `<path class="line" d="M201 326C147 290 76 233 77 171c0-36 25-63 58-63 28 0 46 16 66 39 20-23 38-39 66-39 33 0 58 27 58 63 1 62-70 119-124 155Z"/>
+         <circle class="cream" cx="166" cy="192" r="25"/><circle class="cream" cx="235" cy="192" r="25"/><path class="soft" d="M117 278c0-38 16-57 49-57 27 0 41 13 41 39v30m76-12c0-38-16-57-48-57-25 0-41 13-41 39v31"/>
+         <path class="line" d="M176 255c12-11 20-11 26-2 7-9 15-9 26 2"/><path class="goldline" d="M98 98l-12-13m227 9 13-15m-125 27V82"/><circle class="spark" cx="87" cy="235" r="4"/><circle class="spark" cx="317" cy="240" r="4"/>`,
+        // First hand-holding and kiss — linked hands, rose petals and a small love seal.
+        `<path class="soft" d="M65 238c34-10 51-10 72-2l43 21c12 6 23 7 34 1l44-30c14-9 30 9 18 22l-56 55c-16 16-33 19-54 8l-53-26-43 8Z"/>
+         <path class="cream" d="M335 232c-24-10-45-12-64-2l-52 28c-12 7-24-8-15-19l33-30c11-10 21-17 42-17l56 10Z"/><path class="line fine" d="M129 259l40 18m-26-4 22 13m63-30 24-15"/>
+         <path class="line" d="M176 116c-3-14-22-24-35-10-17 18 5 45 35 62 30-17 52-44 35-62-13-14-32-4-35 10Z"/><path class="line fine" d="M228 135c6-16 26-18 35-7 11-11 31-5 33 11 2 20-31 38-31 38s-44-21-37-42Z"/>
+         <path class="goldline" d="M95 134l11 15m-4-17 14 5m183 39 13-6m-2 19 13 7"/>`,
+        // Wedding photos — bride and groom standing beneath a flower arch.
+        `<path class="line" d="M80 321V153c0-75 55-112 120-112s120 37 120 112v168"/><path class="goldline" d="M80 177c-16-17-23-38-15-57m255 52c16-17 23-38 15-57"/>
+         <path class="soft" d="M95 138c-24-5-31-17-27-30 18 1 28 11 27 30Zm210-6c25-4 32-17 28-30-18 1-29 12-28 30Z"/>
+         <circle class="cream" cx="158" cy="173" r="24"/><circle class="cream" cx="243" cy="173" r="24"/><path class="line" d="M137 151c8-22 35-27 46 0m36 0c12-17 36-17 47-1"/>
+         <path class="soft" d="M132 208h52l11 59 26 60H96l26-60Z"/><path class="line" d="M217 208h51l9 119h-73l5-60Z"/><path class="cream" d="M184 221l21 17 13-17"/>
+         <path class="goldline" d="M183 257c12-11 23-10 35 1"/><circle class="soft" cx="201" cy="258" r="7"/><path class="line fine" d="M117 342h169"/>`,
+        // May 20 — both families connect across a warm dinner table.
+        `<path class="soft" d="M101 230h198l-17 85H118Z"/><path class="line" d="M85 230h230m-182 85v18m134-18v18"/>
+         <circle class="cream" cx="110" cy="167" r="21"/><circle class="cream" cx="171" cy="148" r="21"/><circle class="cream" cx="230" cy="148" r="21"/><circle class="cream" cx="291" cy="167" r="21"/>
+         <path class="line" d="M78 219c2-28 13-35 32-35s30 7 32 35m-3-15c2-30 13-39 32-39s30 9 32 39m-5 0c2-30 13-39 32-39s30 9 32 39m-3 15c2-28 13-35 32-35s30 7 32 35"/>
+         <ellipse class="cream" cx="201" cy="232" rx="46" ry="14"/><path class="goldline" d="M174 230c14 9 41 9 54 0"/><path class="line" d="M182 88c-5-12-21-14-27-4-8-10-24-6-25 6-1 16 26 29 26 29s32-16 26-31Zm88-5c-4-9-17-10-22-2-7-8-19-5-20 5-1 13 21 24 21 24s26-13 21-27Z"/>`,
+        // Three golds — necklace on a jewelry stand, bracelet and two wedding rings.
+        `<path class="cream" d="M80 107h240v202H80Z"/><path class="line fine" d="M80 157h240"/><path class="soft" d="M96 122h208v20H96Z"/>
+         <path class="goldline" d="M139 168c0 54 20 90 61 112 41-22 61-58 61-112"/><path class="gold" d="M185 270l15-19 15 19-15 27Z"/><path class="goldline" d="M190 260h20"/>
+         <ellipse class="gold" cx="133" cy="322" rx="29" ry="13"/><ellipse class="cream" cx="133" cy="319" rx="18" ry="7"/><ellipse class="gold" cx="263" cy="322" rx="29" ry="13"/><ellipse class="cream" cx="263" cy="319" rx="18" ry="7"/>
+         <path class="goldline" d="M282 196c-17 13-17 36 0 48 17-12 17-35 0-48Z"/><path class="line fine" d="M106 90l-7-12m198 12 7-12m-103 12V70"/>`,
+        // Marriage registration — a red certificate, seals, flowers and the couple's initials.
+        `<rect class="soft" x="83" y="91" width="235" height="239" rx="10"/><path class="line fine" d="M100 109h201v204H100Z"/><path class="goldline" d="M144 127h114"/>
+         <path class="line" d="M200 176c-7-18-27-21-37-8-15-13-36-3-36 12 0 22 36 43 36 43s48-28 37-47Z"/><path class="line" d="M200 176c7-18 27-21 37-8 15-13 36-3 36 12 0 22-36 43-36 43s-48-28-37-47Z"/>
+         <path class="goldline" d="M135 254h131m-111 18h91"/><circle class="cream" cx="270" cy="281" r="28"/><path class="line fine" d="M256 281h28m-14-14v28"/><path class="goldline" d="M89 63l15-12m192 5 13 11"/>`,
+        // Our house — pitched roof, twin desks and a little plant.
+        `<path class="line" d="M57 187 200 77l143 110"/><path class="soft" d="M88 176v158h224V176L200 92Z"/><path class="cream" d="M124 205h61v58h-61Z"/><path class="line fine" d="M154 205v58m-30-29h61"/>
+         <path class="cream" d="M211 218h64v116h-64Z"/><circle class="gold" cx="260" cy="279" r="4"/><path class="goldline" d="M80 334h242"/>
+         <path class="line" d="M200 92v-29m-13 14h26"/><path class="line fine" d="M122 288h55m-46 0v23m37-23v23"/><path class="goldline" d="M110 286c-6-16-4-24 7-32m-7 32c-14-8-19-16-16-26"/>`,
+        // Renovation — paint roller, floor tiles and a glowing pendant lamp.
+        `<path class="line" d="M93 121h152v70H93Z"/><path class="soft" d="M93 121h152v70H93Z"/><path class="line" d="M245 155h33v61h-88v93"/><path class="line fine" d="M182 309h16"/>
+         <path class="line" d="M79 335h252m-233-44 102-45 102 45-102 44Zm102-45v89m-51-67 102-1"/><path class="goldline" d="M305 61v70m-28 31 28-31 28 31Z"/><path class="cream" d="M277 162q28 19 56 0Z"/>
+         <path class="line fine" d="M115 104l-9-12m37 12 3-16m33 16 11-13"/><path class="goldline" d="M313 191v14m-7-7h14"/>`,
+        // Moving in — cozy sofa, two cups, houseplant and a warm window.
+        `<path class="cream" d="M83 79h118v105H83Z"/><path class="line fine" d="M142 79v105m-59-52h118"/><path class="goldline" d="M96 166c21-25 31-16 45-35 16 12 33 15 46 0"/>
+         <rect class="soft" x="114" y="231" width="199" height="82" rx="17"/><path class="cream" d="M101 239c0-20 10-31 25-31 14 0 25 11 25 31v59h-50Zm173 0c0-20 10-31 25-31 14 0 25 11 25 31v59h-50Z"/>
+         <path class="line" d="M110 313v19m202-19v19m-164-79h128"/><path class="cream" d="M169 195h26v26h-26Zm40 0h26v26h-26Z"/><path class="goldline" d="M182 195c-7-9-4-13 1-18m39 18c-7-9-4-13 1-18"/>
+         <path class="line" d="M79 302c-2-44-17-63-17-63m17 63c26-21 32-41 29-51m-29 51c-28-12-37-28-38-43"/><path class="soft" d="M60 296h39l-8 35H68Z"/><path class="line fine" d="M78 345h253"/>`
+      ];
+      const illustration = index => `<svg class="illustration" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" focusable="false"><g>${artScenes[index]}</g></svg>`;
       const chapters = document.getElementById('chapters');
       const story = document.getElementById('story');
       const escapeHTML = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -226,7 +296,7 @@
               <p class="description">${escapeHTML(m.description)}</p>
               <div class="subtle">${escapeHTML(m.note)}</div>
             </div>
-            <div class="ornament" aria-hidden="true"><div class="ring"><span class="glyph">${escapeHTML(m.symbol)}</span></div><span class="orbit-note">${escapeHTML(m.done?'♡ 已珍藏':'✧ 幸福待续')}</span></div>
+            <div class="ornament" aria-hidden="true"><div class="ring">${illustration(i)}</div><span class="orbit-note">${escapeHTML(m.done?'♡ 已珍藏':'✧ 幸福待续')}</span></div>
           </div>
         </section>`).join(''));
       const slides = [...story.querySelectorAll('.slide')];
