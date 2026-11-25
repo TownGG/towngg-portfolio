@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-25T13:06:15Z",
+  "updatedAt": "2026-11-25T13:40:27Z",
   "mods": [
     {
       "platform": "nexus",
@@ -31,9 +31,9 @@
       "mod_name": "Nebula Protocol Suit",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17251",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17251/17251-1779804128-1212319096.png",
-      "total_downloads": 1036,
-      "unique_downloads": 879,
-      "daily_downloads": 2,
+      "total_downloads": 1037,
+      "unique_downloads": 880,
+      "daily_downloads": 3,
       "likes": 38,
       "views": 0
     },
