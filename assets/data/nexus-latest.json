@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-25T20:09:57Z",
+  "updatedAt": "2026-11-25T21:10:52Z",
   "mods": [
     {
       "platform": "nexus",
@@ -163,9 +163,9 @@
       "mod_name": "TGG Texture Forge - Starfield DDS Converter",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17625",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17625/17625-1783086268-2069741715.png",
-      "total_downloads": 134,
-      "unique_downloads": 96,
-      "daily_downloads": 0,
+      "total_downloads": 135,
+      "unique_downloads": 97,
+      "daily_downloads": 1,
       "likes": 10,
       "views": 0
     },
@@ -199,9 +199,9 @@
       "mod_name": "CASSILIA's MANTIS UNDERSUIT",
       "mod_url": "https://www.nexusmods.com/starfield/mods/17735",
       "image_url": "https://staticdelivery.nexusmods.com/mods/4187/images/17735/17735-1784536941-1636927580.png",
-      "total_downloads": 4241,
+      "total_downloads": 4242,
       "unique_downloads": 3138,
-      "daily_downloads": 25,
+      "daily_downloads": 26,
       "likes": 67,
       "views": 0
     },
