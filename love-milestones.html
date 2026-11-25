@@ -131,6 +131,8 @@
     body.is-night .dots button:before { background:#f4d9d0; }
     body.is-night .dots button[aria-current="step"]:before { background:#fff1e7; }
     .hint { position:absolute; bottom:112px; left:50%; transform:translateX(-50%); font-size:12px; color:#ab918e; letter-spacing:.22em; white-space:nowrap; }
+    .mobile-scroll-cue { display:none; }
+    @keyframes cueGlide { 0%,100% { transform:translateY(-3px); opacity:.48; } 60% { transform:translateY(3px); opacity:1; } }
     .launch { margin-top:18px; border:1px solid rgba(186,133,142,.45); border-radius:40px; background:rgba(255,255,255,.3); color:#a4737d; padding:14px 27px; font-size:14px; letter-spacing:.1em; transition:background .25s,transform .25s; }
     .launch:hover { background:rgba(255,255,255,.75); transform:translateY(-2px); }
     .ending .inner { flex-direction:column; text-align:center; justify-content:center; gap:0; }
@@ -195,7 +197,11 @@
       .cover-divider { font-size:10px; gap:9px; margin-bottom:16px; }
       .cover-divider:before,.cover-divider:after { width:30px; }
       .hint { bottom:100px; font-size:10px; }
-      .controls { bottom:max(12px,env(safe-area-inset-bottom)); gap:5px; padding:6px 8px; }
+      .cover .hint { display:none; }
+      .controls { display:none; }
+      .mobile-scroll-cue { position:fixed; z-index:30; left:50%; bottom:max(20px,env(safe-area-inset-bottom)); transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:7px; width:max-content; max-width:90vw; pointer-events:none; color:#a87d80; font-size:12px; letter-spacing:.16em; text-shadow:0 1px 6px rgba(255,255,255,.85); }
+      .mobile-scroll-cue svg { width:23px; height:18px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; animation:cueGlide 2s ease-in-out infinite; }
+      body.is-night .mobile-scroll-cue { color:#f0d3ca; text-shadow:none; }
       .controls button { width:38px; height:38px; }
       .controls .count { min-width:60px; }
       .ending h2 { font-size:clamp(45px,10.7vw,64px); }
@@ -248,6 +254,7 @@
     </section>
   </main>
   <nav class="dots" id="dots" aria-label="章节导航"></nav>
+  <div class="mobile-scroll-cue" aria-hidden="true"><span id="mobileCueText">继续下滑 · 下一段故事</span><svg viewBox="0 0 24 18"><path id="mobileCueArrow" d="m5 5 7 7 7-7"/></svg></div>
   <div class="controls" aria-label="放映控制">
     <button type="button" id="prev" aria-label="上一屏" title="上一屏"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
     <span class="count" id="count" aria-live="polite">01 / 13</span>
@@ -372,6 +379,9 @@
         document.getElementById('progress').style.width=(index/(slides.length-1)*100)+'%';
         document.getElementById('chapterYear').textContent=index===0?'2026 — 2030':index===slides.length-1?'FOREVER ♡':(milestones[index-1]?.year || '');
         document.body.classList.toggle('is-night',slides[index].classList.contains('night'));
+        const lastSlide=index===slides.length-1;
+        document.getElementById('mobileCueText').textContent=lastSlide?'向上滑动 · 重温我们的故事':'继续下滑 · 下一段故事';
+        document.getElementById('mobileCueArrow').setAttribute('d',lastSlide?'m5 12 7-7 7 7':'m5 5 7 7 7-7');
         prev.disabled=index===0; next.disabled=index===slides.length-1;
         if(index===slides.length-1&&autoplay)stopAutoplay();
       }
