@@ -167,7 +167,9 @@
       .slide:before { width:90vw; height:90vw; right:-42vw; top:3%; }
       .slide:after { width:80vw; height:80vw; right:-38vw; bottom:-25vw; }
       .inner { display:block; width:100%; }
-      .copy { position:relative; z-index:2; max-width:100%; }
+      .slide:not(.cover):not(.ending) { align-items:stretch; padding-top:72px; padding-bottom:96px; }
+      .slide:not(.cover):not(.ending) .inner { display:flex; flex-direction:column; align-items:stretch; justify-content:flex-start; height:100%; gap:0; }
+      .copy { position:relative; z-index:2; max-width:100%; flex:0 0 auto; }
       .year { font-size:14px; margin-bottom:18px; }
       .kicker { font-size:13px; letter-spacing:.18em; }
       h1 { font-size:clamp(48px,12.4vw,70px); margin:18px 0 19px; }
@@ -175,7 +177,10 @@
       .description { font-size:17px; line-height:1.85; max-width:440px; }
       .subtle { font-size:15px; }
       .english { font-size:21px; }
-      .ornament { position:absolute; top:12%; right:-23%; width:76vw; height:76vw; min-width:0; max-width:350px; opacity:.18!important; z-index:0; }
+      .slide:not(.cover):not(.ending) .ornament { position:relative; top:auto; right:auto; margin:auto auto 0; flex:0 1 auto; width:min(63vw,28dvh,270px); height:auto; aspect-ratio:1; min-width:0; max-width:none; opacity:1!important; z-index:1; }
+      .slide:not(.cover):not(.ending) .ornament:before { inset:-5%; }
+      .slide:not(.cover):not(.ending) .ornament:after { inset:6%; }
+      .slide:not(.cover):not(.ending) .ornament .ring { width:98%; }
       .ornament .glyph { font-size:90px; }
       .ornament .illustration { width:104%; height:104%; }
       .orbit-note { display:none; }
@@ -196,6 +201,14 @@
       .ending h2 { font-size:clamp(45px,10.7vw,64px); }
       .ending .description { font-size:16px; }
       .signature { font-size:26px; }
+    }
+    @media(max-width:760px) and (max-height:740px) {
+      .slide:not(.cover):not(.ending) { padding-top:62px; padding-bottom:80px; }
+      .slide:not(.cover):not(.ending) .year { margin-bottom:10px; }
+      .slide:not(.cover):not(.ending) h2 { font-size:clamp(37px,9.7vw,52px); margin:11px 0 13px; }
+      .slide:not(.cover):not(.ending) .description { font-size:15px; line-height:1.6; margin-bottom:8px; }
+      .slide:not(.cover):not(.ending) .subtle { font-size:13px; }
+      .slide:not(.cover):not(.ending) .ornament { width:min(50vw,22dvh,180px); }
     }
     @media(max-width:360px) { .slide { padding-inline:20px; } h1 { font-size:44px; } h2 { font-size:39px; } .description { font-size:16px; } }
     @media(max-height:650px) and (min-width:761px) { .slide { padding-top:72px; padding-bottom:70px; } h2 { font-size:clamp(40px,5vw,65px); } .ornament { max-width:320px; } .year { margin-bottom:12px; } }
