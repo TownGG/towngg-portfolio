@@ -38,18 +38,17 @@ Dropbox 官方资料：[OAuth Guide](https://developers.dropbox.com/oauth-guide)
 1. 安装并登录 Dropbox 桌面客户端，确保 App Folder 已同步到电脑；例如 `C:\Users\<用户名>\Dropbox\Apps\TownGG-PPT-Bridge`。实际路径以 Dropbox 客户端显示为准。
 2. 本机已经安装 DeepSeek Harness CLI（执行 `dsh --version` 可验证）和 ego(lite)。
 3. 在 Ego 的 Agent Space 中手动登录 ChatGPT 并完成必要验证；本脚本**不会自动输入密码，也不会绕过验证码**。
-4. 从浏览器复制你希望用于新建聊天的 **ChatGPT「UI设计」项目链接**。不要填写某一个已有聊天的链接；Harness 会在项目下新建聊天。
+4. 已确认唐总的 **ChatGPT「UI设计」项目链接**为 `https://chatgpt.com/g/g-p-6a2f54075020819182814db2e3a50212/project`，Windows 启动脚本已预设此地址；Harness 会在项目下新建聊天，不复用已有会话。
 
 Ego 官方说明：[DeepSeek Harness 与 ego(lite)](https://www.egolite.ai/document/zh/docs/deepseek-harness)。官方文档中的 `headless` 是 Harness 无交互终端模式，Ego 浏览器仍可能弹出窗口。该模式如果需要更高的执行权限，必须由用户在本机评估后显式配置；本桥接脚本**不会擅自启用 `danger-full-access`**。
 
 ## 3. 先干跑测试
 
-在项目根目录打开 PowerShell，替换下面的 Dropbox 路径和 ChatGPT 项目 URL：
+在项目根目录打开 PowerShell，只需替换下面的 Dropbox 本机同步路径：
 
 ```powershell
 .\tools\start-ppt-dropbox-bridge.ps1 `
   -DropboxFolder 'C:\Users\<用户名>\Dropbox\Apps\TownGG-PPT-Bridge' `
-  -ProjectUrl 'https://chatgpt.com/你的UI设计项目地址' `
   -Once
 ```
 
@@ -60,7 +59,6 @@ Ego 官方说明：[DeepSeek Harness 与 ego(lite)](https://www.egolite.ai/docum
 ```powershell
 .\tools\start-ppt-dropbox-bridge.ps1 `
   -DropboxFolder 'C:\Users\<用户名>\Dropbox\Apps\TownGG-PPT-Bridge' `
-  -ProjectUrl 'https://chatgpt.com/你的UI设计项目地址' `
   -MaxParallel 3 `
   -Live
 ```

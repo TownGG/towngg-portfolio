@@ -1,7 +1,7 @@
 # Run from Windows PowerShell after the Dropbox App Folder has synced locally.
 param(
   [Parameter(Mandatory = $true)] [string]$DropboxFolder,
-  [Parameter(Mandatory = $true)] [string]$ProjectUrl,
+  [string]$ProjectUrl = 'https://chatgpt.com/g/g-p-6a2f54075020819182814db2e3a50212/project',
   [switch]$Live,
   [switch]$Once,
   [string]$RetryTaskId,
