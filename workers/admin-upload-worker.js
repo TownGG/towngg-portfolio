@@ -60,18 +60,20 @@ export default {
     const isMessageBoardDelete = url.pathname.endsWith("/api/admin/message-board-delete");
     const isPptHealth = url.pathname.endsWith("/api/admin/ppt-health");
     const isPptSubmit = url.pathname.endsWith("/api/admin/ppt-submit");
-    const pptAction = ["init", "text", "part", "complete", "status", "result"].find(action => url.pathname.endsWith("/api/admin/ppt-" + action));
+    const pptAction = ["init", "text", "part", "complete", "status", "result", "result-link"].find(action => url.pathname.endsWith("/api/admin/ppt-" + action));
     const isPptSource = url.pathname.endsWith("/api/admin/ppt-source");
+    const isPptDownload = url.pathname.endsWith("/api/admin/ppt-download");
     const isPptAgent = url.pathname.endsWith("/api/admin/ppt-agent");
     const isCommunityRoute = isCommunityList || isCommunitySave || isCommunityDelete || isCommunityDraft || isCommunityRedditReply || isCommunityNexusReply;
     const isMessageBoardRoute = isMessageBoardList || isMessageBoardDelete;
 
-    if (!((request.method === "POST" && (isAuthCheck || isGalleryUpload || isGalleryList || isGalleryDelete || isCommunityRoute || isMessageBoardRoute || isPptHealth || isPptSubmit || pptAction || isPptAgent)) || (request.method === "GET" && isPptSource))) {
+    if (!((request.method === "POST" && (isAuthCheck || isGalleryUpload || isGalleryList || isGalleryDelete || isCommunityRoute || isMessageBoardRoute || isPptHealth || isPptSubmit || pptAction || isPptAgent)) || (request.method === "GET" && (isPptSource || isPptDownload)))) {
       return jsonResponse({ success: false, error: "Not found" }, 404);
     }
 
     try {
       if (isPptSource) return await handlePptSource(request, env);
+      if (isPptDownload) return await handlePptDownload(request, env);
       if (isPptAgent) return await handlePptAgent(request, env);
       assertEnv(env);
       authorize(request, env);
@@ -1367,6 +1369,7 @@ const PPT_MAX_BYTES = 8 * 1024 * 1024;
 const PPT_R2_MAX_BYTES = 200 * 1024 * 1024;
 const PPT_CHUNK_BYTES = 5 * 1024 * 1024;
 const PPT_SOURCE_LINK_MS = 72 * 60 * 60 * 1000;
+const PPT_DOWNLOAD_LINK_MS = 10 * 60 * 1000;
 const PPT_PROMPT_MAX_LENGTH = 6000;
 
 function pptTaskKey(id) { return "tasks/" + id + ".json"; }
@@ -1498,6 +1501,16 @@ async function handlePptStorage(request, env, action) {
     if (!result) return pptError("设计尚未完成，暂无可下载文件", 404);
     return new Response(result.body, { headers: { "Content-Type": "application/vnd.openxmlformats-officedocument.presentationml.presentation", "Content-Disposition": "attachment; filename=\"TGG-AI-" + task.id + ".pptx\"", "Cache-Control": "private, no-store" } });
   }
+  if (action === "result-link") {
+    const result = await bucket.head(pptResultKey(task.id));
+    if (!result) return pptError("设计尚未完成，暂无可下载文件", 404);
+    task.downloadToken = crypto.randomUUID();
+    task.downloadExpiresAt = Date.now() + PPT_DOWNLOAD_LINK_MS;
+    await pptWriteTask(bucket, task);
+    const url = new URL("/api/admin/ppt-download", request.url);
+    url.search = new URLSearchParams({ id: task.id, token: task.downloadToken }).toString();
+    return jsonResponse({ success: true, url: url.pathname + url.search, expiresIn: PPT_DOWNLOAD_LINK_MS / 1000 });
+  }
   if (action !== "complete") return pptError("不支持的任务操作", 404);
   if (task.status === "email_sent") return jsonResponse({ success: true, id: task.id, status: task.status, createdAt: task.createdAt });
   if (task.status !== "uploading" || task.uploadId !== body.uploadId) return pptError("上传任务状态不匹配", 409);
@@ -1521,6 +1534,28 @@ async function handlePptSource(request, env) {
   const object = await env.PPT_FILES.get(task.sourceKey || pptSourceKey(task.id));
   if (!object) return pptError("源文件不存在", 404);
   return new Response(object.body, { headers: { "Content-Type": "application/octet-stream", "Content-Disposition": "attachment; filename*=UTF-8''" + encodeURIComponent(task.name), "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } });
+}
+
+// A browser-native attachment response is more reliable on mobile than
+// fetching a large Blob and clicking an in-memory object URL.
+async function handlePptDownload(request, env) {
+  if (!env.PPT_FILES) return pptError("文件存储尚未启用", 503);
+  const url = new URL(request.url);
+  const task = await pptReadTask(env.PPT_FILES, url.searchParams.get("id") || "");
+  const token = url.searchParams.get("token") || "";
+  if (!task || !token || token !== task.downloadToken || Date.now() > task.downloadExpiresAt) return pptError("下载链接无效或已过期，请返回任务页重新下载", 403);
+  const result = await env.PPT_FILES.get(pptResultKey(task.id));
+  if (!result) return pptError("设计成品暂不可用，请稍后重试", 404);
+  const headers = {
+    "Content-Type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "Content-Disposition": "attachment; filename=\"TGG-AI-" + task.id + ".pptx\"",
+    "Cache-Control": "private, no-store",
+    "X-Content-Type-Options": "nosniff"
+  };
+  if (Number.isSafeInteger(result.size)) headers["Content-Length"] = String(result.size);
+  return new Response(result.body, {
+    headers
+  });
 }
 
 // A task-scoped callback for an external design agent. This token is unrelated

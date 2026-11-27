@@ -57,6 +57,26 @@ try {
   assert.match(source.headers.get('Content-Disposition'), /%E9%9C%80%E6%B1%82%E8%AF%B4%E6%98%8E\.pdf/);
   assert.equal(source.headers.get('Content-Type'), 'application/octet-stream');
 
+  // The mobile download path must stream an actual attachment without Blob URLs.
+  store.set(`results/${init.id}.pptx`, 'pptx-data');
+  const linkResponse = await call('result-link', JSON.stringify({ id: init.id }), { 'Content-Type': 'application/json' });
+  assert.equal(linkResponse.status, 200);
+  const downloadLink = await linkResponse.json();
+  assert.ok(downloadLink.url.startsWith('/api/admin/ppt-download?id='));
+  const wrongDownload = await worker.fetch(new Request(`https://towngg.com/api/admin/ppt-download?id=${init.id}&token=bad`), env);
+  assert.equal(wrongDownload.status, 403);
+  const download = await worker.fetch(new Request(`https://towngg.com${downloadLink.url}`), env);
+  assert.equal(download.status, 200);
+  assert.equal(await download.text(), 'pptx-data');
+  assert.match(download.headers.get('Content-Disposition'), /attachment; filename="TGG-AI-/);
+  assert.match(download.headers.get('Content-Type'), /presentationml\.presentation/);
+  assert.equal(download.headers.get('Cache-Control'), 'private, no-store');
+  const expiredTask = JSON.parse(store.get(`tasks/${init.id}.json`));
+  expiredTask.downloadExpiresAt = Date.now() - 1;
+  store.set(`tasks/${init.id}.json`, JSON.stringify(expiredTask));
+  const expiredDownload = await worker.fetch(new Request(`https://towngg.com${downloadLink.url}`), env);
+  assert.equal(expiredDownload.status, 403);
+
   const image = await (await call('init', JSON.stringify({ name: 'reference.png', size: 4, prompt: '按这张图片制作一份产品介绍' }), { 'Content-Type': 'application/json' })).json();
   assert.equal(image.success, true);
   const imgPart = await call('part', new Uint8Array(4), { 'X-Ppt-Id': image.id, 'X-Ppt-Upload-Id': image.uploadId, 'X-Ppt-Part': '1' });

@@ -167,6 +167,10 @@
   </style>
   <style>
     /* Mobile is a natural single-column page, not a clipped desktop viewport. */
+    #job-download.is-downloading{opacity:.82;cursor:progress}
+    #job-download.is-downloading:before{content:'';display:inline-block;width:15px;height:15px;margin-right:8px;vertical-align:-3px;border:2px solid #ffffff80;border-top-color:#fff;border-radius:50%;animation:ppt-download-spin .75s linear infinite}
+    #job-download-message:not([hidden]){padding:10px 13px;border-radius:12px;background:#eef4ff;border:1px solid #d7e5ff;color:#42639b;font-size:13px}
+    @keyframes ppt-download-spin{to{transform:rotate(360deg)}}
     @media(max-width:780px){
       html,body{height:auto;min-height:100%;overflow-x:hidden}
       body{background:radial-gradient(ellipse at 85% 0%,#dce6ff 0%,transparent 46%),radial-gradient(ellipse at 0% 75%,#e6f7ff 0%,transparent 58%),linear-gradient(145deg,#fafbff,#f0f4ff 70%,#f5f1ff);background-attachment:scroll}
@@ -291,7 +295,7 @@
         <div class="process-rail" aria-label="设计流程"><div class="process-step"><span class="process-icon">⇧</span><span><strong>描述需求</strong><small>文字必填 · 素材可选</small></span></div><div class="process-step"><span class="process-icon">✦</span><span><strong>AI 逐页设计</strong><small>按要求独立生成图片</small></span></div><div class="process-step"><span class="process-icon">▤</span><span><strong>导出 PPT</strong><small>获取高品质演示文稿</small></span></div></div>
       </section>
       <section id="tasks-view" hidden><div class="hero" style="min-height:210px"><div class="hero-copy"><div class="eyebrow">YOUR DESIGN REQUESTS</div><h1>我的设计任务</h1><p>查看已提交的任务；上传与邮件状态来自后台，AI 设计进度将在处理服务接通后显示。</p></div><div class="visual" aria-hidden="true" style="opacity:.3"><div class="orb"></div><div class="ring"></div></div></div><div class="section-head"><div><h2>任务记录</h2><p>保存于此设备，并可向后台查询已上传文件的真实状态。</p></div><button class="button" id="clear-records">清空本地测试记录</button></div><div class="tasks" id="tasks-list"></div></section>
-      <section id="job-view" hidden><div class="job-detail" id="job-card"><div class="job-top"><div><div class="eyebrow">TGG AI · DESIGN WORKFLOW</div><h2 id="job-name">设计任务</h2><div id="job-meta" class="job-meta"></div></div><span id="job-badge" class="job-badge">正在提交</span></div><div class="job-flow"><div class="job-stage" id="stage-upload">提交内容</div><div class="job-stage" id="stage-intake">任务接单</div><div class="job-stage" id="stage-design">逐页设计</div><div class="job-stage" id="stage-export">导出 PPT</div></div><div class="job-meter" id="job-meter"><div id="job-bar"></div></div><div class="job-live"><span class="job-live-orb" aria-hidden="true"></span><strong id="job-live-label">正在准备任务</strong><span id="job-live-detail">任务状态会在这里更新</span><span id="job-check" class="job-check">等待首次检查</span></div><div id="job-status" class="job-hint" aria-live="polite">正在准备提交…</div><div class="job-actions"><button class="button" id="job-back" type="button">返回我的任务</button><button class="button" id="job-refresh" type="button">立即检查状态</button><button class="button primary" id="job-download" type="button" hidden>下载完成的 PPT</button></div><div class="job-hint">您可以稍后回到「我的任务」查看。页面会自动检查真实状态；动画表示系统正在等待与检查，不代表 AI 已开始设计。</div></div></section>
+      <section id="job-view" hidden><div class="job-detail" id="job-card"><div class="job-top"><div><div class="eyebrow">TGG AI · DESIGN WORKFLOW</div><h2 id="job-name">设计任务</h2><div id="job-meta" class="job-meta"></div></div><span id="job-badge" class="job-badge">正在提交</span></div><div class="job-flow"><div class="job-stage" id="stage-upload">提交内容</div><div class="job-stage" id="stage-intake">任务接单</div><div class="job-stage" id="stage-design">逐页设计</div><div class="job-stage" id="stage-export">导出 PPT</div></div><div class="job-meter" id="job-meter"><div id="job-bar"></div></div><div class="job-live"><span class="job-live-orb" aria-hidden="true"></span><strong id="job-live-label">正在准备任务</strong><span id="job-live-detail">任务状态会在这里更新</span><span id="job-check" class="job-check">等待首次检查</span></div><div id="job-status" class="job-hint" aria-live="polite">正在准备提交…</div><div class="job-actions"><button class="button" id="job-back" type="button">返回我的任务</button><button class="button" id="job-refresh" type="button">立即检查状态</button><button class="button primary" id="job-download" type="button" hidden>下载完成的 PPT</button></div><div class="job-hint" id="job-download-message" role="status" aria-live="polite" hidden></div><div class="job-hint">您可以稍后回到「我的任务」查看。页面会自动检查真实状态；动画表示系统正在等待与检查，不代表 AI 已开始设计。</div></div></section>
       <footer class="standalone-footer">TGG AI Slides · 简单上传，智能设计 · 当前为邮件联调版本</footer>
     </main>
   </div>
@@ -340,7 +344,26 @@
       async function refreshJob(silent){if(checkingJob)return;var job=loadRecords().find(function(row){return row.id===currentJobId});if(!job)return;if(!job.r2){if(!silent)toast('这项任务暂无在线状态查询接口');return}checkingJob=true;$('job-check').classList.add('checking');$('job-check').textContent='正在连接服务器检查…';$('job-refresh').disabled=true;try{var state=await apiPpt('status',{id:job.id});job.status=state.status;job.completedPages=state.completedPages||0;job.totalPages=state.totalPages||0;updateRecord(job);lastJobCheck={id:job.id,time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})};if(currentJobId===job.id)paintJob(job)}catch(e){$('job-check').textContent='检查失败 · 稍后重试';if(!silent)toast('无法获取任务状态：'+e.message)}finally{checkingJob=false;$('job-check').classList.remove('checking');$('job-refresh').disabled=false}}
       setInterval(function(){if(document.hidden||$('job-view').hidden||checkingJob)return;var job=loadRecords().find(function(row){return row.id===currentJobId});if(job&&job.r2&&job.status!=='completed'&&job.status!=='uploading')refreshJob(true)},20000);
       $('job-back').addEventListener('click',function(){showTab('tasks')});$('job-refresh').addEventListener('click',function(){refreshJob(false)});
-      $('job-download').addEventListener('click',async function(){var job=loadRecords().find(function(row){return row.id===currentJobId});if(!job||job.status!=='completed')return;try{var response=await fetch('/api/admin/ppt-result',{method:'POST',headers:{'X-Admin-Key':sessionKey,'Content-Type':'application/json'},body:JSON.stringify({id:job.id})});if(!response.ok)throw Error('文件尚未准备好');var url=URL.createObjectURL(await response.blob());var link=document.createElement('a');link.href=url;link.download='TGG-AI-'+job.id+'.pptx';link.click();setTimeout(function(){URL.revokeObjectURL(url)},60000)}catch(e){toast(e.message)}});
+      var downloadBusy=false;
+      $('job-download').addEventListener('click',async function(){
+        var job=loadRecords().find(function(row){return row.id===currentJobId});
+        if(downloadBusy||!job||job.status!=='completed')return;
+        var button=this,message=$('job-download-message');
+        downloadBusy=true;button.disabled=true;button.classList.add('is-downloading');button.textContent='正在准备下载…';
+        message.hidden=false;message.textContent='正在连接服务器获取成品，请稍候…';
+        try{
+          var data=await apiPpt('result-link',{id:job.id});
+          var url=new URL(data.url,window.location.origin);
+          if(url.origin!==window.location.origin||url.pathname!=='/api/admin/ppt-download')throw Error('下载地址验证失败，请重试');
+          message.textContent='已向浏览器发起下载。手机端请查看下载列表，或在文件预览页选择「保存到文件」。';
+          window.location.assign(url.href);
+        }catch(e){
+          message.textContent='下载失败：'+(e.message||'网络异常')+'。请检查网络后重试。';
+          toast(message.textContent);
+        }finally{
+          downloadBusy=false;button.disabled=false;button.classList.remove('is-downloading');button.textContent='下载完成的 PPT';
+        }
+      });
       async function uploadMaterial(file,brief,button){var init=await apiPpt('init',{name:file.name,size:file.size,prompt:brief});var job={id:init.id,name:file.name,size:file.size,brief:brief,createdAt:init.createdAt,status:'uploading',progress:0,automated:true,r2:true};updateRecord(job);paintJob(job);var parts=[],chunks=Math.ceil(file.size/init.chunkSize);for(var i=0;i<chunks;i++){var slice=file.slice(i*init.chunkSize,Math.min(file.size,(i+1)*init.chunkSize));var part=await apiPpt('part',slice,{'X-Ppt-Id':init.id,'X-Ppt-Upload-Id':init.uploadId,'X-Ppt-Part':String(i+1)});parts.push({partNumber:part.partNumber,etag:part.etag});job.progress=Math.round((i+1)/chunks*100);job.status='uploading';updateRecord(job);paintJob(job);button.textContent='上传中 '+job.progress+'%'}button.textContent='正在通知接单邮箱…';var completed=await apiPpt('complete',{id:init.id,uploadId:init.uploadId,parts:parts});job.status=completed.status;job.progress=100;updateRecord(job);paintJob(job);toast('素材已上传，任务 '+init.id);return job}
       async function submitText(brief,button){button.textContent='正在提交文字需求…';var created=await apiPpt('text',{prompt:brief});var job={id:created.id,name:'文字创作任务',size:0,brief:brief,createdAt:created.createdAt,status:created.status,automated:true,r2:true};updateRecord(job);paintJob(job);toast('文字需求已成功提交，任务 '+created.id);return job}
       $('submit').addEventListener('click',async function(){
