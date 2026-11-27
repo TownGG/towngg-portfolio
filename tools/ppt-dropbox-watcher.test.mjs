@@ -75,9 +75,9 @@ test('simulated Harness reports one G and writes a durable sent receipt', async 
       'if (-not $value.Contains("只输入一个大写英文字母 G")) { exit 7 }',
       'if ($value -match "TGG_WAKE_SENT_[0-9a-f]{32}") { Write-Output $Matches[0]; exit 0 }',
       'exit 8'
-    ].join('\\n'), 'utf8');
+    ].join('\n'), 'utf8');
   } else {
-    await fs.writeFile(fakeDsh, '#!/usr/bin/env node\\nconst arg = process.argv.at(-1);\\nif (!arg.includes("只输入一个大写英文字母 G")) process.exit(7);\\nconsole.log(arg.match(/TGG_WAKE_SENT_[0-9a-f]{32}/)[0]);\\n');
+    await fs.writeFile(fakeDsh, '#!/usr/bin/env node\nconst arg = process.argv.at(-1);\nif (!arg.includes("只输入一个大写英文字母 G")) process.exit(7);\nconsole.log(arg.match(/TGG_WAKE_SENT_[0-9a-f]{32}/)[0]);\n');
     await fs.chmod(fakeDsh, 0o755);
   }
   const script = fileURLToPath(new URL('./ppt-dropbox-watcher.mjs', import.meta.url));
