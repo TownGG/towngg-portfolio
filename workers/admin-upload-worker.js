@@ -34,8 +34,8 @@ const MESSAGE_BOARD_DISCUSSION_TITLE_RE = /message[-\s]?board/i;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, X-Admin-Key",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, X-Admin-Key, X-Ppt-Id, X-Ppt-Upload-Id, X-Ppt-Part",
   "Access-Control-Max-Age": "86400"
 };
 
@@ -60,20 +60,24 @@ export default {
     const isMessageBoardDelete = url.pathname.endsWith("/api/admin/message-board-delete");
     const isPptHealth = url.pathname.endsWith("/api/admin/ppt-health");
     const isPptSubmit = url.pathname.endsWith("/api/admin/ppt-submit");
+    const pptAction = ["init", "part", "complete", "status", "result"].find(action => url.pathname.endsWith("/api/admin/ppt-" + action));
+    const isPptSource = url.pathname.endsWith("/api/admin/ppt-source");
     const isCommunityRoute = isCommunityList || isCommunitySave || isCommunityDelete || isCommunityDraft || isCommunityRedditReply || isCommunityNexusReply;
     const isMessageBoardRoute = isMessageBoardList || isMessageBoardDelete;
 
-    if (request.method !== "POST" || (!isAuthCheck && !isGalleryUpload && !isGalleryList && !isGalleryDelete && !isCommunityRoute && !isMessageBoardRoute && !isPptHealth && !isPptSubmit)) {
+    if (!((request.method === "POST" && (isAuthCheck || isGalleryUpload || isGalleryList || isGalleryDelete || isCommunityRoute || isMessageBoardRoute || isPptHealth || isPptSubmit || pptAction)) || (request.method === "GET" && isPptSource))) {
       return jsonResponse({ success: false, error: "Not found" }, 404);
     }
 
     try {
+      if (isPptSource) return await handlePptSource(request, env);
       assertEnv(env);
       authorize(request, env);
 
       if (isPptHealth) {
-        return jsonResponse({ success: true, configured: Boolean(env.GMAIL_CLIENT_ID && env.GMAIL_CLIENT_SECRET && env.GMAIL_REFRESH_TOKEN) });
+        return jsonResponse({ success: true, configured: Boolean(env.GMAIL_CLIENT_ID && env.GMAIL_CLIENT_SECRET && env.GMAIL_REFRESH_TOKEN), r2Configured: Boolean(env.PPT_FILES) });
       }
+      if (pptAction) return await handlePptStorage(request, env, pptAction);
       if (isPptSubmit) {
         return await handlePptIntake(request, env);
       }
@@ -1356,9 +1360,108 @@ async function deleteMessageBoardComment(config, payload) {
   };
 }
 
-// AI PPT intake — isolated from gallery/community routes. For the first live
-// integration, Gmail itself stores the original PPT attachment. No R2 binding.
+// Small-file Gmail fallback. Large PPTX files use private R2 multipart storage.
 const PPT_MAX_BYTES = 8 * 1024 * 1024;
+const PPT_R2_MAX_BYTES = 200 * 1024 * 1024;
+const PPT_CHUNK_BYTES = 5 * 1024 * 1024;
+const PPT_SOURCE_LINK_MS = 72 * 60 * 60 * 1000;
+
+function pptTaskKey(id) { return "tasks/" + id + ".json"; }
+function pptSourceKey(id) { return "sources/" + id + ".pptx"; }
+function pptResultKey(id) { return "results/" + id + ".pptx"; }
+function pptSafeId(id) { return /^PPT-\d{8}-[A-F0-9]{12}$/.test(id); }
+function pptError(message, status = 400) { return jsonResponse({ success: false, error: message }, status); }
+async function pptReadTask(bucket, id) {
+  if (!pptSafeId(id)) return null;
+  const object = await bucket.get(pptTaskKey(id));
+  return object ? object.json() : null;
+}
+async function pptWriteTask(bucket, task) {
+  await bucket.put(pptTaskKey(task.id), JSON.stringify(task), { httpMetadata: { contentType: "application/json" } });
+}
+
+async function handlePptStorage(request, env, action) {
+  const bucket = env.PPT_FILES;
+  if (!bucket) return pptError("大文件存储尚未启用，请联系管理员配置 R2", 503);
+  if (action === "init") {
+    const body = await request.json();
+    const filename = String(body.name || "").replace(/[\r\n"\\/]/g, "_").slice(0, 160);
+    const size = Number(body.size);
+    const prompt = String(body.prompt || "").trim();
+    const style = String(body.style || "蓝色科技风").slice(0, 80);
+    if (!/\.pptx$/i.test(filename) || !Number.isSafeInteger(size) || size < 4 || size > PPT_R2_MAX_BYTES) return pptError("仅支持最大 200 MB 的 PPTX 文件", 413);
+    if (prompt.length < 4 || prompt.length > 1200) return pptError("设计需求应为 4～1200 字");
+    const id = "PPT-" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase();
+    const upload = await bucket.createMultipartUpload(pptSourceKey(id));
+    const task = { id, name: filename, size, prompt, style, createdAt: new Date().toISOString(), status: "uploading", uploadId: upload.uploadId, sourceToken: crypto.randomUUID(), sourceExpiresAt: Date.now() + PPT_SOURCE_LINK_MS };
+    await pptWriteTask(bucket, task);
+    return jsonResponse({ success: true, id, uploadId: upload.uploadId, chunkSize: PPT_CHUNK_BYTES, createdAt: task.createdAt });
+  }
+  if (action === "part") {
+    const id = request.headers.get("X-Ppt-Id") || "";
+    const uploadId = request.headers.get("X-Ppt-Upload-Id") || "";
+    const partNumber = Number(request.headers.get("X-Ppt-Part"));
+    const task = await pptReadTask(bucket, id);
+    if (!task || task.status !== "uploading" || task.uploadId !== uploadId) return pptError("上传任务不存在或已结束", 409);
+    if (!Number.isInteger(partNumber) || partNumber < 1 || partNumber > Math.ceil(task.size / PPT_CHUNK_BYTES)) return pptError("无效的分片编号");
+    const declaredSize = Number(request.headers.get("Content-Length") || 0);
+    if (declaredSize > PPT_CHUNK_BYTES) return pptError("分片过大", 413);
+    const chunk = await request.arrayBuffer();
+    const expectedSize = Math.min(PPT_CHUNK_BYTES, task.size - (partNumber - 1) * PPT_CHUNK_BYTES);
+    if (chunk.byteLength !== expectedSize) return pptError("分片大小无效", 413);
+    const part = await bucket.resumeMultipartUpload(pptSourceKey(id), uploadId).uploadPart(partNumber, chunk);
+    return jsonResponse({ success: true, partNumber: part.partNumber, etag: part.etag });
+  }
+  const body = await request.json();
+  const task = await pptReadTask(bucket, String(body.id || ""));
+  if (!task) return pptError("未找到任务", 404);
+  if (action === "status") {
+    const result = await bucket.head(pptResultKey(task.id));
+    return jsonResponse({ success: true, id: task.id, status: result ? "completed" : task.status, name: task.name, size: task.size, createdAt: task.createdAt, hasResult: Boolean(result), emailError: Boolean(task.emailError) });
+  }
+  if (action === "result") {
+    const result = await bucket.get(pptResultKey(task.id));
+    if (!result) return pptError("设计尚未完成，暂无可下载文件", 404);
+    return new Response(result.body, { headers: { "Content-Type": "application/vnd.openxmlformats-officedocument.presentationml.presentation", "Content-Disposition": "attachment; filename=\"TGG-AI-" + task.id + ".pptx\"", "Cache-Control": "private, no-store" } });
+  }
+  if (action !== "complete") return pptError("不支持的任务操作", 404);
+  if (task.status === "email_sent") return jsonResponse({ success: true, id: task.id, status: task.status, createdAt: task.createdAt });
+  if (task.status !== "uploading" || task.uploadId !== body.uploadId) return pptError("上传任务状态不匹配", 409);
+  const parts = Array.isArray(body.parts) ? body.parts : [];
+  const expected = Math.ceil(task.size / PPT_CHUNK_BYTES);
+  if (parts.length !== expected || parts.some((p, i) => p.partNumber !== i + 1 || typeof p.etag !== "string" || !p.etag)) return pptError("上传分片不完整");
+  await bucket.resumeMultipartUpload(pptSourceKey(task.id), task.uploadId).complete(parts);
+  task.status = "uploaded";
+  delete task.uploadId;
+  await pptWriteTask(bucket, task);
+  const link = new URL(request.url);
+  link.pathname = "/api/admin/ppt-source";
+  link.search = new URLSearchParams({ id: task.id, token: task.sourceToken }).toString();
+  const message = ["TGG AI PPT 官网自动接单", "任务 ID：" + task.id, "文件名：" + task.name, "文件大小：" + task.size + " 字节", "设计风格：" + task.style, "设计要求：" + task.prompt, "原稿安全下载链接（72 小时有效）：" + link.href, "默认要求：每页独立生图，内容保持不变，16:9，最终合成 PPTX。", "当前仅已上传并通知，尚未接通自动生图与成品回传。"].join("\n");
+  try {
+    await sendPptGmail(env, "[PPT-AI-TEST] " + task.id, message);
+    task.status = "email_sent";
+    delete task.emailError;
+    await pptWriteTask(bucket, task);
+    return jsonResponse({ success: true, id: task.id, status: task.status, createdAt: task.createdAt });
+  } catch (error) {
+    task.emailError = true;
+    await pptWriteTask(bucket, task);
+    console.error("PPT R2 task mail failed", String(error?.message || "unknown"));
+    return pptError("文件上传成功，但邮件通知失败；任务已保留", 502);
+  }
+}
+
+async function handlePptSource(request, env) {
+  if (!env.PPT_FILES) return pptError("文件存储尚未启用", 503);
+  const url = new URL(request.url);
+  const task = await pptReadTask(env.PPT_FILES, url.searchParams.get("id") || "");
+  const provided = url.searchParams.get("token") || "";
+  if (!task || !provided || provided !== task.sourceToken || Date.now() > task.sourceExpiresAt) return pptError("下载链接无效或已过期", 403);
+  const object = await env.PPT_FILES.get(pptSourceKey(task.id));
+  if (!object) return pptError("源文件不存在", 404);
+  return new Response(object.body, { headers: { "Content-Type": "application/vnd.openxmlformats-officedocument.presentationml.presentation", "Content-Disposition": "attachment; filename*=UTF-8''" + encodeURIComponent(task.name), "Cache-Control": "private, no-store" } });
+}
 
 async function handlePptIntake(request, env) {
   if (!(env.GMAIL_CLIENT_ID && env.GMAIL_CLIENT_SECRET && env.GMAIL_REFRESH_TOKEN)) {
@@ -1415,9 +1518,8 @@ async function sendPptGmail(env, subject, body, filename, attachment) {
     "To: " + to, "Subject: =?UTF-8?B?" + pptBase64(utf8.encode(subject)) + "?=",
     "MIME-Version: 1.0", "Content-Type: multipart/mixed; boundary=\"" + boundary + "\"", "",
     "--" + boundary, "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: base64", "", pptBase64(utf8.encode(body)), "",
-    "--" + boundary, "Content-Type: application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    "Content-Disposition: attachment; filename*=UTF-8''" + encodeURIComponent(filename),
-    "Content-Transfer-Encoding: base64", "", pptBase64(attachment), "", "--" + boundary + "--", ""
+    ...(attachment ? ["--" + boundary, "Content-Type: application/vnd.openxmlformats-officedocument.presentationml.presentation", "Content-Disposition: attachment; filename*=UTF-8''" + encodeURIComponent(filename), "Content-Transfer-Encoding: base64", "", pptBase64(attachment), ""] : []),
+    "--" + boundary + "--", ""
   ].join("\r\n");
   const raw = pptBase64(utf8.encode(mime)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   const response = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
