@@ -1445,6 +1445,28 @@ async function handlePptStorage(request, env, action) {
     task.status = "email_sent";
     delete task.emailError;
     await pptWriteTask(bucket, task);
+    try {
+      const notifyTo = env.PPT_NOTIFY_EMAIL === undefined ? "1398469825@qq.com" : String(env.PPT_NOTIFY_EMAIL).trim();
+      if (notifyTo) {
+        const notice = [
+          "TGG AI PPT · 新设计任务",
+          "任务编号：" + task.id,
+          "文件名：" + task.name,
+          "文件大小：" + task.size + " 字节",
+          "设计风格：" + task.style,
+          "当前状态：已上传，等待 AI 接单",
+          "请打开 ChatGPT，提醒 AI 检查 Gmail 中的新 PPT 设计任务。"
+        ].join("\n");
+        // Never send the customer prompt, private source URL or callback token
+        // to the secondary owner-notification inbox.
+        await sendPptGmail(env, "[TGG PPT 新任务] " + task.id, notice, undefined, undefined, notifyTo);
+      }
+      delete task.notifyError;
+    } catch (notifyError) {
+      task.notifyError = true;
+      console.error("PPT owner notification failed", String(notifyError?.message || "unknown"));
+    }
+    await pptWriteTask(bucket, task);
     return jsonResponse({ success: true, id: task.id, status: task.status, createdAt: task.createdAt });
   } catch (error) {
     task.emailError = true;
@@ -1567,7 +1589,7 @@ async function handlePptIntake(request, env) {
   }
 }
 
-async function sendPptGmail(env, subject, body, filename, attachment) {
+async function sendPptGmail(env, subject, body, filename, attachment, recipient) {
   const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -1576,7 +1598,7 @@ async function sendPptGmail(env, subject, body, filename, attachment) {
   if (!tokenResponse.ok) throw new Error("Gmail token exchange HTTP " + tokenResponse.status);
   const token = (await tokenResponse.json()).access_token;
   if (!token) throw new Error("Gmail token missing");
-  const to = env.PPT_INBOX_EMAIL || "tgg508034@gmail.com";
+  const to = recipient || env.PPT_INBOX_EMAIL || "tgg508034@gmail.com";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) throw new Error("Invalid recipient");
   const boundary = "ppt-" + crypto.randomUUID();
   const utf8 = new TextEncoder();
