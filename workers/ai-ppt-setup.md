@@ -1,5 +1,22 @@
 # TownGG AI PPT 自动接单后端
 
+## 2026-11-27：R2 任务回传接口
+
+现有 `admin-upload-worker.js` 增加 `POST /api/admin/ppt-agent`，使用任务邮件里的 `X-Ppt-Id` 和 `X-Ppt-Agent-Token` 两个请求头授权（**不需要/不得使用后台管理员密码**）。令牌仅限单个任务、7 天有效，完成后失效。
+
+代理必须真实执行每一页的设计，然后按下列顺序回传；发送接单邮件**不会自动生成 PPT**：
+
+1. `X-Ppt-Agent-Action: start`，JSON `{ "totalPages": 12, "completedPages": 0 }`。返回状态 `designing`。
+2. 每完成一页，使用 `progress` 和 JSON `{ "totalPages": 12, "completedPages": 1 }` 等更新。前端通过 `ppt-status` 读取实际页数；所有数字必须来自真实生成结果。
+3. 全部页生成后使用 `progress` 设置 `completedPages=totalPages`，状态变为 `exporting`。
+4. `result-init`，JSON `{ "size": 12345678 }`，获得 `uploadId` 和 `chunkSize`（5 MB）。
+5. `result-part` 上传二进制 PPTX 分片，追加 `X-Ppt-Upload-Id`、`X-Ppt-Part`（从 1 开始），保存返回 `etag`。
+6. `result-complete`，JSON `{ "uploadId": "...", "parts": [{ "partNumber": 1, "etag": "..." }] }`，分片按编号升序提交。成品落入私有 R2 `results/<task>.pptx`，任务状态改 `completed`，前端允许下载。
+
+每个任务最多 200 MB，结果不得覆盖已完成任务。生产环境需另行实现自动执行端，负责下载原稿、逐页准确提取内容、调用图像生成模型、生成 PPTX，并调用上述接口。该执行端尚未部署；**不要在页面上宣称已开启全自动设计**。
+
+本地回归检查：`node workers/admin-upload-worker.ppt.test.mjs` 和 `node workers/admin-upload-worker.agent.test.mjs`。部署 Worker 须到 Cloudflare 发布更新后的脚本；GitHub 提交不会自动更新运行中的 Worker。
+
 > **当前推荐：复用现有 `workers/admin-upload-worker.js`。** 下文单独 Worker 方案是早期备选设计，无需部署。
 
 ## 当前方案：现有后台 Worker
