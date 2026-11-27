@@ -171,33 +171,33 @@
     #job-download.is-downloading:before,.task-download.is-downloading:before{content:'';display:inline-block;width:15px;height:15px;margin-right:8px;vertical-align:-3px;border:2px solid #ffffff80;border-top-color:#fff;border-radius:50%;animation:ppt-download-spin .75s linear infinite}
     #job-download-message:not([hidden]){padding:10px 13px;border-radius:12px;background:#eef4ff;border:1px solid #d7e5ff;color:#42639b;font-size:13px}
     @keyframes ppt-download-spin{to{transform:rotate(360deg)}}
-    /* Real job milestones: glass page cards with optional agent-uploaded thumbnails. */
-    .job-page-panel{padding:16px;border:1px solid #d8e4ff;border-radius:20px;background:linear-gradient(130deg,#f5faffd9,#f3efffd4);box-shadow:inset 0 1px #fff,0 10px 30px #abc0ec26}
-    .job-page-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:13px;color:#22346c;font-size:15px}
-    .job-page-head strong{display:flex;align-items:center;gap:8px}
-    .job-page-head strong:before{content:'✦';color:#795cf4;text-shadow:0 0 12px #956dff7d}
-    .job-page-head .page-count{color:#7359c8;font-size:13px;font-weight:750;white-space:nowrap}
-    .job-pages{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px}
-    .job-page{min-width:0;text-align:center;color:#7f8cab;font-size:11px}
-    .job-page-frame{position:relative;display:grid;place-items:center;aspect-ratio:16/9;border:1px solid #d6dffa;border-radius:12px;background:linear-gradient(135deg,#edf5ff,#f7f4ff);overflow:hidden;box-shadow:inset 0 1px #fff}
-    .job-page-frame:before{content:'▤';font-size:26px;color:#b7bee8}
-    .job-page img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-    .job-page.done .job-page-frame{border-color:#99ceee;box-shadow:0 4px 13px #7ac9f62e}
-    .job-page.done .job-page-frame:after{content:'✓';position:absolute;right:4px;bottom:4px;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#43b2ef;color:white;font-size:12px;box-shadow:0 1px 7px #1b70a870}
-    .job-page.current .job-page-frame{border:1.5px solid #8c65fb;box-shadow:0 0 0 3px #a98afa22,0 3px 17px #916aef40}
-    .job-page.current .job-page-frame:before{content:'✦';color:#7758d5;animation:job-beat-icon 1.7s ease-in-out infinite}
-    .job-page-label{margin-top:7px;line-height:1.4;white-space:nowrap}
-    .job-page-note{margin:11px 0 0;font-size:12px;color:#7184a6;line-height:1.5}
+    /* One truthful page counter replaces the former thumbnail grid. */
+    .job-focus{padding:30px 24px;border:1px solid #dfe6ff;border-radius:24px;background:radial-gradient(ellipse at 50% 0%,#e7e5ffad,transparent 69%),linear-gradient(125deg,#f9fbff,#f3f5ff);box-shadow:inset 0 1px #fff,0 13px 35px #abc0ec1c;text-align:center}
+    .job-focus-kicker{display:flex;justify-content:center;align-items:center;gap:9px;color:#6b5cca;font-size:14px;font-weight:750}
+    .job-focus-kicker:before{content:'';display:block;width:8px;height:8px;border-radius:50%;background:#8064ef;box-shadow:0 0 0 5px #8064ef1c;animation:job-beat 2s ease-out infinite}
+    .job-focus-number{display:flex;justify-content:center;align-items:baseline;gap:14px;margin:10px 0 4px;font-variant-numeric:tabular-nums;color:#192a68}
+    .job-focus-current{font-size:clamp(58px,6vw,84px);font-weight:850;letter-spacing:-.075em;line-height:1.12;background:linear-gradient(120deg,#327cf1,#8c52d9);background-clip:text;color:transparent}
+    .job-focus-separator{font-size:32px;color:#acb7d0;font-weight:300}.job-focus-total{font-size:32px;color:#7f8eaf;font-weight:650}
+    .job-page-note{margin:7px 0 0;font-size:14px;color:#7183a7;line-height:1.55}
+    .job-progress-label{display:flex;justify-content:space-between;gap:12px;margin:3px 1px -4px;color:#7183a7;font-size:13px}
+    .job-progress-label strong{color:#394c91;font-variant-numeric:tabular-nums}
+    .job-detail #job-status{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+    .job-live>strong,.job-live>#job-live-detail{display:none}
+    .job-detail.is-complete .job-live{display:none}
+    .job-detail.is-complete .job-actions #job-download{order:-1;min-width:220px}
+    .job-detail.is-complete .job-actions #job-refresh{display:none}
+    #job-view{flex:1;min-height:0;overflow-y:auto;padding-bottom:18px;overscroll-behavior:contain}
+    #job-view .job-detail{margin-top:17px}
     .job-complete{display:flex;align-items:center;gap:18px;padding:18px;border:1px solid #afdbf9;border-radius:20px;background:linear-gradient(125deg,#f4fbff,#ecebff);box-shadow:0 10px 28px #8dace032}
     .job-complete-mark{display:grid;place-items:center;width:67px;height:67px;flex:none;border-radius:20px;background:linear-gradient(135deg,#64caff,#8274fb 75%,#ba72ea);color:white;font-size:35px;font-weight:800;box-shadow:0 0 25px #75affd7a,inset 0 2px #fff8;animation:job-finish-enter .65s cubic-bezier(.2,1.8,.4,1) both}
     .job-complete strong{display:block;color:#1b3267;font-size:19px}.job-complete p{margin:6px 0 0;color:#6580aa;font-size:13px;line-height:1.5}
-    .job-page-panel[hidden],.job-complete[hidden]{display:none!important}
+    .job-focus[hidden],.job-complete[hidden]{display:none!important}
     .job-complete:not([hidden])+.job-actions #job-download{box-shadow:0 10px 28px #806af75e}
     .task-download{background:linear-gradient(110deg,#4f9af9,#8866f4)!important;color:#fff!important;border-color:#7a8ff9!important}
     .task-download:disabled{opacity:.6}
     @keyframes job-finish-enter{from{opacity:0;transform:scale(.75) rotate(-12deg)}to{opacity:1;transform:scale(1) rotate(0)}}
-    @media(max-width:780px){.job-page-panel{padding:12px}.job-pages{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.job-page-head{font-size:14px}.job-complete{gap:12px;padding:14px}.job-complete-mark{width:54px;height:54px;font-size:29px}.job-complete strong{font-size:16px}.job-complete p{font-size:12px}}
-    @media(prefers-reduced-motion:reduce){.job-page.current .job-page-frame:before,.job-complete-mark{animation:none!important}}
+    @media(max-width:780px){#job-view{flex:0 0 auto;overflow:visible;padding-bottom:12px}.job-focus{padding:26px 14px}.job-focus-current{font-size:62px}.job-focus-kicker,.job-page-note{font-size:13px}.job-focus-separator,.job-focus-total{font-size:27px}.job-progress-label{font-size:12px}.job-complete{gap:12px;padding:14px}.job-complete-mark{width:54px;height:54px;font-size:29px}.job-complete strong{font-size:16px}.job-complete p{font-size:12px}.job-detail.is-complete .job-actions #job-download{width:100%;order:-1}}
+    @media(prefers-reduced-motion:reduce){.job-focus-kicker:before,.job-complete-mark{animation:none!important}}
     @media(max-width:780px){
       html,body{height:auto;min-height:100%;overflow-x:hidden}
       body{background:radial-gradient(ellipse at 85% 0%,#dce6ff 0%,transparent 46%),radial-gradient(ellipse at 0% 75%,#e6f7ff 0%,transparent 58%),linear-gradient(145deg,#fafbff,#f0f4ff 70%,#f5f1ff);background-attachment:scroll}
@@ -348,11 +348,21 @@
             <div class="submit-row"><div class="submit-note"><strong>逐页设计 · 导出高清 PPT</strong><small>有素材就上传，也可以只写文字。</small></div><button class="button primary" id="submit" type="button">开始 AI 设计</button></div>
           </section>
         </div>
-        <div class="process-rail" aria-label="设计流程"><div class="process-step"><span class="process-icon">⇧</span><span><strong>描述需求</strong><small>文字必填 · 素材可选</small></span></div><div class="process-step"><span class="process-icon">✦</span><span><strong>AI 逐页设计</strong><small>按要求独立生成图片</small></span></div><div class="process-step"><span class="process-icon">▤</span><span><strong>导出 PPT</strong><small>获取高品质演示文稿</small></span></div></div>
+        <div class="process-rail" aria-label="设计流程"><div class="process-step"><span class="process-icon">⇧</span><span><strong>描述需求</strong><small>文字必填 · 素材可选</small></span></div><div class="process-step"><span class="process-icon">✦</span><span><strong>AI 逐页设计</strong><small>实时查看设计进度</small></span></div><div class="process-step"><span class="process-icon">▤</span><span><strong>导出 PPT</strong><small>获取高品质演示文稿</small></span></div></div>
       </section>
       <section id="tasks-view" hidden><div class="hero" style="min-height:210px"><div class="hero-copy"><div class="eyebrow">YOUR DESIGN REQUESTS</div><h1>我的设计任务</h1><p>随时查看设计进度，完成后直接下载。</p></div><div class="visual" aria-hidden="true" style="opacity:.3"><div class="orb"></div><div class="ring"></div></div></div><div class="section-head"><div><h2>我的任务</h2><p>进度自动更新</p></div><button class="button" id="clear-records">清空记录</button></div><div class="tasks" id="tasks-list"></div></section>
-      <section id="job-view" hidden><div class="job-detail" id="job-card"><div class="job-top"><div><div class="eyebrow">TGG AI · DESIGN PROGRESS</div><h2 id="job-name">设计任务</h2><div id="job-meta" class="job-meta"></div></div><span id="job-badge" class="job-badge">正在提交</span></div><div class="job-flow"><div class="job-stage" id="stage-upload">提交需求</div><div class="job-stage" id="stage-design">AI 设计</div><div class="job-stage" id="stage-export">完成下载</div></div><div class="job-meter" id="job-meter"><div id="job-bar"></div></div><div class="job-live"><span class="job-live-orb" aria-hidden="true"></span><strong id="job-live-label">正在准备任务</strong><span id="job-live-detail">任务状态会在这里更新</span><span id="job-check" class="job-check">等待首次检查</span></div><div id="job-status" class="job-hint" aria-live="polite">正在准备提交…</div>
-        <div id="job-pages-panel" class="job-page-panel" hidden><div class="job-page-head"><strong>AI 逐页设计</strong><span id="job-page-count" class="page-count">0 / 0</span></div><div id="job-pages" class="job-pages"></div><p id="job-page-note" class="job-page-note"></p></div>
+       <section id="job-view" hidden><div class="job-detail" id="job-card">
+         <div class="job-top"><div><div class="eyebrow">TGG AI · DESIGN PROGRESS</div><h2 id="job-name">设计任务</h2><div id="job-meta" class="job-meta"></div></div><span id="job-badge" class="job-badge">正在提交</span></div>
+         <div class="job-flow"><div class="job-stage" id="stage-upload">提交需求</div><div class="job-stage" id="stage-design">AI 设计</div><div class="job-stage" id="stage-export">生成 PPTX</div></div>
+         <div id="job-pages-panel" class="job-focus" hidden>
+           <div id="job-focus-kicker" class="job-focus-kicker">AI 正在设计当前页面</div>
+           <div class="job-focus-number"><strong id="job-page-current" class="job-focus-current">1</strong><span class="job-focus-separator">/</span><span id="job-page-total" class="job-focus-total">1</span></div>
+           <p id="job-page-note" class="job-page-note">正在准备页面</p>
+         </div>
+         <div class="job-progress-label"><span>页面设计进度</span><strong id="job-page-count">等待接单</strong></div>
+         <div class="job-meter" id="job-meter" role="progressbar" aria-label="页面设计进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="job-bar"></div></div>
+         <div class="job-live"><span class="job-live-orb" aria-hidden="true"></span><strong id="job-live-label">正在准备任务</strong><span id="job-live-detail">任务状态会在这里更新</span><span id="job-check" class="job-check">等待首次检查</span></div>
+         <div id="job-status" class="job-hint" aria-live="polite">正在准备提交…</div>
         <div id="job-complete" class="job-complete" hidden><span class="job-complete-mark" aria-hidden="true">✓</span><div><strong>你的 PPT 已设计完成</strong><p id="job-complete-meta">高品质 PPTX 已准备好下载。</p></div></div>
         <div class="job-actions"><button class="button" id="job-back" type="button">返回我的任务</button><button class="button" id="job-refresh" type="button">刷新进度</button><button class="button primary" id="job-download" type="button" hidden>下载 PPT</button></div><div class="job-hint" id="job-download-message" role="status" aria-live="polite" hidden></div></div></section>
       <footer class="standalone-footer">TGG AI · 让每一页，都惊艳呈现</footer>
@@ -410,63 +420,44 @@
       function jobStatusLabel(job){
         if(!job.automated)return '历史记录';
         if(job.status==='completed')return '已完成 · 可下载';
-        if(job.status==='exporting')return '正在生成 PPT';
-        if(job.status==='designing')return 'AI 设计中 · 第 '+Math.min((job.completedPages||0)+1,job.totalPages||1)+' 页';
-        if(job.status==='email_sent')return '已提交 · 等待 AI 处理';
-        if(job.status==='uploaded')return '已提交 · 等待 AI 处理';
+        if(job.status==='exporting')return '正在生成 PPTX';
+        if(job.status==='designing')return job.totalPages?'AI 设计中 · 第 '+Math.min((job.completedPages||0)+1,job.totalPages)+' 页':'AI 已接单';
+        if(job.status==='email_sent')return '已提交 · 等待 AI 接单';
+        if(job.status==='uploaded')return '已提交 · 等待 AI 接单';
         if(job.status==='uploading')return '正在上传 · '+Math.round(job.progress||0)+'%';
         return job.status||'等待处理';
       }
       var checkingJob=false,checkingTasks=false,lastJobCheck=null,taskBatchOffset=0;
-      var previewCache=new Map(),previewLoading=new Set();
       function renderJobPages(job){
         var total=Number(job.totalPages)||0,done=Math.min(total,Number(job.completedPages)||0),show=total>0&&['designing','exporting','completed'].includes(job.status);
-        $('job-pages-panel').hidden=!show;
-        if(!show)return;
-        $('job-page-count').textContent=done+' / '+total+' 页已完成';
-        var first=total<=6?1:Math.min(Math.max(1,done-1),total-5),last=Math.min(total,first+5);
-        var previews=Array.isArray(job.previewPages)?job.previewPages:[];
-        var nodes=document.createDocumentFragment();
-        for(var page=first;page<=last;page++){
-          var card=document.createElement('div');card.className='job-page'+(page<=done?' done':'')+(page===done+1&&job.status==='designing'?' current':'');
-          var frame=document.createElement('div');frame.className='job-page-frame';
-          var key=job.id+'/'+page;
-          if(previews.includes(page)&&previewCache.has(key)){
-            var image=document.createElement('img');image.src=previewCache.get(key);image.alt='第 '+page+' 页设计预览';image.loading='lazy';frame.appendChild(image);
-          }else if(previews.includes(page)&&!previewLoading.has(key))loadPagePreview(job.id,page);
-          var label=document.createElement('div');label.className='job-page-label';label.textContent='第 '+page+' 页'+(page<=done?' · 完成':page===done+1&&job.status==='designing'?' · 制作中':' · 等待');
-          card.append(frame,label);nodes.appendChild(card);
-        }
-        $('job-pages').replaceChildren(nodes);
-        $('job-page-note').textContent=job.status==='designing'?'已完成 '+done+' 页，正在设计第 '+Math.min(done+1,total)+' 页。':job.status==='exporting'?'页面设计完成，正在合成 PPT。':'全部页面已完成，可以下载。';
+         var exporting=job.status==='exporting',completed=job.status==='completed';
+         $('job-pages-panel').hidden=!show||completed;
+         $('job-page-count').textContent=total?(completed?'全部 '+total+' 页已完成':done+' / '+total+' 页完成'):'等待 AI 接单';
+         if(!show||completed)return;
+         var page=exporting?total:Math.min(done+1,total);
+         $('job-focus-kicker').textContent=exporting?'页面设计已完成':'AI 正在设计当前页面';
+         $('job-page-current').textContent=String(page).padStart(2,'0');
+         $('job-page-total').textContent=String(total).padStart(2,'0');
+         $('job-page-note').textContent=exporting?'正在生成最终 PPTX，请稍候':'已完成 '+done+' 页，正在设计第 '+page+' 页';
       }
-      async function loadPagePreview(id,page){
-        var key=id+'/'+page;previewLoading.add(key);
-        try{
-          var response=await fetch('/api/admin/ppt-preview',{method:'POST',headers:{'X-Admin-Key':sessionKey,'Content-Type':'application/json'},body:JSON.stringify({id:id,page:page}),cache:'no-store'});
-          if(!response.ok)throw Error('缩略图暂不可用');
-          var blob=await response.blob();
-          if(!blob.type.startsWith('image/')||blob.size>1048576)throw Error('缩略图格式错误');
-          previewCache.set(key,URL.createObjectURL(blob));
-          if(currentJobId===id){var job=loadRecords().find(function(row){return row.id===id});if(job)renderJobPages(job)}
-        }catch(e){}finally{previewLoading.delete(key)}
-      }
-      window.addEventListener('pagehide',function(){previewCache.forEach(function(url){URL.revokeObjectURL(url)});previewCache.clear()});
       function paintJob(job){
         if(!job)return;
         currentJobId=job.id;showTab('job');
         var waiting=job.status==='email_sent'||job.status==='uploaded',designing=job.status==='designing',exporting=job.status==='exporting',completed=job.status==='completed',active=waiting||designing||exporting,hasFile=job.size>0;
         var done=Number(job.completedPages)||0,total=Number(job.totalPages)||0;
         $('job-card').classList.toggle('is-waiting',active);
+         $('job-card').classList.toggle('is-complete',completed);
         $('job-name').textContent=job.name;
         $('job-meta').textContent=job.id+' · '+(hasFile?prettySize(job.size):'纯文字创作')+(!job.r2&&job.style?' · '+job.style:'');
         $('job-badge').textContent=jobStatusLabel(job);$('job-badge').classList.toggle('is-live',active);
         $('job-status').textContent=waiting?'任务已提交，AI 开始设计后会自动更新进度。':jobStatusLabel(job);
-        var flags=completed?[1,1,1]:designing||exporting?[1,0,0]:waiting?[1,0,0]:[0,0,0];
-        var now=completed?2:designing||exporting||waiting?1:job.status==='uploading'?0:-1;
+         var flags=completed?[1,1,1]:exporting?[1,1,0]:designing||waiting?[1,0,0]:[0,0,0];
+         var now=completed?-1:exporting?2:designing||waiting?1:job.status==='uploading'?0:-1;
         ['upload','design','export'].forEach(function(stage,i){var element=$('stage-'+stage);element.classList.toggle('done',!!flags[i]);element.classList.toggle('now',i===now);element.classList.toggle('waiting',waiting&&i===1)});
         $('job-meter').classList.toggle('is-active',job.status==='uploading'||active);
-        $('job-bar').style.width=(completed?100:exporting?92:designing?33+56*(total?Math.min(1,done/total):0):waiting?33:Math.min(30,30*(job.progress||0)/100))+'%';
+         var designPercent=completed||exporting?100:designing&&total?Math.round(100*Math.min(1,done/total)):0;
+         $('job-bar').style.width=designPercent+'%';
+         $('job-meter').setAttribute('aria-valuenow',String(designPercent));
         $('job-live-label').textContent=completed?'PPT 已完成':job.status==='uploading'?'正在上传素材':designing?'AI 正在设计第 '+Math.min(done+1,total||1)+' 页':exporting?'正在合成 PPT':waiting?'等待 AI 开始设计':'正在更新进度';
         $('job-live-detail').textContent=completed?'点击下方按钮下载':job.status==='uploading'?'上传 '+Math.round(job.progress||0)+'%':designing?'已完成 '+done+' / '+(total||'?')+' 页':exporting?'全部 '+total+' 页已设计完成':waiting?'开始设计后将显示逐页进度':'请稍候';
         $('job-check').hidden=completed;
@@ -511,7 +502,7 @@
         if(!$('tasks-view').hidden){refreshAllTasks();return}
         if(!$('job-view').hidden&&!checkingJob){var job=loadRecords().find(function(row){return row.id===currentJobId});if(job&&job.r2&&job.status!=='completed'&&job.status!=='uploading')refreshJob(true)}
       }
-      setInterval(pollVisible,20000);
+       setInterval(pollVisible,8000);
       document.addEventListener('visibilitychange',function(){if(!document.hidden)pollVisible()});
       window.addEventListener('focus',pollVisible);
       $('job-back').addEventListener('click',function(){showTab('tasks')});$('job-refresh').addEventListener('click',function(){refreshJob(false)});
@@ -662,7 +653,7 @@
           var right=document.createElement('div');right.className='task-right';
           var status=document.createElement('span');status.className='status';status.textContent=jobStatusLabel(job);right.append(status);
           if(job.status==='completed'&&job.r2){var download=document.createElement('button');download.className='button task-download';download.textContent='下载 PPT';download.addEventListener('click',function(){downloadPpt(job,download,null)});right.append(download)}
-          var detail=document.createElement('button');detail.className='button';detail.textContent='查看进度';detail.addEventListener('click',function(){paintJob(job);refreshJob()});right.append(detail);
+          var detail=document.createElement('button');detail.className='button';detail.textContent=job.status==='completed'?'查看详情':'查看进度';detail.addEventListener('click',function(){paintJob(job);refreshJob()});right.append(detail);
           box.append(left,right);list.append(box);
         });
       }
