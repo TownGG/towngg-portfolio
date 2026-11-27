@@ -143,6 +143,27 @@
     @media(max-height:780px) and (min-width:781px){.hero{height:165px;padding-top:15px}.hero h1{font-size:35px;margin:10px 0}.hero-illustration{top:-25%;height:145%}.workspace>.card{padding:16px 20px}.description-column .card-title{margin-bottom:10px}.form-text{min-height:112px;padding:12px 15px}.tags{margin-top:10px}.tag{padding:8px 12px}.submit-row{margin-top:10px}.process-rail{margin-top:8px;padding:8px 18px}.process-icon{width:35px;height:35px}.upload{min-height:130px}}
     @media(max-width:780px){.standalone-header{height:62px;padding:0 18px}.brand strong{font-size:17px}.brand-icon{width:33px;height:33px}.main{height:calc(100dvh - 62px);padding:10px 14px 20px;overflow:auto}.hero{display:block;height:178px;min-height:178px;padding:13px 3px 0}.hero-copy{max-width:77%}.hero .eyebrow{font-size:9px;padding:5px 10px}.hero h1{font-size:clamp(22px,5.4vw,34px);white-space:normal;margin:11px 0}.hero p{font-size:11px;max-width:95%}.hero-illustration{width:55%;height:95%;right:-18%;top:5%;opacity:.72}.workspace{max-height:none;flex:0 0 auto}.workspace>.card{height:auto;padding:14px;border-radius:22px}.form-columns{gap:14px}.upload-column{padding:9px}.upload{min-height:116px}.upload .upload-icon{width:34px;height:34px}.upload strong{font-size:13px}.description-column .card-title{font-size:16px;margin-bottom:8px}.form-text{min-height:95px;font-size:12px;padding:11px}.tags{gap:6px;margin-top:9px}.tag{font-size:11px;padding:7px 10px}.submit-row{margin-top:13px}.submit-note{display:none}.submit-row .button.primary{width:100%;max-width:none;font-size:14px}.process-rail{width:100%;padding:10px;gap:4px}.process-step{gap:4px;flex-direction:column;text-align:center}.process-icon{width:31px;height:31px;font-size:17px}.process-step strong{font-size:10px}.process-step small{display:none}}
   </style>
+  <style>
+    /* Seamless ambient illustration and detailed glass UI, matching the annotated reference. */
+    body{background:#f6f7ff url('./assets/ai-ppt-ambient-scene.webp') center center / 100% 100% fixed no-repeat}
+    .stars{display:none}
+    .standalone-header{height:65px;background:linear-gradient(90deg,#ffffffc9,#ffffff96);box-shadow:0 10px 26px #b3bbef19;border-bottom:1px solid #ffffffa3}
+    .main{height:calc(100dvh - 65px)}
+    .brand{align-items:center;gap:12px;white-space:nowrap}.brand-icon{position:relative;width:38px;height:38px;transform:none;border-radius:0;background:transparent;box-shadow:none}
+    .brand-icon svg{display:none}.brand-icon:before,.brand-icon:after{content:"";position:absolute;width:28px;height:17px;left:4px;border-radius:5px;transform:rotate(-28deg) skew(19deg)}
+    .brand-icon:before{top:8px;background:linear-gradient(135deg,#83e5ff,#477cf9);box-shadow:0 6px 0 #815ee8,0 12px 0 #b5a6ff}.brand-icon:after{top:6px;left:8px;width:18px;height:11px;background:linear-gradient(135deg,#b8f8ff,#619aff);opacity:.8}
+    .brand strong{font-size:22px;letter-spacing:-.03em;color:#121c51}.brand small{display:inline;margin-left:15px;border-left:1px solid #cdd3ef;padding-left:20px;color:#344369;font-size:16px;letter-spacing:0;font-weight:500}
+    .header-nav{gap:15px!important}.engine-pill{display:inline-flex;align-items:center;gap:7px;border-radius:99px;border:1px solid #ffffffee;padding:9px 15px;background:#ffffffac;box-shadow:0 6px 18px #a7b1eb27;color:#323e78;font-size:12px;font-weight:650;white-space:nowrap}.engine-pill .spark{color:#8744e9;font-size:17px}.engine-pill .engine-state{color:#479e8a;font-size:11px}
+    .header-icon{position:relative;width:34px;height:34px;display:grid;place-items:center;border:none;background:transparent;color:#22346b;cursor:pointer}.header-icon svg{width:21px;height:21px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}.header-icon .notification-dot{position:absolute;top:4px;right:4px;width:6px;height:6px;background:#f45e7e;border-radius:100%}
+    .profile-pill{width:34px;height:34px;border:1px solid #e5e8fa;border-radius:50%;background:linear-gradient(150deg,#cbd4fb,#f0f0ff);color:white;display:grid;place-items:center;box-shadow:0 4px 12px #9ba6d342;cursor:pointer}.profile-pill svg{width:24px;height:24px;fill:#fff}.nav-chevron{font-size:13px;color:#4e5a90;margin-left:-7px}
+    .standalone-header .nav-btn{padding:10px 7px}.standalone-header .nav-btn.active{border-bottom:0;color:#5465ce}
+    .hero{height:clamp(190px,29vh,282px);background:transparent!important;padding-top:clamp(22px,3.7vh,44px)}.hero:after{display:none}.hero-illustration{display:none}.hero-copy{max-width:48%}.hero h1{font-size:clamp(31px,3.15vw,55px)}
+    .workspace>.card{background:linear-gradient(140deg,#ffffffb8,#f5f8ffb5);border-color:#ffffffdf;box-shadow:0 14px 42px #9198cb25,inset 0 2px #fff;backdrop-filter:blur(22px)}
+    .upload-column{background:#ffffff8c}.description-column .card-title .number{display:none}.description-column .card-title:before{content:'✦';font-size:23px;color:#655af9;margin-right:3px}.description-column .card-title{font-size:clamp(18px,1.55vw,24px)}
+    .process-rail{background:#ffffffa8;border-color:#ffffffd9;backdrop-filter:blur(20px)}
+    @media(max-height:780px) and (min-width:781px){.hero{height:165px;padding-top:14px}}
+    @media(max-width:780px){body{background-size:auto 100%}.standalone-header{height:62px}.main{height:calc(100dvh - 62px)}.brand strong{font-size:16px}.brand small{font-size:11px;padding-left:10px;margin-left:7px}.engine-pill{display:none}.header-nav{gap:5px!important}.header-icon{width:28px}.profile-pill{width:28px;height:28px}.nav-chevron{display:none}.hero{height:174px}.hero-copy{max-width:70%}.hero h1{font-size:clamp(21px,5.1vw,34px)}.hero p{font-size:11px}}
+  </style>
 </head>
 <body>
   <div class="stars" aria-hidden="true"></div>
@@ -159,8 +180,8 @@
   </section>
   <div class="app" id="app" hidden>
     <header class="standalone-header">
-      <a class="brand" href="./ai-ppt.html"><div class="brand-icon"><svg class="icon lg" viewBox="0 0 24 24"><path d="m12 2 2.1 6.1L20 10l-5.9 2-2.1 6L10 12 4 10l6-1.9z"/><path d="m19 17 .8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg></div><div><strong>TGG AI Slides</strong><small>AI PRESENTATION STUDIO</small></div></a>
-      <nav class="header-nav" aria-label="AI PPT 页面导航"><button class="nav-btn active" data-tab="studio">创作</button><button class="nav-btn" data-tab="tasks">我的任务</button><button class="round-button" id="lockout" title="锁定页面" aria-label="锁定页面">×</button></nav>
+      <a class="brand" href="./ai-ppt.html"><div class="brand-icon" aria-hidden="true"></div><div><strong>TGG AI</strong><small>AI PPT Studio</small></div></a>
+      <nav class="header-nav" aria-label="AI PPT 页面导航"><button class="nav-btn active" data-tab="studio">创作</button><button class="nav-btn" data-tab="tasks">我的任务</button><span class="engine-pill" title="目前为邮件联调阶段，AI 完整处理流程尚未开通"><span class="spark">✦</span>AI 设计引擎 · <span class="engine-state">联调中</span></span><button class="header-icon" id="notification" type="button" aria-label="通知"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="notification-dot"></span></button><button class="profile-pill" data-tab="tasks" type="button" title="查看我的任务" aria-label="查看我的任务"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M3 23c1-6 5-9 9-9s8 3 9 9"/></svg></button><span class="nav-chevron">⌄</span><button class="round-button" id="lockout" title="锁定页面" aria-label="锁定页面">×</button></nav>
     </header>
     <main class="main">
       <section id="studio-view">
@@ -210,6 +231,7 @@
       $('gate-form').addEventListener('submit',function(e){e.preventDefault();var key=password.value.trim();if(key)login(key,$('remember').checked)});
       $('toggle-eye').addEventListener('click',function(){var visible=password.type==='text';password.type=visible?'password':'text';this.setAttribute('aria-label',visible?'显示密码':'隐藏密码')});
       function doLock(){showLock();try{localStorage.removeItem(KEY)}catch(e){}}$('lockout').addEventListener('click',doLock);
+      $('notification').addEventListener('click',function(){toast('当前是邮件联调体验版，实时任务通知尚未开通。')});
       function showTab(tab){$('studio-view').hidden=tab!=='studio';$('tasks-view').hidden=tab!=='tasks';document.querySelectorAll('[data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab===tab)});if(tab==='tasks')renderTasks();window.scrollTo({top:0,behavior:'smooth'})}
       document.querySelectorAll('[data-tab]').forEach(function(btn){btn.addEventListener('click',function(){showTab(btn.dataset.tab)})});
       var file=$('file'),drop=$('dropzone');function prettySize(n){return n/1048576>=1?(n/1048576).toFixed(2)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
