@@ -110,6 +110,39 @@
       .submit-note strong{font-size:11px}.submit-note small{font-size:10px}
     }
   </style>
+  <style>
+    /* Crystal Light — high fidelity adaptation of the selected design. */
+    body{background:radial-gradient(ellipse at 51% 40%,#e8edff 0%,transparent 52%),radial-gradient(ellipse at 88% 78%,#ddf9ff 0%,transparent 42%),linear-gradient(125deg,#f8faff,#eff5ff 70%,#f7f3ff)}
+    .stars{opacity:.16;background-size:48px 48px}
+    .standalone-header{height:68px;width:100%;max-width:none;padding:0 clamp(26px,3.7vw,72px);border-bottom:1px solid #e1e8f7;background:#ffffff9c;box-shadow:0 9px 30px #697caa0b;backdrop-filter:blur(24px)}
+    .brand{gap:13px}.brand-icon{width:40px;height:40px;border:0;border-radius:13px;transform:rotate(-6deg);background:linear-gradient(145deg,#79d9ff,#617df7 54%,#b86bfa);color:white;box-shadow:0 7px 17px #7188ee36}.brand strong{font-size:22px;color:#131f54}.brand small{display:none}
+    .standalone-header .header-nav{gap:14px}.standalone-header .nav-btn{border:0;background:transparent!important;color:#657292;font-size:13px}.standalone-header .nav-btn.active{color:#4d57d8;border-bottom:2px solid #747aff;border-radius:0}.round-button{border-color:#dfe5f7}
+    .main{max-width:1600px;height:calc(100dvh - 68px);padding:0 clamp(26px,3.8vw,74px) 13px;gap:0}
+    .hero{border:0;box-shadow:none;background:transparent;isolation:auto;height:clamp(188px,30vh,290px);margin:0;padding:clamp(20px,3vh,38px) 20px 0;overflow:visible}
+    .hero:before{display:none}.hero:after{width:55%;height:65%;right:-2%;top:34%;background:radial-gradient(ellipse,#c2d8ff8a,transparent 68%);filter:blur(34px)}
+    .hero-copy{position:relative;z-index:2;max-width:57%}.hero .eyebrow{display:inline-flex;padding:7px 17px;border:1px solid #d4d8ff;border-radius:99px;background:#ffffffa6;color:#5b5de0;letter-spacing:.02em;font-size:12px;font-weight:700}
+    .hero h1{font-size:clamp(31px,3.3vw,56px);letter-spacing:-.055em;line-height:1.22;color:#131d57;margin:18px 0 13px;white-space:nowrap}
+    .hero h1 em{font-style:normal;background:linear-gradient(90deg,#7e43e9,#397dff);background-clip:text}.hero p{max-width:590px;color:#667294;font-size:clamp(13px,1vw,16px);line-height:1.65;margin:0}.hero .badge{display:none}
+    .hero-illustration{position:absolute;z-index:1;right:-2.5%;top:-22%;width:min(60%,870px);height:133%;object-fit:contain;object-position:right center;pointer-events:none;filter:drop-shadow(0 18px 25px #a1a0eb22)}
+    .hero .visual{display:none}
+    .section-head{display:none}
+    .workspace{flex:1;min-height:0;max-height:510px}
+    .workspace>.card{padding:clamp(18px,2.3vw,30px);border-radius:29px;min-height:295px;border:1px solid #fff;background:linear-gradient(127deg,#ffffffc8,#f8fbffb8 52%,#f3f3ffb2);box-shadow:0 23px 50px #8197d426,inset 0 1px 0 #fff;backdrop-filter:blur(28px)}
+    .form-columns{grid-template-columns:minmax(0,.83fr) minmax(0,1.17fr);gap:clamp(24px,3vw,50px)}
+    .upload-column{background:#ffffff6e;border:1px solid #fff;border-radius:23px;padding:clamp(12px,1.7vw,23px);box-shadow:0 10px 23px #809be318}
+    .upload-column .card-title{display:none}
+    .description-column{padding:4px 4px 0}.description-column .card-title{font-size:clamp(17px,1.5vw,24px);color:#131f55;margin-bottom:19px}
+    .number{background:linear-gradient(140deg,#6988ff,#b16dff);color:#fff;border:0;width:22px;height:22px;font-size:11px;box-shadow:0 4px 10px #837cf341}
+    .upload{min-height:100%;border:1.5px dashed #9cabff;background:linear-gradient(150deg,#f8fbff,#f0f3ff);border-radius:21px;gap:11px}
+    .upload:hover,.upload.drag{background:#f3f9ff;border-color:#667dff}.upload .upload-icon{width:65px;height:65px;border:0;border-radius:20px;color:#6b6cf8;background:linear-gradient(145deg,#edf9ff,#e5e2ff);box-shadow:0 7px 18px #a5a7e939}.upload strong{font-size:clamp(16px,1.6vw,23px);color:#1c275b}.upload small{font-size:12px;color:#7e8cae}
+    .description-column .field-label{display:none}.form-text{font-size:clamp(13px,1.1vw,16px);min-height:135px;line-height:1.75;padding:18px 20px;background:#ffffffa5;border:1px solid #c8cff5;border-radius:18px;resize:none;box-shadow:inset 0 1px 7px #9caff20d}.form-text::placeholder{color:#78839f}
+    .tags{gap:9px;margin-top:16px}.tag{font-size:clamp(11px,.95vw,14px);font-weight:650;border-radius:14px;padding:11px 17px;background:#ffffffae;color:#535e87;border-color:#d7def4;box-shadow:0 3px 10px #9caee316}.tag.selected{background:linear-gradient(115deg,#e8f4ff,#eee2ff);border:1.5px solid #675cff;color:#4141bc;box-shadow:0 5px 14px #8980ff34}
+    .submit-row{border:0;padding:0;margin-top:18px;justify-content:flex-end}.submit-note{margin-right:auto;align-self:center}.submit-note strong{font-size:12px;color:#657291}.submit-note small{font-size:11px}.submit-row .button.primary{min-width:min(300px,45%);border:0;border-radius:14px;background:linear-gradient(104deg,#3d98ff,#536aff 45%,#bc44ee);font-size:17px;font-weight:750;padding:14px 25px;box-shadow:0 12px 27px #6f70eb50}
+    .process-rail{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:15px;max-width:1260px;width:88%;margin:13px auto 0;padding:13px 24px;border:1px solid #fff;border-radius:22px;background:#ffffff8c;box-shadow:0 9px 25px #98a6d718}
+    .process-step{display:flex;align-items:center;justify-content:center;gap:12px;color:#53618a}.process-icon{width:43px;height:43px;flex:none;display:grid;place-items:center;border-radius:13px;color:#6c65f6;background:linear-gradient(140deg,#e8f4ff,#eee4ff);box-shadow:0 6px 13px #b4b4ee38;font-size:23px}.process-step strong{display:block;font-size:13px;color:#1b285d}.process-step small{display:block;font-size:11px;color:#8190ad;margin-top:4px}
+    @media(max-height:780px) and (min-width:781px){.hero{height:165px;padding-top:15px}.hero h1{font-size:35px;margin:10px 0}.hero-illustration{top:-25%;height:145%}.workspace>.card{padding:16px 20px}.description-column .card-title{margin-bottom:10px}.form-text{min-height:112px;padding:12px 15px}.tags{margin-top:10px}.tag{padding:8px 12px}.submit-row{margin-top:10px}.process-rail{margin-top:8px;padding:8px 18px}.process-icon{width:35px;height:35px}.upload{min-height:130px}}
+    @media(max-width:780px){.standalone-header{height:62px;padding:0 18px}.brand strong{font-size:17px}.brand-icon{width:33px;height:33px}.main{height:calc(100dvh - 62px);padding:10px 14px 20px;overflow:auto}.hero{display:block;height:178px;min-height:178px;padding:13px 3px 0}.hero-copy{max-width:77%}.hero .eyebrow{font-size:9px;padding:5px 10px}.hero h1{font-size:clamp(22px,5.4vw,34px);white-space:normal;margin:11px 0}.hero p{font-size:11px;max-width:95%}.hero-illustration{width:55%;height:95%;right:-18%;top:5%;opacity:.72}.workspace{max-height:none;flex:0 0 auto}.workspace>.card{height:auto;padding:14px;border-radius:22px}.form-columns{gap:14px}.upload-column{padding:9px}.upload{min-height:116px}.upload .upload-icon{width:34px;height:34px}.upload strong{font-size:13px}.description-column .card-title{font-size:16px;margin-bottom:8px}.form-text{min-height:95px;font-size:12px;padding:11px}.tags{gap:6px;margin-top:9px}.tag{font-size:11px;padding:7px 10px}.submit-row{margin-top:13px}.submit-note{display:none}.submit-row .button.primary{width:100%;max-width:none;font-size:14px}.process-rail{width:100%;padding:10px;gap:4px}.process-step{gap:4px;flex-direction:column;text-align:center}.process-icon{width:31px;height:31px;font-size:17px}.process-step strong{font-size:10px}.process-step small{display:none}}
+  </style>
 </head>
 <body>
   <div class="stars" aria-hidden="true"></div>
@@ -131,7 +164,7 @@
     </header>
     <main class="main">
       <section id="studio-view">
-        <section class="hero"><div class="hero-copy"><div class="eyebrow">THE NEXT GENERATION OF PRESENTATION DESIGN</div><h1>让想法，<br><em>在每一页闪耀。</em></h1><p>上传你的 PPT，描述期望的风格。让每一页内容忠实呈现，以统一的视觉语言焕新设计。</p><span class="badge" style="margin-top:13px">✦ 逐页独立设计 · 3D 玻璃质感</span></div><div class="visual" aria-hidden="true"><div class="orb"></div><div class="ring"></div><div class="glass-card one"></div><div class="glass-card two"></div></div></section>
+        <section class="hero"><div class="hero-copy"><div class="eyebrow">TownGG · AI PPT Studio</div><h1>让每一页，<em>都惊艳呈现</em></h1><p>上传你的 PowerPoint，并告诉我们你的设计需求，AI 逐页重塑为更专业、更具视觉冲击力的演示文稿。</p></div><img class="hero-illustration" src="./assets/ai-ppt-glass-hero.webp" alt="" aria-hidden="true"></section>
         <div class="section-head"><div><h2>开始一次新的设计</h2><p>三个简单步骤，从原稿到理想中的视觉效果。</p></div><span class="badge">体验版 · 邮件联调</span></div>
         <div class="workspace">
           <section class="card glass">
@@ -154,6 +187,7 @@
             <section class="card glass"><h3 class="card-title">✦ 设计风格预览</h3><div class="preview-box"><div class="slide-art"><span>TGG AI SLIDES / 2026</span><h3>智能驱动<br>向未来出发</h3><p>DESIGN BEYOND EXPECTATIONS</p></div></div><div class="info-grid"><div><strong>16:9 高清画幅</strong><small>一页一张完整设计图</small></div><div><strong>统一视觉语言</strong><small>色彩、排版和质感一致</small></div></div><div class="divider"></div><h3 class="card-title" style="margin-bottom:0">设计流程</h3><div class="steps"><div class="step"><div class="step-mark">1</div><div><strong>读取并理解原始内容</strong><p>保留每页文字、数字与结构逻辑。</p></div></div><div class="step"><div class="step-mark">2</div><div><strong>逐页独立视觉设计</strong><p>高质感构图、3D 元素、统一配色。</p></div></div><div class="step"><div class="step-mark">3</div><div><strong>合成 PPT 并交付</strong><p>每页一张图片，最终合并到 PPTX。</p></div></div></div><div class="notice">联调说明：当前页面不会自行上传文件到服务器或自动生图。提交后会引导你发送一封带附件的测试邮件。</div></section>
           </aside>
         </div>
+        <div class="process-rail" aria-label="设计流程"><div class="process-step"><span class="process-icon">⇧</span><span><strong>上传文件</strong><small>上传你的 PPT（.pptx）</small></span></div><div class="process-step"><span class="process-icon">✦</span><span><strong>AI 逐页设计</strong><small>智能优化每一页视觉</small></span></div><div class="process-step"><span class="process-icon">▤</span><span><strong>导出 PPT</strong><small>获取高品质演示文稿</small></span></div></div>
       </section>
       <section id="tasks-view" hidden><div class="hero" style="min-height:210px"><div class="hero-copy"><div class="eyebrow">YOUR DESIGN REQUESTS</div><h1>我的设计任务</h1><p>查看这台设备创建的测试记录。正式版将关联用户账号，并同步后台真实处理状态。</p></div><div class="visual" aria-hidden="true" style="opacity:.3"><div class="orb"></div><div class="ring"></div></div></div><div class="section-head"><div><h2>任务记录</h2><p>仅为本设备前端联调记录；不会伪造 AI 进度或成品。</p></div><button class="button" id="clear-records">清空本地测试记录</button></div><div class="tasks" id="tasks-list"></div></section>
       <footer class="standalone-footer">TGG AI Slides · 简单上传，智能设计 · 当前为邮件联调版本</footer>
