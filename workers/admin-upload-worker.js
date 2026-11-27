@@ -58,16 +58,25 @@ export default {
     const isCommunityNexusReply = url.pathname.endsWith("/api/admin/community-nexus-reply");
     const isMessageBoardList = url.pathname.endsWith("/api/admin/message-board-list");
     const isMessageBoardDelete = url.pathname.endsWith("/api/admin/message-board-delete");
+    const isPptHealth = url.pathname.endsWith("/api/admin/ppt-health");
+    const isPptSubmit = url.pathname.endsWith("/api/admin/ppt-submit");
     const isCommunityRoute = isCommunityList || isCommunitySave || isCommunityDelete || isCommunityDraft || isCommunityRedditReply || isCommunityNexusReply;
     const isMessageBoardRoute = isMessageBoardList || isMessageBoardDelete;
 
-    if (request.method !== "POST" || (!isAuthCheck && !isGalleryUpload && !isGalleryList && !isGalleryDelete && !isCommunityRoute && !isMessageBoardRoute)) {
+    if (request.method !== "POST" || (!isAuthCheck && !isGalleryUpload && !isGalleryList && !isGalleryDelete && !isCommunityRoute && !isMessageBoardRoute && !isPptHealth && !isPptSubmit)) {
       return jsonResponse({ success: false, error: "Not found" }, 404);
     }
 
     try {
       assertEnv(env);
       authorize(request, env);
+
+      if (isPptHealth) {
+        return jsonResponse({ success: true, configured: Boolean(env.GMAIL_CLIENT_ID && env.GMAIL_CLIENT_SECRET && env.GMAIL_REFRESH_TOKEN) });
+      }
+      if (isPptSubmit) {
+        return await handlePptIntake(request, env);
+      }
 
       if (isAuthCheck) {
         return jsonResponse({ success: true, authenticated: true });
@@ -1346,3 +1355,89 @@ async function deleteMessageBoardComment(config, payload) {
     deleted: id
   };
 }
+
+// AI PPT intake — isolated from gallery/community routes. For the first live
+// integration, Gmail itself stores the original PPT attachment. No R2 binding.
+const PPT_MAX_BYTES = 8 * 1024 * 1024;
+
+async function handlePptIntake(request, env) {
+  if (!(env.GMAIL_CLIENT_ID && env.GMAIL_CLIENT_SECRET && env.GMAIL_REFRESH_TOKEN)) {
+    return jsonResponse({ success: false, error: "PPT 自动邮件尚未完成 Gmail 授权配置" }, 503);
+  }
+  const type = request.headers.get("Content-Type") || "";
+  if (!type.startsWith("multipart/form-data")) return jsonResponse({ success: false, error: "请上传 PPTX 表单文件" }, 400);
+  if (Number(request.headers.get("Content-Length") || 0) > PPT_MAX_BYTES + 65536) {
+    return jsonResponse({ success: false, error: "当前单个 PPT 最大为 8 MB" }, 413);
+  }
+  const form = await request.formData();
+  const file = form.get("file");
+  const prompt = String(form.get("prompt") || "").trim();
+  const style = String(form.get("style") || "蓝色科技风").trim().slice(0, 80);
+  if (!(file instanceof File) || !/\.pptx$/i.test(file.name)) return jsonResponse({ success: false, error: "仅支持 PPTX 文件" }, 400);
+  if (!file.size || file.size > PPT_MAX_BYTES) return jsonResponse({ success: false, error: "当前单个 PPT 最大为 8 MB" }, 413);
+  if (prompt.length < 4 || prompt.length > 1200) return jsonResponse({ success: false, error: "设计需求应为 4～1200 字" }, 400);
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if (bytes[0] !== 0x50 || bytes[1] !== 0x4b) return jsonResponse({ success: false, error: "文件不是有效的 PPTX" }, 400);
+
+  const id = "PPT-" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase();
+  const name = file.name.replace(/[\r\n"\\/]/g, "_").slice(0, 160);
+  const body = [
+    "TGG AI PPT 官网自动接单", "任务 ID：" + id, "文件名：" + name,
+    "设计风格：" + style, "设计需求：" + prompt,
+    "默认要求：逐页独立生图，所有内容保持不变，16:9，风格统一，最后合成 PPTX。",
+    "邮件由官网后台自动发送，原始 PPTX 已作为附件包含。"
+  ].join("\n");
+
+  try {
+    await sendPptGmail(env, "[PPT-AI-TEST] " + id, body, name, bytes);
+    return jsonResponse({ success: true, id, status: "email_sent", createdAt: new Date().toISOString() });
+  } catch (error) {
+    // Keep credential/API error details out of the public response.
+    console.error("PPT Gmail API send failed", String(error?.message || "unknown"));
+    return jsonResponse({ success: false, error: "服务器邮件发送失败，请管理员检查 Gmail 授权" }, 502);
+  }
+}
+
+async function sendPptGmail(env, subject, body, filename, attachment) {
+  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ client_id: env.GMAIL_CLIENT_ID, client_secret: env.GMAIL_CLIENT_SECRET, refresh_token: env.GMAIL_REFRESH_TOKEN, grant_type: "refresh_token" })
+  });
+  if (!tokenResponse.ok) throw new Error("Gmail token exchange HTTP " + tokenResponse.status);
+  const token = (await tokenResponse.json()).access_token;
+  if (!token) throw new Error("Gmail token missing");
+  const to = env.PPT_INBOX_EMAIL || "tgg508034@gmail.com";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) throw new Error("Invalid recipient");
+  const boundary = "ppt-" + crypto.randomUUID();
+  const utf8 = new TextEncoder();
+  const mime = [
+    "To: " + to, "Subject: =?UTF-8?B?" + pptBase64(utf8.encode(subject)) + "?=",
+    "MIME-Version: 1.0", "Content-Type: multipart/mixed; boundary=\"" + boundary + "\"", "",
+    "--" + boundary, "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: base64", "", pptBase64(utf8.encode(body)), "",
+    "--" + boundary, "Content-Type: application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "Content-Disposition: attachment; filename*=UTF-8''" + encodeURIComponent(filename),
+    "Content-Transfer-Encoding: base64", "", pptBase64(attachment), "", "--" + boundary + "--", ""
+  ].join("\r\n");
+  const raw = pptBase64(utf8.encode(mime)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const response = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+    method: "POST", headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+    body: JSON.stringify({ raw })
+  });
+  if (!response.ok) throw new Error("Gmail send HTTP " + response.status);
+}
+
+function pptBase64(data) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  const parts = [];
+  let block = "";
+  for (let i = 0; i < data.length; i += 3) {
+    const a = data[i], b = data[i + 1] || 0, c = data[i + 2] || 0;
+    const n = (a << 16) | (b << 8) | c;
+    block += chars[(n >>> 18) & 63] + chars[(n >>> 12) & 63] + (i + 1 < data.length ? chars[(n >>> 6) & 63] : "=") + (i + 2 < data.length ? chars[n & 63] : "=");
+    if (block.length >= 16384) { parts.push(block); block = ""; }
+  }
+  if (block) parts.push(block);
+  return parts.join("");
+}
+
