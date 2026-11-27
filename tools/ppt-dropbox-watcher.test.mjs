@@ -65,9 +65,21 @@ test('simulated Harness reports one G and writes a durable sent receipt', async 
   const stateDir = path.join(root, 'local-state');
   await fs.mkdir(queueDir);
   await fs.writeFile(path.join(queueDir, taskId + '.json'), JSON.stringify(signal));
-  const fakeDsh = path.join(root, 'dsh-mock.mjs');
-  await fs.writeFile(fakeDsh, '#!/usr/bin/env node\nconst arg = process.argv.at(-1);\nif (!arg.includes("只输入一个大写英文字母 G")) process.exit(7);\nconsole.log(arg.match(/TGG_WAKE_SENT_[0-9a-f]{32}/)[0]);\n');
-  await fs.chmod(fakeDsh, 0o755);
+  const windows = process.platform === 'win32';
+  const fakeDsh = path.join(root, windows ? 'dsh-mock.ps1' : 'dsh-mock.mjs');
+  if (windows) {
+    // The production Windows launcher invokes PowerShell scripts, not POSIX executables.
+    await fs.writeFile(fakeDsh, [
+      'param([string]$profileName, [string]$mode, [string]$prompt)',
+      '$value = $env:PPT_DSH_PROMPT',
+      'if (-not $value.Contains("只输入一个大写英文字母 G")) { exit 7 }',
+      'if ($value -match "TGG_WAKE_SENT_[0-9a-f]{32}") { Write-Output $Matches[0]; exit 0 }',
+      'exit 8'
+    ].join('\\n'), 'utf8');
+  } else {
+    await fs.writeFile(fakeDsh, '#!/usr/bin/env node\\nconst arg = process.argv.at(-1);\\nif (!arg.includes("只输入一个大写英文字母 G")) process.exit(7);\\nconsole.log(arg.match(/TGG_WAKE_SENT_[0-9a-f]{32}/)[0]);\\n');
+    await fs.chmod(fakeDsh, 0o755);
+  }
   const script = fileURLToPath(new URL('./ppt-dropbox-watcher.mjs', import.meta.url));
   const common = {
     encoding: 'utf8', timeout: 10000,
