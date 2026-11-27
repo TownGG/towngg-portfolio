@@ -1,5 +1,23 @@
 # TownGG AI PPT 自动接单后端
 
+> **当前推荐：复用现有 `workers/admin-upload-worker.js`。** 下文单独 Worker 方案是早期备选设计，无需部署。
+
+## 当前方案：现有后台 Worker
+
+- 沿用现有 `towngg.com/api/admin/*` 路由与 `ADMIN_UPLOAD_SECRET`，无需新建 Worker 或路由。
+- 更新部署 `workers/admin-upload-worker.js`，新增接口 `POST /api/admin/ppt-health` 和 `POST /api/admin/ppt-submit`。
+- 第一轮不用 R2：PPTX 自动以 Gmail 附件发送，单文件上限 **8 MB**；没有持久的服务器任务状态或成品回传功能。
+- 新增的唯一必须配置的 Worker Secrets 为 `GMAIL_CLIENT_ID`、`GMAIL_CLIENT_SECRET`、`GMAIL_REFRESH_TOKEN`（Gmail API `gmail.send` 授权）。
+- `PPT_INBOX_EMAIL` 可选，默认 `tgg508034@gmail.com`。
+- `ai-ppt.html` 已自动判断 `ppt-health`：配置完成后走后台自动发送；未配置时仍提示邮件联调。
+- 本地测试：`node workers/admin-upload-worker.ppt.test.mjs`。
+
+**部署前先备份现有线上 Worker 代码并在 Cloudflare 编辑器中更新；部署后复测图库列表、图库上传、社区等原有接口。** 仓库提交本身不会自动更新线上 Cloudflare Worker。
+
+---
+
+## 早期独立 Worker 备选（本轮不部署）
+
 状态：代码已准备；**需在 Cloudflare 部署并配置 Gmail OAuth 才能启用**。静态 GitHub Pages 不能直接安全发送带附件的邮件。
 
 ## Cloudflare Worker
