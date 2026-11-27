@@ -345,6 +345,13 @@
       setInterval(function(){if(document.hidden||$('job-view').hidden||checkingJob)return;var job=loadRecords().find(function(row){return row.id===currentJobId});if(job&&job.r2&&job.status!=='completed'&&job.status!=='uploading')refreshJob(true)},20000);
       $('job-back').addEventListener('click',function(){showTab('tasks')});$('job-refresh').addEventListener('click',function(){refreshJob(false)});
       var downloadBusy=false;
+      async function legacyPptDownload(job){
+        var response=await fetch('/api/admin/ppt-result',{method:'POST',headers:{'X-Admin-Key':sessionKey,'Content-Type':'application/json'},body:JSON.stringify({id:job.id}),cache:'no-store'});
+        if(!response.ok)throw Error('旧版下载接口暂不可用（'+response.status+'）');
+        var fileUrl=URL.createObjectURL(await response.blob()),link=document.createElement('a');
+        link.href=fileUrl;link.download='TGG-AI-'+job.id+'.pptx';document.body.appendChild(link);link.click();link.remove();
+        setTimeout(function(){URL.revokeObjectURL(fileUrl)},60000);
+      }
       $('job-download').addEventListener('click',async function(){
         var job=loadRecords().find(function(row){return row.id===currentJobId});
         if(downloadBusy||!job||job.status!=='completed')return;
@@ -352,7 +359,14 @@
         downloadBusy=true;button.disabled=true;button.classList.add('is-downloading');button.textContent='正在准备下载…';
         message.hidden=false;message.textContent='正在连接服务器获取成品，请稍候…';
         try{
-          var data=await apiPpt('result-link',{id:job.id});
+          var data;
+          try{data=await apiPpt('result-link',{id:job.id})}
+          catch(linkError){
+            if(!/Not found|404/.test(linkError.message||''))throw linkError;
+            message.textContent='下载服务正在升级，已切换兼容方式；若手机没有响应，请稍后重试。';
+            await legacyPptDownload(job);
+            return;
+          }
           var url=new URL(data.url,window.location.origin);
           if(url.origin!==window.location.origin||url.pathname!=='/api/admin/ppt-download')throw Error('下载地址验证失败，请重试');
           message.textContent='已向浏览器发起下载。手机端请查看下载列表，或在文件预览页选择「保存到文件」。';
