@@ -60,7 +60,7 @@ export default {
     const isMessageBoardDelete = url.pathname.endsWith("/api/admin/message-board-delete");
     const isPptHealth = url.pathname.endsWith("/api/admin/ppt-health");
     const isPptSubmit = url.pathname.endsWith("/api/admin/ppt-submit");
-    const pptAction = ["init", "part", "complete", "status", "result"].find(action => url.pathname.endsWith("/api/admin/ppt-" + action));
+    const pptAction = ["init", "text", "part", "complete", "status", "result"].find(action => url.pathname.endsWith("/api/admin/ppt-" + action));
     const isPptSource = url.pathname.endsWith("/api/admin/ppt-source");
     const isPptAgent = url.pathname.endsWith("/api/admin/ppt-agent");
     const isCommunityRoute = isCommunityList || isCommunitySave || isCommunityDelete || isCommunityDraft || isCommunityRedditReply || isCommunityNexusReply;
@@ -1362,14 +1362,17 @@ async function deleteMessageBoardComment(config, payload) {
   };
 }
 
-// Small-file Gmail fallback. Large PPTX files use private R2 multipart storage.
+// Small-file Gmail fallback. Larger source materials use private R2 multipart storage.
 const PPT_MAX_BYTES = 8 * 1024 * 1024;
 const PPT_R2_MAX_BYTES = 200 * 1024 * 1024;
 const PPT_CHUNK_BYTES = 5 * 1024 * 1024;
 const PPT_SOURCE_LINK_MS = 72 * 60 * 60 * 1000;
+const PPT_PROMPT_MAX_LENGTH = 6000;
 
 function pptTaskKey(id) { return "tasks/" + id + ".json"; }
+// The original .pptx key remains readable for jobs submitted before file-type support.
 function pptSourceKey(id) { return "sources/" + id + ".pptx"; }
+function pptNewSourceKey(id) { return "sources/" + id + "/original"; }
 function pptResultKey(id) { return "results/" + id + ".pptx"; }
 function pptSafeId(id) { return /^PPT-\d{8}-[A-F0-9]{12}$/.test(id); }
 function pptError(message, status = 400) { return jsonResponse({ success: false, error: message }, status); }
@@ -1382,20 +1385,89 @@ async function pptWriteTask(bucket, task) {
   await bucket.put(pptTaskKey(task.id), JSON.stringify(task), { httpMetadata: { contentType: "application/json" } });
 }
 
+function pptNewId() {
+  return "PPT-" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase();
+}
+
+function pptValidPrompt(prompt) { return prompt.length >= 4 && prompt.length <= PPT_PROMPT_MAX_LENGTH; }
+
+async function pptNotifyIntake(request, env, bucket, task) {
+  const lines = [
+    "TGG AI PPT 官网自动接单", "任务 ID：" + task.id,
+    "任务类型：" + (task.sourceKey || task.size ? "上传素材" : "纯文字创作"),
+    "文件名：" + (task.sourceKey || task.size ? task.name : "无（用户仅提供文字）"),
+    "文件大小：" + task.size + " 字节",
+    "用户设计说明（这是风格、内容及其他要求的唯一依据）：" + task.prompt
+  ];
+  if (task.sourceKey || task.size) {
+    const link = new URL(request.url);
+    link.pathname = "/api/admin/ppt-source";
+    link.search = new URLSearchParams({ id: task.id, token: task.sourceToken }).toString();
+    lines.push("原始素材安全下载链接（72 小时有效）：" + link.href);
+  } else {
+    lines.push("本任务没有附件：请直接根据用户说明构思页面内容和数量。");
+  }
+  lines.push(
+    "结果回传接口（POST）：" + new URL("/api/admin/ppt-agent", request.url).href,
+    "结果回传凭证（仅限本任务，7 日有效）：" + task.agentToken,
+    "制作规则：先分析用户文字及可用素材。若为 PPT，请完整保留原稿每页内容和页数；若为文档、图片或纯文字，请理解信息并合理规划幻灯片。所有页面必须分别生成为完整的 16:9 图片，统一视觉风格，再将图片逐页整合为 PPTX。不要用 PPT 模板或 PPT Skill 直接排版生成设计。",
+    "说明：邮件仅是任务通知；必须由接单代理执行设计并通过结果回传接口交付。"
+  );
+  try {
+    await sendPptGmail(env, "[PPT-AI-TEST] " + task.id, lines.join("\n"));
+    task.status = "email_sent";
+    delete task.emailError;
+    await pptWriteTask(bucket, task);
+    try {
+      const notifyTo = env.PPT_NOTIFY_EMAIL === undefined ? "1398469825@qq.com" : String(env.PPT_NOTIFY_EMAIL).trim();
+      if (notifyTo) {
+        const notice = [
+          "TGG AI PPT · 新设计任务", "任务编号：" + task.id,
+          "任务类型：" + (task.sourceKey || task.size ? "含素材文件" : "纯文字创作"),
+          "文件名：" + task.name, "文件大小：" + task.size + " 字节",
+          "当前状态：邮件已发送，等待 AI 接单",
+          "请打开 ChatGPT，提醒 AI 检查 Gmail 中的新 PPT 设计任务。"
+        ].join("\n");
+        // Secondary notifications do not disclose the prompt, source URL or callback token.
+        await sendPptGmail(env, "[TGG PPT 新任务] " + task.id, notice, undefined, undefined, notifyTo);
+      }
+      delete task.notifyError;
+    } catch (notifyError) {
+      task.notifyError = true;
+      console.error("PPT owner notification failed", String(notifyError?.message || "unknown"));
+    }
+    await pptWriteTask(bucket, task);
+    return jsonResponse({ success: true, id: task.id, status: task.status, createdAt: task.createdAt });
+  } catch (error) {
+    task.emailError = true;
+    await pptWriteTask(bucket, task);
+    console.error("PPT R2 task mail failed", String(error?.message || "unknown"));
+    return pptError("任务已保存，但邮件通知失败；请稍后重试", 502);
+  }
+}
+
 async function handlePptStorage(request, env, action) {
   const bucket = env.PPT_FILES;
   if (!bucket) return pptError("大文件存储尚未启用，请联系管理员配置 R2", 503);
+  if (action === "text") {
+    const body = await request.json();
+    const prompt = String(body.prompt || "").trim();
+    if (!pptValidPrompt(prompt)) return pptError("设计说明应为 4～6000 字");
+    const task = { id: pptNewId(), name: "文字创作任务", size: 0, prompt, createdAt: new Date().toISOString(), status: "uploaded", agentToken: crypto.randomUUID(), agentExpiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 };
+    await pptWriteTask(bucket, task);
+    return pptNotifyIntake(request, env, bucket, task);
+  }
   if (action === "init") {
     const body = await request.json();
     const filename = String(body.name || "").replace(/[\r\n"\\/]/g, "_").slice(0, 160);
     const size = Number(body.size);
     const prompt = String(body.prompt || "").trim();
-    const style = String(body.style || "蓝色科技风").slice(0, 80);
-    if (!/\.pptx$/i.test(filename) || !Number.isSafeInteger(size) || size < 4 || size > PPT_R2_MAX_BYTES) return pptError("仅支持最大 200 MB 的 PPTX 文件", 413);
-    if (prompt.length < 4 || prompt.length > 1200) return pptError("设计需求应为 4～1200 字");
-    const id = "PPT-" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase();
-    const upload = await bucket.createMultipartUpload(pptSourceKey(id));
-    const task = { id, name: filename, size, prompt, style, createdAt: new Date().toISOString(), status: "uploading", uploadId: upload.uploadId, sourceToken: crypto.randomUUID(), sourceExpiresAt: Date.now() + PPT_SOURCE_LINK_MS, agentToken: crypto.randomUUID(), agentExpiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 };
+    if (!filename || !Number.isSafeInteger(size) || size < 1 || size > PPT_R2_MAX_BYTES) return pptError("单个文件大小应在 1 字节至 200 MB 之间", 413);
+    if (!pptValidPrompt(prompt)) return pptError("设计说明应为 4～6000 字");
+    const id = pptNewId();
+    const sourceKey = pptNewSourceKey(id);
+    const upload = await bucket.createMultipartUpload(sourceKey);
+    const task = { id, name: filename, size, prompt, sourceKey, createdAt: new Date().toISOString(), status: "uploading", uploadId: upload.uploadId, sourceToken: crypto.randomUUID(), sourceExpiresAt: Date.now() + PPT_SOURCE_LINK_MS, agentToken: crypto.randomUUID(), agentExpiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 };
     await pptWriteTask(bucket, task);
     return jsonResponse({ success: true, id, uploadId: upload.uploadId, chunkSize: PPT_CHUNK_BYTES, createdAt: task.createdAt });
   }
@@ -1411,7 +1483,7 @@ async function handlePptStorage(request, env, action) {
     const chunk = await request.arrayBuffer();
     const expectedSize = Math.min(PPT_CHUNK_BYTES, task.size - (partNumber - 1) * PPT_CHUNK_BYTES);
     if (chunk.byteLength !== expectedSize) return pptError("分片大小无效", 413);
-    const part = await bucket.resumeMultipartUpload(pptSourceKey(id), uploadId).uploadPart(partNumber, chunk);
+    const part = await bucket.resumeMultipartUpload(task.sourceKey || pptSourceKey(id), uploadId).uploadPart(partNumber, chunk);
     return jsonResponse({ success: true, partNumber: part.partNumber, etag: part.etag });
   }
   const body = await request.json();
@@ -1432,48 +1504,11 @@ async function handlePptStorage(request, env, action) {
   const parts = Array.isArray(body.parts) ? body.parts : [];
   const expected = Math.ceil(task.size / PPT_CHUNK_BYTES);
   if (parts.length !== expected || parts.some((p, i) => p.partNumber !== i + 1 || typeof p.etag !== "string" || !p.etag)) return pptError("上传分片不完整");
-  await bucket.resumeMultipartUpload(pptSourceKey(task.id), task.uploadId).complete(parts);
+  await bucket.resumeMultipartUpload(task.sourceKey || pptSourceKey(task.id), task.uploadId).complete(parts);
   task.status = "uploaded";
   delete task.uploadId;
   await pptWriteTask(bucket, task);
-  const link = new URL(request.url);
-  link.pathname = "/api/admin/ppt-source";
-  link.search = new URLSearchParams({ id: task.id, token: task.sourceToken }).toString();
-  const message = ["TGG AI PPT 官网自动接单", "任务 ID：" + task.id, "文件名：" + task.name, "文件大小：" + task.size + " 字节", "设计风格：" + task.style, "设计要求：" + task.prompt, "原稿安全下载链接（72 小时有效）：" + link.href, "结果回传接口（POST）：" + new URL('/api/admin/ppt-agent', request.url).href, "结果回传凭证（仅限本任务，7 日有效）：" + task.agentToken, "默认要求：每页独立生图，内容保持不变，16:9，最终合成 PPTX。", "说明：接单代理需主动调用回传接口，邮件发送本身不会启动生图。"].join("\n");
-  try {
-    await sendPptGmail(env, "[PPT-AI-TEST] " + task.id, message);
-    task.status = "email_sent";
-    delete task.emailError;
-    await pptWriteTask(bucket, task);
-    try {
-      const notifyTo = env.PPT_NOTIFY_EMAIL === undefined ? "1398469825@qq.com" : String(env.PPT_NOTIFY_EMAIL).trim();
-      if (notifyTo) {
-        const notice = [
-          "TGG AI PPT · 新设计任务",
-          "任务编号：" + task.id,
-          "文件名：" + task.name,
-          "文件大小：" + task.size + " 字节",
-          "设计风格：" + task.style,
-          "当前状态：已上传，等待 AI 接单",
-          "请打开 ChatGPT，提醒 AI 检查 Gmail 中的新 PPT 设计任务。"
-        ].join("\n");
-        // Never send the customer prompt, private source URL or callback token
-        // to the secondary owner-notification inbox.
-        await sendPptGmail(env, "[TGG PPT 新任务] " + task.id, notice, undefined, undefined, notifyTo);
-      }
-      delete task.notifyError;
-    } catch (notifyError) {
-      task.notifyError = true;
-      console.error("PPT owner notification failed", String(notifyError?.message || "unknown"));
-    }
-    await pptWriteTask(bucket, task);
-    return jsonResponse({ success: true, id: task.id, status: task.status, createdAt: task.createdAt });
-  } catch (error) {
-    task.emailError = true;
-    await pptWriteTask(bucket, task);
-    console.error("PPT R2 task mail failed", String(error?.message || "unknown"));
-    return pptError("文件上传成功，但邮件通知失败；任务已保留", 502);
-  }
+  return pptNotifyIntake(request, env, bucket, task);
 }
 
 async function handlePptSource(request, env) {
@@ -1482,9 +1517,10 @@ async function handlePptSource(request, env) {
   const task = await pptReadTask(env.PPT_FILES, url.searchParams.get("id") || "");
   const provided = url.searchParams.get("token") || "";
   if (!task || !provided || provided !== task.sourceToken || Date.now() > task.sourceExpiresAt) return pptError("下载链接无效或已过期", 403);
-  const object = await env.PPT_FILES.get(pptSourceKey(task.id));
+  if (!task.sourceToken || !task.size) return pptError("此任务没有源文件", 404);
+  const object = await env.PPT_FILES.get(task.sourceKey || pptSourceKey(task.id));
   if (!object) return pptError("源文件不存在", 404);
-  return new Response(object.body, { headers: { "Content-Type": "application/vnd.openxmlformats-officedocument.presentationml.presentation", "Content-Disposition": "attachment; filename*=UTF-8''" + encodeURIComponent(task.name), "Cache-Control": "private, no-store" } });
+  return new Response(object.body, { headers: { "Content-Type": "application/octet-stream", "Content-Disposition": "attachment; filename*=UTF-8''" + encodeURIComponent(task.name), "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } });
 }
 
 // A task-scoped callback for an external design agent. This token is unrelated
@@ -1556,27 +1592,25 @@ async function handlePptIntake(request, env) {
     return jsonResponse({ success: false, error: "PPT 自动邮件尚未完成 Gmail 授权配置" }, 503);
   }
   const type = request.headers.get("Content-Type") || "";
-  if (!type.startsWith("multipart/form-data")) return jsonResponse({ success: false, error: "请上传 PPTX 表单文件" }, 400);
+  if (!type.startsWith("multipart/form-data")) return jsonResponse({ success: false, error: "请上传素材文件" }, 400);
   if (Number(request.headers.get("Content-Length") || 0) > PPT_MAX_BYTES + 65536) {
-    return jsonResponse({ success: false, error: "当前单个 PPT 最大为 8 MB" }, 413);
+    return jsonResponse({ success: false, error: "当前单个文件最大为 8 MB" }, 413);
   }
   const form = await request.formData();
   const file = form.get("file");
   const prompt = String(form.get("prompt") || "").trim();
-  const style = String(form.get("style") || "蓝色科技风").trim().slice(0, 80);
-  if (!(file instanceof File) || !/\.pptx$/i.test(file.name)) return jsonResponse({ success: false, error: "仅支持 PPTX 文件" }, 400);
-  if (!file.size || file.size > PPT_MAX_BYTES) return jsonResponse({ success: false, error: "当前单个 PPT 最大为 8 MB" }, 413);
-  if (prompt.length < 4 || prompt.length > 1200) return jsonResponse({ success: false, error: "设计需求应为 4～1200 字" }, 400);
+  if (!(file instanceof File)) return jsonResponse({ success: false, error: "请选择素材文件" }, 400);
+  if (!file.size || file.size > PPT_MAX_BYTES) return jsonResponse({ success: false, error: "当前单个文件最大为 8 MB" }, 413);
+  if (!pptValidPrompt(prompt)) return jsonResponse({ success: false, error: "设计说明应为 4～6000 字" }, 400);
   const bytes = new Uint8Array(await file.arrayBuffer());
-  if (bytes[0] !== 0x50 || bytes[1] !== 0x4b) return jsonResponse({ success: false, error: "文件不是有效的 PPTX" }, 400);
 
-  const id = "PPT-" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase();
+  const id = pptNewId();
   const name = file.name.replace(/[\r\n"\\/]/g, "_").slice(0, 160);
   const body = [
     "TGG AI PPT 官网自动接单", "任务 ID：" + id, "文件名：" + name,
-    "设计风格：" + style, "设计需求：" + prompt,
-    "默认要求：逐页独立生图，所有内容保持不变，16:9，风格统一，最后合成 PPTX。",
-    "邮件由官网后台自动发送，原始 PPTX 已作为附件包含。"
+    "用户设计说明（唯一设计依据）：" + prompt,
+    "制作规则：分析素材和用户说明。PPT 保持原稿内容与页数；其他文件合理规划页面。每页独立生图，16:9，统一视觉，最终合成 PPTX，不用 PPT Skill 直接排版。",
+    "邮件由官网后台自动发送，原始素材已作为附件包含。"
   ].join("\n");
 
   try {
@@ -1606,7 +1640,7 @@ async function sendPptGmail(env, subject, body, filename, attachment, recipient)
     "To: " + to, "Subject: =?UTF-8?B?" + pptBase64(utf8.encode(subject)) + "?=",
     "MIME-Version: 1.0", "Content-Type: multipart/mixed; boundary=\"" + boundary + "\"", "",
     "--" + boundary, "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: base64", "", pptBase64(utf8.encode(body)), "",
-    ...(attachment ? ["--" + boundary, "Content-Type: application/vnd.openxmlformats-officedocument.presentationml.presentation", "Content-Disposition: attachment; filename*=UTF-8''" + encodeURIComponent(filename), "Content-Transfer-Encoding: base64", "", pptBase64(attachment), ""] : []),
+    ...(attachment ? ["--" + boundary, "Content-Type: application/octet-stream", "Content-Disposition: attachment; filename*=UTF-8''" + encodeURIComponent(filename), "Content-Transfer-Encoding: base64", "", pptBase64(attachment), ""] : []),
     "--" + boundary + "--", ""
   ].join("\r\n");
   const raw = pptBase64(utf8.encode(mime)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
