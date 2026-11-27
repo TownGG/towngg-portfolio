@@ -60,7 +60,7 @@ export default {
     const isMessageBoardDelete = url.pathname.endsWith("/api/admin/message-board-delete");
     const isPptHealth = url.pathname.endsWith("/api/admin/ppt-health");
     const isPptSubmit = url.pathname.endsWith("/api/admin/ppt-submit");
-    const pptAction = ["init", "text", "part", "complete", "status", "result", "result-link"].find(action => url.pathname.endsWith("/api/admin/ppt-" + action));
+    const pptAction = ["init", "text", "part", "complete", "status", "preview", "result", "result-link"].find(action => url.pathname.endsWith("/api/admin/ppt-" + action));
     const isPptSource = url.pathname.endsWith("/api/admin/ppt-source");
     const isPptDownload = url.pathname.endsWith("/api/admin/ppt-download");
     const isPptAgent = url.pathname.endsWith("/api/admin/ppt-agent");
@@ -1371,12 +1371,14 @@ const PPT_CHUNK_BYTES = 5 * 1024 * 1024;
 const PPT_SOURCE_LINK_MS = 72 * 60 * 60 * 1000;
 const PPT_DOWNLOAD_LINK_MS = 10 * 60 * 1000;
 const PPT_PROMPT_MAX_LENGTH = 6000;
+const PPT_PREVIEW_MAX_BYTES = 1024 * 1024;
 
 function pptTaskKey(id) { return "tasks/" + id + ".json"; }
 // The original .pptx key remains readable for jobs submitted before file-type support.
 function pptSourceKey(id) { return "sources/" + id + ".pptx"; }
 function pptNewSourceKey(id) { return "sources/" + id + "/original"; }
 function pptResultKey(id) { return "results/" + id + ".pptx"; }
+function pptPreviewKey(id, page) { return "previews/" + id + "/" + page; }
 function pptSafeId(id) { return /^PPT-\d{8}-[A-F0-9]{12}$/.test(id); }
 function pptError(message, status = 400) { return jsonResponse({ success: false, error: message }, status); }
 async function pptReadTask(bucket, id) {
@@ -1413,6 +1415,8 @@ async function pptNotifyIntake(request, env, bucket, task) {
   lines.push(
     "结果回传接口（POST）：" + new URL("/api/admin/ppt-agent", request.url).href,
     "结果回传凭证（仅限本任务，7 日有效）：" + task.agentToken,
+    "逐页进度规则：开始制作前先用 X-Ppt-Agent-Action: start 回传 totalPages 和 completedPages:0；每制作完一页，立即用 progress 回传真实 completedPages，全部页面完成后才上传成品 PPTX。",
+    "可选真实缩略图：每完成一页，可先将该页缩放为不超过 1MB 的 PNG/JPEG/WebP 图片，向上述结果回传接口 POST 二进制图片，并设置 X-Ppt-Id、X-Ppt-Agent-Token、X-Ppt-Agent-Action: preview、X-Ppt-Page: 页码、Content-Type: image/png 或 image/jpeg 或 image/webp。然后再发送该页 progress。禁止回传假图片，缩略图失败不应中断 PPT 制作。",
     "制作规则：先分析用户文字及可用素材。若为 PPT，请完整保留原稿每页内容和页数；若为文档、图片或纯文字，请理解信息并合理规划幻灯片。所有页面必须分别生成为完整的 16:9 图片，统一视觉风格，再将图片逐页整合为 PPTX。不要用 PPT 模板或 PPT Skill 直接排版生成设计。",
     "说明：邮件仅是任务通知；必须由接单代理执行设计并通过结果回传接口交付。"
   );
@@ -1489,12 +1493,23 @@ async function handlePptStorage(request, env, action) {
     const part = await bucket.resumeMultipartUpload(task.sourceKey || pptSourceKey(id), uploadId).uploadPart(partNumber, chunk);
     return jsonResponse({ success: true, partNumber: part.partNumber, etag: part.etag });
   }
+  if (action === "preview") {
+    const payload = await request.json().catch(() => ({}));
+    const task = await pptReadTask(bucket, String(payload.id || ""));
+    const page = Number(payload.page);
+    if (!task) return pptError("未找到任务", 404);
+    if (!Number.isInteger(page) || page < 1 || page > (task.totalPages || 0) || !Array.isArray(task.previewPages) || !task.previewPages.includes(page)) return pptError("此页暂无设计预览", 404);
+    const object = await bucket.get(pptPreviewKey(task.id, page));
+    if (!object) return pptError("设计预览暂不可用", 404);
+    const contentType = task.previewTypes?.[page] || "image/webp";
+    return new Response(object.body, { headers: { "Content-Type": contentType, "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } });
+  }
   const body = await request.json();
   const task = await pptReadTask(bucket, String(body.id || ""));
   if (!task) return pptError("未找到任务", 404);
   if (action === "status") {
     const result = await bucket.head(pptResultKey(task.id));
-    return jsonResponse({ success: true, id: task.id, status: result ? "completed" : task.status, name: task.name, size: task.size, createdAt: task.createdAt, hasResult: Boolean(result), emailError: Boolean(task.emailError), completedPages: task.completedPages || 0, totalPages: task.totalPages || 0 });
+    return jsonResponse({ success: true, id: task.id, status: result ? "completed" : task.status, name: task.name, size: task.size, createdAt: task.createdAt, hasResult: Boolean(result), emailError: Boolean(task.emailError), completedPages: task.completedPages || 0, totalPages: task.totalPages || 0, previewPages: task.previewPages || [] });
   }
   if (action === "result") {
     const result = await bucket.get(pptResultKey(task.id));
@@ -1569,6 +1584,26 @@ async function handlePptAgent(request, env) {
   const task = await pptReadTask(bucket, id);
   if (!task || !token || token !== task.agentToken || Date.now() > task.agentExpiresAt) return pptError("回传凭证无效或已过期", 403);
   if (task.status === "uploading" || task.status === "completed") return pptError("任务当前不可修改", 409);
+  if (action === "preview") {
+    const page = Number(request.headers.get("X-Ppt-Page"));
+    if (!task.totalPages || !["designing", "exporting"].includes(task.status)) return pptError("请先开始逐页设计", 409);
+    if (!Number.isInteger(page) || page < 1 || page > task.totalPages || page > (task.completedPages || 0) + 1) return pptError("预览页码无效", 400);
+    const contentType = (request.headers.get("Content-Type") || "").split(";")[0].trim().toLowerCase();
+    if (!["image/png", "image/jpeg", "image/webp"].includes(contentType)) return pptError("仅支持 PNG、JPEG 或 WebP 预览", 415);
+    const declaredLength = Number(request.headers.get("Content-Length") || 0);
+    if (declaredLength > PPT_PREVIEW_MAX_BYTES) return pptError("缩略图超过 1 MB", 413);
+    const bytes = new Uint8Array(await request.arrayBuffer());
+    if (!bytes.length || bytes.byteLength > PPT_PREVIEW_MAX_BYTES) return pptError("缩略图大小无效", 413);
+    const signature = contentType === "image/png" ? bytes.length >= 8 && [137, 80, 78, 71, 13, 10, 26, 10].every((value, index) => bytes[index] === value)
+      : contentType === "image/jpeg" ? bytes.length >= 4 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[bytes.length - 2] === 0xff && bytes[bytes.length - 1] === 0xd9
+      : bytes.length >= 12 && String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" && String.fromCharCode(...bytes.slice(8, 12)) === "WEBP";
+    if (!signature) return pptError("缩略图内容与声明格式不匹配", 415);
+    await bucket.put(pptPreviewKey(id, page), bytes, { httpMetadata: { contentType } });
+    task.previewPages = [...new Set([...(task.previewPages || []), page])].sort((a, b) => a - b);
+    task.previewTypes = { ...(task.previewTypes || {}), [page]: contentType };
+    await pptWriteTask(bucket, task);
+    return jsonResponse({ success: true, id, page, previewPages: task.previewPages });
+  }
   if (action === "start" || action === "progress") {
     const payload = await request.json().catch(() => ({}));
     const total = Number(payload.totalPages);

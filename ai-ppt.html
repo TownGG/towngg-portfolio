@@ -167,10 +167,37 @@
   </style>
   <style>
     /* Mobile is a natural single-column page, not a clipped desktop viewport. */
-    #job-download.is-downloading{opacity:.82;cursor:progress}
-    #job-download.is-downloading:before{content:'';display:inline-block;width:15px;height:15px;margin-right:8px;vertical-align:-3px;border:2px solid #ffffff80;border-top-color:#fff;border-radius:50%;animation:ppt-download-spin .75s linear infinite}
+    #job-download.is-downloading,.task-download.is-downloading{opacity:.82;cursor:progress}
+    #job-download.is-downloading:before,.task-download.is-downloading:before{content:'';display:inline-block;width:15px;height:15px;margin-right:8px;vertical-align:-3px;border:2px solid #ffffff80;border-top-color:#fff;border-radius:50%;animation:ppt-download-spin .75s linear infinite}
     #job-download-message:not([hidden]){padding:10px 13px;border-radius:12px;background:#eef4ff;border:1px solid #d7e5ff;color:#42639b;font-size:13px}
     @keyframes ppt-download-spin{to{transform:rotate(360deg)}}
+    /* Real job milestones: glass page cards with optional agent-uploaded thumbnails. */
+    .job-page-panel{padding:16px;border:1px solid #d8e4ff;border-radius:20px;background:linear-gradient(130deg,#f5faffd9,#f3efffd4);box-shadow:inset 0 1px #fff,0 10px 30px #abc0ec26}
+    .job-page-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:13px;color:#22346c;font-size:15px}
+    .job-page-head strong{display:flex;align-items:center;gap:8px}
+    .job-page-head strong:before{content:'✦';color:#795cf4;text-shadow:0 0 12px #956dff7d}
+    .job-page-head .page-count{color:#7359c8;font-size:13px;font-weight:750;white-space:nowrap}
+    .job-pages{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px}
+    .job-page{min-width:0;text-align:center;color:#7f8cab;font-size:11px}
+    .job-page-frame{position:relative;display:grid;place-items:center;aspect-ratio:16/9;border:1px solid #d6dffa;border-radius:12px;background:linear-gradient(135deg,#edf5ff,#f7f4ff);overflow:hidden;box-shadow:inset 0 1px #fff}
+    .job-page-frame:before{content:'▤';font-size:26px;color:#b7bee8}
+    .job-page img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .job-page.done .job-page-frame{border-color:#99ceee;box-shadow:0 4px 13px #7ac9f62e}
+    .job-page.done .job-page-frame:after{content:'✓';position:absolute;right:4px;bottom:4px;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#43b2ef;color:white;font-size:12px;box-shadow:0 1px 7px #1b70a870}
+    .job-page.current .job-page-frame{border:1.5px solid #8c65fb;box-shadow:0 0 0 3px #a98afa22,0 3px 17px #916aef40}
+    .job-page.current .job-page-frame:before{content:'✦';color:#7758d5;animation:job-beat-icon 1.7s ease-in-out infinite}
+    .job-page-label{margin-top:7px;line-height:1.4;white-space:nowrap}
+    .job-page-note{margin:11px 0 0;font-size:12px;color:#7184a6;line-height:1.5}
+    .job-complete{display:flex;align-items:center;gap:18px;padding:18px;border:1px solid #afdbf9;border-radius:20px;background:linear-gradient(125deg,#f4fbff,#ecebff);box-shadow:0 10px 28px #8dace032}
+    .job-complete-mark{display:grid;place-items:center;width:67px;height:67px;flex:none;border-radius:20px;background:linear-gradient(135deg,#64caff,#8274fb 75%,#ba72ea);color:white;font-size:35px;font-weight:800;box-shadow:0 0 25px #75affd7a,inset 0 2px #fff8;animation:job-finish-enter .65s cubic-bezier(.2,1.8,.4,1) both}
+    .job-complete strong{display:block;color:#1b3267;font-size:19px}.job-complete p{margin:6px 0 0;color:#6580aa;font-size:13px;line-height:1.5}
+    .job-page-panel[hidden],.job-complete[hidden]{display:none!important}
+    .job-complete:not([hidden])+.job-actions #job-download{box-shadow:0 10px 28px #806af75e}
+    .task-download{background:linear-gradient(110deg,#4f9af9,#8866f4)!important;color:#fff!important;border-color:#7a8ff9!important}
+    .task-download:disabled{opacity:.6}
+    @keyframes job-finish-enter{from{opacity:0;transform:scale(.75) rotate(-12deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+    @media(max-width:780px){.job-page-panel{padding:12px}.job-pages{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.job-page-head{font-size:14px}.job-complete{gap:12px;padding:14px}.job-complete-mark{width:54px;height:54px;font-size:29px}.job-complete strong{font-size:16px}.job-complete p{font-size:12px}}
+    @media(prefers-reduced-motion:reduce){.job-page.current .job-page-frame:before,.job-complete-mark{animation:none!important}}
     @media(max-width:780px){
       html,body{height:auto;min-height:100%;overflow-x:hidden}
       body{background:radial-gradient(ellipse at 85% 0%,#dce6ff 0%,transparent 46%),radial-gradient(ellipse at 0% 75%,#e6f7ff 0%,transparent 58%),linear-gradient(145deg,#fafbff,#f0f4ff 70%,#f5f1ff);background-attachment:scroll}
@@ -294,8 +321,11 @@
         </div>
         <div class="process-rail" aria-label="设计流程"><div class="process-step"><span class="process-icon">⇧</span><span><strong>描述需求</strong><small>文字必填 · 素材可选</small></span></div><div class="process-step"><span class="process-icon">✦</span><span><strong>AI 逐页设计</strong><small>按要求独立生成图片</small></span></div><div class="process-step"><span class="process-icon">▤</span><span><strong>导出 PPT</strong><small>获取高品质演示文稿</small></span></div></div>
       </section>
-      <section id="tasks-view" hidden><div class="hero" style="min-height:210px"><div class="hero-copy"><div class="eyebrow">YOUR DESIGN REQUESTS</div><h1>我的设计任务</h1><p>查看已提交的任务；上传与邮件状态来自后台，AI 设计进度将在处理服务接通后显示。</p></div><div class="visual" aria-hidden="true" style="opacity:.3"><div class="orb"></div><div class="ring"></div></div></div><div class="section-head"><div><h2>任务记录</h2><p>保存于此设备，并可向后台查询已上传文件的真实状态。</p></div><button class="button" id="clear-records">清空本地测试记录</button></div><div class="tasks" id="tasks-list"></div></section>
-      <section id="job-view" hidden><div class="job-detail" id="job-card"><div class="job-top"><div><div class="eyebrow">TGG AI · DESIGN WORKFLOW</div><h2 id="job-name">设计任务</h2><div id="job-meta" class="job-meta"></div></div><span id="job-badge" class="job-badge">正在提交</span></div><div class="job-flow"><div class="job-stage" id="stage-upload">提交内容</div><div class="job-stage" id="stage-intake">任务接单</div><div class="job-stage" id="stage-design">逐页设计</div><div class="job-stage" id="stage-export">导出 PPT</div></div><div class="job-meter" id="job-meter"><div id="job-bar"></div></div><div class="job-live"><span class="job-live-orb" aria-hidden="true"></span><strong id="job-live-label">正在准备任务</strong><span id="job-live-detail">任务状态会在这里更新</span><span id="job-check" class="job-check">等待首次检查</span></div><div id="job-status" class="job-hint" aria-live="polite">正在准备提交…</div><div class="job-actions"><button class="button" id="job-back" type="button">返回我的任务</button><button class="button" id="job-refresh" type="button">立即检查状态</button><button class="button primary" id="job-download" type="button" hidden>下载完成的 PPT</button></div><div class="job-hint" id="job-download-message" role="status" aria-live="polite" hidden></div><div class="job-hint">您可以稍后回到「我的任务」查看。页面会自动检查真实状态；动画表示系统正在等待与检查，不代表 AI 已开始设计。</div></div></section>
+      <section id="tasks-view" hidden><div class="hero" style="min-height:210px"><div class="hero-copy"><div class="eyebrow">YOUR DESIGN REQUESTS</div><h1>我的设计任务</h1><p>接单、逐页设计及成品状态由后台确认，页面会定时刷新；完成后可直接下载。</p></div><div class="visual" aria-hidden="true" style="opacity:.3"><div class="orb"></div><div class="ring"></div></div></div><div class="section-head"><div><h2>任务记录</h2><p>记录保存在此设备。正在自动检查未完成任务的真实状态。</p></div><button class="button" id="clear-records">清空本地测试记录</button></div><div class="tasks" id="tasks-list"></div></section>
+      <section id="job-view" hidden><div class="job-detail" id="job-card"><div class="job-top"><div><div class="eyebrow">TGG AI · DESIGN WORKFLOW</div><h2 id="job-name">设计任务</h2><div id="job-meta" class="job-meta"></div></div><span id="job-badge" class="job-badge">正在提交</span></div><div class="job-flow"><div class="job-stage" id="stage-upload">提交内容</div><div class="job-stage" id="stage-intake">任务接单</div><div class="job-stage" id="stage-design">逐页设计</div><div class="job-stage" id="stage-export">导出 PPT</div></div><div class="job-meter" id="job-meter"><div id="job-bar"></div></div><div class="job-live"><span class="job-live-orb" aria-hidden="true"></span><strong id="job-live-label">正在准备任务</strong><span id="job-live-detail">任务状态会在这里更新</span><span id="job-check" class="job-check">等待首次检查</span></div><div id="job-status" class="job-hint" aria-live="polite">正在准备提交…</div>
+        <div id="job-pages-panel" class="job-page-panel" hidden><div class="job-page-head"><strong>AI 逐页设计</strong><span id="job-page-count" class="page-count">0 / 0</span></div><div id="job-pages" class="job-pages"></div><p id="job-page-note" class="job-page-note"></p></div>
+        <div id="job-complete" class="job-complete" hidden><span class="job-complete-mark" aria-hidden="true">✓</span><div><strong>你的 PPT 已设计完成</strong><p id="job-complete-meta">高品质 PPTX 已准备好下载。</p></div></div>
+        <div class="job-actions"><button class="button" id="job-back" type="button">返回我的任务</button><button class="button" id="job-refresh" type="button">立即检查状态</button><button class="button primary" id="job-download" type="button" hidden>下载完成的 PPT</button></div><div class="job-hint" id="job-download-message" role="status" aria-live="polite" hidden></div><div class="job-hint">您可以稍后回到「我的任务」查看。页面只展示后台确认的真实进度；等待动画不代表 AI 已开始设计。</div></div></section>
       <footer class="standalone-footer">TGG AI Slides · 简单上传，智能设计 · 当前为邮件联调版本</footer>
     </main>
   </div>
@@ -309,14 +339,14 @@
       var lock=$('lock'), app=$('app'), password=$('password'), msg=$('gate-error'), toastTimer;
       function toast(text){var el=$('toast');el.textContent=text;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.hidden=true},4500)}
       function localKey(){try{return localStorage.getItem(KEY)||''}catch(e){return ''}}
-      function showApp(){lock.hidden=true;app.hidden=false;showTab('studio');renderTasks();fetch('/api/admin/ppt-health',{method:'POST',headers:{'X-Admin-Key':sessionKey},cache:'no-store'}).then(function(response){return response.json()}).then(function(data){$('upload-limit').textContent=data&&data.r2Configured?'支持任意格式 · 单文件最大 200 MB':'支持任意格式 · 当前单文件最大 8 MB'}).catch(function(){$('upload-limit').textContent='素材格式不限 · 正在检查上传服务'})}
+      function showApp(){lock.hidden=true;app.hidden=false;showTab('studio');renderTasks();fetch('/api/admin/ppt-health',{method:'POST',headers:{'X-Admin-Key':sessionKey},cache:'no-store'}).then(function(response){if(!response.ok)throw Error('服务暂不可用');return response.json()}).then(function(data){$('upload-limit').textContent=data&&data.r2Configured?'支持任意格式 · 单文件最大 200 MB':'支持任意格式 · 当前单文件最大 8 MB';document.querySelector('.engine-state').textContent=data&&data.r2Configured?'可提交':'联调中';document.querySelector('.engine-pill').title=data&&data.r2Configured?'已连接上传服务；任务需接单后才开始设计':'邮件联调中，部分服务暂不可用'}).catch(function(){$('upload-limit').textContent='素材格式不限 · 上传服务暂不可用';document.querySelector('.engine-state').textContent='连接异常'})}
       function showLock(){sessionKey='';lock.hidden=false;app.hidden=true;password.value='';msg.textContent=''}
       async function verify(key){var res=await fetch('/api/admin/gallery-list',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Key':key},body:'{}',cache:'no-store'});var data=await res.json().catch(function(){return null});if(!res.ok||!data||data.success!==true)throw new Error(data&&data.error?'后台密钥验证失败':'密钥无效或验证接口暂不可用');return true}
       async function login(key,remember){var btn=$('unlock');btn.disabled=true;btn.textContent='正在验证…';msg.textContent='';try{await verify(key);sessionKey=key;if(remember){try{localStorage.setItem(KEY,key)}catch(e){}}else{try{localStorage.removeItem(KEY)}catch(e){}}showApp()}catch(e){msg.textContent=e.message||'验证失败'}finally{btn.disabled=false;btn.textContent='解锁工作台'}}
       $('gate-form').addEventListener('submit',function(e){e.preventDefault();var key=password.value.trim();if(key)login(key,$('remember').checked)});
       $('toggle-eye').addEventListener('click',function(){var visible=password.type==='text';password.type=visible?'password':'text';this.setAttribute('aria-label',visible?'显示密码':'隐藏密码')});
       $('notification').addEventListener('click',function(){toast('当前是邮件联调体验版，实时任务通知尚未开通。')});
-      function showTab(tab){var unchanged=!$(tab==='job'?'job-view':tab==='tasks'?'tasks-view':'studio-view').hidden;$('studio-view').hidden=tab!=='studio';$('tasks-view').hidden=tab!=='tasks';$('job-view').hidden=tab!=='job';document.querySelectorAll('[data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab===tab)});if(tab==='tasks')renderTasks();if(!unchanged)window.scrollTo({top:0,behavior:'smooth'})}
+      function showTab(tab){var unchanged=!$(tab==='job'?'job-view':tab==='tasks'?'tasks-view':'studio-view').hidden;$('studio-view').hidden=tab!=='studio';$('tasks-view').hidden=tab!=='tasks';$('job-view').hidden=tab!=='job';document.querySelectorAll('[data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab===tab)});if(tab==='tasks'){renderTasks();refreshAllTasks()}if(!unchanged)window.scrollTo({top:0,behavior:'smooth'})}
       document.querySelectorAll('[data-tab]').forEach(function(btn){btn.addEventListener('click',function(){showTab(btn.dataset.tab)})});
       var file=$('file'),drop=$('dropzone');function prettySize(n){return n/1048576>=1?(n/1048576).toFixed(2)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
       function setFile(f){if(!f)return;if(!f.size){toast('暂不支持空文件，请选择有内容的素材');return}if(f.size>200*1048576){toast('单个文件目前最大支持 200 MB');return}activeFile=f;drop.hidden=true;$('selected').hidden=false;$('filename').textContent=f.name;$('filesize').textContent=prettySize(f.size)+' · 已选择，尚未上传'}
@@ -337,12 +367,112 @@
       function loadRecords(){try{return JSON.parse(localStorage.getItem(RECORDS)||'[]')}catch(e){return []}}function saveRecords(rows){try{localStorage.setItem(RECORDS,JSON.stringify(rows.slice(0,30)))}catch(e){}}
       function id(){return 'PPT-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,8).toUpperCase()}
       function updateRecord(job){saveRecords([job].concat(loadRecords().filter(function(row){return row.id!==job.id})));renderTasks()}
-      function jobStatusLabel(job){if(job.status==='completed')return '已完成 · 可下载';if(job.status==='exporting')return '正在合成并导出 PPT';if(job.status==='designing')return '正在逐页设计 · '+(job.completedPages||0)+' / '+(job.totalPages||'?');if(job.status==='email_sent')return '邮件已发送 · 等待 AI 接单';if(job.status==='uploaded')return '原稿已保存 · 邮件通知待恢复';if(job.status==='uploading')return '正在上传 · '+Math.round(job.progress||0)+'%';return job.status||'等待处理'}
-      var checkingJob=false,lastJobCheck=null;
-      function paintJob(job){if(!job)return;currentJobId=job.id;showTab('job');var waiting=job.status==='email_sent'||job.status==='uploaded',designing=job.status==='designing',exporting=job.status==='exporting',active=waiting||designing||exporting,hasFile=job.size>0;$('job-card').classList.toggle('is-waiting',active);$('job-name').textContent=job.name;$('job-meta').textContent=job.id+' · '+(hasFile?prettySize(job.size):'纯文字创作')+(!job.r2&&job.style?' · '+job.style:'');$('job-badge').textContent=jobStatusLabel(job);$('job-badge').classList.toggle('is-live',active);$('job-status').textContent=job.status==='email_sent'?(hasFile?'素材已上传并发送通知邮件。':'文字需求已发送通知邮件。')+'目前等待接单，邮件发送并不等于设计已开始。':job.status==='uploaded'?'任务已保存，通知邮件尚未确认发送。':jobStatusLabel(job);var flags=job.status==='completed'?[1,1,1,1]:exporting?[1,1,1,0]:designing?[1,1,0,0]:active?[1,0,0,0]:[0,0,0,0],now=exporting?3:designing?2:job.status==='uploading'?0:-1;['upload','intake','design','export'].forEach(function(stage,i){var element=$('stage-'+stage);element.classList.toggle('done',!!flags[i]);element.classList.toggle('now',i===now);element.classList.toggle('waiting',waiting&&i===1)});$('job-meter').classList.toggle('is-active',job.status==='uploading'||active);$('job-bar').style.width=(job.status==='completed'?100:exporting?90:designing?50+40*(job.totalPages?Math.min(1,(job.completedPages||0)/job.totalPages):0):waiting?25:Math.min(24,24*(job.progress||0)/100))+'%';$('job-live-label').textContent=job.status==='completed'?'设计文件已就绪':job.status==='uploading'?'正在上传素材':designing?'逐页设计进行中':exporting?'正在合成成品':waiting?'正在等待接单':'任务状态更新中';$('job-live-detail').textContent=job.status==='completed'?'可下载最终 PPT':job.status==='uploading'?'上传进度 '+Math.round(job.progress||0)+'%':designing?'已完成 '+(job.completedPages||0)+' / '+(job.totalPages||'?')+' 页':active?'每 20 秒自动检查真实状态':'请稍候';$('job-check').hidden=job.status==='completed';if(job.status==='completed')$('job-check').textContent='已完成';else if(lastJobCheck&&lastJobCheck.id===job.id)$('job-check').textContent='上次检查 '+lastJobCheck.time;$('job-download').hidden=job.status!=='completed'}
+      function jobStatusLabel(job){
+        if(job.status==='completed')return '已完成 · 可下载';
+        if(job.status==='exporting')return '逐页设计完成 · 正在导出';
+        if(job.status==='designing')return 'AI 已接单 · 第 '+Math.min((job.completedPages||0)+1,job.totalPages||1)+' 页设计中';
+        if(job.status==='email_sent')return '邮件已发送 · 等待 AI 接单';
+        if(job.status==='uploaded')return '原稿已保存 · 通知待恢复';
+        if(job.status==='uploading')return '正在上传 · '+Math.round(job.progress||0)+'%';
+        return job.status||'等待处理';
+      }
+      var checkingJob=false,checkingTasks=false,lastJobCheck=null,taskBatchOffset=0;
+      var previewCache=new Map(),previewLoading=new Set();
+      function renderJobPages(job){
+        var total=Number(job.totalPages)||0,done=Math.min(total,Number(job.completedPages)||0),show=total>0&&['designing','exporting','completed'].includes(job.status);
+        $('job-pages-panel').hidden=!show;
+        if(!show)return;
+        $('job-page-count').textContent=done+' / '+total+' 页已完成';
+        var first=total<=6?1:Math.min(Math.max(1,done-1),total-5),last=Math.min(total,first+5);
+        var previews=Array.isArray(job.previewPages)?job.previewPages:[];
+        var nodes=document.createDocumentFragment();
+        for(var page=first;page<=last;page++){
+          var card=document.createElement('div');card.className='job-page'+(page<=done?' done':'')+(page===done+1&&job.status==='designing'?' current':'');
+          var frame=document.createElement('div');frame.className='job-page-frame';
+          var key=job.id+'/'+page;
+          if(previews.includes(page)&&previewCache.has(key)){
+            var image=document.createElement('img');image.src=previewCache.get(key);image.alt='第 '+page+' 页设计预览';image.loading='lazy';frame.appendChild(image);
+          }else if(previews.includes(page)&&!previewLoading.has(key))loadPagePreview(job.id,page);
+          var label=document.createElement('div');label.className='job-page-label';label.textContent='第 '+page+' 页'+(page<=done?' · 完成':page===done+1&&job.status==='designing'?' · 制作中':' · 等待');
+          card.append(frame,label);nodes.appendChild(card);
+        }
+        $('job-pages').replaceChildren(nodes);
+        $('job-page-note').textContent=job.status==='designing'?'已完成 '+done+' 页，正在设计第 '+Math.min(done+1,total)+' 页；每页按真实回传状态更新。':job.status==='exporting'?'所有页面已设计完成，正在整合并导出 PPTX。':'全部页面已完成，请下载 PPTX。';
+      }
+      async function loadPagePreview(id,page){
+        var key=id+'/'+page;previewLoading.add(key);
+        try{
+          var response=await fetch('/api/admin/ppt-preview',{method:'POST',headers:{'X-Admin-Key':sessionKey,'Content-Type':'application/json'},body:JSON.stringify({id:id,page:page}),cache:'no-store'});
+          if(!response.ok)throw Error('缩略图暂不可用');
+          var blob=await response.blob();
+          if(!blob.type.startsWith('image/')||blob.size>1048576)throw Error('缩略图格式错误');
+          previewCache.set(key,URL.createObjectURL(blob));
+          if(currentJobId===id){var job=loadRecords().find(function(row){return row.id===id});if(job)renderJobPages(job)}
+        }catch(e){}finally{previewLoading.delete(key)}
+      }
+      window.addEventListener('pagehide',function(){previewCache.forEach(function(url){URL.revokeObjectURL(url)});previewCache.clear()});
+      function paintJob(job){
+        if(!job)return;
+        currentJobId=job.id;showTab('job');
+        var waiting=job.status==='email_sent'||job.status==='uploaded',designing=job.status==='designing',exporting=job.status==='exporting',completed=job.status==='completed',active=waiting||designing||exporting,hasFile=job.size>0;
+        var done=Number(job.completedPages)||0,total=Number(job.totalPages)||0;
+        $('job-card').classList.toggle('is-waiting',active);
+        $('job-name').textContent=job.name;
+        $('job-meta').textContent=job.id+' · '+(hasFile?prettySize(job.size):'纯文字创作')+(!job.r2&&job.style?' · '+job.style:'');
+        $('job-badge').textContent=jobStatusLabel(job);$('job-badge').classList.toggle('is-live',active);
+        $('job-status').textContent=job.status==='email_sent'?(hasFile?'素材已上传并发送通知邮件。':'文字需求已发送通知邮件。')+'目前等待接单，邮件发送并不等于设计已开始。':job.status==='uploaded'?'任务已保存，通知邮件尚未确认发送。':jobStatusLabel(job);
+        var flags=completed?[1,1,1,1]:exporting?[1,1,1,0]:designing?[1,1,0,0]:active?[1,0,0,0]:[0,0,0,0];
+        var now=exporting?3:designing?2:waiting?1:job.status==='uploading'?0:-1;
+        ['upload','intake','design','export'].forEach(function(stage,i){var element=$('stage-'+stage);element.classList.toggle('done',!!flags[i]);element.classList.toggle('now',i===now);element.classList.toggle('waiting',waiting&&i===1)});
+        $('job-meter').classList.toggle('is-active',job.status==='uploading'||active);
+        $('job-bar').style.width=(completed?100:exporting?94:designing?40+50*(total?Math.min(1,done/total):0):waiting?25:Math.min(24,24*(job.progress||0)/100))+'%';
+        $('job-live-label').textContent=completed?'设计文件已就绪':job.status==='uploading'?'正在上传素材':designing?'AI 已接单 · 正在制作第 '+Math.min(done+1,total||1)+' 页':exporting?'正在合成 PPTX':waiting?'正在等待接单':'任务状态更新中';
+        $('job-live-detail').textContent=completed?'成品已就绪，点击下载':job.status==='uploading'?'上传进度 '+Math.round(job.progress||0)+'%':designing?'真实进度 '+done+' / '+(total||'?')+' 页':exporting?'已完成全部 '+total+' 页':active?'每 20 秒检查一次后台状态':'请稍候';
+        $('job-check').hidden=completed;
+        if(completed)$('job-check').textContent='已完成';else if(lastJobCheck&&lastJobCheck.id===job.id)$('job-check').textContent='上次检查 '+lastJobCheck.time;
+        $('job-download').hidden=!completed;
+        $('job-complete').hidden=!completed;
+        if(completed)$('job-complete-meta').textContent=total?'共 '+total+' 页 · 高清 PPTX 已准备好下载。':'高清 PPTX 已准备好下载。';
+        renderJobPages(job);
+      }
       async function apiPpt(action,body,additional){var response=await fetch('/api/admin/ppt-'+action,{method:'POST',headers:Object.assign({'X-Admin-Key':sessionKey},additional||{},body instanceof Blob?{}:{'Content-Type':'application/json'}),body:body instanceof Blob?body:JSON.stringify(body),cache:'no-store'});var data=await response.json().catch(function(){return null});if(!response.ok||!data||!data.success)throw Error(data&&data.error||'服务器请求失败（'+response.status+'）');return data}
-      async function refreshJob(silent){if(checkingJob)return;var job=loadRecords().find(function(row){return row.id===currentJobId});if(!job)return;if(!job.r2){if(!silent)toast('这项任务暂无在线状态查询接口');return}checkingJob=true;$('job-check').classList.add('checking');$('job-check').textContent='正在连接服务器检查…';$('job-refresh').disabled=true;try{var state=await apiPpt('status',{id:job.id});job.status=state.status;job.completedPages=state.completedPages||0;job.totalPages=state.totalPages||0;updateRecord(job);lastJobCheck={id:job.id,time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})};if(currentJobId===job.id)paintJob(job)}catch(e){$('job-check').textContent='检查失败 · 稍后重试';if(!silent)toast('无法获取任务状态：'+e.message)}finally{checkingJob=false;$('job-check').classList.remove('checking');$('job-refresh').disabled=false}}
-      setInterval(function(){if(document.hidden||$('job-view').hidden||checkingJob)return;var job=loadRecords().find(function(row){return row.id===currentJobId});if(job&&job.r2&&job.status!=='completed'&&job.status!=='uploading')refreshJob(true)},20000);
+      function mergeTaskState(job,state){job.status=state.status;job.completedPages=state.completedPages||0;job.totalPages=state.totalPages||0;job.previewPages=Array.isArray(state.previewPages)?state.previewPages.filter(function(page){return Number.isInteger(page)&&page>=1&&page<=job.totalPages}):[];return job}
+      async function refreshJob(silent){
+        if(checkingJob)return;
+        var job=loadRecords().find(function(row){return row.id===currentJobId});
+        if(!job)return;
+        if(!job.r2){if(!silent)toast('这项任务暂无在线状态查询接口');return}
+        checkingJob=true;$('job-check').classList.add('checking');$('job-check').textContent='正在连接服务器检查…';$('job-refresh').disabled=true;
+        try{
+          var state=await apiPpt('status',{id:job.id});mergeTaskState(job,state);updateRecord(job);
+          lastJobCheck={id:job.id,time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})};
+          if(currentJobId===job.id&&!$('job-view').hidden)paintJob(job);
+        }catch(e){$('job-check').textContent='检查失败 · 稍后重试';if(!silent)toast('无法获取任务状态：'+e.message)}
+        finally{checkingJob=false;$('job-check').classList.remove('checking');$('job-refresh').disabled=false}
+      }
+      async function refreshAllTasks(){
+        if(checkingTasks||document.hidden||$('tasks-view').hidden)return;
+        var rows=loadRecords(),pending=rows.filter(function(job){return job.r2&&job.status!=='completed'&&job.status!=='uploading'});
+        if(!pending.length)return;
+        checkingTasks=true;
+        var selection=pending.slice(taskBatchOffset,taskBatchOffset+5);
+        if(selection.length<5)selection=selection.concat(pending.slice(0,5-selection.length));
+        taskBatchOffset=(taskBatchOffset+5)%pending.length;
+        try{
+          var results=await Promise.all(selection.map(async function(job){try{return{id:job.id,state:await apiPpt('status',{id:job.id})}}catch(e){return null}}));
+          var known=loadRecords(),changed=false;
+          results.forEach(function(result){if(!result)return;var record=known.find(function(row){return row.id===result.id});if(!record)return;var before=JSON.stringify([record.status,record.completedPages,record.totalPages,record.previewPages]);mergeTaskState(record,result.state);if(JSON.stringify([record.status,record.completedPages,record.totalPages,record.previewPages])!==before)changed=true});
+          if(changed){saveRecords(known);renderTasks()}
+        }finally{checkingTasks=false}
+      }
+      function pollVisible(){
+        if(document.hidden)return;
+        if(!$('tasks-view').hidden){refreshAllTasks();return}
+        if(!$('job-view').hidden&&!checkingJob){var job=loadRecords().find(function(row){return row.id===currentJobId});if(job&&job.r2&&job.status!=='completed'&&job.status!=='uploading')refreshJob(true)}
+      }
+      setInterval(pollVisible,20000);
+      document.addEventListener('visibilitychange',function(){if(!document.hidden)pollVisible()});
+      window.addEventListener('focus',pollVisible);
       $('job-back').addEventListener('click',function(){showTab('tasks')});$('job-refresh').addEventListener('click',function(){refreshJob(false)});
       var downloadBusy=false;
       async function legacyPptDownload(job){
@@ -352,31 +482,36 @@
         link.href=fileUrl;link.download='TGG-AI-'+job.id+'.pptx';document.body.appendChild(link);link.click();link.remove();
         setTimeout(function(){URL.revokeObjectURL(fileUrl)},60000);
       }
-      $('job-download').addEventListener('click',async function(){
-        var job=loadRecords().find(function(row){return row.id===currentJobId});
+      async function downloadPpt(job,button,message){
         if(downloadBusy||!job||job.status!=='completed')return;
-        var button=this,message=$('job-download-message');
+        var originalText=button.textContent;
         downloadBusy=true;button.disabled=true;button.classList.add('is-downloading');button.textContent='正在准备下载…';
-        message.hidden=false;message.textContent='正在连接服务器获取成品，请稍候…';
+        if(message){message.hidden=false;message.textContent='正在连接服务器获取成品，请稍候…'}
         try{
           var data;
           try{data=await apiPpt('result-link',{id:job.id})}
           catch(linkError){
             if(!/Not found|404/.test(linkError.message||''))throw linkError;
-            message.textContent='下载服务正在升级，已切换兼容方式；若手机没有响应，请稍后重试。';
+            if(message)message.textContent='下载服务正在升级，已切换兼容方式；若手机没有响应，请稍后重试。';
             await legacyPptDownload(job);
             return;
           }
           var url=new URL(data.url,window.location.origin);
           if(url.origin!==window.location.origin||url.pathname!=='/api/admin/ppt-download')throw Error('下载地址验证失败，请重试');
-          message.textContent='已向浏览器发起下载。手机端请查看下载列表，或在文件预览页选择「保存到文件」。';
+          if(message)message.textContent='已向浏览器发起下载。手机端请查看下载列表，或在文件预览页选择「保存到文件」。';
+          else toast('已发起下载，请查看浏览器下载列表。');
           window.location.assign(url.href);
         }catch(e){
-          message.textContent='下载失败：'+(e.message||'网络异常')+'。请检查网络后重试。';
-          toast(message.textContent);
+          var errorText='下载失败：'+(e.message||'网络异常')+'。请检查网络后重试。';
+          if(message)message.textContent=errorText;
+          toast(errorText);
         }finally{
-          downloadBusy=false;button.disabled=false;button.classList.remove('is-downloading');button.textContent='下载完成的 PPT';
+          downloadBusy=false;button.disabled=false;button.classList.remove('is-downloading');button.textContent=originalText;
         }
+      }
+      $('job-download').addEventListener('click',function(){
+        var job=loadRecords().find(function(row){return row.id===currentJobId});
+        downloadPpt(job,this,$('job-download-message'));
       });
       async function uploadMaterial(file,brief,button){var init=await apiPpt('init',{name:file.name,size:file.size,prompt:brief});var job={id:init.id,name:file.name,size:file.size,brief:brief,createdAt:init.createdAt,status:'uploading',progress:0,automated:true,r2:true};updateRecord(job);paintJob(job);var parts=[],chunks=Math.ceil(file.size/init.chunkSize);for(var i=0;i<chunks;i++){var slice=file.slice(i*init.chunkSize,Math.min(file.size,(i+1)*init.chunkSize));var part=await apiPpt('part',slice,{'X-Ppt-Id':init.id,'X-Ppt-Upload-Id':init.uploadId,'X-Ppt-Part':String(i+1)});parts.push({partNumber:part.partNumber,etag:part.etag});job.progress=Math.round((i+1)/chunks*100);job.status='uploading';updateRecord(job);paintJob(job);button.textContent='上传中 '+job.progress+'%'}button.textContent='正在通知接单邮箱…';var completed=await apiPpt('complete',{id:init.id,uploadId:init.uploadId,parts:parts});job.status=completed.status;job.progress=100;updateRecord(job);paintJob(job);toast('素材已上传，任务 '+init.id);return job}
       async function submitText(brief,button){button.textContent='正在提交文字需求…';var created=await apiPpt('text',{prompt:brief});var job={id:created.id,name:'文字创作任务',size:0,brief:brief,createdAt:created.createdAt,status:created.status,automated:true,r2:true};updateRecord(job);paintJob(job);toast('文字需求已成功提交，任务 '+created.id);return job}
@@ -409,7 +544,21 @@
       });
       function gmailUrl(job){var subject='[PPT-AI-TEST] '+job.id;var body='TGG AI Slides 测试任务\n任务 ID：'+job.id+'\n素材：'+(job.size?job.name:'纯文字（无附件）')+'\n用户说明：'+job.brief+'\n设计规则：按用户说明分析素材、逐页独立生图，16:9，统一风格，最终合成 PPTX。\n\n'+(job.size?'请手动附上原始素材文件。':'此任务仅包含文字，无需附件。')+'\n注意：手动邮件不是服务器排队任务。';return 'https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(TARGET)+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)}
       $('open-gmail').addEventListener('click',function(){if(!pending)return;window.open(gmailUrl(pending),'_blank','noopener,noreferrer');$('modal-bg').hidden=true;toast(pending.size?'已打开 Gmail，请附上所选素材后发送。':'已打开 Gmail，可直接发送纯文字需求。')});$('close-modal').addEventListener('click',function(){$('modal-bg').hidden=true});
-      function renderTasks(){var list=$('tasks-list'),rows=loadRecords();list.replaceChildren();if(!rows.length){list.innerHTML='<div class="empty"><svg class="icon lg" viewBox="0 0 24 24" style="margin:auto"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 9h8M8 13h5"/></svg><strong>还没有设计任务</strong><p>回到创作工作台，创建你的第一个 PPT 设计任务。</p></div>';return}rows.forEach(function(job){var box=document.createElement('article');box.className='task glass';var left=document.createElement('div');var h=document.createElement('h3');h.textContent=job.name;var p=document.createElement('p');p.textContent=job.id+' · '+new Date(job.createdAt).toLocaleString('zh-CN')+(job.size?' · '+prettySize(job.size):' · 纯文字创作');left.append(h,p);var right=document.createElement('div');right.className='task-right';var status=document.createElement('span');status.className='status';status.textContent=jobStatusLabel(job);right.append(status);var detail=document.createElement('button');detail.className='button';detail.textContent='查看进度';detail.addEventListener('click',function(){paintJob(job);refreshJob()});right.append(detail);if(!job.automated){var retry=document.createElement('button');retry.className='button';retry.textContent='打开邮件';retry.addEventListener('click',function(){window.open(gmailUrl(job),'_blank','noopener,noreferrer')});right.append(retry)}box.append(left,right);list.append(box)})}
+      function renderTasks(){
+        var list=$('tasks-list'),rows=loadRecords();list.replaceChildren();
+        if(!rows.length){list.innerHTML='<div class="empty"><svg class="icon lg" viewBox="0 0 24 24" style="margin:auto"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 9h8M8 13h5"/></svg><strong>还没有设计任务</strong><p>回到创作工作台，创建你的第一个 PPT 设计任务。</p></div>';return}
+        rows.forEach(function(job){
+          var box=document.createElement('article');box.className='task glass';
+          var left=document.createElement('div'),h=document.createElement('h3'),p=document.createElement('p');
+          h.textContent=job.name;p.textContent=job.id+' · '+new Date(job.createdAt).toLocaleString('zh-CN')+(job.size?' · '+prettySize(job.size):' · 纯文字创作');left.append(h,p);
+          var right=document.createElement('div');right.className='task-right';
+          var status=document.createElement('span');status.className='status';status.textContent=jobStatusLabel(job);right.append(status);
+          if(job.status==='completed'&&job.r2){var download=document.createElement('button');download.className='button task-download';download.textContent='下载 PPT';download.addEventListener('click',function(){downloadPpt(job,download,null)});right.append(download)}
+          var detail=document.createElement('button');detail.className='button';detail.textContent='查看进度';detail.addEventListener('click',function(){paintJob(job);refreshJob()});right.append(detail);
+          if(!job.automated){var retry=document.createElement('button');retry.className='button';retry.textContent='打开邮件';retry.addEventListener('click',function(){window.open(gmailUrl(job),'_blank','noopener,noreferrer')});right.append(retry)}
+          box.append(left,right);list.append(box);
+        });
+      }
       $('clear-records').addEventListener('click',function(){if(!confirm('确认删除本设备保存的前端测试记录？此操作不会删除邮箱中的邮件。'))return;saveRecords([]);renderTasks()});
       var saved=localKey();if(saved){password.value=saved;login(saved,true)}else showLock();
     })();
