@@ -193,7 +193,7 @@
               <div class="form-column upload-column">
                 <h3 class="card-title"><span class="number">01</span>上传演示文稿</h3>
                 <input id="file" type="file" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" hidden>
-                <div id="dropzone" class="upload" tabindex="0" role="button" aria-label="选择 PPTX 文件"><div class="upload-icon"><svg class="icon lg" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v4h16v-4"/></svg></div><strong>将 PPT 拖到这里，或点击选择文件</strong><small>支持 .pptx · 建议不超过 25 MB</small></div>
+                <div id="dropzone" class="upload" tabindex="0" role="button" aria-label="选择 PPTX 文件"><div class="upload-icon"><svg class="icon lg" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v4h16v-4"/></svg></div><strong>将 PPT 拖到这里，或点击选择文件</strong><small>支持 .pptx · 当前最大 8 MB</small></div>
                 <div id="selected" class="file-selected" hidden><div class="file-icon"><svg class="icon lg" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8"/></svg></div><div><strong id="filename"></strong><small id="filesize"></small></div><button type="button" class="remove" id="remove-file" aria-label="移除文件">×</button></div>
               </div>
               <div class="form-column description-column">
@@ -235,7 +235,7 @@
       function showTab(tab){$('studio-view').hidden=tab!=='studio';$('tasks-view').hidden=tab!=='tasks';document.querySelectorAll('[data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab===tab)});if(tab==='tasks')renderTasks();window.scrollTo({top:0,behavior:'smooth'})}
       document.querySelectorAll('[data-tab]').forEach(function(btn){btn.addEventListener('click',function(){showTab(btn.dataset.tab)})});
       var file=$('file'),drop=$('dropzone');function prettySize(n){return n/1048576>=1?(n/1048576).toFixed(2)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
-      function setFile(f){if(!f)return;if(!/\.pptx$/i.test(f.name)){toast('请选择 .pptx 文件');return}if(f.size>12*1048576){toast('自动接单暂时支持不超过 12 MB 的 PPT');return}activeFile=f;drop.hidden=true;$('selected').hidden=false;$('filename').textContent=f.name;$('filesize').textContent=prettySize(f.size)+' · 已在浏览器选择，尚未上传'}
+      function setFile(f){if(!f)return;if(!/\.pptx$/i.test(f.name)){toast('请选择 .pptx 文件');return}if(f.size>8*1048576){toast('自动接单暂时支持不超过 8 MB 的 PPT');return}activeFile=f;drop.hidden=true;$('selected').hidden=false;$('filename').textContent=f.name;$('filesize').textContent=prettySize(f.size)+' · 已在浏览器选择，尚未上传'}
       drop.addEventListener('click',function(){file.click()});drop.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();file.click()}});file.addEventListener('change',function(){setFile(file.files[0])});drop.addEventListener('dragover',function(e){e.preventDefault();drop.classList.add('drag')});drop.addEventListener('dragleave',function(){drop.classList.remove('drag')});drop.addEventListener('drop',function(e){e.preventDefault();drop.classList.remove('drag');setFile(e.dataTransfer.files[0])});$('remove-file').addEventListener('click',function(){activeFile=null;file.value='';drop.hidden=false;$('selected').hidden=true});
       document.querySelectorAll('[data-style]').forEach(function(btn){btn.addEventListener('click',function(){selectedStyle=btn.dataset.style;document.querySelectorAll('[data-style]').forEach(function(b){b.classList.toggle('selected',b===btn)})})});
       function loadRecords(){try{return JSON.parse(localStorage.getItem(RECORDS)||'[]')}catch(e){return []}}function saveRecords(rows){try{localStorage.setItem(RECORDS,JSON.stringify(rows.slice(0,30)))}catch(e){}}
@@ -244,13 +244,13 @@
         var brief=$('prompt').value.trim();if(!activeFile){toast('请先选择 PPTX 文件');return}if(brief.length<4){toast('请先填写至少 4 个字的设计需求');return}
         var button=this;button.disabled=true;button.textContent='检查自动接单服务…';
         try{
-          var check=await fetch('/api/ppt/health',{method:'POST',headers:{'X-Admin-Key':sessionKey},cache:'no-store'});
+          var check=await fetch('/api/admin/ppt-health',{method:'POST',headers:{'X-Admin-Key':sessionKey},cache:'no-store'});
           var health=await check.json().catch(function(){return null});
           if(check.status===401){toast('登录已失效，请重新解锁页面');return}
           if(check.ok&&health&&health.configured){
             var form=new FormData();form.append('file',activeFile,activeFile.name);form.append('prompt',brief);form.append('style',selectedStyle);
             button.textContent='正在安全上传并发送邮件…';
-            var sent=await fetch('/api/ppt/submit',{method:'POST',headers:{'X-Admin-Key':sessionKey},body:form,cache:'no-store'});
+            var sent=await fetch('/api/admin/ppt-submit',{method:'POST',headers:{'X-Admin-Key':sessionKey},body:form,cache:'no-store'});
             var data=await sent.json().catch(function(){return null});
             if(!sent.ok||!data||!data.success){toast(data&&data.error||'自动提交失败，请稍后再试');return}
             var job={id:data.id,name:activeFile.name,size:activeFile.size,brief:brief,style:selectedStyle,createdAt:data.createdAt,status:'邮件已发送 · 等待自动接单',automated:true};
