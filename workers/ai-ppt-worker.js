@@ -57,7 +57,7 @@ function configured(env) {
 
 function randomTaskId() {
   const iso = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  return `PPT-${iso}-${crypto.randomUUID().slice(0, 12).toUpperCase()}`;
+  return `PPT-${iso}-${crypto.randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase()}`;
 }
 
 async function submit(request, env) {
