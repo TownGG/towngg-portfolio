@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>PPT 任务管理 | TownGG</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#090e1a;color:#eef3ff}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse 65% 30% at 70% 0%,#1d345588,transparent),#090e1a}
+    button,input,select{font:inherit}button{cursor:pointer}a{color:#9bbfff;text-decoration:none}
+    .wrap{max-width:1320px;margin:auto;padding:38px 28px 70px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:38px}
+    .brand{font-size:21px;font-weight:800;letter-spacing:.02em}.brand span{color:#6ea9ff}
+    .top nav{display:flex;gap:22px;font-size:14px}.eyebrow{color:#7daeff;letter-spacing:.18em;text-transform:uppercase;font-size:12px;font-weight:800}
+    h1{font-size:clamp(30px,4vw,48px);letter-spacing:-.04em;margin:12px 0 10px}p{color:#aebbd0;margin:0;line-height:1.6}
+    .heading{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;margin-bottom:28px}
+    .btn{border:1px solid #3c5272;background:#1d304b;color:#f5f9ff;border-radius:11px;padding:12px 18px;font-weight:650}
+    .btn.primary{background:#377afa;border-color:#377afa}.btn:disabled{opacity:.5;cursor:not-allowed}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px}
+    .stat,.panel{border:1px solid #283954;background:#121d2eee;border-radius:18px}
+    .stat{padding:22px}.stat small{color:#a4b3c9;font-size:13px}.stat strong{display:block;font-size:36px;letter-spacing:-.04em;margin-top:12px}
+    .panel{padding:20px}.login{max-width:440px;margin:10vh auto 0}.login label{display:block;color:#b4c2d6;font-size:14px;margin:24px 0 8px}
+    .field{background:#0b1424;border:1px solid #3c4d68;border-radius:10px;padding:12px 14px;color:#fff;min-width:0;width:100%;outline-offset:2px}
+    .login .btn{width:100%;margin-top:14px}.note{color:#90a4be;font-size:13px;margin-top:14px}.error{color:#ff9a9a;min-height:24px;margin-top:12px}
+    .toolbar{display:grid;grid-template-columns:minmax(180px,1fr) 190px auto;gap:12px;margin-bottom:18px}
+    .status{display:inline-block;border-radius:99px;padding:5px 10px;font-size:12px;font-weight:750;background:#263951;color:#bcd3f6;white-space:nowrap}
+    .status.completed{background:#163f36;color:#8be9be}.status.designing,.status.exporting{background:#3a311b;color:#ffe29b}.status.email_sent,.status.uploaded{background:#293c61;color:#bdd3ff}
+    .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;text-align:left}th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#90a3bf;font-weight:700;padding:15px 12px;border-bottom:1px solid #2c3b55}
+    td{padding:19px 12px;border-bottom:1px solid #24344b;font-size:14px;vertical-align:middle}tr:last-child td{border-bottom:0}
+    .task-id{font-weight:750;display:block;color:#e5efff;word-break:break-all}.muted{display:block;color:#8fa3be;font-size:12px;margin-top:5px}
+    .progress{height:6px;width:105px;background:#2b3950;border-radius:99px;overflow:hidden;margin-top:8px}.progress>i{display:block;height:100%;background:#619afa;border-radius:99px}
+    .footer{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-top:18px}
+    details{max-width:390px}summary{cursor:pointer;color:#96b9ee;font-size:13px}details p{font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:10px}
+    [hidden]{display:none!important}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #86b3ff;outline-offset:3px}
+    @media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}.toolbar{grid-template-columns:1fr 1fr}.toolbar .btn{grid-column:span 2}.heading{align-items:flex-start}.top nav{gap:12px}}
+    @media(max-width:560px){.wrap{padding:24px 15px 40px}.heading{display:block}.heading .btn{margin-top:18px}.stats{gap:8px}.stat{padding:16px}.stat strong{font-size:30px}.toolbar{grid-template-columns:1fr}.toolbar .btn{grid-column:auto}.top nav{font-size:12px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top"><a class="brand" href="./admin-upload.html">Town<span>GG</span> / ADMIN</a><nav><a href="./admin-upload.html">管理首页</a><a href="./ai-ppt.html">PPT 工作台</a></nav></header>
+    <section id="login" class="panel login">
+      <div class="eyebrow">Secure Access</div><h1>PPT 任务管理</h1><p>使用现有后台管理员密钥查看所有 PPT 设计任务。</p>
+      <form id="login-form"><label for="key">管理员密钥</label><input class="field" id="key" type="password" autocomplete="off" required><button class="btn primary" type="submit">进入任务管理</button></form>
+      <div class="note">如果在管理后台选择过“记住密钥”，此页面可以自动验证并进入。</div><div class="error" id="login-error" role="alert"></div>
+    </section>
+    <main id="app" hidden>
+      <div class="heading"><div><div class="eyebrow">TGG AI PPT / ADMIN</div><h1>任务管理</h1><p>查看网站后台真实状态。Gmail 标签不会影响这里的任务进度。</p></div><button class="btn" id="refresh">刷新数据</button></div>
+      <section class="stats" aria-label="任务总览">
+        <div class="stat"><small>当前加载任务</small><strong id="total">0</strong></div>
+        <div class="stat"><small>等待接单</small><strong id="waiting">0</strong></div>
+        <div class="stat"><small>处理中</small><strong id="active">0</strong></div>
+        <div class="stat"><small>已完成并有成品</small><strong id="completed">0</strong></div>
+      </section>
+      <section class="panel">
+        <div class="toolbar"><input class="field" id="search" type="search" placeholder="搜索 Task ID、文件名或要求" aria-label="搜索任务"><select class="field" id="filter" aria-label="筛选状态"><option value="all">全部状态</option><option value="waiting">待处理</option><option value="active">处理中</option><option value="completed">已完成</option><option value="other">异常或其他</option></select><button class="btn" id="logout">退出管理</button></div>
+        <div class="table-wrap"><table><thead><tr><th>任务</th><th>创建时间</th><th>后端状态</th><th>设计进度</th><th>文件</th><th>说明</th></tr></thead><tbody id="rows"></tbody></table></div>
+        <div class="footer"><p id="message" role="status">准备读取任务…</p><button class="btn" id="more" hidden>加载更多</button></div>
+      </section>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const storageKey = 'towngg_admin_upload_key';
+      const $ = id => document.getElementById(id);
+      let secret = '';
+      let tasks = [];
+      let cursor = null;
+      let loading = false;
+      const waiting = s => ['email_sent','uploaded','uploading'].includes(s);
+      const active = s => ['designing','exporting'].includes(s);
+      const statusText = {email_sent:'待接单',uploaded:'待接单',uploading:'素材上传中',designing:'设计中',exporting:'导出中',completed:'已完成'};
+      const displayStatus = t => t.hasResult ? 'completed' : t.status;
+      const dateText = s => {if(!s)return '—'; const d=new Date(s);return Number.isNaN(d.getTime())?'—':d.toLocaleString('zh-CN',{hour12:false});};
+      const request = async (path,body={}) => {
+        const response = await fetch('/api/admin/'+path,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Key':secret},body:JSON.stringify(body),cache:'no-store'});
+        const data = await response.json().catch(()=>({}));
+        if(!response.ok || !data.success) throw new Error(data.error || '请求失败 ('+response.status+')');
+        return data;
+      };
+      function render(){
+        const q=$('search').value.trim().toLowerCase(),filter=$('filter').value;
+        $('total').textContent=tasks.length;
+        $('waiting').textContent=tasks.filter(t=>waiting(displayStatus(t))).length;
+        $('active').textContent=tasks.filter(t=>active(displayStatus(t))).length;
+        $('completed').textContent=tasks.filter(t=>t.hasResult).length;
+        const filtered=tasks.filter(t=>{
+          const s=displayStatus(t);
+          const category=s==='completed'?'completed':waiting(s)?'waiting':active(s)?'active':'other';
+          return (filter==='all'||filter===category) && [t.id,t.name,t.prompt].some(v=>String(v||'').toLowerCase().includes(q));
+        });
+        const rows=$('rows');rows.replaceChildren();
+        if(!filtered.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=6;td.textContent='没有匹配的任务';tr.append(td);rows.append(tr);return;}
+        for(const task of filtered){
+          const tr=document.createElement('tr');
+          const cell=()=>{const td=document.createElement('td');tr.append(td);return td;};
+          let td=cell(),name=document.createElement('strong');name.className='task-id';name.textContent=task.id;td.append(name);
+          const filename=document.createElement('span');filename.className='muted';filename.textContent=task.name||'纯文字创作';td.append(filename);
+          td=cell();td.textContent=dateText(task.createdAt);
+          td=cell();const state=document.createElement('span');state.className='status '+displayStatus(task);state.textContent=statusText[displayStatus(task)]||task.status||'未知';td.append(state);
+          if(task.emailError){const warning=document.createElement('span');warning.className='muted';warning.textContent='邮件通知异常';td.append(warning);}
+          td=cell();const done=Number(task.completedPages)||0,total=Number(task.totalPages)||0;td.textContent=total?done+' / '+total:'尚未开始';
+          if(total){const bar=document.createElement('div');bar.className='progress';const fill=document.createElement('i');fill.style.width=Math.min(100,Math.max(0,done/total*100))+'%';bar.append(fill);td.append(bar);}
+          td=cell();td.textContent=task.hasResult?'成品已存储':'暂无成品';
+          td=cell();const detail=document.createElement('details'),summary=document.createElement('summary'),body=document.createElement('p');summary.textContent='查看设计要求';body.textContent=task.prompt||'无设计说明';detail.append(summary,body);td.append(detail);
+          rows.append(tr);
+        }
+      }
+      async function load(reset){
+        if(loading)return;loading=true;$('refresh').disabled=true;$('more').disabled=true;$('message').textContent='正在加载任务…';
+        try{
+          const result=await request('ppt-list',{cursor:reset?null:cursor});
+          if(reset)tasks=[];
+          const seen=new Set(tasks.map(t=>t.id));for(const task of result.tasks||[]){if(!seen.has(task.id)){tasks.push(task);seen.add(task.id);}}
+          tasks.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+          cursor=result.hasMore?result.cursor:null;
+          $('more').hidden=!cursor;
+          $('message').textContent='已加载 '+tasks.length+' 项任务'+(cursor?'，还有更多历史记录':'');
+          render();
+        }catch(e){$('message').textContent='读取失败：'+e.message;}
+        finally{loading=false;$('refresh').disabled=false;$('more').disabled=false;}
+      }
+      async function enter(key){
+        secret=key;
+        await request('auth-check');
+        $('login').hidden=true;$('app').hidden=false;$('key').value='';
+        await load(true);
+      }
+      $('login-form').addEventListener('submit',async e=>{e.preventDefault();$('login-error').textContent='正在验证…';try{await enter($('key').value);$('login-error').textContent='';}catch(err){secret='';$('login-error').textContent=err.message;}});
+      $('logout').addEventListener('click',()=>{secret='';tasks=[];cursor=null;$('app').hidden=true;$('login').hidden=false;});
+      $('refresh').addEventListener('click',()=>load(true));
+      $('more').addEventListener('click',()=>load(false));
+      $('search').addEventListener('input',render);$('filter').addEventListener('change',render);
+      try{const saved=localStorage.getItem(storageKey);if(saved)enter(saved).catch(()=>{secret='';$('login-error').textContent='已保存的密钥失效，请重新输入。';});}catch(_){}
+    })();
+  </script>
+</body>
+</html>
