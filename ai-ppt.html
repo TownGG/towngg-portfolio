@@ -157,14 +157,13 @@
     .brand strong{font-size:22px;letter-spacing:-.03em;color:#121c51}.brand small{display:inline;margin-left:15px;border-left:1px solid #cdd3ef;padding-left:20px;color:#344369;font-size:16px;letter-spacing:0;font-weight:500}
     .header-nav{gap:15px!important}.engine-pill{display:inline-flex;align-items:center;gap:7px;border-radius:99px;border:1px solid #ffffffee;padding:9px 15px;background:#ffffffac;box-shadow:0 6px 18px #a7b1eb27;color:#323e78;font-size:12px;font-weight:650;white-space:nowrap}.engine-pill .spark{color:#8744e9;font-size:17px}.engine-pill .engine-state{color:#479e8a;font-size:11px}
     .header-icon{position:relative;width:34px;height:34px;display:grid;place-items:center;border:none;background:transparent;color:#22346b;cursor:pointer}.header-icon svg{width:21px;height:21px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}.header-icon .notification-dot{position:absolute;top:4px;right:4px;width:6px;height:6px;background:#f45e7e;border-radius:100%}
-    .profile-pill{width:34px;height:34px;border:1px solid #e5e8fa;border-radius:50%;background:linear-gradient(150deg,#cbd4fb,#f0f0ff);color:white;display:grid;place-items:center;box-shadow:0 4px 12px #9ba6d342;cursor:pointer}.profile-pill svg{width:24px;height:24px;fill:#fff}.nav-chevron{font-size:13px;color:#4e5a90;margin-left:-7px}
     .standalone-header .nav-btn{padding:10px 7px}.standalone-header .nav-btn.active{border-bottom:0;color:#5465ce}
     .hero{height:clamp(190px,29vh,282px);background:transparent!important;padding-top:clamp(22px,3.7vh,44px)}.hero:after{display:none}.hero-illustration{display:none}.hero-copy{max-width:48%}.hero h1{font-size:clamp(31px,3.15vw,55px)}
     .workspace>.card{background:linear-gradient(140deg,#ffffffb8,#f5f8ffb5);border-color:#ffffffdf;box-shadow:0 14px 42px #9198cb25,inset 0 2px #fff;backdrop-filter:blur(22px)}
     .upload-column{background:#ffffff8c}.description-column .card-title .number{display:none}.description-column .card-title:before{content:'✦';font-size:23px;color:#655af9;margin-right:3px}.description-column .card-title{font-size:clamp(18px,1.55vw,24px)}
     .process-rail{background:#ffffffa8;border-color:#ffffffd9;backdrop-filter:blur(20px)}
     @media(max-height:780px) and (min-width:781px){.hero{height:165px;padding-top:14px}}
-    @media(max-width:780px){body{background-size:auto 100%}.standalone-header{height:62px}.main{height:calc(100dvh - 62px)}.brand strong{font-size:16px}.brand small{font-size:11px;padding-left:10px;margin-left:7px}.engine-pill{display:none}.header-nav{gap:5px!important}.header-icon{width:28px}.profile-pill{width:28px;height:28px}.nav-chevron{display:none}.hero{height:174px}.hero-copy{max-width:70%}.hero h1{font-size:clamp(21px,5.1vw,34px)}.hero p{font-size:11px}}
+    @media(max-width:780px){body{background-size:auto 100%}.standalone-header{height:62px}.main{height:calc(100dvh - 62px)}.brand strong{font-size:16px}.brand small{font-size:11px;padding-left:10px;margin-left:7px}.engine-pill{display:none}.header-nav{gap:5px!important}.header-icon{width:28px}.hero{height:174px}.hero-copy{max-width:70%}.hero h1{font-size:clamp(21px,5.1vw,34px)}.hero p{font-size:11px}}
   </style>
 </head>
 <body>
@@ -183,7 +182,7 @@
   <div class="app" id="app" hidden>
     <header class="standalone-header">
       <a class="brand" href="./ai-ppt.html"><div class="brand-icon" aria-hidden="true"></div><div><strong>TGG AI</strong><small>AI PPT Studio</small></div></a>
-      <nav class="header-nav" aria-label="AI PPT 页面导航"><button class="nav-btn active" data-tab="studio">创作</button><button class="nav-btn" data-tab="tasks">我的任务</button><span class="engine-pill" title="目前为邮件联调阶段，AI 完整处理流程尚未开通"><span class="spark">✦</span>AI 设计引擎 · <span class="engine-state">联调中</span></span><button class="header-icon" id="notification" type="button" aria-label="通知"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="notification-dot"></span></button><button class="profile-pill" data-tab="tasks" type="button" title="查看我的任务" aria-label="查看我的任务"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M3 23c1-6 5-9 9-9s8 3 9 9"/></svg></button><span class="nav-chevron">⌄</span><button class="round-button" id="lockout" title="锁定页面" aria-label="锁定页面">×</button></nav>
+      <nav class="header-nav" aria-label="AI PPT 页面导航"><button class="nav-btn active" data-tab="studio">创作</button><button class="nav-btn" data-tab="tasks">我的任务</button><span class="engine-pill" title="目前为邮件联调阶段，AI 完整处理流程尚未开通"><span class="spark">✦</span>AI 设计引擎 · <span class="engine-state">联调中</span></span><button class="header-icon" id="notification" type="button" aria-label="通知"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="notification-dot"></span></button></nav>
     </header>
     <main class="main">
       <section id="studio-view">
@@ -195,7 +194,7 @@
               <div class="form-column upload-column">
                 <h3 class="card-title"><span class="number">01</span>添加参考素材（可选）</h3>
                 <input id="file" type="file" hidden>
-                <div id="dropzone" class="upload" tabindex="0" role="button" aria-label="选择任意格式的参考素材"><div class="upload-icon"><svg class="icon lg" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v4h16v-4"/></svg></div><strong>拖入文件，或点击上传素材</strong><small id="upload-limit">PPT · 文档 · 图片 · 其他文件均可，正在检查容量…</small><small>不上传文件也能直接创建 PPT</small></div>
+                <div id="dropzone" class="upload" tabindex="0" role="button" aria-label="拖入、点击选择或按 Ctrl+V 粘贴参考素材"><div class="upload-icon"><svg class="icon lg" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v4h16v-4"/></svg></div><strong>拖拽、点击或 Ctrl+V 粘贴素材</strong><small id="upload-limit">PPT · 文档 · 图片 · 其他文件均可，正在检查容量…</small><small>也可以只写文字，不必上传文件</small></div>
                 <div id="selected" class="file-selected" hidden><div class="file-icon"><svg class="icon lg" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8"/></svg></div><div><strong id="filename"></strong><small id="filesize"></small></div><button type="button" class="remove" id="remove-file" aria-label="移除文件">×</button></div>
               </div>
               <div class="form-column description-column">
@@ -233,13 +232,25 @@
       async function login(key,remember){var btn=$('unlock');btn.disabled=true;btn.textContent='正在验证…';msg.textContent='';try{await verify(key);sessionKey=key;if(remember){try{localStorage.setItem(KEY,key)}catch(e){}}else{try{localStorage.removeItem(KEY)}catch(e){}}showApp()}catch(e){msg.textContent=e.message||'验证失败'}finally{btn.disabled=false;btn.textContent='解锁工作台'}}
       $('gate-form').addEventListener('submit',function(e){e.preventDefault();var key=password.value.trim();if(key)login(key,$('remember').checked)});
       $('toggle-eye').addEventListener('click',function(){var visible=password.type==='text';password.type=visible?'password':'text';this.setAttribute('aria-label',visible?'显示密码':'隐藏密码')});
-      function doLock(){showLock();try{localStorage.removeItem(KEY)}catch(e){}}$('lockout').addEventListener('click',doLock);
       $('notification').addEventListener('click',function(){toast('当前是邮件联调体验版，实时任务通知尚未开通。')});
       function showTab(tab){var unchanged=!$(tab==='job'?'job-view':tab==='tasks'?'tasks-view':'studio-view').hidden;$('studio-view').hidden=tab!=='studio';$('tasks-view').hidden=tab!=='tasks';$('job-view').hidden=tab!=='job';document.querySelectorAll('[data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab===tab)});if(tab==='tasks')renderTasks();if(!unchanged)window.scrollTo({top:0,behavior:'smooth'})}
       document.querySelectorAll('[data-tab]').forEach(function(btn){btn.addEventListener('click',function(){showTab(btn.dataset.tab)})});
       var file=$('file'),drop=$('dropzone');function prettySize(n){return n/1048576>=1?(n/1048576).toFixed(2)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
       function setFile(f){if(!f)return;if(!f.size){toast('暂不支持空文件，请选择有内容的素材');return}if(f.size>200*1048576){toast('单个文件目前最大支持 200 MB');return}activeFile=f;drop.hidden=true;$('selected').hidden=false;$('filename').textContent=f.name;$('filesize').textContent=prettySize(f.size)+' · 已选择，尚未上传'}
       drop.addEventListener('click',function(){file.click()});drop.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();file.click()}});file.addEventListener('change',function(){setFile(file.files[0])});drop.addEventListener('dragover',function(e){e.preventDefault();drop.classList.add('drag')});drop.addEventListener('dragleave',function(){drop.classList.remove('drag')});drop.addEventListener('drop',function(e){e.preventDefault();drop.classList.remove('drag');setFile(e.dataTransfer.files[0])});$('remove-file').addEventListener('click',function(){activeFile=null;file.value='';drop.hidden=false;$('selected').hidden=true});
+      document.addEventListener('paste',function(event){
+        if(app.hidden)return;
+        var clipboard=event.clipboardData, pasted=null;
+        if(clipboard&&clipboard.files&&clipboard.files.length)pasted=clipboard.files[0];
+        if(!pasted&&clipboard&&clipboard.items){for(var i=0;i<clipboard.items.length;i++){if(clipboard.items[i].kind==='file'){pasted=clipboard.items[i].getAsFile();if(pasted)break}}}
+        if(!pasted){if(document.activeElement===drop)toast('剪贴板中没有可读取的文件，可尝试拖拽或点击上传');return}
+        event.preventDefault();
+        if(/^image\.(png|jpe?g|webp)$/i.test(pasted.name||'')&&pasted.type.startsWith('image/')){
+          pasted=new File([pasted],'粘贴截图-'+new Date().toISOString().replace(/[:.]/g,'-')+'.'+(pasted.type==='image/jpeg'?'jpg':pasted.type==='image/webp'?'webp':'png'),{type:pasted.type});
+        }
+        setFile(pasted);
+        if(activeFile===pasted)toast('已从剪贴板添加素材：'+pasted.name);
+      });
       function loadRecords(){try{return JSON.parse(localStorage.getItem(RECORDS)||'[]')}catch(e){return []}}function saveRecords(rows){try{localStorage.setItem(RECORDS,JSON.stringify(rows.slice(0,30)))}catch(e){}}
       function id(){return 'PPT-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,8).toUpperCase()}
       function updateRecord(job){saveRecords([job].concat(loadRecords().filter(function(row){return row.id!==job.id})));renderTasks()}
