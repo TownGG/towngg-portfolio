@@ -275,6 +275,38 @@
       .workspace>.card{padding:10px}
     }
   </style>
+  <style>
+    /* Download status: genuine transfer progress on supported desktops. */
+    .ppt-download-overlay{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:20px;background:#172a6191;backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px)}
+    .ppt-download-overlay[hidden],.ppt-download-retry[hidden]{display:none!important}
+    .ppt-download-dialog{position:relative;width:min(456px,100%);padding:34px 32px 28px;border:1px solid #ffffffee;border-radius:28px;background:radial-gradient(circle at 88% -7%,#d8ccff9c,transparent 42%),linear-gradient(143deg,#ffffffed,#ecf3ffef 70%,#f8edfff2);box-shadow:0 36px 90px #243a8373,inset 0 2px 0 #fff;color:#1b2c65;text-align:center;overflow:hidden}
+    .ppt-download-dialog:before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 20%,#ffffff68 43%,transparent 62%);pointer-events:none}
+    .ppt-download-close{position:absolute;z-index:2;right:15px;top:15px;display:grid;place-items:center;width:34px;height:34px;border:1px solid #cbd9f2;border-radius:12px;background:#ffffffa6;color:#6b7eae;font-size:22px;cursor:pointer}
+    .ppt-download-icon{position:relative;display:grid;place-items:center;width:78px;height:78px;margin:0 auto 18px;border:1px solid #ffffffd9;border-radius:23px;background:linear-gradient(135deg,#64d2ff,#7274f6 66%,#c177f9);box-shadow:0 17px 33px #5d7cf676,inset 0 2px #ffffffa1;transform:rotate(-6deg)}
+    .ppt-download-icon:after{content:'';position:absolute;width:82px;height:24px;left:28px;top:50px;z-index:-1;border:2px solid #d3a5ff8c;border-radius:50%;transform:rotate(-28deg);box-shadow:0 0 20px #b897ff8f}
+    .ppt-download-icon svg{width:37px;height:37px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transform:rotate(6deg)}
+    .ppt-download-eyebrow{position:relative;display:block;margin-bottom:8px;color:#7467de;font-size:11px;font-weight:800;letter-spacing:.17em}
+    .ppt-download-dialog h2{position:relative;margin:0;font-size:24px;line-height:1.3;color:#182b61}
+    .ppt-download-description{position:relative;min-height:42px;margin:10px 0 20px;color:#657aab;font-size:14px;line-height:1.55}
+    .ppt-download-file{position:relative;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;margin-bottom:11px;font-size:13px}
+    .ppt-download-file strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#283b74}
+    .ppt-download-file span{flex:none;color:#7669d9;font-weight:800;font-variant-numeric:tabular-nums}
+    .ppt-download-track{position:relative;height:12px;border-radius:99px;background:#dfe7fa;overflow:hidden;box-shadow:inset 0 2px 5px #9eaed854}
+    .ppt-download-fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:inherit;background:linear-gradient(90deg,#39b9fa,#6565f8 60%,#b34cf1);box-shadow:0 0 14px #8f72fa70;transition:width .18s ease-out}
+    .ppt-download-overlay.is-pending .ppt-download-fill,.ppt-download-overlay.is-native .ppt-download-fill{width:38%;animation:ppt-download-indeterminate 1.55s ease-in-out infinite;transition:none}
+    .ppt-download-overlay.is-done .ppt-download-fill{width:100%;background:linear-gradient(90deg,#37c9dc,#6969f6)}
+    .ppt-download-overlay.is-error .ppt-download-fill{width:100%;background:linear-gradient(90deg,#f3a0aa,#ee7e92)}
+    .ppt-download-detail{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 20px;color:#788ab5;font-size:12px;line-height:1.5}
+    .ppt-download-detail span:last-child{text-align:right}
+    .ppt-download-tip{padding:12px 14px;margin-bottom:18px;border:1px solid #dce5fc;border-radius:13px;background:#ffffff9c;color:#627aa9;font-size:12px;line-height:1.65;text-align:left}
+    .ppt-download-actions{display:flex;gap:9px;justify-content:center}.ppt-download-actions .button{flex:1;min-height:43px;font-size:14px}
+    @keyframes ppt-download-indeterminate{0%{transform:translateX(-120%)}50%{transform:translateX(140%)}100%{transform:translateX(300%)}}
+    @media(max-width:480px){.ppt-download-overlay{padding:15px}.ppt-download-dialog{padding:30px 20px 23px;border-radius:23px}.ppt-download-dialog h2{font-size:21px}.ppt-download-description{font-size:13px}.ppt-download-icon{width:69px;height:69px}.ppt-download-tip{font-size:12px}}
+    @media(prefers-reduced-motion:reduce){.ppt-download-overlay .ppt-download-fill{animation:none!important;transition:none!important}}
+    /* Keep the task view focused on the three milestones users care about. */
+    .job-flow{grid-template-columns:repeat(3,minmax(0,1fr))}
+    #job-check{display:none!important}
+  </style>
 </head>
 <body>
   <div class="stars" aria-hidden="true"></div>
@@ -282,9 +314,9 @@
     <form class="lock-card glass" id="gate-form">
       <div class="lock-mark"><svg class="icon lg" viewBox="0 0 24 24"><path d="m12 2 2.1 6.1L20 10l-5.9 2-2.1 6L10 12 4 10l6-1.9z"/><path d="m19 17 .8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg></div>
       <div class="eyebrow">TOWNGG / SECURE WORKSPACE</div><h1>AI Slides <span style="color:#68d3ff">Studio.</span></h1>
-      <p>欢迎进入 TGG AI 幻灯片工作台。请使用官网后台管理密钥解锁体验页面。</p>
-      <label class="field-label" for="password">管理员访问密钥</label>
-      <div class="password"><input id="password" type="password" autocomplete="current-password" required placeholder="请输入后台密钥"><button type="button" id="toggle-eye" class="show" aria-label="显示密码"><svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+      <p>输入访问密码，开始你的 AI PPT 设计。</p>
+      <label class="field-label" for="password">访问密码</label>
+      <div class="password"><input id="password" type="password" autocomplete="current-password" required placeholder="请输入访问密码"><button type="button" id="toggle-eye" class="show" aria-label="显示密码"><svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       <label class="checkrow"><input id="remember" type="checkbox" checked>在此设备记住登录状态</label>
       <button class="button primary full" id="unlock" type="submit">解锁工作台</button><div class="lock-error" id="gate-error" aria-live="polite"></div>
     </form>
@@ -292,12 +324,12 @@
   <div class="app" id="app" hidden>
     <header class="standalone-header">
       <a class="brand" href="./ai-ppt.html"><div class="brand-icon" aria-hidden="true"></div><div><strong>TGG AI</strong><small>AI PPT Studio</small></div></a>
-      <nav class="header-nav" aria-label="AI PPT 页面导航"><button class="nav-btn active" data-tab="studio">创作</button><button class="nav-btn" data-tab="tasks">我的任务</button><span class="engine-pill" title="目前为邮件联调阶段，AI 完整处理流程尚未开通"><span class="spark">✦</span>AI 设计引擎 · <span class="engine-state">联调中</span></span><button class="header-icon" id="notification" type="button" aria-label="通知"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="notification-dot"></span></button></nav>
+      <nav class="header-nav" aria-label="AI PPT 页面导航"><button class="nav-btn active" data-tab="studio">创作</button><button class="nav-btn" data-tab="tasks">我的任务</button><span class="engine-pill"><span class="spark">✦</span>AI 服务 · <span class="engine-state">连接中</span></span></nav>
     </header>
     <main class="main">
       <section id="studio-view">
         <section class="hero"><div class="hero-copy"><div class="eyebrow">TownGG · AI PPT Studio</div><h1>让每一页，<em>都惊艳呈现</em></h1><p>上传 PPT、文档或图片，也可以只写下你的想法。AI 理解内容与设计要求，为你制作具有视觉冲击力的演示文稿。</p></div><img class="hero-illustration" src="./assets/ai-ppt-glass-hero.webp" alt="" aria-hidden="true"></section>
-        <div class="section-head"><div><h2>开始一次新的设计</h2><p>素材可选，只需告诉我们你想要什么效果。</p></div><span class="badge">体验版 · 邮件联调</span></div>
+        <div class="section-head"><div><h2>开始设计</h2><p>素材可选，告诉 AI 你想要的效果。</p></div></div>
         <div class="workspace">
           <section class="card glass">
             <div class="form-columns">
@@ -310,42 +342,51 @@
               <div class="form-column description-column">
                 <h3 class="card-title"><span class="number">02</span>描述内容与设计效果</h3>
                 <label class="field-label" for="prompt">你希望制作怎样的 PPT？</label><textarea id="prompt" class="form-text" maxlength="6000" placeholder="例如：制作 10 页年度总结；浅色 AI 科技风、蓝紫渐变与 3D 毛玻璃；突出成果，保留原稿数据。"></textarea>
-                <p class="design-direction-note">✦ 内容、页数、颜色、风格和特殊要求都可以写在这里。AI 以你的说明为准，无需选择预设风格。</p>
+                <p class="design-direction-note">✦ 页数、内容与风格都可以自由描述。</p>
               </div>
             </div>
-            <div class="submit-row"><div class="submit-note"><strong>每页独立生成高清图片 · 统一整合 PPTX</strong><small>上传素材或仅填写文字均可提交，邮件接单后开始设计。</small></div><button class="button primary" id="submit" type="button">开始 AI 设计</button></div>
+            <div class="submit-row"><div class="submit-note"><strong>逐页设计 · 导出高清 PPT</strong><small>有素材就上传，也可以只写文字。</small></div><button class="button primary" id="submit" type="button">开始 AI 设计</button></div>
           </section>
-          <aside>
-            <section class="card glass"><h3 class="card-title">✦ AI 演示设计示例</h3><div class="preview-box"><div class="slide-art"><span>TGG AI SLIDES / 2026</span><h3>智能驱动<br>向未来出发</h3><p>DESIGN BEYOND EXPECTATIONS</p></div></div><div class="info-grid"><div><strong>16:9 高清画幅</strong><small>一页一张完整设计图</small></div><div><strong>视觉风格由你定义</strong><small>以说明文字为设计依据</small></div></div><div class="divider"></div><h3 class="card-title" style="margin-bottom:0">设计流程</h3><div class="steps"><div class="step"><div class="step-mark">1</div><div><strong>理解你的文字与素材</strong><p>根据说明分析内容、确定页面结构。</p></div></div><div class="step"><div class="step-mark">2</div><div><strong>逐页独立视觉设计</strong><p>按照你的要求统一风格与配色。</p></div></div><div class="step"><div class="step-mark">3</div><div><strong>合成 PPT 并交付</strong><p>每页一张图片，最终合并到 PPTX。</p></div></div></div><div class="notice">任务会先安全提交并发送接单邮件。邮件通知不等于 AI 已开始处理，真实进度以任务状态为准。</div></section>
-          </aside>
         </div>
         <div class="process-rail" aria-label="设计流程"><div class="process-step"><span class="process-icon">⇧</span><span><strong>描述需求</strong><small>文字必填 · 素材可选</small></span></div><div class="process-step"><span class="process-icon">✦</span><span><strong>AI 逐页设计</strong><small>按要求独立生成图片</small></span></div><div class="process-step"><span class="process-icon">▤</span><span><strong>导出 PPT</strong><small>获取高品质演示文稿</small></span></div></div>
       </section>
-      <section id="tasks-view" hidden><div class="hero" style="min-height:210px"><div class="hero-copy"><div class="eyebrow">YOUR DESIGN REQUESTS</div><h1>我的设计任务</h1><p>接单、逐页设计及成品状态由后台确认，页面会定时刷新；完成后可直接下载。</p></div><div class="visual" aria-hidden="true" style="opacity:.3"><div class="orb"></div><div class="ring"></div></div></div><div class="section-head"><div><h2>任务记录</h2><p>记录保存在此设备。正在自动检查未完成任务的真实状态。</p></div><button class="button" id="clear-records">清空本地测试记录</button></div><div class="tasks" id="tasks-list"></div></section>
-      <section id="job-view" hidden><div class="job-detail" id="job-card"><div class="job-top"><div><div class="eyebrow">TGG AI · DESIGN WORKFLOW</div><h2 id="job-name">设计任务</h2><div id="job-meta" class="job-meta"></div></div><span id="job-badge" class="job-badge">正在提交</span></div><div class="job-flow"><div class="job-stage" id="stage-upload">提交内容</div><div class="job-stage" id="stage-intake">任务接单</div><div class="job-stage" id="stage-design">逐页设计</div><div class="job-stage" id="stage-export">导出 PPT</div></div><div class="job-meter" id="job-meter"><div id="job-bar"></div></div><div class="job-live"><span class="job-live-orb" aria-hidden="true"></span><strong id="job-live-label">正在准备任务</strong><span id="job-live-detail">任务状态会在这里更新</span><span id="job-check" class="job-check">等待首次检查</span></div><div id="job-status" class="job-hint" aria-live="polite">正在准备提交…</div>
+      <section id="tasks-view" hidden><div class="hero" style="min-height:210px"><div class="hero-copy"><div class="eyebrow">YOUR DESIGN REQUESTS</div><h1>我的设计任务</h1><p>随时查看设计进度，完成后直接下载。</p></div><div class="visual" aria-hidden="true" style="opacity:.3"><div class="orb"></div><div class="ring"></div></div></div><div class="section-head"><div><h2>我的任务</h2><p>进度自动更新</p></div><button class="button" id="clear-records">清空记录</button></div><div class="tasks" id="tasks-list"></div></section>
+      <section id="job-view" hidden><div class="job-detail" id="job-card"><div class="job-top"><div><div class="eyebrow">TGG AI · DESIGN PROGRESS</div><h2 id="job-name">设计任务</h2><div id="job-meta" class="job-meta"></div></div><span id="job-badge" class="job-badge">正在提交</span></div><div class="job-flow"><div class="job-stage" id="stage-upload">提交需求</div><div class="job-stage" id="stage-design">AI 设计</div><div class="job-stage" id="stage-export">完成下载</div></div><div class="job-meter" id="job-meter"><div id="job-bar"></div></div><div class="job-live"><span class="job-live-orb" aria-hidden="true"></span><strong id="job-live-label">正在准备任务</strong><span id="job-live-detail">任务状态会在这里更新</span><span id="job-check" class="job-check">等待首次检查</span></div><div id="job-status" class="job-hint" aria-live="polite">正在准备提交…</div>
         <div id="job-pages-panel" class="job-page-panel" hidden><div class="job-page-head"><strong>AI 逐页设计</strong><span id="job-page-count" class="page-count">0 / 0</span></div><div id="job-pages" class="job-pages"></div><p id="job-page-note" class="job-page-note"></p></div>
         <div id="job-complete" class="job-complete" hidden><span class="job-complete-mark" aria-hidden="true">✓</span><div><strong>你的 PPT 已设计完成</strong><p id="job-complete-meta">高品质 PPTX 已准备好下载。</p></div></div>
-        <div class="job-actions"><button class="button" id="job-back" type="button">返回我的任务</button><button class="button" id="job-refresh" type="button">立即检查状态</button><button class="button primary" id="job-download" type="button" hidden>下载完成的 PPT</button></div><div class="job-hint" id="job-download-message" role="status" aria-live="polite" hidden></div><div class="job-hint">您可以稍后回到「我的任务」查看。页面只展示后台确认的真实进度；等待动画不代表 AI 已开始设计。</div></div></section>
-      <footer class="standalone-footer">TGG AI Slides · 简单上传，智能设计 · 当前为邮件联调版本</footer>
+        <div class="job-actions"><button class="button" id="job-back" type="button">返回我的任务</button><button class="button" id="job-refresh" type="button">刷新进度</button><button class="button primary" id="job-download" type="button" hidden>下载 PPT</button></div><div class="job-hint" id="job-download-message" role="status" aria-live="polite" hidden></div></div></section>
+      <footer class="standalone-footer">TGG AI · 让每一页，都惊艳呈现</footer>
     </main>
   </div>
-  <div class="modal-bg" id="modal-bg" hidden><div class="modal glass" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="eyebrow">EMAIL WORKFLOW · TEST MODE</div><h2 id="modal-title">手动测试邮件</h2><p>自动接单接口暂不可用。如需临时联调，请确认下面两项：</p><ol><li>如已选择素材，请在邮件中手动添加该文件作为附件；纯文字任务无需附件。</li><li>确认收件人与主题后发送邮件。</li></ol><p>当前任务编号：<code id="modal-id"></code></p><p style="color:#e7b983">注意：手动邮件不是后台任务，无法自动显示进度和成品下载。</p><div class="modal-actions"><button class="button" id="close-modal">稍后再发</button><button class="button primary" id="open-gmail">打开 Gmail 写信</button></div></div></div>
+  <div class="ppt-download-overlay is-pending" id="ppt-download-overlay" hidden>
+    <section class="ppt-download-dialog" id="ppt-download-dialog" role="dialog" aria-modal="true" aria-labelledby="ppt-download-title" aria-describedby="ppt-download-description" tabindex="-1">
+      <button class="ppt-download-close" id="ppt-download-close" type="button" aria-label="收起下载窗口">×</button>
+      <div class="ppt-download-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/></svg></div>
+      <span class="ppt-download-eyebrow">TGG AI · DOWNLOAD</span>
+      <h2 id="ppt-download-title">正在准备你的 PPT</h2>
+      <p class="ppt-download-description" id="ppt-download-description" role="status" aria-live="polite">正在获取安全下载链接，请稍候…</p>
+      <div class="ppt-download-file"><strong id="ppt-download-name">演示文稿.pptx</strong><span id="ppt-download-percent">准备中</span></div>
+      <div class="ppt-download-track" id="ppt-download-track" role="progressbar" aria-label="文件下载进度" aria-valuemin="0" aria-valuemax="100" aria-valuetext="正在准备下载"><div class="ppt-download-fill" id="ppt-download-fill" aria-hidden="true"></div></div>
+      <div class="ppt-download-detail"><span id="ppt-download-bytes">正在连接…</span><span id="ppt-download-phase">请保持页面打开</span></div>
+      <div class="ppt-download-tip" id="ppt-download-tip">下载准备好后，浏览器会提示保存文件；你也可以在浏览器的下载记录中查看。</div>
+      <div class="ppt-download-actions"><button class="button" id="ppt-download-dismiss" type="button">收起窗口</button><button class="button primary ppt-download-retry" id="ppt-download-retry" type="button" hidden>重新下载</button></div>
+    </section>
+  </div>
   <div class="toast" id="toast" hidden aria-live="polite"></div>
   <script>
     (function(){
       'use strict';
-      var KEY='towngg_admin_upload_key', RECORDS='tgg_ai_slides_frontend_tasks_v1', TARGET='tgg508034@gmail.com';
-      var $=function(id){return document.getElementById(id)}, sessionKey='', activeFile=null, pending=null, currentJobId='';
+      var KEY='towngg_admin_upload_key', RECORDS='tgg_ai_slides_frontend_tasks_v1';
+      var $=function(id){return document.getElementById(id)}, sessionKey='', activeFile=null, currentJobId='';
       var lock=$('lock'), app=$('app'), password=$('password'), msg=$('gate-error'), toastTimer;
       function toast(text){var el=$('toast');el.textContent=text;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.hidden=true},4500)}
       function localKey(){try{return localStorage.getItem(KEY)||''}catch(e){return ''}}
-      function showApp(){lock.hidden=true;app.hidden=false;showTab('studio');renderTasks();fetch('/api/admin/ppt-health',{method:'POST',headers:{'X-Admin-Key':sessionKey},cache:'no-store'}).then(function(response){if(!response.ok)throw Error('服务暂不可用');return response.json()}).then(function(data){$('upload-limit').textContent=data&&data.r2Configured?'支持任意格式 · 单文件最大 200 MB':'支持任意格式 · 当前单文件最大 8 MB';document.querySelector('.engine-state').textContent=data&&data.r2Configured?'可提交':'联调中';document.querySelector('.engine-pill').title=data&&data.r2Configured?'已连接上传服务；任务需接单后才开始设计':'邮件联调中，部分服务暂不可用'}).catch(function(){$('upload-limit').textContent='素材格式不限 · 上传服务暂不可用';document.querySelector('.engine-state').textContent='连接异常'})}
+      function showApp(){lock.hidden=true;app.hidden=false;showTab('studio');renderTasks();fetch('/api/admin/ppt-health',{method:'POST',headers:{'X-Admin-Key':sessionKey},cache:'no-store'}).then(function(response){if(!response.ok)throw Error('服务暂不可用');return response.json()}).then(function(data){$('upload-limit').textContent=data&&data.r2Configured?'支持任意格式 · 单文件最大 200 MB':'支持任意格式 · 单文件最大 8 MB';document.querySelector('.engine-state').textContent=data&&(data.r2Configured||data.configured)?'可用':'维护中'}).catch(function(){$('upload-limit').textContent='支持文档、图片与 PPT · 服务连接中';document.querySelector('.engine-state').textContent='连接异常'})}
       function showLock(){sessionKey='';lock.hidden=false;app.hidden=true;password.value='';msg.textContent=''}
-      async function verify(key){var res=await fetch('/api/admin/gallery-list',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Key':key},body:'{}',cache:'no-store'});var data=await res.json().catch(function(){return null});if(!res.ok||!data||data.success!==true)throw new Error(data&&data.error?'后台密钥验证失败':'密钥无效或验证接口暂不可用');return true}
+      async function verify(key){var res=await fetch('/api/admin/gallery-list',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Key':key},body:'{}',cache:'no-store'});var data=await res.json().catch(function(){return null});if(!res.ok||!data||data.success!==true)throw new Error('访问密码错误或验证服务暂不可用');return true}
       async function login(key,remember){var btn=$('unlock');btn.disabled=true;btn.textContent='正在验证…';msg.textContent='';try{await verify(key);sessionKey=key;if(remember){try{localStorage.setItem(KEY,key)}catch(e){}}else{try{localStorage.removeItem(KEY)}catch(e){}}showApp()}catch(e){msg.textContent=e.message||'验证失败'}finally{btn.disabled=false;btn.textContent='解锁工作台'}}
       $('gate-form').addEventListener('submit',function(e){e.preventDefault();var key=password.value.trim();if(key)login(key,$('remember').checked)});
       $('toggle-eye').addEventListener('click',function(){var visible=password.type==='text';password.type=visible?'password':'text';this.setAttribute('aria-label',visible?'显示密码':'隐藏密码')});
-      $('notification').addEventListener('click',function(){toast('当前是邮件联调体验版，实时任务通知尚未开通。')});
       function showTab(tab){var unchanged=!$(tab==='job'?'job-view':tab==='tasks'?'tasks-view':'studio-view').hidden;$('studio-view').hidden=tab!=='studio';$('tasks-view').hidden=tab!=='tasks';$('job-view').hidden=tab!=='job';document.querySelectorAll('[data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab===tab)});if(tab==='tasks'){renderTasks();refreshAllTasks()}if(!unchanged)window.scrollTo({top:0,behavior:'smooth'})}
       document.querySelectorAll('[data-tab]').forEach(function(btn){btn.addEventListener('click',function(){showTab(btn.dataset.tab)})});
       var file=$('file'),drop=$('dropzone');function prettySize(n){return n/1048576>=1?(n/1048576).toFixed(2)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
@@ -365,14 +406,14 @@
         if(activeFile===pasted)toast('已从剪贴板添加素材：'+pasted.name);
       });
       function loadRecords(){try{return JSON.parse(localStorage.getItem(RECORDS)||'[]')}catch(e){return []}}function saveRecords(rows){try{localStorage.setItem(RECORDS,JSON.stringify(rows.slice(0,30)))}catch(e){}}
-      function id(){return 'PPT-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,8).toUpperCase()}
       function updateRecord(job){saveRecords([job].concat(loadRecords().filter(function(row){return row.id!==job.id})));renderTasks()}
       function jobStatusLabel(job){
+        if(!job.automated)return '历史记录';
         if(job.status==='completed')return '已完成 · 可下载';
-        if(job.status==='exporting')return '逐页设计完成 · 正在导出';
-        if(job.status==='designing')return 'AI 已接单 · 第 '+Math.min((job.completedPages||0)+1,job.totalPages||1)+' 页设计中';
-        if(job.status==='email_sent')return '邮件已发送 · 等待 AI 接单';
-        if(job.status==='uploaded')return '原稿已保存 · 通知待恢复';
+        if(job.status==='exporting')return '正在生成 PPT';
+        if(job.status==='designing')return 'AI 设计中 · 第 '+Math.min((job.completedPages||0)+1,job.totalPages||1)+' 页';
+        if(job.status==='email_sent')return '已提交 · 等待 AI 处理';
+        if(job.status==='uploaded')return '已提交 · 等待 AI 处理';
         if(job.status==='uploading')return '正在上传 · '+Math.round(job.progress||0)+'%';
         return job.status||'等待处理';
       }
@@ -397,7 +438,7 @@
           card.append(frame,label);nodes.appendChild(card);
         }
         $('job-pages').replaceChildren(nodes);
-        $('job-page-note').textContent=job.status==='designing'?'已完成 '+done+' 页，正在设计第 '+Math.min(done+1,total)+' 页；每页按真实回传状态更新。':job.status==='exporting'?'所有页面已设计完成，正在整合并导出 PPTX。':'全部页面已完成，请下载 PPTX。';
+        $('job-page-note').textContent=job.status==='designing'?'已完成 '+done+' 页，正在设计第 '+Math.min(done+1,total)+' 页。':job.status==='exporting'?'页面设计完成，正在合成 PPT。':'全部页面已完成，可以下载。';
       }
       async function loadPagePreview(id,page){
         var key=id+'/'+page;previewLoading.add(key);
@@ -420,14 +461,14 @@
         $('job-name').textContent=job.name;
         $('job-meta').textContent=job.id+' · '+(hasFile?prettySize(job.size):'纯文字创作')+(!job.r2&&job.style?' · '+job.style:'');
         $('job-badge').textContent=jobStatusLabel(job);$('job-badge').classList.toggle('is-live',active);
-        $('job-status').textContent=job.status==='email_sent'?(hasFile?'素材已上传并发送通知邮件。':'文字需求已发送通知邮件。')+'目前等待接单，邮件发送并不等于设计已开始。':job.status==='uploaded'?'任务已保存，通知邮件尚未确认发送。':jobStatusLabel(job);
-        var flags=completed?[1,1,1,1]:exporting?[1,1,1,0]:designing?[1,1,0,0]:active?[1,0,0,0]:[0,0,0,0];
-        var now=exporting?3:designing?2:waiting?1:job.status==='uploading'?0:-1;
-        ['upload','intake','design','export'].forEach(function(stage,i){var element=$('stage-'+stage);element.classList.toggle('done',!!flags[i]);element.classList.toggle('now',i===now);element.classList.toggle('waiting',waiting&&i===1)});
+        $('job-status').textContent=waiting?'任务已提交，AI 开始设计后会自动更新进度。':jobStatusLabel(job);
+        var flags=completed?[1,1,1]:designing||exporting?[1,0,0]:waiting?[1,0,0]:[0,0,0];
+        var now=completed?2:designing||exporting||waiting?1:job.status==='uploading'?0:-1;
+        ['upload','design','export'].forEach(function(stage,i){var element=$('stage-'+stage);element.classList.toggle('done',!!flags[i]);element.classList.toggle('now',i===now);element.classList.toggle('waiting',waiting&&i===1)});
         $('job-meter').classList.toggle('is-active',job.status==='uploading'||active);
-        $('job-bar').style.width=(completed?100:exporting?94:designing?40+50*(total?Math.min(1,done/total):0):waiting?25:Math.min(24,24*(job.progress||0)/100))+'%';
-        $('job-live-label').textContent=completed?'设计文件已就绪':job.status==='uploading'?'正在上传素材':designing?'AI 已接单 · 正在制作第 '+Math.min(done+1,total||1)+' 页':exporting?'正在合成 PPTX':waiting?'正在等待接单':'任务状态更新中';
-        $('job-live-detail').textContent=completed?'成品已就绪，点击下载':job.status==='uploading'?'上传进度 '+Math.round(job.progress||0)+'%':designing?'真实进度 '+done+' / '+(total||'?')+' 页':exporting?'已完成全部 '+total+' 页':active?'每 20 秒检查一次后台状态':'请稍候';
+        $('job-bar').style.width=(completed?100:exporting?92:designing?33+56*(total?Math.min(1,done/total):0):waiting?33:Math.min(30,30*(job.progress||0)/100))+'%';
+        $('job-live-label').textContent=completed?'PPT 已完成':job.status==='uploading'?'正在上传素材':designing?'AI 正在设计第 '+Math.min(done+1,total||1)+' 页':exporting?'正在合成 PPT':waiting?'等待 AI 开始设计':'正在更新进度';
+        $('job-live-detail').textContent=completed?'点击下方按钮下载':job.status==='uploading'?'上传 '+Math.round(job.progress||0)+'%':designing?'已完成 '+done+' / '+(total||'?')+' 页':exporting?'全部 '+total+' 页已设计完成':waiting?'开始设计后将显示逐页进度':'请稍候';
         $('job-check').hidden=completed;
         if(completed)$('job-check').textContent='已完成';else if(lastJobCheck&&lastJobCheck.id===job.id)$('job-check').textContent='上次检查 '+lastJobCheck.time;
         $('job-download').hidden=!completed;
@@ -474,17 +515,65 @@
       document.addEventListener('visibilitychange',function(){if(!document.hidden)pollVisible()});
       window.addEventListener('focus',pollVisible);
       $('job-back').addEventListener('click',function(){showTab('tasks')});$('job-refresh').addEventListener('click',function(){refreshJob(false)});
-      var downloadBusy=false;
+      var downloadBusy=false,lastDownload=null;
+      function downloadModalState(kind,title,description,bytes,phase,note,loaded,total){
+        var overlay=$('ppt-download-overlay'),track=$('ppt-download-track');
+        overlay.className='ppt-download-overlay is-'+kind;
+        $('ppt-download-title').textContent=title;
+        $('ppt-download-description').textContent=description;
+        $('ppt-download-bytes').textContent=bytes;
+        $('ppt-download-phase').textContent=phase;
+        $('ppt-download-tip').textContent=note;
+        $('ppt-download-tip').hidden=kind==='pending'||kind==='transfer';
+        var measured=kind==='transfer'&&total>0;
+        if(measured){
+          var percent=Math.min(100,Math.round(100*loaded/total));
+          $('ppt-download-percent').textContent=percent+'%';
+          $('ppt-download-fill').style.width=percent+'%';
+          track.setAttribute('aria-valuenow',String(percent));
+          track.setAttribute('aria-valuetext','已传输 '+percent+'%');
+        }else{
+          $('ppt-download-percent').textContent=kind==='done'?'传输完成':kind==='error'?'下载异常':kind==='native'?'浏览器处理中':'准备中';
+          $('ppt-download-fill').style.width='';
+          track.removeAttribute('aria-valuenow');
+          track.setAttribute('aria-valuetext',description);
+        }
+        $('ppt-download-dismiss').textContent=kind==='done'||kind==='native'?'知道了':'收起窗口';
+        $('ppt-download-retry').hidden=kind!=='error';
+      }
+      function startDownloadModal(job,button,message){
+        lastDownload={job:job,button:button,message:message};
+        $('ppt-download-name').textContent='TGG-AI-'+job.id+'.pptx';
+        $('ppt-download-overlay').hidden=false;
+        downloadModalState('pending','正在准备你的 PPT','正在获取安全下载链接，请稍候…','正在连接…','请保持页面打开','系统正在确认成品文件，准备就绪后会继续下载。');
+        $('ppt-download-dialog').focus({preventScroll:true});
+      }
+      function nativePptDownload(url,message){
+        downloadModalState('native','已交给浏览器下载','浏览器正在处理文件保存请求，网页无法读取系统下载百分比。','由浏览器接管','可关闭此窗口','请查看浏览器的「下载」列表；iPhone / iPad 用户也可在文件预览页选择「存储到文件」。');
+        if(message)message.textContent='已交给浏览器下载，请查看浏览器下载列表或文件预览页。';
+        window.location.assign(url.href);
+      }
+      function savePptBlob(blob,job){
+        var fileUrl=URL.createObjectURL(blob),link=document.createElement('a');
+        link.href=fileUrl;link.download='TGG-AI-'+job.id+'.pptx';
+        document.body.appendChild(link);link.click();link.remove();
+        setTimeout(function(){URL.revokeObjectURL(fileUrl)},60000);
+      }
+      $('ppt-download-close').addEventListener('click',function(){$('ppt-download-overlay').hidden=true});
+      $('ppt-download-dismiss').addEventListener('click',function(){$('ppt-download-overlay').hidden=true});
+      $('ppt-download-retry').addEventListener('click',function(){if(lastDownload&&!downloadBusy)downloadPpt(lastDownload.job,lastDownload.button,lastDownload.message)});
+      document.addEventListener('keydown',function(event){if(event.key==='Escape'&&!$('ppt-download-overlay').hidden){$('ppt-download-overlay').hidden=true}});
       async function legacyPptDownload(job){
+        downloadModalState('pending','正在读取文件','正在准备下载，请稍候。','正在读取文件…','请稍候','准备好后将开始保存。');
         var response=await fetch('/api/admin/ppt-result',{method:'POST',headers:{'X-Admin-Key':sessionKey,'Content-Type':'application/json'},body:JSON.stringify({id:job.id}),cache:'no-store'});
         if(!response.ok)throw Error('旧版下载接口暂不可用（'+response.status+'）');
-        var fileUrl=URL.createObjectURL(await response.blob()),link=document.createElement('a');
-        link.href=fileUrl;link.download='TGG-AI-'+job.id+'.pptx';document.body.appendChild(link);link.click();link.remove();
-        setTimeout(function(){URL.revokeObjectURL(fileUrl)},60000);
+        savePptBlob(await response.blob(),job);
+        downloadModalState('done','文件已准备好','兼容方式已向浏览器发起保存。','文件已读取','请查看下载列表','如果没有自动弹出保存窗口，请检查浏览器下载列表或文件管理器。');
       }
       async function downloadPpt(job,button,message){
         if(downloadBusy||!job||job.status!=='completed')return;
         var originalText=button.textContent;
+        startDownloadModal(job,button,message);
         downloadBusy=true;button.disabled=true;button.classList.add('is-downloading');button.textContent='正在准备下载…';
         if(message){message.hidden=false;message.textContent='正在连接服务器获取成品，请稍候…'}
         try{
@@ -492,18 +581,42 @@
           try{data=await apiPpt('result-link',{id:job.id})}
           catch(linkError){
             if(!/Not found|404/.test(linkError.message||''))throw linkError;
-            if(message)message.textContent='下载服务正在升级，已切换兼容方式；若手机没有响应，请稍后重试。';
+            if(message)message.textContent='正在准备下载，请稍候。';
             await legacyPptDownload(job);
             return;
           }
           var url=new URL(data.url,window.location.origin);
           if(url.origin!==window.location.origin||url.pathname!=='/api/admin/ppt-download')throw Error('下载地址验证失败，请重试');
-          if(message)message.textContent='已向浏览器发起下载。手机端请查看下载列表，或在文件预览页选择「保存到文件」。';
-          else toast('已发起下载，请查看浏览器下载列表。');
-          window.location.assign(url.href);
+          // Native attachments are more reliable on phones and Safari, and
+          // avoid holding very large PPT files in the page's memory.
+          var agent=navigator.userAgent||'';
+          var mobile=/Android|iPhone|iPad|iPod|Mobile/i.test(agent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+          var safari=/Safari/i.test(agent)&&!/Chrome|CriOS|Chromium|Edg|OPR|FxiOS/i.test(agent);
+          if(mobile||safari||!window.ReadableStream){nativePptDownload(url,message);return}
+          var response=await fetch(url.href,{method:'GET',cache:'no-store',credentials:'same-origin'});
+          if(!response.ok)throw Error('服务器获取文件失败（'+response.status+'）');
+          var total=Number(response.headers.get('Content-Length'));
+          if(!response.body||!Number.isSafeInteger(total)||total<=0||total>64*1048576){
+            if(response.body)await response.body.cancel().catch(function(){});
+            nativePptDownload(url,message);
+            return;
+          }
+          var reader=response.body.getReader(),chunks=[],loaded=0;
+          downloadModalState('transfer','正在下载你的 PPT','正在将文件传输到浏览器，请保持页面打开。','0 B / '+prettySize(total),'文件传输中','进度百分比来自实际接收的文件字节。传输完成后会提示浏览器保存。',0,total);
+          while(true){
+            var piece=await reader.read();
+            if(piece.done)break;
+            chunks.push(piece.value);loaded+=piece.value.byteLength;
+            downloadModalState('transfer','正在下载你的 PPT','正在将文件传输到浏览器，请保持页面打开。',prettySize(loaded)+' / '+prettySize(total),'文件传输中','进度百分比来自实际接收的文件字节。传输完成后会提示浏览器保存。',loaded,total);
+          }
+          if(loaded!==total)throw Error('文件传输不完整，请重新下载');
+          savePptBlob(new Blob(chunks,{type:'application/vnd.openxmlformats-officedocument.presentationml.presentation'}),job);
+          downloadModalState('done','文件传输完成','已向浏览器发起保存，请查看下载记录。',prettySize(loaded)+' / '+prettySize(total),'100% 已传输','网页已完成文件传输，但系统是否保存成功需在浏览器下载列表中确认。');
+          if(message)message.textContent='文件传输完成，已向浏览器发起保存，请查看下载列表。';
         }catch(e){
           var errorText='下载失败：'+(e.message||'网络异常')+'。请检查网络后重试。';
           if(message)message.textContent=errorText;
+          downloadModalState('error','暂时无法下载','服务器连接或文件传输出现问题。','本次下载未完成','可以重试',errorText);
           toast(errorText);
         }finally{
           downloadBusy=false;button.disabled=false;button.classList.remove('is-downloading');button.textContent=originalText;
@@ -513,11 +626,11 @@
         var job=loadRecords().find(function(row){return row.id===currentJobId});
         downloadPpt(job,this,$('job-download-message'));
       });
-      async function uploadMaterial(file,brief,button){var init=await apiPpt('init',{name:file.name,size:file.size,prompt:brief});var job={id:init.id,name:file.name,size:file.size,brief:brief,createdAt:init.createdAt,status:'uploading',progress:0,automated:true,r2:true};updateRecord(job);paintJob(job);var parts=[],chunks=Math.ceil(file.size/init.chunkSize);for(var i=0;i<chunks;i++){var slice=file.slice(i*init.chunkSize,Math.min(file.size,(i+1)*init.chunkSize));var part=await apiPpt('part',slice,{'X-Ppt-Id':init.id,'X-Ppt-Upload-Id':init.uploadId,'X-Ppt-Part':String(i+1)});parts.push({partNumber:part.partNumber,etag:part.etag});job.progress=Math.round((i+1)/chunks*100);job.status='uploading';updateRecord(job);paintJob(job);button.textContent='上传中 '+job.progress+'%'}button.textContent='正在通知接单邮箱…';var completed=await apiPpt('complete',{id:init.id,uploadId:init.uploadId,parts:parts});job.status=completed.status;job.progress=100;updateRecord(job);paintJob(job);toast('素材已上传，任务 '+init.id);return job}
+      async function uploadMaterial(file,brief,button){var init=await apiPpt('init',{name:file.name,size:file.size,prompt:brief});var job={id:init.id,name:file.name,size:file.size,brief:brief,createdAt:init.createdAt,status:'uploading',progress:0,automated:true,r2:true};updateRecord(job);paintJob(job);var parts=[],chunks=Math.ceil(file.size/init.chunkSize);for(var i=0;i<chunks;i++){var slice=file.slice(i*init.chunkSize,Math.min(file.size,(i+1)*init.chunkSize));var part=await apiPpt('part',slice,{'X-Ppt-Id':init.id,'X-Ppt-Upload-Id':init.uploadId,'X-Ppt-Part':String(i+1)});parts.push({partNumber:part.partNumber,etag:part.etag});job.progress=Math.round((i+1)/chunks*100);job.status='uploading';updateRecord(job);paintJob(job);button.textContent='上传中 '+job.progress+'%'}button.textContent='正在提交设计任务…';var completed=await apiPpt('complete',{id:init.id,uploadId:init.uploadId,parts:parts});job.status=completed.status;job.progress=100;updateRecord(job);paintJob(job);toast('提交成功，任务 '+init.id);return job}
       async function submitText(brief,button){button.textContent='正在提交文字需求…';var created=await apiPpt('text',{prompt:brief});var job={id:created.id,name:'文字创作任务',size:0,brief:brief,createdAt:created.createdAt,status:created.status,automated:true,r2:true};updateRecord(job);paintJob(job);toast('文字需求已成功提交，任务 '+created.id);return job}
       $('submit').addEventListener('click',async function(){
         var brief=$('prompt').value.trim();if(brief.length<4){toast('请填写至少 4 个字的内容与设计说明');return}
-        var button=this;button.disabled=true;button.textContent='检查自动接单服务…';
+        var button=this;button.disabled=true;button.textContent='正在提交…';
         try{
           var check=await fetch('/api/admin/ppt-health',{method:'POST',headers:{'X-Admin-Key':sessionKey},cache:'no-store'});
           var health=await check.json().catch(function(){return null});
@@ -525,25 +638,20 @@
           if(check.ok&&health&&health.r2Configured){
             if(activeFile)await uploadMaterial(activeFile,brief,button);else await submitText(brief,button);return;
           }
-          if(activeFile&&activeFile.size>8*1048576){toast('云存储暂不可用，当前邮件附件最大 8 MB。');return}
+          if(activeFile&&activeFile.size>8*1048576){toast('当前上传服务暂不可用，请稍后再试');return}
           if(activeFile&&check.ok&&health&&health.configured){
             var form=new FormData();form.append('file',activeFile,activeFile.name);form.append('prompt',brief);
-            button.textContent='正在安全上传并发送邮件…';
+            button.textContent='正在提交设计任务…';
             var sent=await fetch('/api/admin/ppt-submit',{method:'POST',headers:{'X-Admin-Key':sessionKey},body:form,cache:'no-store'});
             var data=await sent.json().catch(function(){return null});
             if(!sent.ok||!data||!data.success){toast(data&&data.error||'自动提交失败，请稍后再试');return}
             var job={id:data.id,name:activeFile.name,size:activeFile.size,brief:brief,createdAt:data.createdAt,status:'email_sent',automated:true};
-            updateRecord(job);paintJob(job);toast('素材与说明已由后台发送邮件，任务 '+data.id);return;
+            updateRecord(job);paintJob(job);toast('提交成功，任务 '+data.id);return;
           }
-          // Manual email is only a fallback, not a server-side design task.
-          toast('自动提交服务暂不可用，可以选择手动邮件联调。');
-          var manual={id:id(),name:activeFile?activeFile.name:'文字创作任务',size:activeFile?activeFile.size:0,brief:brief,createdAt:new Date().toISOString(),status:'待发送测试邮件'};
-          saveRecords([manual].concat(loadRecords()));pending=manual;$('modal-id').textContent=manual.id;$('modal-bg').hidden=false;renderTasks();
+          toast('AI 服务暂不可用，请稍后再试。');
         }catch(e){toast('提交未完成：'+(e.message||'请检查网络，上传记录已保留'))}
         finally{button.disabled=false;button.textContent='开始 AI 设计'}
       });
-      function gmailUrl(job){var subject='[PPT-AI-TEST] '+job.id;var body='TGG AI Slides 测试任务\n任务 ID：'+job.id+'\n素材：'+(job.size?job.name:'纯文字（无附件）')+'\n用户说明：'+job.brief+'\n设计规则：按用户说明分析素材、逐页独立生图，16:9，统一风格，最终合成 PPTX。\n\n'+(job.size?'请手动附上原始素材文件。':'此任务仅包含文字，无需附件。')+'\n注意：手动邮件不是服务器排队任务。';return 'https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(TARGET)+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)}
-      $('open-gmail').addEventListener('click',function(){if(!pending)return;window.open(gmailUrl(pending),'_blank','noopener,noreferrer');$('modal-bg').hidden=true;toast(pending.size?'已打开 Gmail，请附上所选素材后发送。':'已打开 Gmail，可直接发送纯文字需求。')});$('close-modal').addEventListener('click',function(){$('modal-bg').hidden=true});
       function renderTasks(){
         var list=$('tasks-list'),rows=loadRecords();list.replaceChildren();
         if(!rows.length){list.innerHTML='<div class="empty"><svg class="icon lg" viewBox="0 0 24 24" style="margin:auto"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 9h8M8 13h5"/></svg><strong>还没有设计任务</strong><p>回到创作工作台，创建你的第一个 PPT 设计任务。</p></div>';return}
@@ -555,11 +663,10 @@
           var status=document.createElement('span');status.className='status';status.textContent=jobStatusLabel(job);right.append(status);
           if(job.status==='completed'&&job.r2){var download=document.createElement('button');download.className='button task-download';download.textContent='下载 PPT';download.addEventListener('click',function(){downloadPpt(job,download,null)});right.append(download)}
           var detail=document.createElement('button');detail.className='button';detail.textContent='查看进度';detail.addEventListener('click',function(){paintJob(job);refreshJob()});right.append(detail);
-          if(!job.automated){var retry=document.createElement('button');retry.className='button';retry.textContent='打开邮件';retry.addEventListener('click',function(){window.open(gmailUrl(job),'_blank','noopener,noreferrer')});right.append(retry)}
           box.append(left,right);list.append(box);
         });
       }
-      $('clear-records').addEventListener('click',function(){if(!confirm('确认删除本设备保存的前端测试记录？此操作不会删除邮箱中的邮件。'))return;saveRecords([]);renderTasks()});
+      $('clear-records').addEventListener('click',function(){if(!confirm('确定清空此设备的任务列表吗？清空后将无法在这里找到这些任务。'))return;saveRecords([]);renderTasks()});
       var saved=localKey();if(saved){password.value=saved;login(saved,true)}else showLock();
     })();
   </script>
