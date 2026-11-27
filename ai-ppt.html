@@ -202,7 +202,7 @@
                 <div class="tags" role="group" aria-label="选择设计风格"><button type="button" class="tag selected" data-style="蓝色科技风">蓝色科技风</button><button type="button" class="tag" data-style="3D 毛玻璃">3D 毛玻璃</button><button type="button" class="tag" data-style="苹果极简">苹果极简</button><button type="button" class="tag" data-style="现代商务">现代商务</button></div>
               </div>
             </div>
-            <div class="submit-row"><div class="submit-note"><strong>保持原稿内容不变 · 逐页 16:9 高清设计</strong><small>邮件联调阶段：需在 Gmail 中手动附上 PPT。</small></div><button class="button primary" id="submit" type="button">创建测试任务</button></div>
+            <div class="submit-row"><div class="submit-note"><strong>保持原稿内容不变 · 逐页 16:9 高清设计</strong><small>当前为自动接单联调，提交后将发送邮件，暂不自动生成 PPT。</small></div><button class="button primary" id="submit" type="button">开始 AI 设计</button></div>
           </section>
           <aside>
             <section class="card glass"><h3 class="card-title">✦ 设计风格预览</h3><div class="preview-box"><div class="slide-art"><span>TGG AI SLIDES / 2026</span><h3>智能驱动<br>向未来出发</h3><p>DESIGN BEYOND EXPECTATIONS</p></div></div><div class="info-grid"><div><strong>16:9 高清画幅</strong><small>一页一张完整设计图</small></div><div><strong>统一视觉语言</strong><small>色彩、排版和质感一致</small></div></div><div class="divider"></div><h3 class="card-title" style="margin-bottom:0">设计流程</h3><div class="steps"><div class="step"><div class="step-mark">1</div><div><strong>读取并理解原始内容</strong><p>保留每页文字、数字与结构逻辑。</p></div></div><div class="step"><div class="step-mark">2</div><div><strong>逐页独立视觉设计</strong><p>高质感构图、3D 元素、统一配色。</p></div></div><div class="step"><div class="step-mark">3</div><div><strong>合成 PPT 并交付</strong><p>每页一张图片，最终合并到 PPTX。</p></div></div></div><div class="notice">联调说明：当前页面不会自行上传文件到服务器或自动生图。提交后会引导你发送一封带附件的测试邮件。</div></section>
@@ -257,11 +257,11 @@
             saveRecords([job].concat(loadRecords()));renderTasks();toast('邮件和 PPT 附件已由后台自动发送，任务 '+data.id);showTab('tasks');return;
           }
           // Keep the legacy test workflow until the separate Worker/OAuth/R2 setup is finished.
-          toast('自动接单后端尚未开通；目前只能使用手动邮件联调流程。');
+          toast('自动提交服务暂不可用，您仍可使用手动邮件联调。');
           var manual={id:id(),name:activeFile.name,size:activeFile.size,brief:brief,style:selectedStyle,createdAt:new Date().toISOString(),status:'待发送测试邮件'};
           saveRecords([manual].concat(loadRecords()));pending=manual;$('modal-id').textContent=manual.id;$('modal-bg').hidden=false;renderTasks();
         }catch(e){toast('无法连接自动接单服务。请检查网络或稍后重试。')}
-        finally{button.disabled=false;button.textContent='创建测试任务'}
+        finally{button.disabled=false;button.textContent='开始 AI 设计'}
       });
       function gmailUrl(job){var subject='[PPT-AI-TEST] '+job.id;var body='TGG AI Slides 测试任务\n任务 ID：'+job.id+'\n文件名：'+job.name+'\n设计风格：'+job.style+'\n设计要求：'+job.brief+'\n默认要求：逐页生图、内容不变、16:9、统一视觉、最终合成 PPTX。\n\n注意：请手动附上 PPTX 文件。本次仅验证邮件自动接单，图片生成和文件回传尚未开通。';return 'https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(TARGET)+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)}
       $('open-gmail').addEventListener('click',function(){if(!pending)return;window.open(gmailUrl(pending),'_blank','noopener,noreferrer');$('modal-bg').hidden=true;toast('已打开 Gmail。请手动附上 PPT 并发送邮件。')});$('close-modal').addEventListener('click',function(){$('modal-bg').hidden=true});
