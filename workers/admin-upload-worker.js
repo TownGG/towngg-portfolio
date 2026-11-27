@@ -62,15 +62,17 @@ export default {
     const isPptSubmit = url.pathname.endsWith("/api/admin/ppt-submit");
     const pptAction = ["init", "part", "complete", "status", "result"].find(action => url.pathname.endsWith("/api/admin/ppt-" + action));
     const isPptSource = url.pathname.endsWith("/api/admin/ppt-source");
+    const isPptAgent = url.pathname.endsWith("/api/admin/ppt-agent");
     const isCommunityRoute = isCommunityList || isCommunitySave || isCommunityDelete || isCommunityDraft || isCommunityRedditReply || isCommunityNexusReply;
     const isMessageBoardRoute = isMessageBoardList || isMessageBoardDelete;
 
-    if (!((request.method === "POST" && (isAuthCheck || isGalleryUpload || isGalleryList || isGalleryDelete || isCommunityRoute || isMessageBoardRoute || isPptHealth || isPptSubmit || pptAction)) || (request.method === "GET" && isPptSource))) {
+    if (!((request.method === "POST" && (isAuthCheck || isGalleryUpload || isGalleryList || isGalleryDelete || isCommunityRoute || isMessageBoardRoute || isPptHealth || isPptSubmit || pptAction || isPptAgent)) || (request.method === "GET" && isPptSource))) {
       return jsonResponse({ success: false, error: "Not found" }, 404);
     }
 
     try {
       if (isPptSource) return await handlePptSource(request, env);
+      if (isPptAgent) return await handlePptAgent(request, env);
       assertEnv(env);
       authorize(request, env);
 
@@ -1393,7 +1395,7 @@ async function handlePptStorage(request, env, action) {
     if (prompt.length < 4 || prompt.length > 1200) return pptError("设计需求应为 4～1200 字");
     const id = "PPT-" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase();
     const upload = await bucket.createMultipartUpload(pptSourceKey(id));
-    const task = { id, name: filename, size, prompt, style, createdAt: new Date().toISOString(), status: "uploading", uploadId: upload.uploadId, sourceToken: crypto.randomUUID(), sourceExpiresAt: Date.now() + PPT_SOURCE_LINK_MS };
+    const task = { id, name: filename, size, prompt, style, createdAt: new Date().toISOString(), status: "uploading", uploadId: upload.uploadId, sourceToken: crypto.randomUUID(), sourceExpiresAt: Date.now() + PPT_SOURCE_LINK_MS, agentToken: crypto.randomUUID(), agentExpiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 };
     await pptWriteTask(bucket, task);
     return jsonResponse({ success: true, id, uploadId: upload.uploadId, chunkSize: PPT_CHUNK_BYTES, createdAt: task.createdAt });
   }
@@ -1417,7 +1419,7 @@ async function handlePptStorage(request, env, action) {
   if (!task) return pptError("未找到任务", 404);
   if (action === "status") {
     const result = await bucket.head(pptResultKey(task.id));
-    return jsonResponse({ success: true, id: task.id, status: result ? "completed" : task.status, name: task.name, size: task.size, createdAt: task.createdAt, hasResult: Boolean(result), emailError: Boolean(task.emailError) });
+    return jsonResponse({ success: true, id: task.id, status: result ? "completed" : task.status, name: task.name, size: task.size, createdAt: task.createdAt, hasResult: Boolean(result), emailError: Boolean(task.emailError), completedPages: task.completedPages || 0, totalPages: task.totalPages || 0 });
   }
   if (action === "result") {
     const result = await bucket.get(pptResultKey(task.id));
@@ -1437,7 +1439,7 @@ async function handlePptStorage(request, env, action) {
   const link = new URL(request.url);
   link.pathname = "/api/admin/ppt-source";
   link.search = new URLSearchParams({ id: task.id, token: task.sourceToken }).toString();
-  const message = ["TGG AI PPT 官网自动接单", "任务 ID：" + task.id, "文件名：" + task.name, "文件大小：" + task.size + " 字节", "设计风格：" + task.style, "设计要求：" + task.prompt, "原稿安全下载链接（72 小时有效）：" + link.href, "默认要求：每页独立生图，内容保持不变，16:9，最终合成 PPTX。", "当前仅已上传并通知，尚未接通自动生图与成品回传。"].join("\n");
+  const message = ["TGG AI PPT 官网自动接单", "任务 ID：" + task.id, "文件名：" + task.name, "文件大小：" + task.size + " 字节", "设计风格：" + task.style, "设计要求：" + task.prompt, "原稿安全下载链接（72 小时有效）：" + link.href, "结果回传接口（POST）：" + new URL('/api/admin/ppt-agent', request.url).href, "结果回传凭证（仅限本任务，7 日有效）：" + task.agentToken, "默认要求：每页独立生图，内容保持不变，16:9，最终合成 PPTX。", "说明：接单代理需主动调用回传接口，邮件发送本身不会启动生图。"].join("\n");
   try {
     await sendPptGmail(env, "[PPT-AI-TEST] " + task.id, message);
     task.status = "email_sent";
@@ -1461,6 +1463,70 @@ async function handlePptSource(request, env) {
   const object = await env.PPT_FILES.get(pptSourceKey(task.id));
   if (!object) return pptError("源文件不存在", 404);
   return new Response(object.body, { headers: { "Content-Type": "application/vnd.openxmlformats-officedocument.presentationml.presentation", "Content-Disposition": "attachment; filename*=UTF-8''" + encodeURIComponent(task.name), "Cache-Control": "private, no-store" } });
+}
+
+// A task-scoped callback for an external design agent. This token is unrelated
+// to the user's admin password and cannot list, read, or alter other jobs.
+async function handlePptAgent(request, env) {
+  const bucket = env.PPT_FILES;
+  if (!bucket) return pptError("任务存储不可用", 503);
+  const id = request.headers.get("X-Ppt-Id") || "";
+  const token = request.headers.get("X-Ppt-Agent-Token") || "";
+  const action = request.headers.get("X-Ppt-Agent-Action") || "";
+  const task = await pptReadTask(bucket, id);
+  if (!task || !token || token !== task.agentToken || Date.now() > task.agentExpiresAt) return pptError("回传凭证无效或已过期", 403);
+  if (task.status === "uploading" || task.status === "completed") return pptError("任务当前不可修改", 409);
+  if (action === "start" || action === "progress") {
+    const payload = await request.json().catch(() => ({}));
+    const total = Number(payload.totalPages);
+    const done = Number(payload.completedPages || 0);
+    if (!Number.isInteger(total) || total < 1 || total > 500 || !Number.isInteger(done) || done < 0 || done > total) return pptError("页面进度无效");
+    if (task.totalPages && total !== task.totalPages) return pptError("总页数不可改变", 409);
+    if (done < (task.completedPages || 0)) return pptError("进度不可倒退", 409);
+    task.totalPages = total;
+    task.completedPages = done;
+    task.status = done === total ? "exporting" : "designing";
+    task.updatedAt = new Date().toISOString();
+    await pptWriteTask(bucket, task);
+    return jsonResponse({ success: true, id, status: task.status, completedPages: done, totalPages: total });
+  }
+  if (action === "result-init") {
+    if (task.status !== "exporting") return pptError("请先完成全部页面设计", 409);
+    const payload = await request.json().catch(() => ({}));
+    const size = Number(payload.size);
+    if (!Number.isSafeInteger(size) || size < 4 || size > PPT_R2_MAX_BYTES) return pptError("成品 PPTX 大小无效", 413);
+    if (task.resultUploadId) return pptError("已有未结束的成品上传", 409);
+    const upload = await bucket.createMultipartUpload(pptResultKey(id));
+    task.resultUploadId = upload.uploadId;
+    task.resultSize = size;
+    await pptWriteTask(bucket, task);
+    return jsonResponse({ success: true, uploadId: upload.uploadId, chunkSize: PPT_CHUNK_BYTES });
+  }
+  if (action === "result-part") {
+    const uploadId = request.headers.get("X-Ppt-Upload-Id") || "";
+    const index = Number(request.headers.get("X-Ppt-Part"));
+    if (!uploadId || task.resultUploadId !== uploadId || !Number.isInteger(index) || index < 1 || index > Math.ceil(task.resultSize / PPT_CHUNK_BYTES)) return pptError("成品分片参数无效", 409);
+    const bytes = await request.arrayBuffer();
+    const expected = Math.min(PPT_CHUNK_BYTES, task.resultSize - (index - 1) * PPT_CHUNK_BYTES);
+    if (bytes.byteLength !== expected || (index === 1 && (new Uint8Array(bytes)[0] !== 0x50 || new Uint8Array(bytes)[1] !== 0x4b))) return pptError("成品分片大小或 PPTX 文件头无效", 400);
+    const part = await bucket.resumeMultipartUpload(pptResultKey(id), uploadId).uploadPart(index, bytes);
+    return jsonResponse({ success: true, partNumber: part.partNumber, etag: part.etag });
+  }
+  if (action === "result-complete") {
+    const payload = await request.json().catch(() => ({}));
+    if (!task.resultUploadId || payload.uploadId !== task.resultUploadId) return pptError("未找到对应的成品上传", 409);
+    const parts = Array.isArray(payload.parts) ? payload.parts : [];
+    const count = Math.ceil(task.resultSize / PPT_CHUNK_BYTES);
+    if (parts.length !== count || parts.some((part, i) => part.partNumber !== i + 1 || typeof part.etag !== "string" || !part.etag)) return pptError("成品分片不完整");
+    await bucket.resumeMultipartUpload(pptResultKey(id), task.resultUploadId).complete(parts);
+    task.status = "completed";
+    task.completedAt = new Date().toISOString();
+    delete task.resultUploadId;
+    delete task.agentToken;
+    await pptWriteTask(bucket, task);
+    return jsonResponse({ success: true, id, status: "completed" });
+  }
+  return pptError("不支持的代理操作", 404);
 }
 
 async function handlePptIntake(request, env) {
