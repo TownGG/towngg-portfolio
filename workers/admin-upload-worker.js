@@ -1373,6 +1373,54 @@ const PPT_DOWNLOAD_LINK_MS = 10 * 60 * 1000;
 const PPT_PROMPT_MAX_LENGTH = 6000;
 const PPT_PREVIEW_MAX_BYTES = 1024 * 1024;
 
+// Optional Dropbox App Folder bridge. Files contain an event and task ID only;
+// no prompt, source URL, Gmail address, admin key, or agent credentials.
+function pptDropboxConfigured(env) {
+  return Boolean(env.PPT_DROPBOX_APP_KEY && env.PPT_DROPBOX_APP_SECRET && env.PPT_DROPBOX_REFRESH_TOKEN);
+}
+async function pptDropboxSignal(env, event, task) {
+  if (!pptDropboxConfigured(env)) return false;
+  if (!['created', 'completed'].includes(event) || !pptSafeId(task.id)) throw new Error('Invalid PPT Dropbox event');
+  const oauth = await fetch('https://api.dropbox.com/oauth2/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'refresh_token', refresh_token: env.PPT_DROPBOX_REFRESH_TOKEN,
+      client_id: env.PPT_DROPBOX_APP_KEY, client_secret: env.PPT_DROPBOX_APP_SECRET
+    })
+  });
+  if (!oauth.ok) throw new Error('Dropbox token HTTP ' + oauth.status);
+  const authorization = await oauth.json();
+  if (typeof authorization.access_token !== 'string' || !authorization.access_token) throw new Error('Dropbox token missing');
+  const target = event === 'created' ? 'queue' : 'done';
+  const folder = await fetch('https://api.dropboxapi.com/2/files/create_folder_v2', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + authorization.access_token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ path: '/' + target, autorename: false })
+  });
+  // Dropbox returns a conflict when the dedicated app folder already exists.
+  if (!folder.ok && folder.status !== 409) throw new Error('Dropbox folder HTTP ' + folder.status);
+  const filename = '/' + target + '/' + task.id + '.json';
+  const payload = JSON.stringify({
+    schema: 1, event: 'ppt.task.' + event, taskId: task.id,
+    at: event === 'completed' ? task.completedAt : task.createdAt
+  });
+  const result = await fetch('https://content.dropboxapi.com/2/files/upload', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + authorization.access_token,
+      'Content-Type': 'application/octet-stream',
+      'Dropbox-API-Arg': JSON.stringify({ path: filename, mode: 'overwrite', autorename: false, mute: true })
+    },
+    body: payload
+  });
+  if (!result.ok) throw new Error('Dropbox upload HTTP ' + result.status);
+  return true;
+}
+
 function pptTaskKey(id) { return "tasks/" + id + ".json"; }
 // The original .pptx key remains readable for jobs submitted before file-type support.
 function pptSourceKey(id) { return "sources/" + id + ".pptx"; }
@@ -1444,6 +1492,16 @@ async function pptNotifyIntake(request, env, bucket, task) {
       console.error("PPT owner notification failed", String(notifyError?.message || "unknown"));
     }
     await pptWriteTask(bucket, task);
+    try {
+      if (await pptDropboxSignal(env, 'created', task)) {
+        task.dropboxNotifiedAt = new Date().toISOString();
+        delete task.dropboxNotifyError;
+      }
+    } catch (dropboxError) {
+      task.dropboxNotifyError = true;
+      console.error('PPT Dropbox wake signal failed', String(dropboxError?.message || 'unknown'));
+    }
+    await pptWriteTask(bucket, task);
     return jsonResponse({ success: true, id: task.id, status: task.status, createdAt: task.createdAt });
   } catch (error) {
     task.emailError = true;
@@ -1474,7 +1532,8 @@ async function handlePptStorage(request, env, action) {
         createdAt: task.createdAt || null, updatedAt: task.updatedAt || null,
         completedAt: task.completedAt || null,
         totalPages: task.totalPages || 0, completedPages: task.completedPages || 0,
-        emailError: Boolean(task.emailError), previewPages: task.previewPages || []
+        emailError: Boolean(task.emailError), dropboxNotifyError: Boolean(task.dropboxNotifyError),
+        dropboxNotifiedAt: task.dropboxNotifiedAt || null, previewPages: task.previewPages || []
       };
     }))).filter(Boolean).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
     return jsonResponse({ success: true, tasks, cursor: listing.truncated ? listing.cursor : null, hasMore: Boolean(listing.truncated) });
@@ -1675,6 +1734,11 @@ async function handlePptAgent(request, env) {
     delete task.resultUploadId;
     delete task.agentToken;
     await pptWriteTask(bucket, task);
+    try {
+      await pptDropboxSignal(env, 'completed', task);
+    } catch (dropboxError) {
+      console.error('PPT Dropbox completion signal failed', String(dropboxError?.message || 'unknown'));
+    }
     return jsonResponse({ success: true, id, status: "completed" });
   }
   return pptError("不支持的代理操作", 404);
