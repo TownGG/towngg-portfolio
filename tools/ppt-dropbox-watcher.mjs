@@ -105,6 +105,11 @@ async function invokeHarness(id) {
     return 'dry-run';
   }
   const program = process.env.PPT_DSH_BIN || 'dsh';
+  // Windows .cmd/.bat shims may reinterpret long UTF-8 Chinese prompts via the
+  // active console code page. Use the PowerShell or native executable instead.
+  if (process.platform === 'win32' && /\.(?:cmd|bat)$/i.test(program)) {
+    throw new Error('PPT_DSH_BIN cannot point to .cmd/.bat on Windows; use dsh.ps1, an .exe, or the default dsh command');
+  }
   return new Promise((resolve, reject) => {
     // Windows npm CLIs usually resolve to .cmd files, which cannot be spawned
     // directly without a shell. PowerShell receives a fixed command and passes
