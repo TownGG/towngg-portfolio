@@ -60,7 +60,7 @@ export default {
     const isMessageBoardDelete = url.pathname.endsWith("/api/admin/message-board-delete");
     const isPptHealth = url.pathname.endsWith("/api/admin/ppt-health");
     const isPptSubmit = url.pathname.endsWith("/api/admin/ppt-submit");
-    const pptAction = ["init", "text", "part", "complete", "status", "preview", "result", "result-link"].find(action => url.pathname.endsWith("/api/admin/ppt-" + action));
+    const pptAction = ["init", "text", "part", "complete", "status", "list", "preview", "result", "result-link"].find(action => url.pathname.endsWith("/api/admin/ppt-" + action));
     const isPptSource = url.pathname.endsWith("/api/admin/ppt-source");
     const isPptDownload = url.pathname.endsWith("/api/admin/ppt-download");
     const isPptAgent = url.pathname.endsWith("/api/admin/ppt-agent");
@@ -1456,6 +1456,29 @@ async function pptNotifyIntake(request, env, bucket, task) {
 async function handlePptStorage(request, env, action) {
   const bucket = env.PPT_FILES;
   if (!bucket) return pptError("大文件存储尚未启用，请联系管理员配置 R2", 503);
+  if (action === "list") {
+    const payload = await request.json().catch(() => ({}));
+    const cursor = typeof payload.cursor === "string" && payload.cursor.length < 2048 ? payload.cursor : undefined;
+    const listing = await bucket.list({ prefix: "tasks/", limit: 100, ...(cursor ? { cursor } : {}) });
+    const keys = listing.objects.filter(object => /^tasks\/PPT-\d{8}-[A-F0-9]{12}\.json$/.test(object.key));
+    const tasks = (await Promise.all(keys.map(async object => {
+      const id = object.key.slice("tasks/".length, -".json".length);
+      const task = await pptReadTask(bucket, id);
+      if (!task) return null;
+      const result = await bucket.head(pptResultKey(id));
+      return {
+        id, name: task.name || "", size: task.size || 0,
+        prompt: String(task.prompt || "").slice(0, PPT_PROMPT_MAX_LENGTH),
+        status: result ? "completed" : task.status,
+        storedStatus: task.status, hasResult: Boolean(result),
+        createdAt: task.createdAt || null, updatedAt: task.updatedAt || null,
+        completedAt: task.completedAt || null,
+        totalPages: task.totalPages || 0, completedPages: task.completedPages || 0,
+        emailError: Boolean(task.emailError), previewPages: task.previewPages || []
+      };
+    }))).filter(Boolean).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+    return jsonResponse({ success: true, tasks, cursor: listing.truncated ? listing.cursor : null, hasMore: Boolean(listing.truncated) });
+  }
   if (action === "text") {
     const body = await request.json();
     const prompt = String(body.prompt || "").trim();
