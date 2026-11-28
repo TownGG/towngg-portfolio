@@ -329,7 +329,7 @@
     @media(max-width:780px){
       /* Reuse the exact desktop wallpaper, with a soft edge instead of a pasted mobile banner. */
       #studio-view{position:relative;isolation:isolate}
-      #studio-view:before{content:"";position:absolute;z-index:-1;top:clamp(9px,3vw,20px);left:10%;right:0;height:clamp(310px,79vw,390px);background:url('./assets/ai-ppt-ambient-scene.webp') right top / auto 100% no-repeat;-webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 23%,#000 70%,transparent 100%),linear-gradient(to right,transparent 0%,#000 18%,#000 73%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0%,#000 23%,#000 70%,transparent 100%),linear-gradient(to right,transparent 0%,#000 18%,#000 73%,transparent 100%);-webkit-mask-composite:source-in;mask-composite:intersect;pointer-events:none}
+      #studio-view:before{content:"";position:absolute;z-index:-1;top:0;left:10%;right:-14px;height:clamp(310px,79vw,390px);background:url('./assets/ai-ppt-ambient-scene.webp') right top / auto 100% no-repeat;-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%),linear-gradient(to right,transparent 0%,#000 18%,#000 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%),linear-gradient(to right,transparent 0%,#000 18%,#000 100%);-webkit-mask-composite:source-in;mask-composite:intersect;pointer-events:none}
       #studio-view .hero{display:block;position:relative;height:clamp(300px,68vw,345px);min-height:0;padding:clamp(78px,17vw,98px) 0 0;overflow:visible;background:transparent!important}
       #studio-view .hero:before{display:none!important}
       #studio-view .hero-copy{max-width:100%;width:100%;position:relative;z-index:2}
