@@ -475,7 +475,7 @@
               <div class="form-column upload-column">
                 <h3 class="card-title"><span class="number">01</span>添加参考素材（可选）</h3>
                 <input id="file" type="file" hidden>
-                <div id="dropzone" class="upload" tabindex="0" role="button" aria-label="拖入、点击选择或按 Ctrl+V 粘贴参考素材"><div class="upload-icon"><svg class="icon lg" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v4h16v-4"/></svg></div><strong>拖拽、点击或 Ctrl+V 粘贴素材</strong><small id="upload-limit">PPT · 文档 · 图片 · 其他文件均可，正在检查容量…</small><small>也可以只写文字，不必上传文件</small></div>
+                <div id="dropzone" class="upload" tabindex="0" role="button" aria-label="拖入、点击选择或按 Ctrl+V 粘贴参考素材"><div class="upload-icon"><svg class="icon lg" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v4h16v-4"/></svg></div><strong>拖拽、点击或 Ctrl+V 粘贴素材</strong><small id="upload-limit">支持 PPT、Word、截图、PNG 等多种格式</small><small>也可以只写文字，不必上传文件</small></div>
                 <div id="selected" class="file-selected" hidden><div class="file-icon"><svg class="icon lg" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8"/></svg></div><div><strong id="filename"></strong><small id="filesize"></small></div><button type="button" class="remove" id="remove-file" aria-label="移除文件">×</button></div>
               </div>
               <div class="form-column description-column">
@@ -486,7 +486,7 @@
                   <div class="composer-tools">
                     <button id="mobile-add-file" class="composer-add" type="button" aria-label="添加 PPT、文档或图片素材" title="添加素材"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
                     <div id="mobile-selected" class="composer-file" hidden><span id="mobile-filename"></span><button id="mobile-remove-file" type="button" aria-label="移除已选素材">×</button></div>
-                    <span class="composer-tip">支持 PPT、文档和图片 · 可选</span>
+                    <span class="composer-tip">PPT、Word、截图、PNG 等 · 可选</span>
                   </div>
                 </div>
                 <p class="design-direction-note">页数、内容、风格，直接告诉 AI 就好。</p>
@@ -548,7 +548,7 @@
       var lock=$('lock'), app=$('app'), password=$('password'), msg=$('gate-error'), toastTimer;
       function toast(text){var el=$('toast');el.textContent=text;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.hidden=true},4500)}
       function localKey(){try{return localStorage.getItem(KEY)||''}catch(e){return ''}}
-      function showApp(){lock.hidden=true;app.hidden=false;showTab('studio');renderTasks();fetch('/api/admin/ppt-health',{method:'POST',headers:{'X-Admin-Key':sessionKey},cache:'no-store'}).then(function(response){if(!response.ok)throw Error('服务暂不可用');return response.json()}).then(function(data){$('upload-limit').textContent=data&&data.r2Configured?'支持任意格式 · 单文件最大 200 MB':'支持任意格式 · 单文件最大 8 MB';document.querySelector('.engine-state').textContent=data&&(data.r2Configured||data.configured)?'可用':'维护中'}).catch(function(){$('upload-limit').textContent='支持文档、图片与 PPT · 服务连接中';document.querySelector('.engine-state').textContent='连接异常'})}
+      function showApp(){lock.hidden=true;app.hidden=false;showTab('studio');renderTasks();fetch('/api/admin/ppt-health',{method:'POST',headers:{'X-Admin-Key':sessionKey},cache:'no-store'}).then(function(response){if(!response.ok)throw Error('服务暂不可用');return response.json()}).then(function(data){$('upload-limit').textContent='支持 PPT、Word、截图、PNG 等多种格式 · 单文件最大 '+(data&&data.r2Configured?'200 MB':'8 MB');document.querySelector('.engine-state').textContent=data&&(data.r2Configured||data.configured)?'可用':'维护中'}).catch(function(){$('upload-limit').textContent='支持 PPT、Word、截图、PNG 等多种格式';document.querySelector('.engine-state').textContent='连接异常'})}
       function showLock(){sessionKey='';lock.hidden=false;app.hidden=true;password.value='';msg.textContent=''}
       async function verify(key){var res=await fetch('/api/admin/gallery-list',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Key':key},body:'{}',cache:'no-store'});var data=await res.json().catch(function(){return null});if(!res.ok||!data||data.success!==true)throw new Error('访问密码错误或验证服务暂不可用');return true}
       async function login(key,remember){var btn=$('unlock');btn.disabled=true;btn.textContent='正在验证…';msg.textContent='';try{await verify(key);sessionKey=key;if(remember){try{localStorage.setItem(KEY,key)}catch(e){}}else{try{localStorage.removeItem(KEY)}catch(e){}}showApp()}catch(e){msg.textContent=e.message||'验证失败'}finally{btn.disabled=false;btn.textContent='解锁工作台'}}
