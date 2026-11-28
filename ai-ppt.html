@@ -413,6 +413,8 @@
     .task.is-processing:after{content:"";position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#50bcff,#7661f2,#be56ed,#50bcff);background-size:200% 100%;animation:tgg-task-flow 2.2s linear infinite;pointer-events:none}
     .task.is-processing .status:before{background:#7068ed;box-shadow:0 0 0 5px #8375fa24,0 0 13px #7770eaa6;animation:tgg-status-pulse 1.4s ease-in-out infinite}
     .task .task-elapsed{color:#5d61bb;font-variant-numeric:tabular-nums;font-weight:750}
+    .task .task-duration{color:#287d70;font-variant-numeric:tabular-nums;font-weight:750}
+    .job-complete-duration{display:inline-flex;margin-top:9px;padding:6px 11px;border-radius:99px;background:#e1f5ee;color:#237a6b;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
     .job-detail.has-working .job-live{display:none}
     @keyframes tgg-working-spin{to{transform:rotate(360deg)}}
     @keyframes tgg-working-star{to{transform:scale(1.18);opacity:.78}}
@@ -500,7 +502,7 @@
          <div class="job-meter" id="job-meter" role="progressbar" aria-label="页面设计进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="job-bar"></div></div>
          <div class="job-live"><span class="job-live-orb" aria-hidden="true"></span><strong id="job-live-label">正在准备任务</strong><span id="job-live-detail">任务状态会在这里更新</span><span id="job-check" class="job-check">等待首次检查</span></div>
          <div id="job-status" class="job-hint" aria-live="polite">正在准备提交…</div>
-        <div id="job-complete" class="job-complete" hidden><span class="job-complete-mark" aria-hidden="true">✓</span><div><strong>你的 PPT 已设计完成</strong><p id="job-complete-meta">高品质 PPTX 已准备好下载。</p></div></div>
+        <div id="job-complete" class="job-complete" hidden><span class="job-complete-mark" aria-hidden="true">✓</span><div><strong>你的 PPT 已设计完成</strong><p id="job-complete-meta">高品质 PPTX 已准备好下载。</p><span id="job-complete-duration" class="job-complete-duration">总耗时同步中</span></div></div>
         <div class="job-actions"><button class="button" id="job-back" type="button">返回我的任务</button><button class="button" id="job-refresh" type="button">刷新进度</button><button class="button" id="job-preview" type="button" hidden>预览 PPT</button><button class="button primary" id="job-download" type="button" hidden>下载 PPT</button></div><div class="job-hint" id="job-download-message" role="status" aria-live="polite" hidden></div></div></section>
       <footer class="standalone-footer">TGG AI · 让每一页，都惊艳呈现</footer>
     </main>
@@ -617,15 +619,24 @@
         $('job-download').hidden=!completed;
         $('job-preview').hidden=!PPT_PREVIEW_ENABLED||!completed||!job.r2;
         $('job-complete').hidden=!completed;
-        if(completed)$('job-complete-meta').textContent=total?'共 '+total+' 页 · 高清 PPTX 已准备好下载。':'高清 PPTX 已准备好下载。';
+        if(completed){
+          $('job-complete-meta').textContent=total?'共 '+total+' 页 · 高清 PPTX 已准备好下载。':'高清 PPTX 已准备好下载。';
+          $('job-complete-duration').textContent=completedDurationLabel(job);
+        }
         renderJobPages(job);
       }
-      function formatElapsed(createdAt){
-        var start=Date.parse(createdAt);
+      function formatElapsed(createdAt,finishedAt){
+        var start=Date.parse(createdAt),end=finishedAt?Date.parse(finishedAt):Date.now();
         if(!Number.isFinite(start))return '--:--';
-        var seconds=Math.floor(Math.max(0,Date.now()-start)/1000);
+        if(!Number.isFinite(end)||end<start)return '--:--';
+        var seconds=Math.floor((end-start)/1000);
         var hours=Math.floor(seconds/3600),minutes=Math.floor(seconds%3600/60),remaining=seconds%60;
         return (hours>0?String(hours).padStart(2,'0')+':':'')+String(minutes).padStart(2,'0')+':'+String(remaining).padStart(2,'0');
+      }
+      function completedDurationLabel(job){
+        if(!job.completedAt)return job.r2?'总耗时同步中':'总耗时未记录';
+        var duration=formatElapsed(job.createdAt,job.completedAt);
+        return duration==='--:--'?'总耗时未记录':'总耗时 '+duration;
       }
       function updateElapsedTimer(){
         if(!$('job-working').hidden&&currentJobId){
@@ -635,7 +646,7 @@
         document.querySelectorAll('.task-elapsed').forEach(function(element){element.textContent=' · 用时 '+formatElapsed(element.dataset.createdAt)});
       }
       async function apiPpt(action,body,additional){var response=await fetch('/api/admin/ppt-'+action,{method:'POST',headers:Object.assign({'X-Admin-Key':sessionKey},additional||{},body instanceof Blob?{}:{'Content-Type':'application/json'}),body:body instanceof Blob?body:JSON.stringify(body),cache:'no-store'});var data=await response.json().catch(function(){return null});if(!response.ok||!data||!data.success)throw Error(data&&data.error||'服务器请求失败（'+response.status+'）');return data}
-      function mergeTaskState(job,state){job.status=state.status;job.completedPages=state.completedPages||0;job.totalPages=state.totalPages||0;job.previewPages=Array.isArray(state.previewPages)?state.previewPages.filter(function(page){return Number.isInteger(page)&&page>=1&&page<=job.totalPages}):[];return job}
+      function mergeTaskState(job,state){job.status=state.status;job.completedPages=state.completedPages||0;job.totalPages=state.totalPages||0;if(state.completedAt)job.completedAt=state.completedAt;job.previewPages=Array.isArray(state.previewPages)?state.previewPages.filter(function(page){return Number.isInteger(page)&&page>=1&&page<=job.totalPages}):[];return job}
       async function refreshJob(silent){
         if(checkingJob)return;
         var job=loadRecords().find(function(row){return row.id===currentJobId});
@@ -892,6 +903,31 @@
         }catch(e){toast('提交未完成：'+(e.message||'请检查网络，上传记录已保留'))}
         finally{button.disabled=false;button.textContent='开始 AI 设计'}
       });
+      var completedTimeLookupRunning=false,completedTimeLookupLast=0;
+      async function lookupCompletedDurations(){
+        if(completedTimeLookupRunning||Date.now()-completedTimeLookupLast<120000||!sessionKey)return;
+        var missing=new Set(loadRecords().filter(function(job){return job.r2&&job.status==='completed'&&!job.completedAt}).map(function(job){return job.id}));
+        if(!missing.size)return;
+        completedTimeLookupRunning=true;completedTimeLookupLast=Date.now();
+        try{
+          var found=new Map(),cursor=null;
+          for(var page=0;page<3&&missing.size;page++){
+            var listing=await apiPpt('list',cursor?{cursor:cursor}:{});
+            (listing.tasks||[]).forEach(function(task){if(missing.has(task.id)&&task.completedAt){found.set(task.id,task.completedAt);missing.delete(task.id)}});
+            if(!listing.hasMore||!listing.cursor)break;
+            cursor=listing.cursor;
+          }
+          if(found.size){
+            var records=loadRecords(),changed=false;
+            records.forEach(function(job){if(found.has(job.id)&&!job.completedAt){job.completedAt=found.get(job.id);changed=true}});
+            if(changed){
+              saveRecords(records);renderTasks();
+              if(!$('job-view').hidden){var current=records.find(function(job){return job.id===currentJobId});if(current)paintJob(current)}
+            }
+          }
+        }catch(error){console.warn('无法同步历史任务完成时间',error)}
+        finally{completedTimeLookupRunning=false}
+      }
       function renderTasks(){
         var list=$('tasks-list'),rows=loadRecords();list.replaceChildren();
         if(!rows.length){list.innerHTML='<div class="empty"><svg class="icon lg" viewBox="0 0 24 24" style="margin:auto"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 9h8M8 13h5"/></svg><strong>还没有设计任务</strong><p>回到创作工作台，创建你的第一个 PPT 设计任务。</p></div>';return}
@@ -903,6 +939,7 @@
           h.textContent=job.brief&&job.brief.trim()?job.brief.trim():job.name;h.title=h.textContent;
           p.textContent=new Date(job.createdAt).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})+(job.size?' · 已附素材':' · 文字创作');p.title=job.id;left.append(h,p);
           if(processing){var elapsed=document.createElement('span');elapsed.className='task-elapsed';elapsed.dataset.createdAt=job.createdAt||'';elapsed.textContent=' · 用时 '+formatElapsed(job.createdAt);p.append(elapsed)}
+          if(job.status==='completed'){var duration=document.createElement('span');duration.className='task-duration';duration.textContent=' · '+completedDurationLabel(job);p.append(duration)}
           var right=document.createElement('div');right.className='task-right';
           var status=document.createElement('span');status.className='status';status.textContent=jobStatusLabel(job);right.append(status);
           if(job.status==='completed'&&job.r2){
@@ -912,6 +949,7 @@
           var detail=document.createElement('button');detail.className='button task-detail';detail.textContent=job.status==='completed'?'查看详情':'查看进度';detail.addEventListener('click',function(){paintJob(job);refreshJob()});right.append(detail);
           box.append(left,right);list.append(box);
         });
+        lookupCompletedDurations();
       }
       $('clear-records').addEventListener('click',function(){if(!confirm('确定清空此设备的任务列表吗？清空后将无法在这里找到这些任务。'))return;saveRecords([]);renderTasks()});
       var saved=localKey();if(saved){password.value=saved;login(saved,true)}else showLock();
