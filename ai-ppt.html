@@ -310,6 +310,7 @@
   <style>
     /* V4: a quieter task list and a single, simple prompt composer. */
     .prompt-composer{position:relative}
+    .hero-summary-compact{display:none}
     .composer-tools{display:none}
     .task{background:linear-gradient(135deg,#ffffffed,#f8faffdf);border:1px solid #e1e8f7;box-shadow:0 7px 24px #7189bc13,inset 0 1px #fff;transition:transform .2s,box-shadow .2s}
     .task:hover{transform:translateY(-2px);box-shadow:0 12px 28px #7189bc22}
@@ -326,14 +327,18 @@
     .job-detail.is-complete .job-flow,.job-detail.is-complete .job-progress-label,.job-detail.is-complete .job-meter{display:none}
     .job-detail.is-complete{gap:20px}
     @media(max-width:780px){
-      /* Keep the desktop artwork, but let it grow out of the page glow on mobile. */
-      #studio-view .hero{display:block;position:relative;height:clamp(315px,91vw,370px);min-height:0;padding:17px 0 0;overflow:hidden;isolation:isolate}
-      #studio-view .hero:before{content:"";display:block;position:absolute;z-index:0;inset:27% -19% -13% 3%;background:radial-gradient(ellipse at 62% 49%,#b9c9ff90 0%,#d6d1ff5c 36%,transparent 72%),radial-gradient(ellipse at 27% 77%,#b9ebff8c,transparent 65%);filter:blur(28px);pointer-events:none}
+      /* Mobile uses the exact desktop ambient scene, softly feathered into the page. */
+      #studio-view .hero{display:block;position:relative;height:clamp(355px,94vw,396px);min-height:0;padding:19px 0 0;overflow:hidden;isolation:isolate}
+      #studio-view .hero:before{content:"";display:block;position:absolute;z-index:0;left:-14px;right:-14px;bottom:-18px;height:clamp(215px,59vw,252px);background:url('./assets/ai-ppt-ambient-scene.webp') right -8px top -4px / auto clamp(495px,137vw,580px) no-repeat;opacity:1;-webkit-mask-image:radial-gradient(ellipse 85% 82% at 61% 47%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 85% 82% at 61% 47%,#000 60%,transparent 100%);pointer-events:none}
       #studio-view .hero-copy{max-width:100%;width:100%;position:relative;z-index:2}
       #studio-view .hero .eyebrow{font-size:10px}
-      #studio-view .hero h1{font-size:clamp(27px,7vw,35px);margin:10px 0 8px}
-      #studio-view .hero p{font-size:13px;line-height:1.5;max-width:100%}
-      #studio-view .hero-illustration{position:absolute;display:block;inset:auto -9% -11px auto;opacity:.94;width:118%;height:clamp(205px,61vw,275px);object-fit:contain;object-position:center;filter:drop-shadow(0 9px 15px #a1a0eb13);-webkit-mask-image:radial-gradient(ellipse 79% 78% at 51% 49%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 79% 78% at 51% 49%,#000 60%,transparent 100%);margin:0;transform:none}
+      #studio-view .hero h1{font-size:clamp(31px,8.4vw,38px);margin:11px 0 8px;max-width:360px}
+      #studio-view .hero h1 em{display:block}
+      #studio-view .hero p{font-size:13px;line-height:1.5;max-width:100%;color:#667294}
+      #studio-view .hero-summary-wide{display:none}
+      #studio-view .hero-summary-compact{display:block}
+      #studio-view .hero-illustration{display:none!important}
+      @media(max-width:370px){#studio-view .hero{height:348px}#studio-view .hero h1{font-size:29px}#studio-view .hero:before{height:205px;background-size:auto 495px}}
       .workspace>.card{padding:16px;border-radius:22px}
       .form-columns{gap:0}
       .upload-column{display:none!important}
@@ -409,7 +414,7 @@
     </header>
     <main class="main">
       <section id="studio-view">
-        <section class="hero"><div class="hero-copy"><div class="eyebrow">TownGG · AI PPT Studio</div><h1>让每一页，<em>都惊艳呈现</em></h1><p>上传 PPT、文档或图片，也可以只写下你的想法。AI 理解内容与设计要求，为你制作具有视觉冲击力的演示文稿。</p></div><img class="hero-illustration" src="./assets/ai-ppt-glass-hero.webp" alt="" aria-hidden="true"></section>
+        <section class="hero"><div class="hero-copy"><div class="eyebrow">TownGG · AI PPT Studio</div><h1>让每一页，<em>都惊艳呈现</em></h1><p class="hero-summary-wide">上传 PPT、文档或图片，也可以只写下你的想法。AI 理解内容与设计要求，为你制作具有视觉冲击力的演示文稿。</p><p class="hero-summary-compact">上传素材或写下想法，AI 为你设计每一页。</p></div><img class="hero-illustration" src="./assets/ai-ppt-glass-hero.webp" alt="" aria-hidden="true"></section>
         <div class="section-head"><div><h2>开始设计</h2><p>素材可选，告诉 AI 你想要的效果。</p></div></div>
         <div class="workspace">
           <section class="card glass">
