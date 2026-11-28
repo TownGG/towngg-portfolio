@@ -586,6 +586,7 @@
          $('job-page-total').textContent=String(total).padStart(2,'0');
          $('job-page-note').textContent=exporting?'正在生成最终 PPTX，请稍候':'已完成 '+done+' 页，正在设计第 '+page+' 页';
       }
+      var PPT_PREVIEW_ENABLED=false;
       function paintJob(job){
         if(!job)return;
         currentJobId=job.id;showTab('job');
@@ -614,7 +615,7 @@
         $('job-check').hidden=completed;
         if(completed)$('job-check').textContent='已完成';else if(lastJobCheck&&lastJobCheck.id===job.id)$('job-check').textContent='上次检查 '+lastJobCheck.time;
         $('job-download').hidden=!completed;
-        $('job-preview').hidden=!completed||!job.r2;
+        $('job-preview').hidden=!PPT_PREVIEW_ENABLED||!completed||!job.r2;
         $('job-complete').hidden=!completed;
         if(completed)$('job-complete-meta').textContent=total?'共 '+total+' 页 · 高清 PPTX 已准备好下载。':'高清 PPTX 已准备好下载。';
         renderJobPages(job);
@@ -905,7 +906,7 @@
           var right=document.createElement('div');right.className='task-right';
           var status=document.createElement('span');status.className='status';status.textContent=jobStatusLabel(job);right.append(status);
           if(job.status==='completed'&&job.r2){
-            var preview=document.createElement('button');preview.className='button task-detail';preview.textContent='预览';preview.addEventListener('click',function(){openPptPreview(job)});right.append(preview);
+            if(PPT_PREVIEW_ENABLED){var preview=document.createElement('button');preview.className='button task-detail';preview.textContent='预览';preview.addEventListener('click',function(){openPptPreview(job)});right.append(preview)}
             var download=document.createElement('button');download.className='button task-download';download.textContent='下载 PPT';download.addEventListener('click',function(){downloadPpt(job,download,null)});right.append(download);
           }
           var detail=document.createElement('button');detail.className='button task-detail';detail.textContent=job.status==='completed'?'查看详情':'查看进度';detail.addEventListener('click',function(){paintJob(job);refreshJob()});right.append(detail);
