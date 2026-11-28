@@ -416,6 +416,13 @@
     .task .task-duration{color:#287d70;font-variant-numeric:tabular-nums;font-weight:750}
     .job-complete-duration{display:inline-flex;margin-top:9px;padding:6px 11px;border-radius:99px;background:#e1f5ee;color:#237a6b;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
     .ppt-image-note{margin:10px 0 0;text-align:right;color:#8090ad;font-size:12px;line-height:1.6}
+    /* Desktop: preserve the artwork's aspect ratio and use the available writing space. */
+    @media(min-width:781px){
+      body{background-size:cover;background-position:center top;background-repeat:no-repeat}
+      #studio-view .description-column .prompt-composer{display:flex;flex:1 1 auto;min-height:195px}
+      #studio-view .description-column .form-text{flex:1 1 auto;height:auto;min-height:195px}
+      #studio-view .process-rail{display:none}
+    }
     @media(max-width:780px){.ppt-image-note{text-align:center;margin:10px 0 0;color:#7c8aa6}}
     .job-detail.has-working .job-live{display:none}
     @keyframes tgg-working-spin{to{transform:rotate(360deg)}}
