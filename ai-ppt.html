@@ -326,13 +326,14 @@
     .job-detail.is-complete .job-flow,.job-detail.is-complete .job-progress-label,.job-detail.is-complete .job-meter{display:none}
     .job-detail.is-complete{gap:20px}
     @media(max-width:780px){
-      /* Give the freed upload space back to the hero illustration. */
-      #studio-view .hero{display:flex;flex-direction:column;height:auto;min-height:0;padding:17px 0 5px;overflow:visible}
-      #studio-view .hero-copy{max-width:100%;width:100%}
+      /* Keep the desktop artwork, but let it grow out of the page glow on mobile. */
+      #studio-view .hero{display:block;position:relative;height:clamp(315px,91vw,370px);min-height:0;padding:17px 0 0;overflow:hidden;isolation:isolate}
+      #studio-view .hero:before{content:"";display:block;position:absolute;z-index:0;inset:27% -19% -13% 3%;background:radial-gradient(ellipse at 62% 49%,#b9c9ff90 0%,#d6d1ff5c 36%,transparent 72%),radial-gradient(ellipse at 27% 77%,#b9ebff8c,transparent 65%);filter:blur(28px);pointer-events:none}
+      #studio-view .hero-copy{max-width:100%;width:100%;position:relative;z-index:2}
       #studio-view .hero .eyebrow{font-size:10px}
       #studio-view .hero h1{font-size:clamp(27px,7vw,35px);margin:10px 0 8px}
       #studio-view .hero p{font-size:13px;line-height:1.5;max-width:100%}
-      #studio-view .hero-illustration{position:relative;display:block;inset:auto;opacity:1;width:100%;height:clamp(155px,41vw,225px);object-fit:contain;object-position:center;filter:drop-shadow(0 12px 18px #a1a0eb24);margin:1px auto 5px;transform:none}
+      #studio-view .hero-illustration{position:absolute;display:block;inset:auto -9% -11px auto;opacity:.94;width:118%;height:clamp(205px,61vw,275px);object-fit:contain;object-position:center;filter:drop-shadow(0 9px 15px #a1a0eb13);-webkit-mask-image:radial-gradient(ellipse 79% 78% at 51% 49%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 79% 78% at 51% 49%,#000 60%,transparent 100%);margin:0;transform:none}
       .workspace>.card{padding:16px;border-radius:22px}
       .form-columns{gap:0}
       .upload-column{display:none!important}
