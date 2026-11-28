@@ -415,6 +415,8 @@
     .task .task-elapsed{color:#5d61bb;font-variant-numeric:tabular-nums;font-weight:750}
     .task .task-duration{color:#287d70;font-variant-numeric:tabular-nums;font-weight:750}
     .job-complete-duration{display:inline-flex;margin-top:9px;padding:6px 11px;border-radius:99px;background:#e1f5ee;color:#237a6b;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
+    .ppt-image-note{margin:10px 0 0;text-align:right;color:#8090ad;font-size:12px;line-height:1.6}
+    @media(max-width:780px){.ppt-image-note{text-align:center;margin:10px 0 0;color:#7c8aa6}}
     .job-detail.has-working .job-live{display:none}
     @keyframes tgg-working-spin{to{transform:rotate(360deg)}}
     @keyframes tgg-working-star{to{transform:scale(1.18);opacity:.78}}
@@ -484,6 +486,7 @@
               </div>
             </div>
             <div class="submit-row"><div class="submit-note"><strong>逐页设计 · 导出高清 PPT</strong><small>有素材就上传，也可以只写文字。</small></div><button class="button primary" id="submit" type="button">开始 AI 设计</button></div>
+            <p class="ppt-image-note">成品每页为一张完整图片，文字与图形不可单独编辑。</p>
           </section>
         </div>
         <div class="process-rail" aria-label="设计流程"><div class="process-step"><span class="process-icon">⇧</span><span><strong>描述需求</strong><small>文字必填 · 素材可选</small></span></div><div class="process-step"><span class="process-icon">✦</span><span><strong>AI 逐页设计</strong><small>实时查看设计进度</small></span></div><div class="process-step"><span class="process-icon">▤</span><span><strong>导出 PPT</strong><small>获取高品质演示文稿</small></span></div></div>
@@ -620,7 +623,7 @@
         $('job-preview').hidden=!PPT_PREVIEW_ENABLED||!completed||!job.r2;
         $('job-complete').hidden=!completed;
         if(completed){
-          $('job-complete-meta').textContent=total?'共 '+total+' 页 · 高清 PPTX 已准备好下载。':'高清 PPTX 已准备好下载。';
+          $('job-complete-meta').textContent=(total?'共 '+total+' 页 · ':'')+'PPTX 已可下载。每页为一张完整图片，文字与图形不可单独编辑。';
           $('job-complete-duration').textContent=completedDurationLabel(job);
         }
         renderJobPages(job);
