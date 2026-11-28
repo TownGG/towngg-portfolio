@@ -327,21 +327,20 @@
     .job-detail.is-complete .job-flow,.job-detail.is-complete .job-progress-label,.job-detail.is-complete .job-meter{display:none}
     .job-detail.is-complete{gap:20px}
     @media(max-width:780px){
-      /* A dedicated portrait wallpaper sits behind the complete mobile studio. */
+      /* The desktop and mobile hero share one illustration; only its crop adapts. */
       #studio-view{position:relative;isolation:isolate}
-      /* Fluid vertical offset: the artwork rises on wider phones without touching narrow-screen headings. */
-      #studio-view:before{content:"";position:absolute;z-index:-1;top:clamp(-60px,calc(205px - 64vw),0px);left:-14px;right:-14px;height:178vw;max-height:780px;background:url('./assets/ai-ppt-mobile-ambient.webp') center top / min(100%,440px) auto no-repeat;-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 74%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 74%,transparent 100%);pointer-events:none}
-      #studio-view .hero{display:block;position:relative;height:clamp(310px,86vw,350px);min-height:0;padding:19px 0 0;overflow:visible;background:transparent!important}
+      #studio-view:before{content:"";position:absolute;z-index:-1;top:clamp(235px,60vw,255px);left:-14px;right:-14px;height:clamp(255px,70vw,315px);background:url('./assets/ai-ppt-ambient-scene.webp') right top / auto 100% no-repeat;-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 58%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 58%,transparent 100%);pointer-events:none}
+      #studio-view .hero{display:block;position:relative;height:clamp(360px,98vw,410px);min-height:0;padding:19px 0 0;overflow:visible;background:transparent!important}
       #studio-view .hero:before{display:none!important}
       #studio-view .hero-copy{max-width:100%;width:100%;position:relative;z-index:2}
       #studio-view .hero .eyebrow{font-size:10px}
       #studio-view .hero h1{font-size:clamp(31px,8.4vw,38px);margin:11px 0 8px;max-width:360px}
       #studio-view .hero h1 em{display:block}
       #studio-view .hero p{font-size:13px;line-height:1.5;max-width:100%;color:#667294}
-      #studio-view .hero-summary-wide{display:none}
-      #studio-view .hero-summary-compact{display:block}
+      #studio-view .hero-summary-wide{display:block}
+      #studio-view .hero-summary-compact{display:none}
       #studio-view .hero-illustration{display:none!important}
-      @media(max-width:370px){#studio-view .hero{height:310px}#studio-view .hero h1{font-size:29px}}
+      @media(max-width:370px){#studio-view .hero{height:360px}#studio-view .hero h1{font-size:29px}}
       .workspace>.card{padding:16px;border-radius:22px}
       .form-columns{gap:0}
       .upload-column{display:none!important}
