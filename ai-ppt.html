@@ -329,7 +329,8 @@
     @media(max-width:780px){
       /* A dedicated portrait wallpaper sits behind the complete mobile studio. */
       #studio-view{position:relative;isolation:isolate}
-      #studio-view:before{content:"";position:absolute;z-index:-1;inset:0 -14px auto;height:178vw;max-height:780px;background:url('./assets/ai-ppt-mobile-ambient.webp') center top / 100% auto no-repeat;-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 74%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 74%,transparent 100%);pointer-events:none}
+      /* Fluid vertical offset: the artwork rises on wider phones without touching narrow-screen headings. */
+      #studio-view:before{content:"";position:absolute;z-index:-1;top:clamp(-60px,calc(205px - 64vw),0px);left:-14px;right:-14px;height:178vw;max-height:780px;background:url('./assets/ai-ppt-mobile-ambient.webp') center top / min(100%,440px) auto no-repeat;-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 74%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 74%,transparent 100%);pointer-events:none}
       #studio-view .hero{display:block;position:relative;height:clamp(310px,86vw,350px);min-height:0;padding:19px 0 0;overflow:visible;background:transparent!important}
       #studio-view .hero:before{display:none!important}
       #studio-view .hero-copy{max-width:100%;width:100%;position:relative;z-index:2}
