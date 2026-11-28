@@ -307,6 +307,86 @@
     .job-flow{grid-template-columns:repeat(3,minmax(0,1fr))}
     #job-check{display:none!important}
   </style>
+  <style>
+    /* V4: a quieter task list and a single, simple prompt composer. */
+    .prompt-composer{position:relative}
+    .composer-tools{display:none}
+    .task{background:linear-gradient(135deg,#ffffffed,#f8faffdf);border:1px solid #e1e8f7;box-shadow:0 7px 24px #7189bc13,inset 0 1px #fff;transition:transform .2s,box-shadow .2s}
+    .task:hover{transform:translateY(-2px);box-shadow:0 12px 28px #7189bc22}
+    .task-copy{min-width:0;flex:1}
+    .task h3,#job-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;overflow-wrap:anywhere;white-space:normal;line-height:1.5}
+    .task h3{font-size:16px;font-weight:750;color:#233a73;margin:0 0 10px}
+    .task p{font-size:12px;color:#96a2ba}
+    .task .status{font-size:12px;font-weight:700;color:#746bb3}
+    .task .status:before{background:#8a7be9}
+    .task[data-state="completed"] .status{color:#287d70}
+    .task[data-state="completed"] .status:before{background:#35b99d}
+    .task-right .button{font-size:12px;padding:10px 13px}
+    .task-detail{background:#ffffffaf!important;color:#5b6a95!important;border-color:#dbe3f5!important}
+    .job-detail.is-complete .job-flow,.job-detail.is-complete .job-progress-label,.job-detail.is-complete .job-meter{display:none}
+    .job-detail.is-complete{gap:20px}
+    @media(max-width:780px){
+      /* Give the freed upload space back to the hero illustration. */
+      #studio-view .hero{display:flex;flex-direction:column;height:auto;min-height:0;padding:17px 0 5px;overflow:visible}
+      #studio-view .hero-copy{max-width:100%;width:100%}
+      #studio-view .hero .eyebrow{font-size:10px}
+      #studio-view .hero h1{font-size:clamp(27px,7vw,35px);margin:10px 0 8px}
+      #studio-view .hero p{font-size:13px;line-height:1.5;max-width:100%}
+      #studio-view .hero-illustration{position:relative;display:block;inset:auto;opacity:1;width:100%;height:clamp(155px,41vw,225px);object-fit:contain;object-position:center;filter:drop-shadow(0 12px 18px #a1a0eb24);margin:1px auto 5px;transform:none}
+      .workspace>.card{padding:16px;border-radius:22px}
+      .form-columns{gap:0}
+      .upload-column{display:none!important}
+      .description-column{padding:0}
+      .description-column .card-title{font-size:16px;margin:0 0 11px}
+      .description-column .card-title:before{font-size:19px}
+      .prompt-composer{border:1px solid #c9d4ef;background:#ffffffc9;border-radius:19px;box-shadow:0 4px 16px #b1bae91a;overflow:hidden}
+      .form-text{height:122px;min-height:122px;width:100%;padding:16px 16px 5px;border:0!important;box-shadow:none!important;background:transparent;font-size:16px;line-height:1.55;border-radius:0}
+      .form-text:focus{outline:none}
+      .prompt-composer:focus-within{border-color:#8d8afa;box-shadow:0 0 0 3px #8d8afa1b}
+      .composer-tools{display:flex;align-items:center;gap:9px;min-height:53px;padding:7px 10px 9px 11px}
+      .composer-add{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border:1px solid #d4def3;border-radius:12px;background:linear-gradient(135deg,#f7faff,#edefff);color:#655fe1;touch-action:manipulation}
+      .composer-add:focus-visible{outline:3px solid #8884ee;outline-offset:2px}
+      .composer-add svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+      .composer-tip{font-size:12px;color:#94a0bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .composer-file{min-width:0;max-width:calc(100% - 52px);display:flex;align-items:center;gap:6px;padding:6px 7px 6px 11px;border-radius:11px;background:#e9edff;color:#5a5f9a;font-size:12px;font-weight:650}
+      .composer-file[hidden]{display:none}
+      .composer-file span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .composer-file button{border:0;background:transparent;color:#777bb1;font-size:19px;line-height:1;padding:1px 4px}
+      .composer-tools:has(.composer-file:not([hidden])) .composer-tip{display:none}
+      .design-direction-note{display:none}
+      .submit-row{margin-top:13px}
+      .submit-row .button.primary{border-radius:15px;min-height:51px;box-shadow:0 8px 19px #7475e341}
+      #tasks-view .hero{padding:20px 2px 13px!important}
+      #tasks-view .hero .eyebrow{display:none}
+      #tasks-view .hero h1{font-size:29px;margin:0 0 5px}
+      #tasks-view .hero p{font-size:13px;color:#8c97b3}
+      #tasks-view .section-head{margin:5px 0 13px;align-items:center}
+      #tasks-view .section-head h2{font-size:16px;margin:0}
+      #tasks-view .section-head p{display:none}
+      #tasks-view #clear-records{background:transparent;border:0;box-shadow:none;padding:7px;color:#97a1b9;font-size:12px}
+      .tasks{gap:11px}
+      .task{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:17px;border:1px solid #e3e9f6;border-radius:19px;box-shadow:0 5px 18px #94a4ce15;background:linear-gradient(140deg,#ffffffed,#f9faffed)}
+      .task:active{transform:scale(.995)}
+      .task h3{font-size:16px;line-height:1.47;margin:0 0 9px}
+      .task p{font-size:12px}
+      .task-right{width:100%;gap:9px;justify-content:flex-start;flex-wrap:wrap}
+      .task .status{margin-right:auto;font-size:12px}
+      .task-right .button{padding:8px 11px;min-height:36px;border-radius:11px;font-size:12px}
+      .task-right .task-download{box-shadow:none!important}
+      #job-view .job-detail{padding:20px 17px;gap:17px}
+      .job-top h2{font-size:19px!important;line-height:1.48}
+      .job-top .eyebrow{display:none}
+      .job-meta{font-size:11px;color:#9ca6bc}
+      .job-flow{display:none}
+      .job-focus{padding:20px 14px;border-radius:19px}
+      .job-focus-current{font-size:58px}
+      .job-complete{padding:16px;border-radius:18px}
+      .job-detail.is-complete .job-actions{grid-template-columns:1fr 1fr}
+      .job-detail.is-complete .job-actions #job-download{grid-column:1/-1}
+      .job-detail.is-complete .job-actions #job-back{grid-column:1/-1}
+      .job-detail.is-complete .job-live{display:none}
+    }
+  </style>
 </head>
 <body>
   <div class="stars" aria-hidden="true"></div>
@@ -340,9 +420,17 @@
                 <div id="selected" class="file-selected" hidden><div class="file-icon"><svg class="icon lg" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8"/></svg></div><div><strong id="filename"></strong><small id="filesize"></small></div><button type="button" class="remove" id="remove-file" aria-label="移除文件">×</button></div>
               </div>
               <div class="form-column description-column">
-                <h3 class="card-title"><span class="number">02</span>描述内容与设计效果</h3>
-                <label class="field-label" for="prompt">你希望制作怎样的 PPT？</label><textarea id="prompt" class="form-text" maxlength="6000" placeholder="例如：制作 10 页年度总结；浅色 AI 科技风、蓝紫渐变与 3D 毛玻璃；突出成果，保留原稿数据。"></textarea>
-                <p class="design-direction-note">✦ 页数、内容与风格都可以自由描述。</p>
+                <h3 class="card-title"><span class="number">02</span>告诉 AI 你的想法</h3>
+                <label class="field-label" for="prompt">你希望制作怎样的 PPT？</label>
+                <div class="prompt-composer">
+                  <textarea id="prompt" class="form-text" maxlength="6000" placeholder="例如：制作 5 页年度总结，蓝紫科技风，重点展示成果…"></textarea>
+                  <div class="composer-tools">
+                    <button id="mobile-add-file" class="composer-add" type="button" aria-label="添加 PPT、文档或图片素材" title="添加素材"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+                    <div id="mobile-selected" class="composer-file" hidden><span id="mobile-filename"></span><button id="mobile-remove-file" type="button" aria-label="移除已选素材">×</button></div>
+                    <span class="composer-tip">支持 PPT、文档和图片 · 可选</span>
+                  </div>
+                </div>
+                <p class="design-direction-note">页数、内容、风格，直接告诉 AI 就好。</p>
               </div>
             </div>
             <div class="submit-row"><div class="submit-note"><strong>逐页设计 · 导出高清 PPT</strong><small>有素材就上传，也可以只写文字。</small></div><button class="button primary" id="submit" type="button">开始 AI 设计</button></div>
@@ -350,7 +438,7 @@
         </div>
         <div class="process-rail" aria-label="设计流程"><div class="process-step"><span class="process-icon">⇧</span><span><strong>描述需求</strong><small>文字必填 · 素材可选</small></span></div><div class="process-step"><span class="process-icon">✦</span><span><strong>AI 逐页设计</strong><small>实时查看设计进度</small></span></div><div class="process-step"><span class="process-icon">▤</span><span><strong>导出 PPT</strong><small>获取高品质演示文稿</small></span></div></div>
       </section>
-      <section id="tasks-view" hidden><div class="hero" style="min-height:210px"><div class="hero-copy"><div class="eyebrow">YOUR DESIGN REQUESTS</div><h1>我的设计任务</h1><p>随时查看设计进度，完成后直接下载。</p></div><div class="visual" aria-hidden="true" style="opacity:.3"><div class="orb"></div><div class="ring"></div></div></div><div class="section-head"><div><h2>我的任务</h2><p>进度自动更新</p></div><button class="button" id="clear-records">清空记录</button></div><div class="tasks" id="tasks-list"></div></section>
+      <section id="tasks-view" hidden><div class="hero" style="min-height:210px"><div class="hero-copy"><div class="eyebrow">YOUR DESIGN REQUESTS</div><h1>我的设计任务</h1><p>设计进度与成品，都在这里。</p></div><div class="visual" aria-hidden="true" style="opacity:.3"><div class="orb"></div><div class="ring"></div></div></div><div class="section-head"><div><h2>任务列表</h2><p>自动更新</p></div><button class="button" id="clear-records">清空记录</button></div><div class="tasks" id="tasks-list"></div></section>
        <section id="job-view" hidden><div class="job-detail" id="job-card">
          <div class="job-top"><div><div class="eyebrow">TGG AI · DESIGN PROGRESS</div><h2 id="job-name">设计任务</h2><div id="job-meta" class="job-meta"></div></div><span id="job-badge" class="job-badge">正在提交</span></div>
          <div class="job-flow"><div class="job-stage" id="stage-upload">提交需求</div><div class="job-stage" id="stage-design">AI 设计</div><div class="job-stage" id="stage-export">生成 PPTX</div></div>
@@ -400,8 +488,9 @@
       function showTab(tab){var unchanged=!$(tab==='job'?'job-view':tab==='tasks'?'tasks-view':'studio-view').hidden;$('studio-view').hidden=tab!=='studio';$('tasks-view').hidden=tab!=='tasks';$('job-view').hidden=tab!=='job';document.querySelectorAll('[data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab===tab)});if(tab==='tasks'){renderTasks();refreshAllTasks()}if(!unchanged)window.scrollTo({top:0,behavior:'smooth'})}
       document.querySelectorAll('[data-tab]').forEach(function(btn){btn.addEventListener('click',function(){showTab(btn.dataset.tab)})});
       var file=$('file'),drop=$('dropzone');function prettySize(n){return n/1048576>=1?(n/1048576).toFixed(2)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
-      function setFile(f){if(!f)return;if(!f.size){toast('暂不支持空文件，请选择有内容的素材');return}if(f.size>200*1048576){toast('单个文件目前最大支持 200 MB');return}activeFile=f;drop.hidden=true;$('selected').hidden=false;$('filename').textContent=f.name;$('filesize').textContent=prettySize(f.size)+' · 已选择，尚未上传'}
-      drop.addEventListener('click',function(){file.click()});drop.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();file.click()}});file.addEventListener('change',function(){setFile(file.files[0])});drop.addEventListener('dragover',function(e){e.preventDefault();drop.classList.add('drag')});drop.addEventListener('dragleave',function(){drop.classList.remove('drag')});drop.addEventListener('drop',function(e){e.preventDefault();drop.classList.remove('drag');setFile(e.dataTransfer.files[0])});$('remove-file').addEventListener('click',function(){activeFile=null;file.value='';drop.hidden=false;$('selected').hidden=true});
+      function setFile(f){if(!f)return;if(!f.size){toast('暂不支持空文件，请选择有内容的素材');return}if(f.size>200*1048576){toast('单个文件目前最大支持 200 MB');return}activeFile=f;drop.hidden=true;$('selected').hidden=false;$('filename').textContent=f.name;$('filesize').textContent=prettySize(f.size)+' · 已选择，尚未上传';$('mobile-selected').hidden=false;$('mobile-filename').textContent=f.name;$('mobile-add-file').setAttribute('aria-label','更换素材')}
+      function removeFile(){activeFile=null;file.value='';drop.hidden=false;$('selected').hidden=true;$('mobile-selected').hidden=true;$('mobile-filename').textContent='';$('mobile-add-file').setAttribute('aria-label','添加 PPT、文档或图片素材')}
+      drop.addEventListener('click',function(){file.click()});drop.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();file.click()}});$('mobile-add-file').addEventListener('click',function(){file.click()});file.addEventListener('change',function(){setFile(file.files[0])});drop.addEventListener('dragover',function(e){e.preventDefault();drop.classList.add('drag')});drop.addEventListener('dragleave',function(){drop.classList.remove('drag')});drop.addEventListener('drop',function(e){e.preventDefault();drop.classList.remove('drag');setFile(e.dataTransfer.files[0])});$('remove-file').addEventListener('click',removeFile);$('mobile-remove-file').addEventListener('click',removeFile);
       document.addEventListener('paste',function(event){
         if(app.hidden)return;
         var clipboard=event.clipboardData, pasted=null;
@@ -447,7 +536,7 @@
         var done=Number(job.completedPages)||0,total=Number(job.totalPages)||0;
         $('job-card').classList.toggle('is-waiting',active);
          $('job-card').classList.toggle('is-complete',completed);
-        $('job-name').textContent=job.name;
+        $('job-name').textContent=job.brief&&job.brief.trim()?job.brief.trim():job.name;
         $('job-meta').textContent=job.id+' · '+(hasFile?prettySize(job.size):'纯文字创作')+(!job.r2&&job.style?' · '+job.style:'');
         $('job-badge').textContent=jobStatusLabel(job);$('job-badge').classList.toggle('is-live',active);
         $('job-status').textContent=waiting?'任务已提交，AI 开始设计后会自动更新进度。':jobStatusLabel(job);
@@ -647,13 +736,14 @@
         var list=$('tasks-list'),rows=loadRecords();list.replaceChildren();
         if(!rows.length){list.innerHTML='<div class="empty"><svg class="icon lg" viewBox="0 0 24 24" style="margin:auto"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 9h8M8 13h5"/></svg><strong>还没有设计任务</strong><p>回到创作工作台，创建你的第一个 PPT 设计任务。</p></div>';return}
         rows.forEach(function(job){
-          var box=document.createElement('article');box.className='task glass';
-          var left=document.createElement('div'),h=document.createElement('h3'),p=document.createElement('p');
-          h.textContent=job.name;p.textContent=job.id+' · '+new Date(job.createdAt).toLocaleString('zh-CN')+(job.size?' · '+prettySize(job.size):' · 纯文字创作');left.append(h,p);
+          var box=document.createElement('article');box.className='task glass';box.dataset.state=job.status;
+          var left=document.createElement('div'),h=document.createElement('h3'),p=document.createElement('p');left.className='task-copy';
+          h.textContent=job.brief&&job.brief.trim()?job.brief.trim():job.name;h.title=h.textContent;
+          p.textContent=new Date(job.createdAt).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})+(job.size?' · 已附素材':' · 文字创作');p.title=job.id;left.append(h,p);
           var right=document.createElement('div');right.className='task-right';
           var status=document.createElement('span');status.className='status';status.textContent=jobStatusLabel(job);right.append(status);
           if(job.status==='completed'&&job.r2){var download=document.createElement('button');download.className='button task-download';download.textContent='下载 PPT';download.addEventListener('click',function(){downloadPpt(job,download,null)});right.append(download)}
-          var detail=document.createElement('button');detail.className='button';detail.textContent=job.status==='completed'?'查看详情':'查看进度';detail.addEventListener('click',function(){paintJob(job);refreshJob()});right.append(detail);
+          var detail=document.createElement('button');detail.className='button task-detail';detail.textContent=job.status==='completed'?'查看详情':'查看进度';detail.addEventListener('click',function(){paintJob(job);refreshJob()});right.append(detail);
           box.append(left,right);list.append(box);
         });
       }
